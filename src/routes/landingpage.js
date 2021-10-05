@@ -1,9 +1,11 @@
 import LandingPage from "../pages/landingpage/homepage"
 import DisplayScore from "pages/landingpage/display";
+import Home from "pages/landingpage/home";
 
 const landingpageRouters = [
     { path: "/event/:username/:slug", component: LandingPage, exact: true },
-    { path: "/display/score", component: DisplayScore }
+    { path: "/display/score", component: DisplayScore },
+    { path: "/home", component: Home}
 
 ]
 

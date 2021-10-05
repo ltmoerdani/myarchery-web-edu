@@ -1,8 +1,9 @@
 // Dashboard
+import React from "react"
 import EventsNewFullday from "pages/dashboard/events/new/fullday"
 import EventsNewMarathon from "pages/dashboard/events/new/marathon"
 import ScoringNew from "pages/dashboard/scoring/new"
-import Dashboard from "../pages/dashboard"
+// import Dashboard from "../pages/dashboard"
 import ListCategory from "../pages/dashboard/category"
 import ListEvent from "../pages/dashboard/events"
 import EventsNew from "../pages/dashboard/events/new"
@@ -12,9 +13,10 @@ import ListResult from "pages/dashboard/results"
 import Bagan from "pages/dashboard/results/bagan"
 import EditResult from "pages/dashboard/results/edit"
 import ListSchedule from "../pages/dashboard/schedule"
+import { Redirect } from "react-router-dom"
 
 const dashboardRoutes = [
-  { path: "/dashboard", component: Dashboard },
+  { path: "/dashboard", component: () => <Redirect to="/dashboard/events" /> },
   { path: "/dashboard/events", component: ListEvent},
   { path: "/dashboard/member/:event_id", component: ListMember},
   { path: "/dashboard/category", component: ListCategory},
