@@ -106,7 +106,7 @@ function DisplayScore() {
             <div className="px-4 py-1 sticky-top bg-light d-flex justify-content-between">
           {/* <Row>
             <Col md={6}> */}
-              <Link to="/archer/dashboard">
+              <Link to="/dashboard">
               <div>
                 <img src={logomyarchery} width="91" />
               </div>
@@ -119,7 +119,7 @@ function DisplayScore() {
                 </div>
               ) : (
                   <div>
-                    <Link style={{padding:"20px"}} to={"/archer/login?path="+path}>
+                    <Link style={{padding:"20px"}} to={"/login?path="+path}>
                     <Button className="float-end" color="outline-dark">Masuk</Button>
                 </Link>
                     <Link>

@@ -17,17 +17,16 @@ import { getAuthenticationStore } from "store/slice/authentication";
 import { useSelector } from "react-redux";
 import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
 // import bgauth from "../../../assets/images/myachery/bg-landingpage.jpg"
-import logomyarchery from "../../../assets/images/myachery/myachery.png"
+import logomyarchery from "../../../assets/images/myachery/myachery.png";
 import Countdown from "react-countdown";
-import "./components/sass/landingpage.scss"
+import "./components/sass/landingpage.scss";
 // import { dummyHtml } from './components/htmldummy'
-
 
 const LandingPage = () => {
   const { slug } = useParams();
-  const [event, setEvent] = useState({})
+  const [event, setEvent] = useState({});
   const path = window.location.pathname;
-  
+
   useEffect(async () => {
     const { data, success } = await EventsService.getEventBySlug({ slug });
     if (success) {
@@ -73,9 +72,9 @@ const LandingPage = () => {
     const { innerWidth: width, innerHeight: height } = window;
     return {
       width,
-      height
+      height,
     };
-  }
+  };
 
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
@@ -90,8 +89,7 @@ const LandingPage = () => {
 
   // console.log(windowDimensions)
   let { isLoggedIn } = useSelector(getAuthenticationStore);
-  console.log(isLoggedIn)
-
+  console.log(isLoggedIn);
 
   return (
     <React.Fragment>
@@ -102,7 +100,7 @@ const LandingPage = () => {
         <div className="px-4 py-1 sticky-top bg-light d-flex justify-content-between">
           {/* <Row>
             <Col md={6}> */}
-              <Link to="/archer/dashboard">
+              <Link to="/dashboard">
               <div>
                 <img src={logomyarchery} width="91" />
               </div>
@@ -114,7 +112,7 @@ const LandingPage = () => {
                   <ProfileMenuArcher color="black" />
                 </div>
               ) : (
-                <Link style={{padding:"20px"}} to={"/archer/login?path="+path}>
+                <Link style={{padding:"20px"}} to={`/login?path=${path}`}>
                 <Button className="float-end" color="outline-dark">Masuk</Button>
               </Link>
                 )
