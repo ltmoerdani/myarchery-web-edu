@@ -1,52 +1,24 @@
 import React from "react";
 import { BrowserRouter as Router, Redirect, Switch } from "react-router-dom";
-import "./assets/scss/theme.scss";
-import {
-  AuthLayout,
-  DashboardHorizontalLayout,
-  DashboardEventUmum,
-  LandingPageLayout,
-  LayoutArcher,
-} from "./layouts";
 import { AuthenticationMiddleware, AuthenticationArcherMiddleware } from "./middlewares";
 import {
-  authenticationRoutes,
-  dashboardRoutes,
   workingRoutes,
   eventRouters,
   landingpageRouters,
   archerRouters,
   routerDasboardArcher,
 } from "./routes";
+import { AuthLayout, DashboardEventUmum, LandingPageLayout, LayoutArcher } from "./layouts";
+
+import "./assets/scss/theme.scss";
 
 const App = () => {
   return (
     <React.Fragment>
       <Router>
         <Switch>
-          {authenticationRoutes.map((route, idx) => (
-            <AuthenticationMiddleware
-              path={route.path}
-              layout={AuthLayout}
-              component={route.component}
-              key={idx}
-              isAuthProtected={false}
-              exact
-            />
-          ))}
-
-          {dashboardRoutes.map((route, idx) => (
-            <AuthenticationMiddleware
-              path={route.path}
-              layout={DashboardHorizontalLayout}
-              component={route.component}
-              key={idx}
-              isAuthProtected={true}
-              exact
-            />
-          ))}
           {workingRoutes.map((route, idx) => (
-            <AuthenticationMiddleware
+            <AuthenticationArcherMiddleware
               path={route.path}
               layout={AuthLayout}
               component={route.component}
@@ -66,7 +38,7 @@ const App = () => {
             />
           ))}
           {landingpageRouters.map((route, idx) => (
-            <AuthenticationMiddleware
+            <AuthenticationArcherMiddleware
               path={route.path}
               layout={LandingPageLayout}
               component={route.component}
