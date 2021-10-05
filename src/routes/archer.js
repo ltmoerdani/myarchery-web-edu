@@ -1,11 +1,11 @@
-import LoginArcher from "../pages/authArcher/login"
-import RegisterArcher from "../pages/authArcher/register"
-import Logout from "../pages/authArcher/logout"
+import LoginArcher from "../pages/authArcher/login";
+import RegisterArcher from "../pages/authArcher/register";
+import Logout from "../pages/authArcher/logout";
 
 const archerRouters = [
-    { path: "/archer/login", component: LoginArcher, exact: true},
-    { path: "/archer/register", component: RegisterArcher, exact: true},
-    { path: "/archer/logout", component: Logout, exact: true}
-]
+  { path: "/login", component: LoginArcher, exact: true },
+  { path: "/register", component: RegisterArcher, exact: true },
+  { path: "/logout", component: Logout, exact: true },
+];
 
-export default archerRouters
+export default archerRouters;

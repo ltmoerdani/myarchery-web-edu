@@ -13,10 +13,7 @@ const AuthenticationArcherMiddleware = ({
   isAuthProtected,
   ...rest
 }) => {
-  let { isLoggedIn } = useSelector(getAuthenticationStore);
-  // isLoggedIn = true;
-  // isAuthProtected = false
-
+  const { isLoggedIn } = useSelector(getAuthenticationStore);
   const dispatch = useDispatch();
 
   useEffect(async () => {
@@ -25,6 +22,7 @@ const AuthenticationArcherMiddleware = ({
       dispatch(AuthenticationStore.profile(data));
     }
   }, []);
+
   return (
     <Route
       {...rest}
@@ -33,7 +31,7 @@ const AuthenticationArcherMiddleware = ({
           return (
             <Redirect
               to={{
-                pathname: "/archer/login",
+                pathname: "/login",
                 state: { from: props.location },
               }}
             />

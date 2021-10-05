@@ -11,29 +11,27 @@ import ladBg from "assets/images/myachery/achery-lad.png";
 import React, { useEffect, useState } from "react";
 import MetaTags from "react-meta-tags";
 // import { useDispatch, useSelector } from "react-redux"
-  useLocation
+// useLocation;
 import { useHistory, Link, useLocation } from "react-router-dom";
 import { Col, Row, Container } from "reactstrap";
 import { ArcherService } from "services";
 //Import config
 import toastr from "toastr";
-import * as AuthenticationStore from "store/slice/authentication"
+import * as AuthenticationStore from "store/slice/authentication";
 import { useDispatch, useSelector } from "react-redux";
 
 const LoginArcher = (props) => {
-  const dispatch = useDispatch()
-  let history = useHistory()
+  const dispatch = useDispatch();
+  let history = useHistory();
   const [loginErrors, setLoginErrors] = useState();
-  const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore)
+  const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
   let path = new URLSearchParams(useLocation().search).get("path");
 
   const handleValidSubmit = async (event, values) => {
-    const { data, errors, message, success } = await ArcherService.login(
-      values
-    );
+    const { data, errors, message, success } = await ArcherService.login(values);
     if (success) {
       if (data) {
-        dispatch(AuthenticationStore.login(data))
+        dispatch(AuthenticationStore.login(data));
       }
     } else {
       console.log(errors);
@@ -43,24 +41,27 @@ const LoginArcher = (props) => {
   };
 
   useEffect(() => {
-    let pathFrom = props.location.state && props.location.state.from && props.location.state.from.pathname ? props.location.state.from.pathname : null;
-  
+    let pathFrom =
+      props.location.state && props.location.state.from && props.location.state.from.pathname
+        ? props.location.state.from.pathname
+        : null;
+
     if (isLoggedIn) {
       if (path == null) {
-        if (pathFrom != null){
-          history.push(pathFrom)        
-        }else{
-          history.push("/archer/dashboard")        
+        if (pathFrom != null) {
+          history.push(pathFrom);
+        } else {
+          history.push("/dashboard");
         }
-      }else{
-        history.push(path)
+      } else {
+        history.push(path);
       }
-    }else{
-      if (pathFrom != null && path == null && path != "/archer/logout"){
-        history.push("/archer/login?path="+pathFrom)
+    } else {
+      if (pathFrom != null && path == null && path != "/logout") {
+        history.push("/login?path=" + pathFrom);
       }
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn]);
 
   return (
     <React.Fragment>
@@ -111,9 +112,7 @@ const LoginArcher = (props) => {
             <Col md={7} sm={12} xs={12}>
               <div className="mx-auto w-50" style={{ paddingTop: "25vh" }}>
                 <div className="text-center">
-                  <h2 className="font-size-20 text-danger">
-                    Masuk ke myarchery.id
-                  </h2>
+                  <h2 className="font-size-20 text-danger">Masuk ke myarchery.id</h2>
                 </div>
                 <AvForm
                   className="form-horizontal"
@@ -131,9 +130,7 @@ const LoginArcher = (props) => {
                       required
                     />
                     {loginErrors?.email ? (
-                      <div className="validated-response">
-                        {loginErrors?.email.join(", ")}
-                      </div>
+                      <div className="validated-response">{loginErrors?.email.join(", ")}</div>
                     ) : null}
                   </div>
 
@@ -148,15 +145,8 @@ const LoginArcher = (props) => {
                   </div>
 
                   <div className="form-check">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      id="customControlInline"
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="customControlInline"
-                    >
+                    <input type="checkbox" className="form-check-input" id="customControlInline" />
+                    <label className="form-check-label" htmlFor="customControlInline">
                       Remember me
                     </label>
                   </div>
@@ -177,18 +167,21 @@ const LoginArcher = (props) => {
                     </Link> */}
                   </div>
                   <div className="mt-5 text-center">
-                <p>
-                  Belum memiliki akun daftar ?{" "}
-                  <Link to={path != null ? "/archer/register?path="+path :"/archer/register"} className="fw-medium text-primary">
-                    {" "}
-                    Disini{" "}
-                  </Link>{" "}
-                </p>
-                {/* <p>
+                    <p>
+                      Belum memiliki akun daftar ?{" "}
+                      <Link
+                        to={path != null ? "/register?path=" + path : "/register"}
+                        className="fw-medium text-primary"
+                      >
+                        {" "}
+                        Disini{" "}
+                      </Link>{" "}
+                    </p>
+                    {/* <p>
                   © {new Date().getFullYear()} Skote. Crafted with{" "}
                   <i className="mdi mdi-heart text-danger" /> by Themesbrand
                 </p> */}
-              </div>
+                  </div>
                 </AvForm>
                 {/* <div className="d-flex justify-content-center pt-5">
                   <img src={facebook} style={{ cursor: "pointer" }} />

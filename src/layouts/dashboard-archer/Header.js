@@ -11,7 +11,7 @@ import ProfileMenuArcher from "../../components/TopbarDropdown/ProfileMenuArcher
 // Import menuDropdown
 import LanguageDropdown from "../../components/TopbarDropdown/LanguageDropdown";
 
-const Header = props => {
+const Header = (props) => {
   const [isSearch, setSearch] = useState(false);
 
   return (
@@ -20,7 +20,7 @@ const Header = props => {
         <div className="navbar-header">
           <div className="d-flex">
             <div className="navbar-brand-box">
-              <Link to="/archer/dashboard" className="logo logo-dark">
+              <Link to="/dashboard" className="logo logo-dark">
                 <span className="logo-sm">
                   <img src={logo} alt="" height="22" />
                 </span>
@@ -29,7 +29,7 @@ const Header = props => {
                 </span>
               </Link>
 
-              <Link to="/archer/dashboard" className="logo logo-light">
+              <Link to="/dashboard" className="logo logo-light">
                 <span className="logo-sm">
                   <img src={logoLightSvg} alt="" height="22" />
                 </span>
@@ -53,11 +53,7 @@ const Header = props => {
 
             <form className="app-search d-none d-lg-block">
               <div className="position-relative">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search..."
-                />
+                <input type="text" className="form-control" placeholder="Search..." />
                 <span className="bx bx-search-alt" />
               </div>
             </form>
