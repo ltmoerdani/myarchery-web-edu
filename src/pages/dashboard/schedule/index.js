@@ -13,9 +13,9 @@ import { DateInput } from "components"
 import { ScheduleMemberService } from "services";
 import { useParams } from "react-router";
 import { LoadingScreen } from "components"
-
-import { Preview, print } from "react-html2pdf"
-
+import jsPDF from "jspdf"
+import pdfMake from "pdfmake/build/pdfmake"
+import pdfFont from "pdfmake/build/vfs_fonts"
 function ListMember() {
 
     const { event_id } = useParams();
@@ -25,11 +25,93 @@ function ListMember() {
     const [dateEnable, setDateEnable] = useState([]);
     const [list, setList] = useState([]);
     const [event, setEvent] = useState({});
+
+    pdfMake.vfs = pdfFont.pdfMake.vfs
     
     useEffect(() => {
         getSchedule()
       }, []);
+
+      const generatePDF = () => {
+          let dd = {
+              pageOrientation: 'landscape',
+              content: [
+                  {text: "The Hub Scoring 2021", alignment: 'center', bold: true, fontSize: 24, margin: [0, 0, 0, 16]},
+                  
+                  {
+                      columns: [
+                          {text: "Order ID:\t11111\nName:\t\tPutra\nJarak:\t\t50m\nDevisi:\t\tBarebow\nNo Target:\t2\t(A)\t(B)\nTanggal:\t28/8", bold: true, margin: [0, 0, 0, 16]},
+                          {text: "Order ID:\t11111\nName:\t\tPutra\nJarak:\t\t50m\nDevisi:\t\tBarebow\nNo Target:\t2\t(A)\t(B)\nTanggal:\t28/8", bold: true, margin: [0, 0, 0, 16]},
+
+                      ]
+                  },
+                  {
+                    columns: [
+                        {
+                            
+                            alignment: 'center',
+                            table: {
+                                heights: [20, 20, 20, 20, 20, 20, 20, 20],
+                                widths: [50, 0, 30, 30, 30, 30, 30, 30],
+                                body: 
+                                [
+                                    ['Seri', '', '', 'SCORE', '','','T2S',''],
+                                    ['1', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['2', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['3', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['4', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['5', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['6', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    [{text: "", colSpan: 5}, {}, {}, {}, {}, '', '', '    '],
+                                ]
+                            }
+                        },
+                        {
+                            alignment: 'center',
+                            table: {
+                                heights: [20, 20, 20, 20, 20, 20, 20, 20],
+                                widths: [50, 0, 30, 30, 30, 30, 30, 30],
+                                body: 
+                                [
+                                    ['Seri', '', '', 'SCORE', '','','T2S',''],
+                                    ['1', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['2', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['3', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['4', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['5', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    ['6', '', '', '', '', '', '', '    '],
+                                    ['', '', '', '', '', '', '', '    '],
+                                    [{text: "", colSpan: 5}, {}, {}, {}, {}, '', '', '    '],
+                                ]
+                            }
+                            
+                        },
+
+                    ]
+                },
+                {
+                    columns: [
+                        {qr: 'text in qr', fit: 50, margin: [0, 4, 0, 0]},
+                        {qr: 'text in qr', fit: 50, margin: [0, 4, 0, 0]},
+                    ]
+                },
+                  
+              ]
+          }
+          pdfMake.createPdf(dd).download();
     
+      }
     const getSchedule = async() =>{
         setLoading(true)
         const { data, errors, message, success } = await ScheduleMemberService.getEventSchedule({
@@ -87,19 +169,6 @@ function ListMember() {
                     <title>Dashboard | List - Member</title>
                 </MetaTags>
                 <Container fluid>
-                    <Button onClick={() => print('a', 'jsx-template')}>EXPORT PDF</Button>
-      <Preview id={'jsx-template'}>
-          <div>
-          <div className="row">
-                    <div className="col-6">
-                        <h1>PAGE 1</h1>
-                    </div>
-                    <div className="col-6">
-                    <h1>PAGE 2</h1>
-                    </div>
-                </div>
-          </div>
-      </Preview>
                 <Link to="/dashboard/events">
                     <Button color="outline-dark">{'<-'}</Button>
                 </Link>
@@ -108,7 +177,10 @@ function ListMember() {
                     <h3 style={{letterSpacing: '2px'}}>Jadwal Kualifikasi</h3>
                 </div>
                 <div className="mb-4">
+                    <div className="d-flex justify-content-between">
                     <h6>Pilih Jadwal</h6>
+                    <Button color="primary" onClick={generatePDF}>EXPORT PDF</Button>
+                    </div>
                     <div>
                         <Row>
                         <Col md={3} sm={12}>
