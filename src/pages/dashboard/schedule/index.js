@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react'
+/* eslint-disable no-unused-vars */
+import React, {useState, useEffect, useRef} from 'react'
 import { MetaTags } from 'react-meta-tags'
 import {
     Container,
@@ -12,6 +13,8 @@ import { DateInput } from "components"
 import { ScheduleMemberService } from "services";
 import { useParams } from "react-router";
 import { LoadingScreen } from "components"
+
+import { Preview, print } from "react-html2pdf"
 
 function ListMember() {
 
@@ -69,6 +72,13 @@ function ListMember() {
         setLoading(false)
     }
 
+    const pdfExportComponent = useRef(null);
+
+    const handleExportWithComponent = event => {
+        pdfExportComponent.current.save();
+      };
+
+
     return (
         <React.Fragment>
             <LoadingScreen loading={loading} />
@@ -77,6 +87,19 @@ function ListMember() {
                     <title>Dashboard | List - Member</title>
                 </MetaTags>
                 <Container fluid>
+                    <Button onClick={() => print('a', 'jsx-template')}>EXPORT PDF</Button>
+      <Preview id={'jsx-template'}>
+          <div>
+          <div className="row">
+                    <div className="col-6">
+                        <h1>PAGE 1</h1>
+                    </div>
+                    <div className="col-6">
+                    <h1>PAGE 2</h1>
+                    </div>
+                </div>
+          </div>
+      </Preview>
                 <Link to="/dashboard/events">
                     <Button color="outline-dark">{'<-'}</Button>
                 </Link>
