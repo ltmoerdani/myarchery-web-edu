@@ -248,7 +248,6 @@ function ListMember() {
                 <div className="mb-4">
                     <div className="d-flex justify-content-between">
                     <h6>Pilih Jadwal</h6>
-                    <Button color="primary" onClick={generatePDF}>EXPORT PDF</Button>
                     </div>
                     <div>
                         <Row>
@@ -265,7 +264,16 @@ function ListMember() {
                 <div className="mb-4">
                     <hr />
                 </div>
-                <TableSchedule member={member} getMemberSchedule={getMemberSchedule} event={event} date={date} list={list} />
+                <div>
+                    <Row>
+                        <Col md={2}>
+                        <Button color="primary" onClick={generatePDF}>EXPORT PDF</Button>
+                        </Col>
+                        <Col md={10}>
+                            <TableSchedule member={member} getMemberSchedule={getMemberSchedule} event={event} date={date} list={list} />
+                        </Col>
+                    </Row>
+                </div>
                 </Container>
             </div>
         </React.Fragment>
