@@ -9,9 +9,6 @@ import paginationFactory, {
 
 import ToolkitProvider from "react-bootstrap-table2-toolkit";
 
-// Data for dummy
-import { dummyConstants } from "../../../../constants";
-
 //Import Breadcrumb
 import "./sass/datatables.scss";
 
@@ -20,8 +17,8 @@ class TableScore extends Component {
     super(props);
     this.state = {
       page: 1,
-      sizePerPage: 10,
-      productData: dummyConstants.displayScore,
+      sizePerPage: this.props.member.length,
+      productData: this.props.member,
     };
   }
 
@@ -35,55 +32,50 @@ class TableScore extends Component {
       {
         dataField: "athlete",
         text: "Athlete",
-        sort: true,
+        sort: false,
       },
       {
-        dataField: "country-code",
-        text: "Country Code",
-        sort: true,
+        dataField: "club",
+        text: "Club",
+        sort: false,
       },
       {
-        dataField: "state-code",
-        text: "State Code",
-        sort: true,
+        dataField: "session_one",
+        text: "Sesi-1",
+        sort: false,
       },
       {
-        dataField: "50m-1",
-        text: "50m-1",
-        sort: true,
-      },
-      {
-        dataField: "50m-2",
-        text: "50m-2",
-        sort: true,
+        dataField: "session_two",
+        text: "Sesi-2",
+        sort: false,
       },
       {
         dataField: "total",
         text: "Tot",
-        sort: true,
+        sort: false,
       },
       {
         dataField: "10+x",
         text: "10+X",
-        sort: true,
+        sort: false,
       },
       {
         dataField: "x",
         text: "X",
-        sort: true,
+        sort: false,
       },
     ];
 
     const defaultSorted = [
       {
-        dataField: "id",
+        dataField: "pos",
         order: "asc",
       },
     ];
 
     const pageOptions = {
-      sizePerPage: 10,
-      totalSize: dummyConstants.displayScore.length, // replace later with size(customers),
+      sizePerPage: this.props.member.length,
+      totalSize: this.props.member.length, // replace later with size(customers),
       custom: true,
     };
 
@@ -101,17 +93,18 @@ class TableScore extends Component {
     return (
       <React.Fragment>
         <div className="col-12">
+          <h5 style={this.props.title.style}>{this.props.title.label}</h5>
           <PaginationProvider
             pagination={paginationFactory(pageOptions)}
             keyField="id"
             columns={columns}
-            data={this.state.productData}
+            data={this.props.member}
           >
             {({ paginationTableProps }) => (
               <ToolkitProvider
                 keyField="id"
                 columns={columns}
-                data={this.state.productData}
+                data={this.props.member}
                 search
               >
                 {(toolkitProps) => (
@@ -120,10 +113,19 @@ class TableScore extends Component {
                       <Col>
                         <div className="table-responsive">
                           <BootstrapTable
-                          rowStyle={{cursor: 'default'}}
                             keyField={"id"}
                             responsive
                             bordered={false}
+                            rowStyle={(row, rowIndex) => {
+                              if(rowIndex == 0)
+                                return {background:"rgb(217, 156, 14) none repeat scroll 0% 0%", color:"white"};
+                              if(rowIndex == 1)
+                                return {background:"rgb(198, 213, 207) none repeat scroll 0% 0%",color:"black"};
+                              if(rowIndex == 2)
+                                return {background:"rgb(142, 102, 72) none repeat scroll 0% 0%",color:"white"};
+                              if(rowIndex > 2 && rowIndex <= 10)
+                                return {background:"rgba(238, 236, 242, 0.44) none repeat scroll 0% 0%",color:"black"};
+                            }}
                             striped={false}
                             defaultSorted={defaultSorted}
                             classes={"table align-middle table-nowrap"}

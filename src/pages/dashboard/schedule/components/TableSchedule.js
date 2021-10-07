@@ -6,7 +6,7 @@ import { Row,
   CardBody, 
   Table} from "reactstrap";
 
-const TableSchedule = ({event,date, errorMessage,list, member, getMemberSchedule}) => {
+const TableSchedule = ({event,date, errorMessage,list, member,showScorebox, getMemberSchedule}) => {
   useEffect(() => {
     console.log("event",event);
     console.log("list",list);
@@ -49,9 +49,14 @@ return (
                                                       <td>
                                                         {s.totalBooking > 0 ?
                                                           member[i.date+"-"+s.id] ?
-                                                          member[i.date+"-"+s.id].map((m)=>(
+                                                          member[i.date+"-"+s.id].map((m,i)=>(
                                                             <div key={i.date+"-"+s.id}>
-                                                                <p>{m.member.name} ({m.categoryLabel})</p>
+                                                                <p>{i+1}. {m.member.name} ({m.categoryLabel}) 
+                                                                  {m.isScoring == 0 ?
+                                                                  <button onClick={()=>{showScorebox(m)}}>set score</button>
+                                                                    : null  
+                                                                }
+                                                                </p>
                                                             </div>
                                                           )) : 
                                                           <p style={{textAlign:"center"}}>

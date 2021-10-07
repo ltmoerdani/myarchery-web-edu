@@ -9,7 +9,7 @@ import {
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
 import TableSchedule from './components/TableSchedule'
-import { DateInput } from "components"
+import { DateInput, BoxSetScoring } from "components"
 import { ScheduleMemberService } from "services";
 import { useParams } from "react-router";
 import { LoadingScreen } from "components"
@@ -17,6 +17,29 @@ import jsPDF from "jspdf"
 import pdfMake from "pdfmake/build/pdfmake"
 import pdfFont from "pdfmake/build/vfs_fonts"
 function ListMember() {
+    const scoreSeries = [
+        {"color":"white","background":"#8c8cbb none repeat scroll 0% 0%","seri":1},
+        {"color":"white","background":"#0c8cbb none repeat scroll 0% 0%","seri":2},
+        {"color":"white","background":"#47733e none repeat scroll 0% 0%","seri":3},
+        {"color":"white","background":"rgb(187, 140, 162) none repeat scroll 0% 0%","seri":4},
+        {"color":"white","background":"rgb(160, 78, 206) none repeat scroll 0% 0%","seri":5},
+        {"color":"white","background":"rgb(206, 150, 78) none repeat scroll 0% 0%","seri":6},
+    ];
+    const shot_per_seri = [1,2,3,4,5,6];
+    const score = [
+      {"label":"m","value":"m"},
+      {"label":"1","value":"1"},
+      {"label":"2","value":"2"},
+      {"label":"3","value":"3"},
+      {"label":"4","value":"4"},
+      {"label":"5","value":"5"},
+      {"label":"6","value":"6"},
+      {"label":"7","value":"7"},
+      {"label":"8","value":"8"},
+      {"label":"9","value":"9"},
+      {"label":"10","value":"10"},
+      {"label":"x","value":"x"}
+    ];
 
     const { event_id } = useParams();
     const [date, setDate] = useState("");
@@ -24,9 +47,11 @@ function ListMember() {
     const [member, setMember] = useState([])
     const [dateEnable, setDateEnable] = useState([]);
     const [list, setList] = useState([]);
+    const [totalPerSeri, setTotalPerSeri] = useState({});
     const [event, setEvent] = useState({});
 
     pdfMake.vfs = pdfFont.pdfMake.vfs
+    const [memberScore, setMemberScore] = useState({});
     
     useEffect(() => {
         getSchedule()
@@ -179,8 +204,23 @@ function ListMember() {
               ]
           }
           pdfMake.createPdf(dd).download();
+        }
     
-      }
+    const showScorebox = (memberDetail)=>{
+        let ms = [];
+        let ts = [];
+        scoreSeries.map((ss)=>{
+            let scorePerSesi = [];
+            shot_per_seri.map((sps)=>{
+                scorePerSesi[sps] = score[0]
+            })
+            ts[ss.seri] = 0;
+            ms[ss.seri] = scorePerSesi;
+        })
+        setTotalPerSeri(ts);
+        setMemberScore({no_target:"",participant:memberDetail,scors:ms});
+    }
+
     const getSchedule = async() =>{
         setLoading(true)
         const { data, errors, message, success } = await ScheduleMemberService.getEventSchedule({
@@ -235,7 +275,7 @@ function ListMember() {
             <LoadingScreen loading={loading} />
             <div className="page-content">
                 <MetaTags>
-                    <title>Dashboard | List - Member</title>
+                    <title>Dashboard | Schedule</title>
                 </MetaTags>
                 <Container fluid>
                 <Link to="/dashboard/events">
@@ -270,7 +310,11 @@ function ListMember() {
                         <Button color="primary" onClick={generatePDF}>EXPORT PDF</Button>
                         </Col>
                         <Col md={10}>
-                            <TableSchedule member={member} getMemberSchedule={getMemberSchedule} event={event} date={date} list={list} />
+                            {Object.keys(memberScore).length == 0 ?
+                                <TableSchedule member={member} getMemberSchedule={getMemberSchedule} showScorebox={showScorebox} event={event} date={date} list={list} />
+                                :
+                                <BoxSetScoring setTotalPerSeri={setTotalPerSeri} totalPerSeri={totalPerSeri} memberScore={memberScore} shot_per_seri={shot_per_seri} score={score} setMemberScore={setMemberScore} scoreSeries={scoreSeries}/>
+                            }
                         </Col>
                     </Row>
                 </div>

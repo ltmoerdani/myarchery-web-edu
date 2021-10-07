@@ -4,7 +4,7 @@ import Home from "pages/landingpage/home";
 
 const landingpageRouters = [
     { path: "/event/:username/:slug", component: LandingPage, exact: true },
-    { path: "/display/score", component: DisplayScore },
+    { path: "/display/score/:slug", component: DisplayScore},
     { path: "/home", component: Home}
 
 ]

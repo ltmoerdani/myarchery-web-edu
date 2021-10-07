@@ -1,4 +1,5 @@
 export { default as Breadcrumbs } from './Common/Breadcrumb';
+export { default as BoxSetScoring } from './Common/BoxSetScoring';
 export { default as CheckboxInput } from './Form/CheckboxInput';
 export { default as CheckboxWithCurrencyInput } from './Form/CheckboxWithCurrencyInput';
 export { default as CurrencyInput } from './Form/CurrencyInput';
