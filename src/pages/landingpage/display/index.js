@@ -29,9 +29,24 @@ function DisplayScore() {
     const [eventDetail, setEventDetail] = useState({});
     const [category, setCategory] = useState({});
     const [gender, setGender] = useState(null);
+    useEffect(() => {
+          if(eventDetail.id == undefined){
+            getEvent()
+          }
 
-    useEffect(async () => {
-      try {
+          filterScoringGender();
+          const interval = setInterval(
+            () => filterScoringGender(),
+            5000
+          );
+
+          return () => {
+            clearInterval(interval);
+          };
+
+      }, [category,gender]);
+
+      const getEvent = async () =>{
           const { data, errors, success, message } = await EventsService.getEventBySlug(
               {slug}
           );
@@ -41,18 +56,14 @@ function DisplayScore() {
                   let cat = {...data.flatCategories[0],
                     id: `${data.flatCategories[0].teamCategoryId}.${data.flatCategories[0].ageCategoryId}.${data.flatCategories[0].competitionCategoryId}.${data.flatCategories[0].distanceId}`,
                     "label":data.flatCategories[0].archeryEventCategoryLabel}
-                  await filterScoringGender(data.id,cat)
-                }
+                  setCategory(cat);
+              }
           } else {
               console.log(message, errors);
           }
-          } catch (error) {
-          console.log(error);
-          }
-      }, []);
+      }
 
       const getScoring = async (event_id,category,gender = null) => {
-        setCategory(category);
         const { data, errors, success, message } = await EventsService.getEventMemberScoring(
           {
             "event_id":event_id,
@@ -88,13 +99,12 @@ function DisplayScore() {
         }
       }
 
-      const filterScoringGender = async (event_id,category,gender = null) => {
-        setGender(gender);
+      const filterScoringGender = async () => {
         if (gender == null) {
-          getScoring(event_id,category,"male")        
-          getScoring(event_id,category,"female")        
+          await getScoring(eventDetail.id,category,"male")        
+          await getScoring(eventDetail.id,category,"female")        
         }else{
-          getScoring(event_id,category,gender)
+          await getScoring(eventDetail.id,category,gender)
         }
       }
     let { isLoggedIn } = useSelector(getAuthenticationStore);
@@ -161,7 +171,7 @@ function DisplayScore() {
                                 {/* <div className="d-block d-md-flex justify-content-between"> */}
                                     <SelectInput
                                         name='jenis'
-                                        onChange={(v) => {filterScoringGender(eventDetail.id,v.value)}}
+                                        onChange={(v) => {setCategory(v.value)}}
                                         options={
                                             eventDetail?.flatCategories?.map((option) => {
                                               return {
@@ -176,9 +186,9 @@ function DisplayScore() {
                   </Col>
                   <Col md={4} sm={12}>
                       <div className="d-block d-md-flex mt-md-0 mt-3">
-                        <Button onClick={()=>filterScoringGender(eventDetail.id,category,null)} color={gender == null ? "dark" : "outline-dark"}>Semua</Button>
-                        <Button onClick={()=>filterScoringGender(eventDetail.id,category,"male")} color={gender == "male" ? "dark" : "outline-dark"}>Laki Laki</Button>
-                        <Button onClick={()=>filterScoringGender(eventDetail.id,category,"female")} color={gender == "female" ? "dark" : "outline-dark"}>Perempuan</Button>
+                        <Button onClick={()=>setGender(null)} color={gender == null ? "dark" : "outline-dark"}>Semua</Button>
+                        <Button onClick={()=>setGender("male")} color={gender == "male" ? "dark" : "outline-dark"}>Laki Laki</Button>
+                        <Button onClick={()=>setGender("female")} color={gender == "female" ? "dark" : "outline-dark"}>Perempuan</Button>
                       </div>
                   </Col>
                 </Row>
