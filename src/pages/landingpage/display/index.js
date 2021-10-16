@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import MetaTags from "react-meta-tags";
 import { SelectInput } from '../../../components'
 import {
@@ -29,6 +29,8 @@ function DisplayScore() {
     const [eventDetail, setEventDetail] = useState({});
     const [category, setCategory] = useState({});
     const [gender, setGender] = useState(null);
+    const memberScoringOld = useRef({male:[],female:[],animationDuration:"flashing"})
+    const memberScoring = useRef({male:[],female:[]})
     useEffect(() => {
           if(eventDetail.id == undefined){
             getEvent()
@@ -36,7 +38,7 @@ function DisplayScore() {
 
           filterScoringGender();
           const interval = setInterval(
-            () => filterScoringGender(),
+            () => {filterScoringGender()},
             5000
           );
 
@@ -76,21 +78,42 @@ function DisplayScore() {
             if (data) {
               let m =[];
               data.map((d,i)=>{
-                m.push({"id": d.member.id,
-                  "pos": i+1,
+                let condition = "";
+                let pos = i+1;
+                let oldPos = i+1;
+                if(gender == "male" && memberScoringOld.current.male[d.member.id] != undefined){
+                  oldPos = memberScoringOld.current.male[d.member.id].pos; 
+                }
+                if(gender == "female" && memberScoringOld.current.female[d.member.id] != undefined){
+                  oldPos = memberScoringOld.current.female[d.member.id].pos; 
+                }
+                if(oldPos < pos){
+                  condition = <label style={{color:"red"}} className="dripicons-arrow-thin-down"></label>;
+                }
+                if(oldPos > pos){
+                  condition = <label style={{color:"green"}} className="dripicons-arrow-thin-up"></label>;
+                }
+                m[d.member.id] = {"id": d.member.id,
+                  "pos": pos,
+                  "pos_condition":condition,
                   "athlete": d.member.name,
                   "club": d.member.club,
                   "session_one": d.sessions[1].total,
                   "session_two": d.sessions[2].total,
-                  "total": d.total,
+                  "total": d.total,//i==4 ? new Date().getUTCMilliseconds() : d.total,
                   "10+x": d.totalXPlusTen,
                   "x":d.totalX
-                })}
+                }}
               )
                 if (gender == "male") {
+                  memberScoringOld.current.male = memberScoring.current.male;                
+                  memberScoringOld.current.animationDuration = memberScoringOld.current.animationDuration == "flashing" ? "flashing-2": "flashing";                
+                  memberScoring.current.male = m;
                   setMemberScoringMale(m);                  
                 }
                 if (gender == "female") {
+                  memberScoringOld.current.female = memberScoring.current.female;                
+                  memberScoring.current.female = m;
                   setMemberScoringFemale(m);                  
                 }
               }
@@ -100,6 +123,7 @@ function DisplayScore() {
       }
 
       const filterScoringGender = async () => {
+        console.log("ev",memberScoringOld);
         if (gender == null) {
           await getScoring(eventDetail.id,category,"male")        
           await getScoring(eventDetail.id,category,"female")        
@@ -195,10 +219,10 @@ function DisplayScore() {
                 <hr />
                 </div>
                 {gender == "male" || gender == null ? 
-                  <TableScore title={{style:{color:"blue"},label:"Laki-laki"}} member={memberScoringMale} />
+                  <TableScore title={{style:{color:"blue"},label:"Laki-laki"}} member={memberScoringMale} animationDuration={memberScoringOld.current.animationDuration} memberOld={memberScoringOld.current.male} />
                 :null}
                 {gender == "female" || gender == null ? 
-                  <TableScore title={{style:{color:"#e12c4b"},label:"Perempuan"}} member={memberScoringFemale} />
+                  <TableScore title={{style:{color:"#e12c4b"},label:"Perempuan"}} member={memberScoringFemale} animationDuration={memberScoringOld.current.animationDuration} memberOld={memberScoringOld.current.female} />
                 :null}
         </Container>
         <Footer />
