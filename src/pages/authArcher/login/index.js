@@ -111,11 +111,6 @@ const LoginArcher = (props) => {
             <Col md={7} sm={12} xs={12}>
               <div className="mx-auto w-50" style={{ paddingTop: "25vh" }}>
                 <div className="text-center">
-                  <div>
-                    <div className="mb-2 py-2 font-size-14" style={{background: '#F2F8FF'}}>
-                      <i className="bx bx-info-circle"></i><span className="ms-2 k-font-weight-bold">Anda harus login untuk mendaftar lomba</span>
-                    </div>
-                  </div>
                   <h2 className="font-size-20 text-danger">
                     Masuk ke myarchery.id
                   </h2>
