@@ -44,7 +44,7 @@ const Header = props => {
               className="btn btn-sm px-3 font-size-16 d-lg-none header-item"
               data-toggle="collapse"
               onClick={() => {
-                props.toggleLeftmenu(!props.leftMenu);
+                props.openLeftMenuCallBack(!props.isMenuOpened);
               }}
               data-target="#topnav-menu-content"
             >

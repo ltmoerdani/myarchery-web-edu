@@ -20,12 +20,16 @@ import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
 import logomyarchery from "../../../assets/images/myachery/myachery.png"
 import Countdown from "react-countdown";
 import "./components/sass/landingpage.scss"
+// import UserCard from "./components/UserCard";
+import CardEventCategoty from "./components/CardEventCategoty";
+import { CategoryService } from "services"
 // import { dummyHtml } from './components/htmldummy'
 
 
 const LandingPage = () => {
   const { slug } = useParams();
   const [event, setEvent] = useState({})
+  const [eventDetail, setEventDetail] = useState();
   const path = window.location.pathname;
   
   useEffect(async () => {
@@ -79,18 +83,42 @@ const LandingPage = () => {
 
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
+  const getCategory = async() => {
+    try {
+      const slugData = { slug };
+      const { data, errors, success, message } = await CategoryService.get(
+        slugData
+      );
+
+      if (success) {
+        if (data) {
+          setEventDetail(data);
+        }
+      } else {
+        console.log(message, errors);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     function handleResize() {
       setWindowDimensions(getWindowDimensions());
     }
-
+    getCategory();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // console.log(windowDimensions)
   let { isLoggedIn } = useSelector(getAuthenticationStore);
-  console.log(isLoggedIn)
+
+  let formatter = new Intl.NumberFormat("id-ID", {
+    style: 'currency',
+    currency: 'IDR',
+  })
+
 
 
   return (
@@ -144,7 +172,7 @@ const LandingPage = () => {
                 </CardBody>
               </Card>
                 <div className="button-items mt-4">
-                  <a  target="_blank" rel="noreferrer" href={`/event/register/process/${slug}`} className="btn btn-success me-1 w-100">
+                  <a href="#categories" className="btn btn-success me-1 w-100">
                     DAFTAR EVENT
                   </a>
                 </div>
@@ -162,6 +190,25 @@ const LandingPage = () => {
                       {/* <a target="_blank" rel="noreferrer" href={event?.handbook} download>
                       <Button color="success">Download Technical Handbook</Button>
                       </a> */}
+                      <hr />
+                      <div id="categories">
+                        <h3>Kategori Lomba</h3>
+                        <div className="mt-4">
+                          {eventDetail?.flatCategories.map((option) => {
+                            return(
+                              <CardEventCategoty 
+                              key={option.competitionCategoryId} 
+                              title={option.archeryEventCategoryLabel}
+                              price={formatter.format(option.price)} 
+                              quota={false} 
+                              slug={slug}
+                              isLoggedIn={isLoggedIn}
+                              eventData={option}
+                              />
+                            )
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   {/* Detail data hardcode */}
@@ -183,10 +230,31 @@ const LandingPage = () => {
                 </CardBody>
               </Card>
                 <div className="button-items mt-4">
-                  <a  target="_blank" rel="noreferrer" href={`/event/register/process/${slug}`} className="btn btn-success me-1 w-100">
+                  <a   href="#categories" className="btn btn-success me-1 w-100">
                     DAFTAR EVENT
                   </a>
                 </div>
+                <Card className="bg-secondary bg-opacity-25 mt-2">
+                  <CardBody>
+                    <p>Temukan dan daftarkan kebih banyak event panahan terbaru di myachery.id</p>
+                    <a className="text-success float-end">Ke myachery.id</a>
+                  </CardBody>
+                </Card>
+                {/* <Card className="mt-4">
+                  <CardHeader>
+                    <div className="text-center">
+                      Live Score (23/09/2021)
+                    </div>
+                    <div>
+                      <h4 className="text-primary">U-12 RECURVE INDIVIDU</h4>
+                    </div>
+                  </CardHeader>
+                  <CardBody>
+                      <UserCard pos={1} />
+                      <UserCard pos={2} />
+                      <UserCard pos={3} />
+                  </CardBody>
+                </Card> */}
                 <div className="button-items mt-4">
                   <a  target="_blank" rel="noreferrer" href={`/display/score/${slug}`} className="btn btn-warning me-1 w-100">
                     LIVE SCORING

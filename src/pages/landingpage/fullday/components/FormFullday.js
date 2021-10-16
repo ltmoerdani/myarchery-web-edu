@@ -19,7 +19,7 @@ import { FulldayFormStep2 } from "./FulldayFormStep2";
 import styled from "styled-components";
 import { OrderEventService } from "../../../../services";
 import { selectConstants } from "constants/index";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 //SweetAlert
 import SweetAlert from "react-bootstrap-sweetalert";
 import { LoadingScreen } from "components"
@@ -36,7 +36,7 @@ const Td = styled.td`
   padding-top: 20px;
 `;
 
-const FormFullday = ({ onFormFieldChange, formData, eventDetail }) => {
+const FormFullday = ({ onFormFieldChange, formData, eventDetail, slug }) => {
   formData.type = selectConstants.fulldayAudience[0];
   const history = useHistory();
   const [activeTab, setactiveTab] = useState(1);
@@ -110,6 +110,11 @@ const FormFullday = ({ onFormFieldChange, formData, eventDetail }) => {
       <div>
         <Card>
           <CardBody>
+            <div className="mb-2">
+              <Link to={`/event/pro-archery/${slug}`}>
+                <Button color="light">{'<-'}</Button>
+              </Link>
+            </div>
             <div className="wizard clearfix">
               <div className="steps clearfix">
                 <ul>
@@ -197,7 +202,7 @@ const FormFullday = ({ onFormFieldChange, formData, eventDetail }) => {
                                     <Td>
                                       <strong>
                                         {formData.categoryEvent
-                                          ? formData.categoryEvent.label
+                                          ? formData.categoryEvent.archeryEventCategoryLabel
                                           : ""}
                                       </strong>
                                     </Td>
