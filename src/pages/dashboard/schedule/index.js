@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom'
 import TableSchedule from './components/TableSchedule'
 import { DateInput, BoxSetScoring } from "components"
 import { ScheduleMemberService } from "services";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { LoadingScreen } from "components"
 import jsPDF from "jspdf"
 import pdfMake from "pdfmake/build/pdfmake"
