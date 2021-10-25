@@ -6,12 +6,14 @@ import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
 import logomyarchery from "../../../assets/images/myachery/myachery.png"
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
+import ListEliminasit from './components/ListEliminasit';
 // import TableEliminasi from './components/TableEliminasi';
 
 function DisplayEliminasi() {
     // const [eventDetail, setEventDetail] = useState({});
 
     let { isLoggedIn } = useSelector(getAuthenticationStore);
+    const path = window.location.pathname;
     return (
         <React.Fragment>
             <MetaTags>
@@ -71,58 +73,25 @@ function DisplayEliminasi() {
             </div>
             <hr />
             <div className="mt-4">
-                <Row>
-                    <Col>
+            <Row>
+                    <Col md={1}>
                         <div>Regu</div>
                     </Col>
-                    <Col>
+                    <Col md={1}>
                         <div>Bantalan</div>
                     </Col>
-                    <Col>
+                    <Col md={4}>
                         <div>Peserta 1</div>
                     </Col>
-                    <Col></Col>
-                    <Col>
+                    <Col md={2}></Col>
+                    <Col md={4}>
                         <div>Peserta 2</div>
                     </Col>
                 </Row>
-                <Row>
-                    <Col>
-                        <div>A</div>
-                    </Col>
-                    <Col>
-                        <div>Bantalan 1</div>
-                    </Col>
-                    <Col>
-                        <div className="d-flex align-items-center">
-                            <div>
-                                <div>
-                                ASEP
-                                </div>
-                                <small>FAST</small>
-                            </div>
-                            <div>
-                                <span className="bg-primary rounded-pill text-white ms-2">Peringkat 1</span>
-                            </div>
-                        </div>
-                    </Col>
-                    <Col>
-                        VS
-                    </Col>
-                    <Col>
-                    <div className="d-flex align-items-center">
-                            <div>
-                                <div>
-                                David McHenry
-                                </div>
-                                <small>INDIV</small>
-                            </div>
-                            <div>
-                                <span className="bg-primary rounded-pill text-white ms-2">Peringkat 1</span>
-                            </div>
-                        </div>
-                    </Col>
-                </Row>
+                <ListEliminasit />                
+                <ListEliminasit />                
+                <ListEliminasit />                
+                <ListEliminasit />                
             </div>
         </Container>
         </React.Fragment>
