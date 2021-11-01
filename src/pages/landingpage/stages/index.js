@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
-import { Bracket, Seed, SeedItem, SeedTeam } from 'react-brackets'
-import { Container, Card, CardBody, Button } from 'reactstrap'
+import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from 'react-brackets'
+import { Container, Card, CardBody, Button, Row, Col } from 'reactstrap'
 import MetaTags from "react-meta-tags";
 import { Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
@@ -9,93 +9,47 @@ import { getAuthenticationStore } from "store/slice/authentication";
 import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
 import { Elimination, EventsService } from "services"
 import { useParams } from "react-router-dom";
+import { SelectInput } from "components"
+  
+const CustomSeed = ({seed, breakpoint}) => {
+  // breakpoint passed to Bracket component
+  // to check if mobile view is triggered or not
 
-// const rounds = [
-//     {
-//       title: 'Round one',
-//       seeds: [
-//         {
-//           id: 1,
-//           date: new Date().toDateString(),
-//           teams: [{ name: 'Team A', lose: 2 }, { name: 'Team B', lose: 1 }],
-//         },
-//         {
-//           id: 2,
-//           date: new Date().toDateString(),
-//           teams: [{ name: 'Team C', lose: 1 }, { name: 'Team D', lose : 2 }],
-//         },
-//         {
-//           id: 3,
-//           date: new Date().toDateString(),
-//           teams: [{ name: 'Team E', lose: 0 }, { name: 'Team F', lose: 0 }],
-//         },
-//         {
-//           id: 4,
-//           date: new Date().toDateString(),
-//           teams: [{ name: 'Team G', lose: 0 }, { name: 'Team H', lose: 0 }],
-//         },
-//       ],
-//     },
-//     {
-//       title: 'Round two',
-//       seeds: [
-//         {
-//           id: 5,
-//           date: new Date().toDateString(),
-//           teams: [{ name: 'Team A' }, { name: 'Team D' }],
-//         },
-//         {
-//           id: 6,
-//           date: new Date().toDateString(),
-//           teams: [{ name: 'Team E' }, { name: 'Team H' }],
-//         },
-//       ],
-//     },
-//     {
-//         title: 'Round Three',
-//         seeds: [
-//             {
-//                 id: 6,
-//                 date: new Date().toDateString(),
-//                 teams: [{ name: 'Team A', lose: 2}, { name: 'Team H', lose: 1}],
-//             },
-//         ],
-//     },
-//   ];
-  
-  const CustomSeed = ({seed, breakpoint}) => {
-    // breakpoint passed to Bracket component
-    // to check if mobile view is triggered or not
-  
-    // mobileBreakpoint is required to be passed down to a seed
-    return (
-      <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
-        <SeedItem>
-          <div>
-            { seed.teams[0].lose && seed.teams[1].lose ?
-            (
-              <div>
-                <SeedTeam style={{ color: `${seed.teams[0].lose == 1 ? "#757575" : "white"}`, background: `${seed.teams[0].lose == 1 ? "#E2E2E2" : "#BC8B2C"}` }}>{seed.teams[0]?.name || 'NO TEAM '}</SeedTeam>
-                <SeedTeam style={{ color: `${seed.teams[1].lose == 2 ? "white" : "#757575"}`, background: `${seed.teams[1].lose == 2 ? "#BC8B2C" : "#E2E2E2"}`}}>{seed.teams[1]?.name || 'NO TEAM '}</SeedTeam>
-              </div>
-            ):(
-              <div>
-              <SeedTeam>{seed.teams[0]?.name || 'NO TEAM '}</SeedTeam>
-              <SeedTeam>{seed.teams[1]?.name || 'NO TEAM '}</SeedTeam>
-              </div>
-            )
+  // mobileBreakpoint is required to be passed down to a seed
+  return (
+    <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
+      <SeedItem>
+        <div>
+            {
+                seed.teams.map((team) => {
+                  return(
+                      team.win != undefined ? 
+                      team.win == 1 ? 
+                      <SeedTeam style={{ borderBottom: "2px solid black", color: "white", background: "#BC8B2C" }}>{team?.name || "<not have participant>"}</SeedTeam> 
+                      :
+                      <SeedTeam style={{ borderBottom: "2px solid black", color: "#757575", background: "#E2E2E2"}}>{team?.name || "<not have participant>"}</SeedTeam>
+                      :   
+                      <SeedTeam style={{ borderBottom: "2px solid white"}}>{team?.name || '<not have participant>'}</SeedTeam>
+                  )
+                })
             }
-          </div>
-        </SeedItem>
-      </Seed>
-    );
-  };
+        </div>
+      </SeedItem>
+      <SeedTime>{seed.date}</SeedTime>
+    </Seed>
+  );
+};
 
 function Stages() {
   const [eventDetail, setEventDetail] = useState({});
   const [elimination, setElimination] = useState({});
   const { slug } = useParams();
-
+  const [category, setCategory] = useState(0)
+  const genderOptions = [
+    { id: "male", label: "Laki-laki" }, 
+    { id: "female", label: "Perempuan" }, 
+  ]
+  const [gender, setGender] = useState(genderOptions[0]);
 
   const getEvent = async () =>{
     const { data, errors, success, message } = await EventsService.getEventBySlug(
@@ -103,6 +57,7 @@ function Stages() {
     );
     if (success) {
         if (data) {
+            setCategory(data.categories[0]);
             setEventDetail(data);
         }
     } else {
@@ -110,8 +65,15 @@ function Stages() {
     }
 }
 
-    const getElimination = async (event_id) => {
-      const {message, errors, data } = await Elimination.getEventElimination({"event_id":event_id})
+    const getElimination = async () => {
+      const {message, errors, data } = await Elimination.getEventElimination({
+        "event_id":eventDetail.id,
+        "match_type" : "1",
+        "gender" : gender.id,
+        "event_category_id" : category.id,
+        "elimination_member_count" : "16"
+      })
+
       if (!errors) {
         if (data) {
           console.log(data)
@@ -125,9 +87,10 @@ function Stages() {
     }
 
     useEffect(() => {
-      getEvent(eventDetail.id);
+      if(eventDetail.id == undefined)
+        getEvent();
       getElimination();
-    }, [eventDetail])
+    }, [gender, category])
     console.log(elimination)
     const path = window.location.pathname;
     let { isLoggedIn } = useSelector(getAuthenticationStore);
@@ -168,8 +131,28 @@ function Stages() {
             <Card>
                 <CardBody>
                     <div className="text-center">
-                        <h3>Match Play</h3>
+                        <h3>Match Play {'"'+eventDetail.eventName+'"'}</h3>
                     </div>
+                </CardBody>
+            </Card>
+            <Card>
+                <CardBody>
+                    <Row>
+                      <Col md={6}>
+                        <div>
+                          <SelectInput label ={"kategori"} options={eventDetail.categories} value={category} placeholder="select" onChange={(e)=>{setCategory(e.value)}} />
+                        </div>
+                      </Col>
+                      <Col md={4}>
+                        <div>
+                          <SelectInput label ={"jenis kelamin"} options={genderOptions} value={gender} placeholder="select" onChange={(e)=>{setGender(e.value)}} />
+                        </div>
+                      </Col>
+                    </Row>
+                </CardBody>
+            </Card>
+            <Card>
+                <CardBody>
                     <Bracket rounds={elimination.rounds ? elimination.rounds : []} renderSeedComponent={CustomSeed} />
                 </CardBody>
             </Card>

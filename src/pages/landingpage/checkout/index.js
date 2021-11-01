@@ -233,15 +233,25 @@ const CheckoutEvent = () => {
                     <div className="mx-md-5 text-muted">
                     {info.transactionInfo != undefined &&
                       info.transactionInfo.statusId == 1 ? 
-                      <Button
-                        href={info.participant ?"/archer/event/marathon/qualification/schedule/"+info.participant.members[0].id : ""}
-                        type="button"
-                        size="sm"
-                        style={{ backgroundColor: "#0D47A1" }}
-                      >
-                        Pilih Jadwal Kualifikasi
-                      </Button>
+                      <div>
+                        <Button
+                          href={info.participant ?"/archer/event/marathon/qualification/schedule/"+info.participant.members[0].id : ""}
+                          type="button"
+                          size="sm"
+                          style={{ backgroundColor: "#0D47A1" }}
+                        >
+                          Pilih Jadwal Kualifikasi
+                        </Button>
+                      </div>
                       :null}
+                      <Button
+                          href={info.participant ?"/display/stages/"+info.archeryEvent.eventSlug : ""}
+                          type="button"
+                          size="sm"
+                          style={{ backgroundColor: "#0D47A1" }}
+                        >
+                          Jadwal Eliminasi
+                      </Button>
                     </div>
                   </div>
                   <hr />
