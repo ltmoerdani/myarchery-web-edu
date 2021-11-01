@@ -194,10 +194,10 @@ function DisplayScore() {
                 </Row>
                 <hr />
                 </div>
-                {gender == "male" || gender == null ? 
+                {gender == "male" || gender == null ?
                   <TableScore title={{style:{color:"blue"},label:"Laki-laki"}} member={memberScoringMale} />
                 :null}
-                {gender == "female" || gender == null ? 
+                {gender == "female" || gender == null ?
                   <TableScore title={{style:{color:"#e12c4b"},label:"Perempuan"}} member={memberScoringFemale} />
                 :null}
         </Container>
