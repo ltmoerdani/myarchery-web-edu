@@ -19,6 +19,15 @@ class TableScore extends Component {
       sizePerPage: this.props.member.length,
       productData: this.props.member,
     };
+    this.tableScrol = React.createRef();
+  }
+
+  componentDidMount() {
+    console.log(this.tableScrol.current)
+    console.log(this.tableScrol.current.scrollHeight)
+    window.setInterval(() => {
+         this.tableScrol.current.scrollTop += 10
+    }, 1000)
   }
 
   render() {
@@ -105,7 +114,7 @@ class TableScore extends Component {
                   <React.Fragment>
                     <Row>
                       <Col>
-                        <div className="table-responsive">
+                        <div ref={this.tableScrol} className="table-responsive" style={{overflowY: 'auto', height: '200px'}}>
                           <BootstrapTable
                             keyField={"id"}
                             responsive

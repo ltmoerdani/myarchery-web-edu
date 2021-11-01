@@ -5,7 +5,7 @@ import { Container, Row, Col, Card, CardBody, Button } from "reactstrap";
 import styled from "styled-components";
 import Avatar from "../../../assets/images/users/avatar-man.png";
 import { OrderEventService } from "services";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import logoLight from "../../../assets/images/myachery/myachery.png";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";

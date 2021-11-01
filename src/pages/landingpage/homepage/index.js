@@ -9,7 +9,7 @@ import {
   CardHeader,
   Button
 } from "reactstrap";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import Footer from "layouts/landingpage/Footer";
 import { EventsService } from "services";
 import { Link } from "react-router-dom";

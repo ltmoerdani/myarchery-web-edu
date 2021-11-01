@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import TableSchedule from "./components/TableSchedule";
 import CardInfo from "./components/CardInfo";
 import { ScheduleMemberService } from "services";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { LoadingScreen } from "components"
 
