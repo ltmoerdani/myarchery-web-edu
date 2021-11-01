@@ -123,7 +123,6 @@ function DisplayScore() {
       }
 
       const filterScoringGender = async () => {
-        console.log("ev",memberScoringOld);
         if (gender == null) {
           await getScoring(eventDetail.id,category,"male")        
           await getScoring(eventDetail.id,category,"female")        

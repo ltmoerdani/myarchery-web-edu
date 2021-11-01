@@ -5,7 +5,7 @@ import { Container, Row, Col, Card, CardBody, Button } from "reactstrap";
 import styled from "styled-components";
 import Avatar from "../../../assets/images/users/avatar-man.png";
 import { OrderEventService } from "services";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import logoLight from "../../../assets/images/myachery/myachery.png";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
@@ -233,15 +233,25 @@ const CheckoutEvent = () => {
                     <div className="mx-md-5 text-muted">
                     {info.transactionInfo != undefined &&
                       info.transactionInfo.statusId == 1 ? 
-                      <Button
-                        href={info.participant ?"/archer/event/marathon/qualification/schedule/"+info.participant.members[0].id : ""}
-                        type="button"
-                        size="sm"
-                        style={{ backgroundColor: "#0D47A1" }}
-                      >
-                        Pilih Jadwal Kualifikasi
-                      </Button>
+                      <div>
+                        <Button
+                          href={info.participant ?"/archer/event/marathon/qualification/schedule/"+info.participant.members[0].id : ""}
+                          type="button"
+                          size="sm"
+                          style={{ backgroundColor: "#0D47A1" }}
+                        >
+                          Pilih Jadwal Kualifikasi
+                        </Button>
+                      </div>
                       :null}
+                      <Button
+                          href={info.participant ?"/display/stages/"+info.archeryEvent.eventSlug : ""}
+                          type="button"
+                          size="sm"
+                          style={{ backgroundColor: "#0D47A1" }}
+                        >
+                          Jadwal Eliminasi
+                      </Button>
                     </div>
                   </div>
                   <hr />
