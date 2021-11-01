@@ -8,7 +8,6 @@ import { CategoryService } from "services";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
-import * as ArcherStore from "store/slice/archer"
 
 const H5 = styled.h5`
   font-family: Poppins;
@@ -24,9 +23,6 @@ const RegisterFullday = () => {
   const { slug } = useParams();
   const [eventDetail, setEventDetail] = useState();
   let { userProfile } = useSelector(getAuthenticationStore);
-
-  const {data} = useSelector(ArcherStore.getArcherStore)
-  console.log(data)
 
   const [eventData, setEventData] = useState({
     eventType: "fullday",
@@ -46,7 +42,7 @@ const RegisterFullday = () => {
         gender: "",
       },
     ],
-    categoryEvent: data,
+    categoryEvent: null,
     eventCategories: [
       {
         id: stringUtil.createRandom(),
@@ -133,7 +129,6 @@ const RegisterFullday = () => {
           onFormFieldChange={(key, value) => handleChange(key, value)}
           formData={eventData}
           eventDetail={eventDetail}
-          slug={slug}
         />
       </Container>
     </React.Fragment>

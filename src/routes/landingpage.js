@@ -1,8 +1,5 @@
 import LandingPage from "../pages/landingpage/homepage"
 import DisplayScore from "pages/landingpage/display";
-import Home from "pages/landingpage/home";
-import Stages from "../pages/landingpage/stages"
-import DisplayEliminasi from "pages/landingpage/eliminasi";
 
 const landingpageRouters = [
     { path: "/event/:username/:slug", component: LandingPage, exact: true },

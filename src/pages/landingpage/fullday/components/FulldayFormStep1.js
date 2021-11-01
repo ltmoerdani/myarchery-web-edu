@@ -1,6 +1,7 @@
 import {
   // SwitchInput,
   TextInput,
+  SelectInput,
   RadioButtonInput,
   DateInput,
   Button,
@@ -13,6 +14,7 @@ import { stringUtil } from "utils";
 export const FulldayFormStep1 = ({
   onFormFieldChange,
   formData,
+  eventDetail
 }) => {
   const handleChange = ({ key, value }) => {
     if (onFormFieldChange) onFormFieldChange(key, value);
@@ -56,7 +58,7 @@ export const FulldayFormStep1 = ({
           value={formData.type}
         />
       </Col>
-      {/* <Label>Kategori Lomba</Label>
+      <Label>Kategori Lomba</Label>
       <Row>
         <SelectInput
         className="overflow-auto"
@@ -73,7 +75,7 @@ export const FulldayFormStep1 = ({
           onChange={handleChange}
           value={formData.categoryEvent}
         />
-      </Row> */}
+      </Row>
       <Col lg={6}>
         <TextInput
           label="Email"

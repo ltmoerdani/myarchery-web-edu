@@ -11,7 +11,6 @@ import ToolkitProvider from "react-bootstrap-table2-toolkit";
 
 //Import Breadcrumb
 import "./sass/datatables.scss";
-
 class TableScore extends Component {
   constructor(props) {
     super(props);
@@ -33,6 +32,12 @@ class TableScore extends Component {
 
   render() {
     const columns = [
+      {
+        dataField: "pos_condition",
+        text: "",
+        sort: false,
+        style: {width:"1px"},
+      },
       {
         dataField: "pos",
         text: "Pos",
@@ -88,17 +93,6 @@ class TableScore extends Component {
       custom: true,
     };
 
-    // Custom Pagination Toggle
-    // const sizePerPageList = [
-    //   { text: '5', value: 5 },
-    //   { text: '10', value: 10 },
-    //   { text: '15', value: 15 },
-    //   { text: '20', value: 20 },
-    //   { text: '25', value: 25 },
-    //   { text: 'All', value: (this.state.productData).length }];
-
-    // const { SearchBar } = Search;
-
     return (
       <React.Fragment>
         <div className="col-12">
@@ -126,14 +120,25 @@ class TableScore extends Component {
                             responsive
                             bordered={false}
                             rowStyle={(row, rowIndex) => {
+                              // console.log("masuk", this.props.memberOld)
+                              let style = {};
                               if(rowIndex == 0)
-                                return {background:"rgb(217, 156, 14) none repeat scroll 0% 0%", color:"white"};
+                                style = {background:"rgb(217, 156, 14) none repeat scroll 0% 0%", color:"white"};
                               if(rowIndex == 1)
-                                return {background:"rgb(198, 213, 207) none repeat scroll 0% 0%",color:"black"};
+                                style = {background:"rgb(198, 213, 207) none repeat scroll 0% 0%",color:"black"};
                               if(rowIndex == 2)
-                                return {background:"rgb(142, 102, 72) none repeat scroll 0% 0%",color:"white"};
+                                style = {background:"rgb(142, 102, 72) none repeat scroll 0% 0%",color:"white"};
                               if(rowIndex > 2 && rowIndex <= 10)
-                                return {background:"rgba(238, 236, 242, 0.44) none repeat scroll 0% 0%",color:"black"};
+                                style = {background:"rgba(238, 236, 242, 0.44) none repeat scroll 0% 0%",color:"black"};
+                            
+                              console.log("rowIndex",rowIndex);
+                              if(this.props.memberOld[row.id] != undefined && ((this.props.memberOld[row.id].pos == row.pos && this.props.memberOld[row.id].total != row.total) || this.props.memberOld[row.id].pos != row.pos)){
+                                console.log("masuk")
+                                style = {...style,animationDuration: "2s",animationName: this.props.animationDuration}
+                                return style;
+                              }
+
+                              return style;
                             }}
                             striped={false}
                             defaultSorted={defaultSorted}
