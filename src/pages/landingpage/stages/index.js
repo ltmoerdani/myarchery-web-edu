@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import { Bracket, Seed, SeedItem, SeedTeam } from 'react-brackets'
 import { Container, Card, CardBody, Button } from 'reactstrap'
 import MetaTags from "react-meta-tags";
@@ -7,60 +7,61 @@ import { useSelector } from "react-redux";
 import logomyarchery from "../../../assets/images/myachery/myachery.png"
 import { getAuthenticationStore } from "store/slice/authentication";
 import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
+import { Elimination, EventsService } from "services"
+import { useParams } from "react-router-dom";
 
-
-const rounds = [
-    {
-      title: 'Round one',
-      seeds: [
-        {
-          id: 1,
-          date: new Date().toDateString(),
-          teams: [{ name: 'Team A', lose: 2 }, { name: 'Team B', lose: 1 }],
-        },
-        {
-          id: 2,
-          date: new Date().toDateString(),
-          teams: [{ name: 'Team C', lose: 1 }, { name: 'Team D', lose : 2 }],
-        },
-        {
-          id: 3,
-          date: new Date().toDateString(),
-          teams: [{ name: 'Team E', lose: 0 }, { name: 'Team F', lose: 0 }],
-        },
-        {
-          id: 4,
-          date: new Date().toDateString(),
-          teams: [{ name: 'Team G', lose: 0 }, { name: 'Team H', lose: 0 }],
-        },
-      ],
-    },
-    {
-      title: 'Round two',
-      seeds: [
-        {
-          id: 5,
-          date: new Date().toDateString(),
-          teams: [{ name: 'Team A' }, { name: 'Team D' }],
-        },
-        {
-          id: 6,
-          date: new Date().toDateString(),
-          teams: [{ name: 'Team E' }, { name: 'Team H' }],
-        },
-      ],
-    },
-    {
-        title: 'Round Three',
-        seeds: [
-            {
-                id: 6,
-                date: new Date().toDateString(),
-                teams: [{ name: 'Team A', lose: 2}, { name: 'Team H', lose: 1}],
-            },
-        ],
-    },
-  ];
+// const rounds = [
+//     {
+//       title: 'Round one',
+//       seeds: [
+//         {
+//           id: 1,
+//           date: new Date().toDateString(),
+//           teams: [{ name: 'Team A', lose: 2 }, { name: 'Team B', lose: 1 }],
+//         },
+//         {
+//           id: 2,
+//           date: new Date().toDateString(),
+//           teams: [{ name: 'Team C', lose: 1 }, { name: 'Team D', lose : 2 }],
+//         },
+//         {
+//           id: 3,
+//           date: new Date().toDateString(),
+//           teams: [{ name: 'Team E', lose: 0 }, { name: 'Team F', lose: 0 }],
+//         },
+//         {
+//           id: 4,
+//           date: new Date().toDateString(),
+//           teams: [{ name: 'Team G', lose: 0 }, { name: 'Team H', lose: 0 }],
+//         },
+//       ],
+//     },
+//     {
+//       title: 'Round two',
+//       seeds: [
+//         {
+//           id: 5,
+//           date: new Date().toDateString(),
+//           teams: [{ name: 'Team A' }, { name: 'Team D' }],
+//         },
+//         {
+//           id: 6,
+//           date: new Date().toDateString(),
+//           teams: [{ name: 'Team E' }, { name: 'Team H' }],
+//         },
+//       ],
+//     },
+//     {
+//         title: 'Round Three',
+//         seeds: [
+//             {
+//                 id: 6,
+//                 date: new Date().toDateString(),
+//                 teams: [{ name: 'Team A', lose: 2}, { name: 'Team H', lose: 1}],
+//             },
+//         ],
+//     },
+//   ];
   
   const CustomSeed = ({seed, breakpoint}) => {
     // breakpoint passed to Bracket component
@@ -91,6 +92,43 @@ const rounds = [
   };
 
 function Stages() {
+  const [eventDetail, setEventDetail] = useState({});
+  const [elimination, setElimination] = useState({});
+  const { slug } = useParams();
+
+
+  const getEvent = async () =>{
+    const { data, errors, success, message } = await EventsService.getEventBySlug(
+        {slug}
+    );
+    if (success) {
+        if (data) {
+            setEventDetail(data);
+        }
+    } else {
+        console.log(message, errors);
+    }
+}
+
+    const getElimination = async (event_id) => {
+      const {message, errors, data } = await Elimination.getEventElimination({"event_id":event_id})
+      if (!errors) {
+        if (data) {
+          console.log(data)
+          setElimination(data)
+          console.log(message)
+        }
+      } else {
+        console.log(errors)
+        console.log(message)
+      }
+    }
+
+    useEffect(() => {
+      getEvent(eventDetail.id);
+      getElimination();
+    }, [eventDetail])
+    console.log(elimination)
     const path = window.location.pathname;
     let { isLoggedIn } = useSelector(getAuthenticationStore);
     return (
@@ -132,7 +170,7 @@ function Stages() {
                     <div className="text-center">
                         <h3>Match Play</h3>
                     </div>
-                    <Bracket rtl rounds={rounds} renderSeedComponent={CustomSeed} />
+                    <Bracket rounds={elimination.rounds ? elimination.rounds : []} renderSeedComponent={CustomSeed} />
                 </CardBody>
             </Card>
         </Container>

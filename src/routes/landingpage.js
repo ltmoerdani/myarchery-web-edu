@@ -7,8 +7,8 @@ import DisplayEliminasi from "pages/landingpage/eliminasi";
 const landingpageRouters = [
     { path: "/event/:username/:slug", component: LandingPage, exact: true },
     { path: "/display/score/:slug", component: DisplayScore},
-    { path: "/display/eliminasi", component: DisplayEliminasi},
-    { path: "/display/stages", component: Stages},
+    { path: "/display/eliminasi/:slug", component: DisplayEliminasi},
+    { path: "/display/stages/:slug", component: Stages},
     { path: "/home", component: Home}
 
 ]
