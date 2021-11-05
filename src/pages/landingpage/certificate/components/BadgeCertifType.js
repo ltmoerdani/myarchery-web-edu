@@ -4,8 +4,8 @@ const BadgeCertifType = styled.div`
   padding: 0.47rem 1rem;
   border-radius: 1rem;
 
-  background-color: var(--bs-info);
-  color: #ffffff;
+  background-color: #ffff99;
+  color: var(--bs-orange);
 
   text-transform: capitalize;
   font-weight: 400;

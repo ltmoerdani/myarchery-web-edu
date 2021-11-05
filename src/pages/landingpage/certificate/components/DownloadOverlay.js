@@ -11,6 +11,8 @@ const DownloadOverlay = styled.div`
   justify-content: center;
   align-items: center;
 
+  transition: all 0.15s;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.8);
 
