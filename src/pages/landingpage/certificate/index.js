@@ -1,4 +1,9 @@
 import * as React from "react";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { getAuthenticationStore } from "store/slice/authentication";
+import { Certificate } from "services";
+
 import { Container, Row, Col, Card, CardBody, Button } from "reactstrap";
 
 import HeaderForm from "layouts/landingpage/HeaderForm";
@@ -8,18 +13,39 @@ import CertificateThumbnail from "./components/CertificateThumbnail";
 import DownloadOverlay from "./components/DownloadOverlay";
 import BadgeCertifType from "./components/BadgeCertifType";
 
-import certificatesResponse from "./utils/mock-list-certificates.json";
-
 export default function CertificatesPage() {
   const { event_id } = useParams();
   const [loading, setLoading] = React.useState(false);
+  let { userProfile } = useSelector(getAuthenticationStore);
   const [certificates, setCertificates] = React.useState(null);
 
   React.useEffect(() => {
-    setCertificates(certificatesResponse.data);
+    const getCertifList = async () => {
       setLoading(true);
+
+      const result = await Certificate.getListByEventMember({
+        event_id: event_id,
+        member_id: userProfile.id,
+      });
+
+      if (result.success || result.data) {
+        setCertificates(result.data);
+      }
       setLoading(false);
+    };
+
+    getCertifList();
   }, []);
+
+  const handleDownloadSertif = async (typeCertificate) => {
+    setLoading(true);
+    await Certificate.download({
+      event_id: event_id,
+      member_id: userProfile.id,
+      type_certificate: typeCertificate,
+    });
+    setLoading(false);
+  };
 
   return (
     <React.Fragment>
@@ -68,6 +94,7 @@ export default function CertificatesPage() {
                     size="lg"
                     color="primary"
                     className="tombol-download"
+                    onClick={() => handleDownloadSertif(certificate.data.typeCertificate)}
                   >
                     Download
                   </Button>
