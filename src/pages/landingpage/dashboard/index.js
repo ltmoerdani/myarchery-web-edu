@@ -26,6 +26,8 @@ const DashboardOrderEvent = () => {
     let { userProfile } = useSelector(getAuthenticationStore);
     console.log("get profile",userProfile);
 
+    const hrefToCertificateList = (eventId) => `/archer/event/${eventId}/certificates`
+
     // const [activeTab, setActiveTab] = useState("1")
     // const toggleTab = tab => {
     //     if (activeTab !== tab) {
@@ -127,34 +129,48 @@ const DashboardOrderEvent = () => {
                                                     </span>
                                                 </div>
                                             </Col>
+
                                             <Col md={9} sm={12}>
                                                 <div>
-                                                <h4>{i.archeryEvent.eventName}</h4>
-                                                <p className="text-muted fw-medium">
-                                                    {i.archeryEvent.eventType} 
-                                                    <br></br>
-                                                    <br></br>
-                                                    {i.participant ? i.participant.categoryLabel : null}
-                                                </p>
-                                                <p className="text-muted fw-medium">
-                                                   Order ID : {i.transactionInfo.orderId}
-                                                </p>
-                                                {i.transactionInfo.statusId == 1 ?
-                                                    <h5 style={{color: "green"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5>                                                 
-                                                : i.transactionInfo.statusId == 4 ? 
-                                                    <h5 style={{color: "red"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5> 
-                                                :
-                                                    <h5 style={{color: "gray"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5> 
-                                                }
-                                                <Button
-                                                    href={`/checkout-event/${i.participant.id}`}
-                                                    type="button"
-                                                    class="btn-sm"
-                                                    color="primary"
-                                                    style={{float:"right"}}
-                                                    >
-                                                    Show Detail
-                                                </Button>
+                                                    <h4>{i.archeryEvent.eventName}</h4>
+                                                    <p className="text-muted fw-medium">
+                                                        {i.archeryEvent.eventType} 
+                                                        <br></br>
+                                                        <br></br>
+                                                        {i.participant ? i.participant.categoryLabel : null}
+                                                    </p>
+                                                    <p className="text-muted fw-medium">
+                                                    Order ID : {i.transactionInfo.orderId}
+                                                    </p>
+                                                    {i.transactionInfo.statusId == 1 ?
+                                                        <h5 style={{color: "green"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5>                                                 
+                                                    : i.transactionInfo.statusId == 4 ? 
+                                                        <h5 style={{color: "red"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5> 
+                                                    :
+                                                        <h5 style={{color: "gray"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5> 
+                                                    }
+
+                                                    <div className="float-end">
+                                                        {i.transactionInfo.statusId === 1 && (
+                                                            <Button
+                                                                href={hrefToCertificateList(i.archeryEvent.id)}
+                                                                type="button"
+                                                                outline
+                                                                className="me-2"
+                                                                color="primary"
+                                                            >
+                                                                Sertifikat Event
+                                                            </Button>
+                                                        )}
+
+                                                        <Button
+                                                            href={`/checkout-event/${i.participant.id}`}
+                                                            type="button"
+                                                            color="primary"
+                                                        >
+                                                            Show Detail
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </Col>
                                         </Row>
