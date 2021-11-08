@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Card, CardBody } from "reactstrap";
 
-export default function CertificateSkeleton() {
+export default function CertificateSkeleton({ children }) {
   return (
     <Card className="rounded-2">
       <svg
@@ -10,7 +10,7 @@ export default function CertificateSkeleton() {
         xmlns="http://www.w3.org/2000/svg"
         style={{ backgroundColor: "#f2f2f5" }}
       ></svg>
-      <CardBody></CardBody>
+      {children && <CardBody>{children}</CardBody>}
     </Card>
   );
 }
