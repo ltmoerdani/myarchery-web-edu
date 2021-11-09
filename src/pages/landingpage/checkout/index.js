@@ -66,7 +66,8 @@ const CheckoutEvent = () => {
     currency: "IDR",
   });
 
-  const hrefToCertificateList = (eventId) => `/archer/event/${eventId}/certificates`;
+  const hrefToCertificateList = (eventId, memberId) =>
+    `/archer/event/${eventId}/member/${memberId}/certificates`;
 
   return (
     <React.Fragment>
@@ -277,7 +278,10 @@ const CheckoutEvent = () => {
                         <div className="d-flex flex-column align-items-end mx-md-5 text-muted">
                           <Button
                             type="button"
-                            href={hrefToCertificateList(info.archeryEvent.id)}
+                            href={hrefToCertificateList(
+                              info.archeryEvent.id,
+                              info.participant.members[0].id
+                            )}
                             style={{ backgroundColor: "#0D47A1" }}
                           >
                             Lihat Sertifikat Event <i className="mdi mdi-chevron-right" />

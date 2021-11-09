@@ -1,6 +1,6 @@
-import RegisterFullday from "../pages/landingpage/fullday"
-import RegisterDone from "../pages/landingpage/fullday/components/RegisterDone"
-import MarathonLandingPage from "../pages/landingpage/marathon/homepage"
+import RegisterFullday from "../pages/landingpage/fullday";
+import RegisterDone from "../pages/landingpage/fullday/components/RegisterDone";
+import MarathonLandingPage from "../pages/landingpage/marathon/homepage";
 import RegisterMarathon from "../pages/landingpage/marathon";
 import RegisterMarathonDone from "../pages/landingpage/marathon/components/RegisterMarathonDone";
 import ScheduleMarathon from "../pages/landingpage/marathon/schedule";
@@ -9,8 +9,8 @@ import DashboardOrderEvent from "../pages/landingpage/dashboard";
 import ArcherLogout from "pages/authArcher/logout";
 import ProfileArcher from "pages/landingpage/profile";
 import CertificatesPage from "pages/landingpage/certificate";
-import React from "react"
-import { Redirect } from "react-router-dom"
+import React from "react";
+import { Redirect } from "react-router-dom";
 
 const routerDasboardArcher = [
   { path: "/event/register/process/:slug", component: RegisterFullday, exact: true },
@@ -21,13 +21,13 @@ const routerDasboardArcher = [
   { path: "/marathon/register", component: RegisterMarathon },
   { path: "/marathon/register-done", component: RegisterMarathonDone },
   { path: "/archer/event/marathon/qualification/schedule/:member_id", component: ScheduleMarathon },
-  { path: "/archer/event/:event_id/certificates", component: CertificatesPage },
+  { path: "/archer/event/:event_id/member/:member_id/certificates", component: CertificatesPage },
 
   { path: "/checkout-event/:id", component: CheckoutEvent, exact: true },
   { path: "/archer/dashboard", component: DashboardOrderEvent, exact: true },
   { path: "/archer/logout", component: ArcherLogout },
 
-  { path: "/archer/dashboard/profile", component: ProfileArcher},
+  { path: "/archer/dashboard/profile", component: ProfileArcher },
 ];
 
 export default routerDasboardArcher;
