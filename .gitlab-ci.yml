@@ -45,7 +45,7 @@ deploy_staging:
   script:
     # - echo "Cleaning Up Modules"
     # - ssh -p22 root@$IP_HOST "rm -rf /var/www/web-archery-stg/node_modules && rm  /var/www/web-archery-stg/package-lock.json"
-    - ssh -p22 root@$IP_HOST "sudo rm --prefix /var/www/web-archery-stg/package-lock.json && sudo npm install --prefix /var/www/web-archery-stg && sudo npm run build --prefix /var/www/web-archery-stg"
+    - ssh -p22 root@$IP_HOST "sudo rm /var/www/web-archery-stg/package-lock.json && sudo npm install --prefix /var/www/web-archery-stg && sudo npm run build --prefix /var/www/web-archery-stg"
     - echo "Build Success, Apps running for Staging"
   only:
     - develop
