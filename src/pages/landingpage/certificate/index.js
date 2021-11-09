@@ -1,7 +1,5 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { getAuthenticationStore } from "store/slice/authentication";
 import { Certificate } from "services";
 
 import { Container, Row, Col, Card, CardBody, Button } from "reactstrap";
@@ -15,9 +13,8 @@ import DownloadOverlay from "./components/DownloadOverlay";
 import BadgeCertifType from "./components/BadgeCertifType";
 
 export default function CertificatesPage() {
-  const { event_id } = useParams();
+  const { event_id, member_id } = useParams();
   const [loading, setLoading] = React.useState(false);
-  let { userProfile } = useSelector(getAuthenticationStore);
   const [certificates, setCertificates] = React.useState(null);
 
   React.useEffect(() => {
@@ -26,7 +23,7 @@ export default function CertificatesPage() {
 
       const result = await Certificate.getListByEventMember({
         event_id: event_id,
-        member_id: userProfile.id,
+        member_id: member_id,
       });
 
       if (result.success || result.data) {
@@ -43,7 +40,7 @@ export default function CertificatesPage() {
     setLoading(true);
     await Certificate.download({
       event_id: event_id,
-      member_id: userProfile.id,
+      member_id: member_id,
       type_certificate: typeCertificate,
     });
     setLoading(false);
