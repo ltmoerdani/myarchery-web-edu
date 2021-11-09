@@ -10,6 +10,7 @@ import HeaderForm from "layouts/landingpage/HeaderForm";
 import { LoadingScreen } from "components";
 import CertificateSkeleton from "./components/CertificateSkeleton";
 import CertificateThumbnail from "./components/CertificateThumbnail";
+import CertificateEmptyListItem from "./components/CertificateEmptyListItem";
 import DownloadOverlay from "./components/DownloadOverlay";
 import BadgeCertifType from "./components/BadgeCertifType";
 
@@ -31,6 +32,7 @@ export default function CertificatesPage() {
       if (result.success || result.data) {
         setCertificates(result.data);
       }
+
       setLoading(false);
     };
 
@@ -60,48 +62,42 @@ export default function CertificatesPage() {
           </Col>
         </Row>
 
-        <Row className="justify-content-center">
-          {loading && !certificates?.length && (
+        <Row className="mb-5 justify-content-center">
+          {certificates?.length ? (
+            certificates?.map((certificate) => (
+              <Col md="6" lg="4" key={certificate.data.id}>
+                <Card className="rounded-2">
+                  <CertificateThumbnail certificate={certificate} />
+
+                  <CardBody>
+                    <BadgeCertifType className="float-start">{certificate.type}</BadgeCertifType>
+                  </CardBody>
+
+                  <DownloadOverlay>
+                    <Button
+                      tag="div"
+                      size="lg"
+                      color="primary"
+                      className="tombol-download"
+                      onClick={() => handleDownloadSertif(certificate.data.typeCertificate)}
+                    >
+                      Download
+                    </Button>
+                  </DownloadOverlay>
+                </Card>
+              </Col>
+            ))
+          ) : (
             <Col md="6" lg="4">
-              <CertificateSkeleton />
+              {loading ? (
+                <CertificateSkeleton />
+              ) : (
+                <CertificateEmptyListItem>
+                  Anda tidak memiliki sertifikat pada event ini
+                </CertificateEmptyListItem>
+              )}
             </Col>
           )}
-
-          {!loading && !certificates?.length && (
-            <Col>
-              <div className="text-center">
-                <p>
-                  Gagal memuat sertifikat
-                  <br />
-                  Silakan hubungi technical support
-                </p>
-              </div>
-            </Col>
-          )}
-
-          {certificates?.map((certificate) => (
-            <Col md="6" lg="4" key={certificate.data.id}>
-              <Card className="rounded-2">
-                <CertificateThumbnail certificate={certificate} />
-
-                <CardBody>
-                  <BadgeCertifType className="float-start">{certificate.type}</BadgeCertifType>
-                </CardBody>
-
-                <DownloadOverlay>
-                  <Button
-                    tag="div"
-                    size="lg"
-                    color="primary"
-                    className="tombol-download"
-                    onClick={() => handleDownloadSertif(certificate.data.typeCertificate)}
-                  >
-                    Download
-                  </Button>
-                </DownloadOverlay>
-              </Card>
-            </Col>
-          ))}
         </Row>
       </Container>
     </React.Fragment>

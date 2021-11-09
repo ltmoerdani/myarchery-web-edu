@@ -13,8 +13,10 @@ const CertificateThumbnail = ({ certificate }) => {
       style={{
         backgroundImage: `url(${editorData.backgroundImage})`,
         backgroundSize: "cover",
+        backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
+      preserveAspectRatio="xMidYMin slice"
     >
       <ThumbnailTextField field={fields[0]}>{templateData.memberName}</ThumbnailTextField>
 
