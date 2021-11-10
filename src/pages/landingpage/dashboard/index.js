@@ -137,14 +137,14 @@ const DashboardOrderEvent = () => {
                                                     {i.participant ? i.participant.categoryLabel : null}
                                                 </p>
                                                 <p className="text-muted fw-medium">
-                                                   {i.transactionInfo.orderId ? "Order ID : "+i.transactionInfo.orderId : null}
+                                                   Order ID : {i.transactionInfo.orderId}
                                                 </p>
-                                                {i.participant.status == 1 || i.participant.status == 1 ?
-                                                    <h5 style={{color: "green"}} className="fw-medium"><i>{i.participant.statusLabel}</i></h5>                                                 
-                                                : i.participant.status == 4 ? 
-                                                    <h5 style={{color: "red"}} className="fw-medium"><i>{i.participant.statusLabel}</i></h5> 
+                                                {i.transactionInfo.statusId == 1 ?
+                                                    <h5 style={{color: "green"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5>                                                 
+                                                : i.transactionInfo.statusId == 4 ? 
+                                                    <h5 style={{color: "red"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5> 
                                                 :
-                                                    <h5 style={{color: "gray"}} className="fw-medium"><i>{i.participant.statusLabel}</i></h5> 
+                                                    <h5 style={{color: "gray"}} className="fw-medium"><i>{i.transactionInfo.status}</i></h5> 
                                                 }
                                                 <Button
                                                     href={`/checkout-event/${i.participant.id}`}
