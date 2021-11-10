@@ -10,8 +10,8 @@ import logoLight from "../../../assets/images/myachery/myachery.png";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 // import QRCode from "qrcode.react";
-import { QRCode } from "react-qr-svg";
-import { LoadingScreen } from "components";
+import { QRCode } from 'react-qr-svg'
+import { LoadingScreen } from "components"
 
 const H5 = styled.h5`
   font-size: 13px;
@@ -146,115 +146,104 @@ const CheckoutEvent = () => {
                     height="130"
                   />
                 </div>
-              </Col>
-              <Col md={9} sm={12}>
-                <Row>
-                  <Col sm={12}>
-                    <H5 className="mx-md-5">Detail Order</H5>
+                </Col>
+                <Col md={9} sm={12}>
+                  <Row>
+                    <Col sm={12}>
                     <div className="d-md-flex">
-                      <div className="mx-md-5 text-muted">
-                        <H5>ID ORDER</H5>
-                        <h4>{info.transactionInfo?.orderId}</h4>
-                      </div>
-                      <div className="mx-md-5 text-muted">
-                        <H5>Total</H5>
-                        <h4>{formatter.format(info.transactionInfo?.total)}</h4>
-                      </div>
-                      <div className="mx-md-5 text-muted">
-                        <H5>Status Pembayaran</H5>
-
-                        {info.transactionInfo != undefined && info.transactionInfo.statusId == 1 ? (
-                          <h4 style={{ color: "green" }} className="fw-medium">
-                            <i>{info.transactionInfo.status}</i>
-                          </h4>
-                        ) : info.transactionInfo != undefined &&
-                          info.transactionInfo.statusId == 4 ? (
-                          <h4 style={{ color: "red" }} className="fw-medium">
-                            <i className="me-sm-2">{info.transactionInfo.status}</i>
-                            <span
-                              className="btn btn-primary mt-2"
-                              onClick={() => {
-                                window.location.reload();
-                              }}
-                            >
-                              Check status
-                            </span>
-                          </h4>
-                        ) : (
-                          <h4 style={{ color: "gray" }} className="fw-medium">
-                            <i>{info.transactionInfo ? info.transactionInfo.status : ""}</i>
-                          </h4>
-                        )}
-                      </div>
+                    {info.transactionInfo != false ?
                       <div>
-                        {/* <QRCode value={info.transactionInfo?.orderId} /> */}
-                        {info.transactionInfo != undefined && info.transactionInfo.statusId == 0 ? (
-                          <QRCode
-                            bgColor="#FFFFFF"
-                            fgColor="#000000"
-                            level="Q"
-                            style={{ width: 100 }}
-                            value={`${info.transactionInfo?.orderId}`}
-                          />
-                        ) : (
-                          ""
-                        )}
+                      <H5 className="mx-md-5">Detail Order</H5>
+                      <div className="d-md-flex">
+                        <div className="mx-md-5 text-muted">
+                          <H5>ID ORDER</H5>
+                          <h4>{info.transactionInfo?.orderId}</h4>
+                        </div>
+                        <div className="mx-md-5 text-muted">
+                          <H5>Total</H5>
+                          <h4>{formatter.format(info.transactionInfo?.total)}</h4>
+                        </div>
+                        <div>
+                          {/* <QRCode value={info.transactionInfo?.orderId} /> */}
+                          {info.transactionInfo != undefined &&
+                            info.transactionInfo.statusId == 0 ?
+                              <QRCode 
+                                bgColor="#FFFFFF"
+                                fgColor="#000000"
+                                level="Q"
+                                style={{ width: 100 }}
+                                value={`${info.transactionInfo?.orderId}`}
+                              /> : ""}
+                        </div>
+                        </div>
+                        </div>
+                        : null}
+                        <div className="mx-md-5 text-muted">
+                          <H5>Status</H5>
+
+                          {info.participant != undefined && info.participant.status == 1 ? (
+                            <h4 style={{ color: "green" }} className="fw-medium">
+                              <i>{info.participant.statusLabel}</i>
+                            </h4>
+                          ) : info.participant != undefined && info.participant.status == 4 ? (
+                            <h4 style={{ color: "red" }} className="fw-medium">
+                              <i className="me-sm-2">{info.participant.statusLabel}</i>
+                              <span className="btn btn-primary mt-2" onClick={() => {
+                                window.location.reload();
+                              }}>Check status</span>
+                            </h4>
+                          ) : (
+                            <h4 style={{ color: "gray" }} className="fw-medium">
+                              <i>
+                                {info.participant
+                                  ? info.participant.statusLabel
+                                  : ""}
+                              </i>
+                            </h4>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <hr />
+                      <hr /> 
                   </Col>
+                  
                   <Col sm={12}>
-                    <H5 className="mx-md-5">Event</H5>
-                    <div className="d-md-flex">
-                      <div className="mx-md-5 text-muted">
-                        <h5>{info.archeryEvent?.eventName}</h5>
-                      </div>
-                      <div className="mx-md-5 text-muted">
-                        <H5>Lokasi</H5>
-                        <h5>{info.archeryEvent?.location}</h5>
-                      </div>
-                      <div className="mx-md-5 text-muted">
-                        <H5>Peserta</H5>
-                        {info.participant && info.participant.members ? (
-                          info.participant.members.map((i) => <li key={i}>{i.name}</li>)
-                        ) : (
-                          <></>
-                        )}
-                      </div>
-                      <div className="mx-md-5 text-muted">
-                        <H5>Kategori</H5>
-                        <h6>{info.participant?.categoryLabel}</h6>
-                      </div>
+                      <H5 className="mx-md-5">Event</H5>
+                  <div className="d-md-flex">
+                    <div className="mx-md-5 text-muted">
+                      <h5>{info.archeryEvent?.eventName}</h5>
                     </div>
-                    <hr />
+                    <div className="mx-md-5 text-muted">
+                      <H5>Lokasi</H5>
+                      <h5>{info.archeryEvent?.location}</h5>
+                    </div>
+                    <div className="mx-md-5 text-muted">
+                      <H5>Peserta</H5>
+                      {info.participant && info.participant.members ? (
+                        info.participant.members.map((i) => (
+                          <li key={i}>{i.name}</li>
+                        ))
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                    <div className="mx-md-5 text-muted">
+                      <H5>Kategori</H5>
+                      <h6>{info.participant?.categoryLabel}</h6>
+                    </div>
+                  </div>
+                  <hr />
                   </Col>
 
                   <Col sm={12}>
-                    <div className="d-flex justify-content-between">
-                      <div className="mx-md-5 text-muted">
-                        <H5>Tanggal Kualifikasi</H5>
-                        <p>{info.archeryEvent?.eventStartDatetime}</p>
-                      </div>
-
-                      <div className="d-flex flex-column align-items-end mx-md-5 text-muted">
-                        {info.transactionInfo != undefined && info.transactionInfo.statusId == 1 ? (
-                          <div>
-                            <Button
-                              href={
-                                info.participant
-                                  ? "/archer/event/marathon/qualification/schedule/" +
-                                    info.participant.members[0].id
-                                  : ""
-                              }
-                              type="button"
-                              size="sm"
-                              style={{ backgroundColor: "#0D47A1" }}
-                            >
-                              Pilih Jadwal Kualifikasi
-                            </Button>
-                          </div>
-                        ) : null}
-
+                  <div className="d-flex justify-content-between">
+                    <div className="mx-md-5 text-muted">
+                      <H5>Tanggal Kualifikasi</H5>
+                      <p>{info.archeryEvent?.eventStartDatetime}</p>
+                    </div>
+                    <div className="mx-md-5 text-muted">
+                    {info.transactionInfo != undefined &&
+                      info.participant.status == 1 ? 
+                      <div>
                         <Button
                           href={
                             info.participant ? "/display/stages/" + info.archeryEvent.eventSlug : ""
@@ -263,51 +252,38 @@ const CheckoutEvent = () => {
                           size="sm"
                           style={{ backgroundColor: "#0D47A1" }}
                         >
-                          Jadwal Eliminasi
+                          Pilih Jadwal Kualifikasi
                         </Button>
                       </div>
-                    </div>
-                    <hr />
-                  </Col>
-
-                  {info?.transactionInfo?.statusId === 1 && info?.archeryEvent?.id && (
-                    <Col sm={12}>
-                      <div className="d-flex justify-content-between">
-                        <div className="mx-md-5 text-muted" />
-
-                        <div className="d-flex flex-column align-items-end mx-md-5 text-muted">
-                          <Button
-                            type="button"
-                            href={hrefToCertificateList(
-                              info.archeryEvent.id,
-                              info.participant.members[0].id
-                            )}
-                            style={{ backgroundColor: "#0D47A1" }}
-                          >
-                            Lihat Sertifikat Event <i className="mdi mdi-chevron-right" />
-                          </Button>
-                        </div>
-                      </div>
-                    </Col>
-                  )}
-
-                  {info.transactionInfo != undefined && info.transactionInfo.statusId == 4 ? (
-                    <React.Fragment>
+                      :null}
                       <Button
-                        type="button"
-                        size="md"
-                        onClick={handleClickPayment}
-                        style={{ backgroundColor: "#0D47A1" }}
-                      >
-                        LAKUKAN PEMBAYARAN
+                          href={info.participant ?"/display/stages/"+info.archeryEvent.eventSlug : ""}
+                          type="button"
+                          size="sm"
+                          style={{ backgroundColor: "#0D47A1" }}
+                        >
+                          Jadwal Eliminasi
                       </Button>
-                    </React.Fragment>
-                  ) : null}
+                    </div>
+                  </div>
+                  <hr />
+                  </Col>
+                  {info.transactionInfo != undefined &&
+                      info.transactionInfo.statusId == 4 ?
+                <Button
+                  type="button"
+                  size="md"
+                  onClick={handleClickPayment}
+                  style={{ backgroundColor: "#0D47A1" }}
+                >
+                  LAKUKAN PEMBAYARAN
+                </Button>
+                : null}
                 </Row>
-              </Col>
-            </Row>
-          </CardBody>
-        </Card>
+                </Col>
+                </Row>
+            </CardBody>
+          </Card>
       </Container>
     </React.Fragment>
   );
