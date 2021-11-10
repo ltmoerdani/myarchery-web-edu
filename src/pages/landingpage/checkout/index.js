@@ -21,7 +21,7 @@ const H5 = styled.h5`
 `;
 
 const CheckoutEvent = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true)
   const [info, setInfo] = useState([]);
   const { id } = useParams();
   let { userProfile } = useSelector(getAuthenticationStore);
@@ -49,12 +49,12 @@ const CheckoutEvent = () => {
     });
     if (success) {
       if (data) {
-        if (data.transactionInfo.statusId == 4) {
-          handleClickPayment(data.transactionInfo.snapToken);
+        if(data.transactionInfo.statusId == 4){
+          handleClickPayment(data.transactionInfo.snapToken)
         }
-
+      
         setInfo(data);
-        setLoading(false);
+        setLoading(false)
       }
     } else {
       console.error(message, errors);
@@ -62,12 +62,9 @@ const CheckoutEvent = () => {
   }, []);
 
   let formatter = new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-  });
-
-  const hrefToCertificateList = (eventId, memberId) =>
-    `/archer/event/${eventId}/member/${memberId}/certificates`;
+    style: 'currency',
+    currency: 'IDR',
+  })
 
   return (
     <React.Fragment>
@@ -77,64 +74,63 @@ const CheckoutEvent = () => {
       {/* import navbar */}
       <HeaderForm />
 
-      <Container fluid className="px-5 p-2 mb-5">
+      <Container fluid className="px-5 p-2">
         <LoadingScreen loading={loading} />
-        <Card>
-          <CardBody>
+      <Card>
+                <CardBody>
             <Row>
-              <Col md={1}>
-                <div>
-                  <img
-                    src={Avatar}
-                    alt=""
-                    className="avatar-md rounded-circle img-thumbnail"
-                    style={{ height: "auto" }}
-                  />
-                </div>
-              </Col>
-              <Col md={4}>
-                <H5>Welcome to MyArchery.id dashboard</H5>
-                <div className="text-muted">
-                  <h4>{userProfile?.name}</h4>
-                  {/* <H5>Klub FAST</H5> */}
-                </div>
-              </Col>
-              <Col md={4}>
-                <div>
-                  <div className="d-flex">
-                    <div className="text-muted" style={{ marginRight: "1rem" }}>
-                      <h4>No. Ponsel</h4>
-                      <H5>{userProfile?.phoneNumber}</H5>
+                <Col md={1}>
+                        <div>
+                        <img
+                            src={Avatar}
+                            alt=""
+                            className="avatar-md rounded-circle img-thumbnail"
+                            style={{height: 'auto'}}
+                            />
                     </div>
-                    <div className="text-muted">
-                      <h4>Email</h4>
-                      <H5>{userProfile?.email}</H5>
+                            </Col>
+                            <Col md={4}>
+                        <H5>Welcome to MyArchery.id dashboard</H5>
+                            <div className="text-muted">
+                                <h4>{userProfile?.name}</h4>
+                                {/* <H5>Klub FAST</H5> */}
+                            </div>
+                            </Col>
+                <Col md={4}>
+                    <div>
+                        <div className="d-flex">
+                            <div className="text-muted" style={{marginRight: '1rem'}}>
+                                <h4>No. Ponsel</h4>
+                                <H5>{userProfile?.phoneNumber}</H5>
+                            </div>
+                            <div className="text-muted">
+                                <h4>Email</h4>
+                                <H5>{userProfile?.email}</H5>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                </div>
-              </Col>
-              <Col md={3}>
-                <div className="float-md-end">
-                  <Button
-                    disabled
-                    href="/full-day"
-                    type="button"
-                    size="sm"
-                    style={{ backgroundColor: "#0D47A1" }}
-                  >
-                    Setting
-                  </Button>
-                </div>
-              </Col>
+                </Col>
+                <Col md={3}>
+                    <div className='float-md-end'>
+                          <Button
+                            disabled
+                              href="/full-day"
+                              type="button"
+                              size="sm"
+                              style={{backgroundColor: "#0D47A1",  }}>
+                              Setting
+                          </Button>
+                    </div>
+                </Col>
             </Row>
-          </CardBody>
-        </Card>
+                  </CardBody>
+              </Card>
 
-        <Card>
-          <CardBody>
-            <Row>
-              <Col md={3} sm={12}>
-                <div style={{ textAlign: "center" }} className="mb-4">
+          <Card>
+            <CardBody>
+              <Row>
+                <Col md={3} sm={12}>
+                <div style={{textAlign:"center"}} className="mb-4">
                   <img
                     src={
                       info.archeryEvent != undefined &&
@@ -233,7 +229,6 @@ const CheckoutEvent = () => {
                   </div>
                   <hr />
                   </Col>
-
                   <Col sm={12}>
                   <div className="d-flex justify-content-between">
                     <div className="mx-md-5 text-muted">
@@ -245,9 +240,7 @@ const CheckoutEvent = () => {
                       info.participant.status == 1 ? 
                       <div>
                         <Button
-                          href={
-                            info.participant ? "/display/stages/" + info.archeryEvent.eventSlug : ""
-                          }
+                          href={info.participant ?"/archer/event/marathon/qualification/schedule/"+info.participant.members[0].id : ""}
                           type="button"
                           size="sm"
                           style={{ backgroundColor: "#0D47A1" }}
