@@ -263,6 +263,28 @@ const CheckoutEvent = () => {
                   </div>
                   <hr />
                   </Col>
+
+                  {info?.transactionInfo?.statusId === 1 && info?.archeryEvent?.id && (
+                    <Col sm={12}>
+                      <div className="d-flex justify-content-between">
+                        <div className="mx-md-5 text-muted" />
+
+                        <div className="d-flex flex-column align-items-end mx-md-5 text-muted">
+                          <Button
+                            type="button"
+                            href={hrefToCertificateList(
+                              info.archeryEvent.id,
+                              info.participant.members[0].id
+                            )}
+                            style={{ backgroundColor: "#0D47A1" }}
+                          >
+                            Lihat Sertifikat Event <i className="mdi mdi-chevron-right" />
+                          </Button>
+                        </div>
+                      </div>
+                    </Col>
+                  )}
+
                   {info.transactionInfo != undefined &&
                       info.transactionInfo.statusId == 4 ?
                 <Button
