@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
+import fileSaver from "file-saver";
 import { Certificate } from "services";
 
 import { Container, Row, Col, Card, CardBody, Button } from "reactstrap";
@@ -21,12 +22,9 @@ export default function CertificatesPage() {
     const getCertifList = async () => {
       setLoading(true);
 
-      const result = await Certificate.getListByEventMember({
-        event_id: event_id,
-        member_id: member_id,
-      });
+      const result = await Certificate.getListByEventMember({ event_id: event_id });
 
-      if (result.success || result.data) {
+      if (result.data) {
         setCertificates(result.data);
       }
 
@@ -38,11 +36,19 @@ export default function CertificatesPage() {
 
   const handleDownloadSertif = async (typeCertificate) => {
     setLoading(true);
-    await Certificate.download({
+
+    const download = await Certificate.download({
       event_id: event_id,
       member_id: member_id,
       type_certificate: typeCertificate,
     });
+
+    if (download.data) {
+      const { fileName, fileBase64 } = download.data;
+      fileSaver.saveAs(fileBase64, fileName || "certificate.pdf");
+    }
+    // TODO: handle error
+
     setLoading(false);
   };
 
