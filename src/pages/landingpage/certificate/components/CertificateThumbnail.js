@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import qrCodeUrl from "assets/images/qr-certificate-thumbnail.svg";
+
 const CertificateThumbnail = ({ certificate }) => {
   const { data: templateData } = certificate;
   const editorData = JSON.parse(templateData.editorData);
@@ -25,6 +27,15 @@ const CertificateThumbnail = ({ certificate }) => {
       )}
 
       <ThumbnailTextField field={fields[2]}>{templateData.kategoriName}</ThumbnailTextField>
+
+      <image
+        href={qrCodeUrl}
+        width="30mm"
+        style={{
+          x: "calc(1280px - 20px - 30mm)",
+          y: "calc(908px - 20px - 30mm)",
+        }}
+      />
     </svg>
   );
 };
