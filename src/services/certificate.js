@@ -2,9 +2,9 @@ import API from "../utils/api";
 
 export default {
   getListByEventMember(qs = null) {
-    return API.get("/app/v1/certificate/list", qs);
+    return API.get("/app/v1/archery/certificate/list", qs);
   },
   download(qs = null) {
-    return API.get("/app/v1/certificate", qs);
+    return API.get("/app/v1/archery/certificate", qs);
   },
 };
