@@ -146,62 +146,57 @@ const CheckoutEvent = () => {
                 <Col md={9} sm={12}>
                   <Row>
                     <Col sm={12}>
-                    <div className="d-md-flex">
-                    {info.transactionInfo != false ?
-                      <div>
-                      <H5 className="mx-md-5">Detail Order</H5>
-                      <div className="d-md-flex">
-                        <div className="mx-md-5 text-muted">
-                          <H5>ID ORDER</H5>
-                          <h4>{info.transactionInfo?.orderId}</h4>
-                        </div>
-                        <div className="mx-md-5 text-muted">
-                          <H5>Total</H5>
-                          <h4>{formatter.format(info.transactionInfo?.total)}</h4>
-                        </div>
-                        <div>
-                          {/* <QRCode value={info.transactionInfo?.orderId} /> */}
-                          {info.transactionInfo != undefined &&
-                            info.transactionInfo.statusId == 0 ?
-                              <QRCode 
-                                bgColor="#FFFFFF"
-                                fgColor="#000000"
-                                level="Q"
-                                style={{ width: 100 }}
-                                value={`${info.transactionInfo?.orderId}`}
-                              /> : ""}
-                        </div>
-                        </div>
-                        </div>
-                        : null}
-                        <div className="mx-md-5 text-muted">
-                          <H5>Status</H5>
+                  <H5 className="mx-md-5">Detail Order</H5>
+                  <div className="d-md-flex">
+                    <div className="mx-md-5 text-muted">
+                      <H5>ID ORDER</H5>
+                      <h4>{info.transactionInfo?.orderId}</h4>
+                    </div>
+                    <div className="mx-md-5 text-muted">
+                      <H5>Total</H5>
+                      <h4>{formatter.format(info.transactionInfo?.total)}</h4>
+                    </div>
+                    <div className="mx-md-5 text-muted">
+                      <H5>Status Pembayaran</H5>
 
-                          {info.participant != undefined && info.participant.status == 1 ? (
-                            <h4 style={{ color: "green" }} className="fw-medium">
-                              <i>{info.participant.statusLabel}</i>
-                            </h4>
-                          ) : info.participant != undefined && info.participant.status == 4 ? (
-                            <h4 style={{ color: "red" }} className="fw-medium">
-                              <i className="me-sm-2">{info.participant.statusLabel}</i>
-                              <span className="btn btn-primary mt-2" onClick={() => {
-                                window.location.reload();
-                              }}>Check status</span>
-                            </h4>
-                          ) : (
-                            <h4 style={{ color: "gray" }} className="fw-medium">
-                              <i>
-                                {info.participant
-                                  ? info.participant.statusLabel
-                                  : ""}
-                              </i>
-                            </h4>
-                          )}
-                        </div>
-                      </div>
-                      <hr /> 
+                      {info.transactionInfo != undefined &&
+                      info.transactionInfo.statusId == 1 ? (
+                        <h4 style={{ color: "green" }} className="fw-medium">
+                          <i>{info.transactionInfo.status}</i>
+                        </h4>
+                      ) : info.transactionInfo != undefined &&
+                        info.transactionInfo.statusId == 4 ? (
+                        <h4 style={{ color: "red" }} className="fw-medium">
+                          <i className="me-sm-2">{info.transactionInfo.status}</i>
+                          <span className="btn btn-primary mt-2" onClick={() => {
+                            window.location.reload();
+                          }}>Check status</span>
+                        </h4>
+                      ) : (
+                        <h4 style={{ color: "gray" }} className="fw-medium">
+                          <i>
+                            {info.transactionInfo
+                              ? info.transactionInfo.status
+                              : ""}
+                          </i>
+                        </h4>
+                      )}
+                    </div>
+                    <div>
+                      {/* <QRCode value={info.transactionInfo?.orderId} /> */}
+                      {info.transactionInfo != undefined &&
+                        info.transactionInfo.statusId == 0 ?
+                          <QRCode 
+                            bgColor="#FFFFFF"
+                            fgColor="#000000"
+                            level="Q"
+                            style={{ width: 100 }}
+                            value={`${info.transactionInfo?.orderId}`}
+                          /> : ""}
+                    </div>
+                  </div>
+                  <hr />
                   </Col>
-                  
                   <Col sm={12}>
                       <H5 className="mx-md-5">Event</H5>
                   <div className="d-md-flex">
@@ -237,7 +232,7 @@ const CheckoutEvent = () => {
                     </div>
                     <div className="mx-md-5 text-muted">
                     {info.transactionInfo != undefined &&
-                      info.participant.status == 1 ? 
+                      info.transactionInfo.statusId == 1 ? 
                       <div>
                         <Button
                           href={info.participant ?"/archer/event/marathon/qualification/schedule/"+info.participant.members[0].id : ""}
@@ -261,6 +256,28 @@ const CheckoutEvent = () => {
                   </div>
                   <hr />
                   </Col>
+
+                  {info?.transactionInfo?.statusId === 1 && info?.archeryEvent?.id && (
+                    <Col sm={12}>
+                      <div className="d-flex justify-content-between">
+                        <div className="mx-md-5 text-muted" />
+
+                        <div className="d-flex flex-column align-items-end mx-md-5 text-muted">
+                          <Button
+                            type="button"
+                            href={hrefToCertificateList(
+                              info.archeryEvent.id,
+                              info.participant.members[0].id
+                            )}
+                            style={{ backgroundColor: "#0D47A1" }}
+                          >
+                            Lihat Sertifikat Event <i className="mdi mdi-chevron-right" />
+                          </Button>
+                        </div>
+                      </div>
+                    </Col>
+                  )}
+
                   {info.transactionInfo != undefined &&
                       info.transactionInfo.statusId == 4 ?
                 <Button
