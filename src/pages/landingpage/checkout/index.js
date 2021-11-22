@@ -66,6 +66,9 @@ const CheckoutEvent = () => {
     currency: 'IDR',
   })
 
+  const hrefToCertificateList = (eventId, memberId) =>
+    `/archer/event/${eventId}/member/${memberId}/certificates`;
+
   return (
     <React.Fragment>
       <MetaTags>
