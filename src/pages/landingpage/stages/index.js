@@ -19,13 +19,13 @@ const CustomSeed = ({ seed, breakpoint }) => {
   // mobileBreakpoint is required to be passed down to a seed
   return (
     <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
-      <SeedItem style={{ padding: 2 }}>
+      <SeedItem style={{ padding: 2, backgroundColor: "var(--bs-gray-800)" }}>
         {seed.teams.map((team, index) => {
           return team.win != undefined ? (
             team.win == 1 ? (
               <SeedTeamStyled index={index} color="white" bgColor="#BC8B2C">
                 <SeedNameLabel>
-                  {team?.name || "<not have participant>"}
+                  {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
                 </SeedNameLabel>
 
                 <SeedScoreLabel bgColor="white" color="black">
@@ -35,7 +35,7 @@ const CustomSeed = ({ seed, breakpoint }) => {
             ) : (
               <SeedTeamStyled index={index} color="#757575" bgColor="#E2E2E2">
                 <SeedNameLabel>
-                  {team?.name || "<not have participant>"}
+                  {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
                 </SeedNameLabel>
 
                 <SeedScoreLabel bgColor="white" color="black">
@@ -44,13 +44,9 @@ const CustomSeed = ({ seed, breakpoint }) => {
               </SeedTeamStyled>
             )
           ) : (
-            <SeedTeamStyled
-              index={index}
-              bgColor="black"
-              color="var(--bs-gray-600)"
-            >
-              <SeedNameLabel>
-                {team?.name || "<not have participant>"}
+            <SeedTeamStyled index={index} color="var(--bs-gray-600)">
+              <SeedNameLabel style={{ width: "100%", textAlign: "center" }}>
+                {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
               </SeedNameLabel>
             </SeedTeamStyled>
           );
@@ -184,6 +180,7 @@ function Stages() {
 }
 
 const SeedTeamStyled = styled(SeedTeam)`
+  overflow: hidden;
   align-items: stretch;
   padding: 0;
   ${({ index }) => index === 0 ? "margin-bottom: 2px;" : ""}
