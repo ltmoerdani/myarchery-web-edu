@@ -4,9 +4,14 @@ import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from "react-brackets";
 import { Container, Card, CardBody, Button, Row, Col } from "reactstrap";
 import MetaTags from "react-meta-tags";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import logomyarchery from "assets/images/myachery/myachery.png";
 import { getAuthenticationStore } from "store/slice/authentication";
+import {
+  getEliminationStagesStore,
+  selectCategory,
+  selectGender,
+} from "store/slice/eliminationStages";
 import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
 import { Elimination, EventsService } from "services";
 import { useParams } from "react-router-dom";
@@ -58,26 +63,29 @@ const CustomSeed = ({ seed, breakpoint }) => {
   );
 };
 
+const genderOptions = [
+  { id: "male", label: "Laki-laki" },
+  { id: "female", label: "Perempuan" },
+]
+
 function Stages() {
   const [eventDetail, setEventDetail] = useState({});
   const [elimination, setElimination] = useState({});
   const { slug } = useParams();
-  const [category, setCategory] = useState(0)
-  const genderOptions = [
-    { id: "male", label: "Laki-laki" }, 
-    { id: "female", label: "Perempuan" }, 
-  ]
-  const [gender, setGender] = useState(genderOptions[0]);
+
+  const dispatch = useDispatch()
+  const { category, gender } = useSelector(getEliminationStagesStore)
+  const setCategory = (payload) => dispatch(selectCategory(payload))
+  const setGender = (payload) => dispatch(selectGender(payload))
 
   const getEvent = async () =>{
     const { data, errors, success, message } = await EventsService.getEventBySlug(
         {slug}
     );
     if (success) {
-        if (data) {
-            setCategory(data.categories[0]);
-            setEventDetail(data);
-        }
+      if (data) {
+        setEventDetail(data);
+      }
     } else {
         console.log(message, errors);
     }
@@ -105,10 +113,12 @@ function Stages() {
     }
 
     useEffect(() => {
-      if(eventDetail.id == undefined)
+      if (eventDetail.id == undefined) {
         getEvent();
+      }
       getElimination();
-    }, [gender, category])
+    }, [eventDetail.id, gender, category]);
+
     console.log(elimination)
     const path = window.location.pathname;
     let { isLoggedIn } = useSelector(getAuthenticationStore);
@@ -184,7 +194,6 @@ const SeedTeamStyled = styled(SeedTeam)`
   align-items: stretch;
   padding: 0;
   ${({ index }) => index === 0 ? "margin-bottom: 2px;" : ""}
-  /* border-bottom: 2px solid black; */
   color: ${({ color }) => color ? color : "inherit"};
   background-color: ${({ bgColor }) => bgColor ? bgColor : "none"};
 `;
