@@ -1,40 +1,62 @@
-import React, {useEffect, useState} from 'react'
-import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from 'react-brackets'
-import { Container, Card, CardBody, Button, Row, Col } from 'reactstrap'
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from "react-brackets";
+import { Container, Card, CardBody, Button, Row, Col } from "reactstrap";
 import MetaTags from "react-meta-tags";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import logomyarchery from "../../../assets/images/myachery/myachery.png"
+import logomyarchery from "assets/images/myachery/myachery.png";
 import { getAuthenticationStore } from "store/slice/authentication";
 import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
-import { Elimination, EventsService } from "services"
+import { Elimination, EventsService } from "services";
 import { useParams } from "react-router-dom";
-import { SelectInput } from "components"
-  
-const CustomSeed = ({seed, breakpoint}) => {
+import { SelectInput } from "components";
+
+const CustomSeed = ({ seed, breakpoint }) => {
   // breakpoint passed to Bracket component
   // to check if mobile view is triggered or not
 
   // mobileBreakpoint is required to be passed down to a seed
   return (
     <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
-      <SeedItem>
-        <div>
-            {
-                seed.teams.map((team) => {
-                  return(
-                      team.win != undefined ? 
-                      team.win == 1 ? 
-                      <SeedTeam style={{ borderBottom: "2px solid black", color: "white", background: "#BC8B2C" }}>{team?.name || "<not have participant>"}</SeedTeam> 
-                      :
-                      <SeedTeam style={{ borderBottom: "2px solid black", color: "#757575", background: "#E2E2E2"}}>{team?.name || "<not have participant>"}</SeedTeam>
-                      :   
-                      <SeedTeam style={{ borderBottom: "2px solid white"}}>{team?.name || '<not have participant>'}</SeedTeam>
-                  )
-                })
-            }
-        </div>
+      <SeedItem style={{ padding: 2 }}>
+        {seed.teams.map((team, index) => {
+          return team.win != undefined ? (
+            team.win == 1 ? (
+              <SeedTeamStyled index={index} color="white" bgColor="#BC8B2C">
+                <SeedNameLabel>
+                  {team?.name || "<not have participant>"}
+                </SeedNameLabel>
+
+                <SeedScoreLabel bgColor="white" color="black">
+                  {team?.score || 0}
+                </SeedScoreLabel>
+              </SeedTeamStyled>
+            ) : (
+              <SeedTeamStyled index={index} color="#757575" bgColor="#E2E2E2">
+                <SeedNameLabel>
+                  {team?.name || "<not have participant>"}
+                </SeedNameLabel>
+
+                <SeedScoreLabel bgColor="white" color="black">
+                  {team?.score || 0}
+                </SeedScoreLabel>
+              </SeedTeamStyled>
+            )
+          ) : (
+            <SeedTeamStyled
+              index={index}
+              bgColor="black"
+              color="var(--bs-gray-600)"
+            >
+              <SeedNameLabel>
+                {team?.name || "<not have participant>"}
+              </SeedNameLabel>
+            </SeedTeamStyled>
+          );
+        })}
       </SeedItem>
+
       <SeedTime>{seed.date}</SeedTime>
     </Seed>
   );
@@ -160,5 +182,31 @@ function Stages() {
         </React.Fragment>
     )
 }
+
+const SeedTeamStyled = styled(SeedTeam)`
+  align-items: stretch;
+  padding: 0;
+  ${({ index }) => index === 0 ? "margin-bottom: 2px;" : ""}
+  /* border-bottom: 2px solid black; */
+  color: ${({ color }) => color ? color : "inherit"};
+  background-color: ${({ bgColor }) => bgColor ? bgColor : "none"};
+`;
+
+const SeedNameLabel = styled.div`
+  overflow: hidden;
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+`;
+
+const SeedScoreLabel = styled.div`
+  min-width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  background-color: white;
+  color: var(--bs-gray);
+  font-weight: bold;
+`;
 
 export default Stages
