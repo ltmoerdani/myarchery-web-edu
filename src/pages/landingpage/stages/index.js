@@ -1,65 +1,91 @@
-import React, {useEffect, useState} from 'react'
-import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from 'react-brackets'
-import { Container, Card, CardBody, Button, Row, Col } from 'reactstrap'
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from "react-brackets";
+import { Container, Card, CardBody, Button, Row, Col } from "reactstrap";
 import MetaTags from "react-meta-tags";
-import { Link } from 'react-router-dom';
-import { useSelector } from "react-redux";
-import logomyarchery from "../../../assets/images/myachery/myachery.png"
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import logomyarchery from "assets/images/myachery/myachery.png";
 import { getAuthenticationStore } from "store/slice/authentication";
+import {
+  getEliminationStagesStore,
+  selectCategory,
+  selectGender,
+} from "store/slice/eliminationStages";
 import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
-import { Elimination, EventsService } from "services"
+import { Elimination, EventsService } from "services";
 import { useParams } from "react-router-dom";
-import { SelectInput } from "components"
-  
-const CustomSeed = ({seed, breakpoint}) => {
+import { SelectInput } from "components";
+
+const CustomSeed = ({ seed, breakpoint }) => {
   // breakpoint passed to Bracket component
   // to check if mobile view is triggered or not
 
   // mobileBreakpoint is required to be passed down to a seed
   return (
     <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
-      <SeedItem>
-        <div>
-            {
-                seed.teams.map((team) => {
-                  return(
-                      team.win != undefined ? 
-                      team.win == 1 ? 
-                      <SeedTeam style={{ borderBottom: "2px solid black", color: "white", background: "#BC8B2C" }}>{team?.name || "<not have participant>"}</SeedTeam> 
-                      :
-                      <SeedTeam style={{ borderBottom: "2px solid black", color: "#757575", background: "#E2E2E2"}}>{team?.name || "<not have participant>"}</SeedTeam>
-                      :   
-                      <SeedTeam style={{ borderBottom: "2px solid white"}}>{team?.name || '<not have participant>'}</SeedTeam>
-                  )
-                })
-            }
-        </div>
+      <SeedItem style={{ padding: 2, backgroundColor: "var(--bs-gray-800)" }}>
+        {seed.teams.map((team, index) => {
+          return team.win != undefined ? (
+            team.win == 1 ? (
+              <SeedTeamStyled index={index} color="white" bgColor="#BC8B2C">
+                <SeedNameLabel>
+                  {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
+                </SeedNameLabel>
+
+                <SeedScoreLabel bgColor="white" color="black">
+                  {team?.score || 0}
+                </SeedScoreLabel>
+              </SeedTeamStyled>
+            ) : (
+              <SeedTeamStyled index={index} color="#757575" bgColor="#E2E2E2">
+                <SeedNameLabel>
+                  {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
+                </SeedNameLabel>
+
+                <SeedScoreLabel bgColor="white" color="black">
+                  {team?.score || 0}
+                </SeedScoreLabel>
+              </SeedTeamStyled>
+            )
+          ) : (
+            <SeedTeamStyled index={index} color="var(--bs-gray-600)">
+              <SeedNameLabel style={{ width: "100%", textAlign: "center" }}>
+                {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
+              </SeedNameLabel>
+            </SeedTeamStyled>
+          );
+        })}
       </SeedItem>
+
       <SeedTime>{seed.date}</SeedTime>
     </Seed>
   );
 };
 
+const genderOptions = [
+  { id: "male", label: "Laki-laki" },
+  { id: "female", label: "Perempuan" },
+]
+
 function Stages() {
   const [eventDetail, setEventDetail] = useState({});
   const [elimination, setElimination] = useState({});
   const { slug } = useParams();
-  const [category, setCategory] = useState(0)
-  const genderOptions = [
-    { id: "male", label: "Laki-laki" }, 
-    { id: "female", label: "Perempuan" }, 
-  ]
-  const [gender, setGender] = useState(genderOptions[0]);
+
+  const dispatch = useDispatch()
+  const { category, gender } = useSelector(getEliminationStagesStore)
+  const setCategory = (payload) => dispatch(selectCategory(payload))
+  const setGender = (payload) => dispatch(selectGender(payload))
 
   const getEvent = async () =>{
     const { data, errors, success, message } = await EventsService.getEventBySlug(
         {slug}
     );
     if (success) {
-        if (data) {
-            setCategory(data.categories[0]);
-            setEventDetail(data);
-        }
+      if (data) {
+        setEventDetail(data);
+      }
     } else {
         console.log(message, errors);
     }
@@ -87,10 +113,12 @@ function Stages() {
     }
 
     useEffect(() => {
-      if(eventDetail.id == undefined)
+      if (eventDetail.id == undefined) {
         getEvent();
+      }
       getElimination();
-    }, [gender, category])
+    }, [eventDetail.id, gender, category]);
+
     console.log(elimination)
     const path = window.location.pathname;
     let { isLoggedIn } = useSelector(getAuthenticationStore);
@@ -160,5 +188,31 @@ function Stages() {
         </React.Fragment>
     )
 }
+
+const SeedTeamStyled = styled(SeedTeam)`
+  overflow: hidden;
+  align-items: stretch;
+  padding: 0;
+  ${({ index }) => index === 0 ? "margin-bottom: 2px;" : ""}
+  color: ${({ color }) => color ? color : "inherit"};
+  background-color: ${({ bgColor }) => bgColor ? bgColor : "none"};
+`;
+
+const SeedNameLabel = styled.div`
+  overflow: hidden;
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+`;
+
+const SeedScoreLabel = styled.div`
+  min-width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  background-color: white;
+  color: var(--bs-gray);
+  font-weight: bold;
+`;
 
 export default Stages
