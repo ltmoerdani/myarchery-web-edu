@@ -9,6 +9,7 @@ import storage from "redux-persist/lib/storage"
 import authenticationReducer from "./slice/authentication"
 import archerReducer from "./slice/archer"
 import eventReducer from "./slice/events"
+import eliminationStagesReducer from "./slice/eliminationStages"
 
 
 const persistConfig = {
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   authentication: authenticationReducer,
   archer: archerReducer,
   events: eventReducer,
+  eliminationStages: eliminationStagesReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
