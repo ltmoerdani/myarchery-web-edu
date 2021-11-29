@@ -30,28 +30,28 @@ const CustomSeed = ({ seed, breakpoint }) => {
             team.win == 1 ? (
               <SeedTeamStyled index={index} color="white" bgColor="#BC8B2C">
                 <SeedNameLabel>
-                  {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
+                  {team?.name || <React.Fragment>&lt;belum ada partisipan&gt;</React.Fragment>}
                 </SeedNameLabel>
 
                 <SeedScoreLabel bgColor="white" color="black">
-                  {team?.score || 0}
+                  {team?.result || 0}
                 </SeedScoreLabel>
               </SeedTeamStyled>
             ) : (
               <SeedTeamStyled index={index} color="#757575" bgColor="#E2E2E2">
                 <SeedNameLabel>
-                  {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
+                  {team?.name || <React.Fragment>&lt;belum ada partisipan&gt;</React.Fragment>}
                 </SeedNameLabel>
 
                 <SeedScoreLabel bgColor="white" color="black">
-                  {team?.score || 0}
+                  {team?.result || 0}
                 </SeedScoreLabel>
               </SeedTeamStyled>
             )
           ) : (
             <SeedTeamStyled index={index} color="var(--bs-gray-600)">
               <SeedNameLabel style={{ width: "100%", textAlign: "center" }}>
-                {team?.name || <React.Fragment>&lt;not have participant&gt;</React.Fragment>}
+                {team?.name || <React.Fragment>&lt;belum ada partisipan&gt;</React.Fragment>}
               </SeedNameLabel>
             </SeedTeamStyled>
           );
