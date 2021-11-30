@@ -40,7 +40,7 @@ const App = () => {
             <AuthenticationMiddleware
               path={route.path}
               layout={DashboardHorizontalLayout}
-              component={route.component}
+              component={() => <Redirect to="/" />}
               key={idx}
               isAuthProtected={true}
               exact
