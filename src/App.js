@@ -17,6 +17,7 @@ import {
   landingpageRouters,
   archerRouters,
   routerDasboardArcher,
+  certificateRoutes,
 } from "./routes";
 
 const App = () => {
@@ -39,7 +40,7 @@ const App = () => {
             <AuthenticationMiddleware
               path={route.path}
               layout={DashboardHorizontalLayout}
-              component={route.component}
+              component={() => <Redirect to="/" />}
               key={idx}
               isAuthProtected={true}
               exact
@@ -59,6 +60,16 @@ const App = () => {
             <AuthenticationMiddleware
               path={route.path}
               layout={DashboardEventUmum}
+              component={route.component}
+              key={idx}
+              isAuthProtected={false}
+              exact
+            />
+          ))}
+          {certificateRoutes.map((route, idx) => (
+            <AuthenticationMiddleware
+              path={route.path}
+              layout={LandingPageLayout}
               component={route.component}
               key={idx}
               isAuthProtected={false}
