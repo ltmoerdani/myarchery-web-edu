@@ -4,14 +4,16 @@ import HeaderForm from "layouts/landingpage/HeaderForm";
 import { Container, Row, Col, Card, CardBody, Button } from "reactstrap";
 import styled from "styled-components";
 import Avatar from "../../../assets/images/users/avatar-man.png";
-import { OrderEventService } from "services";
+import { OrderEventService, Certificate } from "services";
 import { useParams } from "react-router-dom";
 import logoLight from "../../../assets/images/myachery/myachery.png";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 // import QRCode from "qrcode.react";
-import { QRCode } from 'react-qr-svg'
-import { LoadingScreen } from "components"
+import { QRCode } from "react-qr-svg";
+import { LoadingScreen } from "components";
+
+import DownloadableCertificate from "./DownloadableSertificate";
 
 const H5 = styled.h5`
   font-size: 13px;
@@ -22,9 +24,11 @@ const H5 = styled.h5`
 
 const CheckoutEvent = () => {
   const [loading, setLoading] = useState(true);
-  const [info, setInfo] = useState([]);
+  const [info, setInfo] = useState(null);
   const { id } = useParams();
   let { userProfile } = useSelector(getAuthenticationStore);
+  const [loadingCertificate, setLoadingCertificate] = useState(false);
+  const [certificates, setCertificates] = React.useState(null);
 
   const handleClickPayment = (snapToken = "") => {
     window.snap.pay(`${info.transactionInfo ? info.transactionInfo.snapToken : snapToken}`, {
@@ -47,6 +51,7 @@ const CheckoutEvent = () => {
     const { data, errors, message, success } = await OrderEventService.get({
       id,
     });
+    setLoading(false);
     if (success) {
       if (data) {
         if (data.transactionInfo.statusId == 4) {
@@ -54,7 +59,6 @@ const CheckoutEvent = () => {
         }
 
         setInfo(data);
-        setLoading(false);
       }
     } else {
       console.error(message, errors);
@@ -66,8 +70,40 @@ const CheckoutEvent = () => {
     currency: "IDR",
   });
 
-  const hrefToCertificateList = (eventId, memberId) =>
-    `/archer/event/${eventId}/member/${memberId}/certificates`;
+  React.useEffect(() => {
+    if (!info) {
+      return;
+    }
+
+    const getCertifList = async () => {
+      setLoadingCertificate(true);
+      const result = await Certificate.getByParticipantId({
+        participant_id: info.participant.id,
+      });
+      if (result.data) {
+        setCertificates(result.data);
+      }
+      setLoadingCertificate(false);
+    };
+    getCertifList();
+  }, [info]);
+
+  const handleCertificateDownload = async (typeCertificate) => {
+    setLoading(true);
+    const download = await Certificate.download({
+      event_id: event_id,
+      member_id: participant_id,
+      type_certificate: typeCertificate,
+    });
+
+    if (download.data) {
+      const { fileName, fileBase64 } = download.data;
+      fileSaver.saveAs(fileBase64, fileName || "certificate.pdf");
+    }
+    // TODO: handle error
+
+    setLoading(false);
+  };
 
   return (
     <React.Fragment>
@@ -130,177 +166,194 @@ const CheckoutEvent = () => {
           </CardBody>
         </Card>
 
-        <Card>
-          <CardBody>
-            <Row>
-              <Col md={3} sm={12}>
-                <div style={{ textAlign: "center" }} className="mb-4">
-                  <img
-                    src={
-                      info.archeryEvent != undefined &&
-                      info.archeryEvent.poster != null &&
-                      info.archeryEvent.poster
-                        ? info.archeryEvent.poster
-                        : logoLight
-                    }
-                    height="130"
-                  />
-                </div>
+        {info && (
+          <Card>
+            <CardBody>
+              <Row>
+                <Col md={3} sm={12}>
+                  <div style={{ textAlign: "center" }} className="mb-4">
+                    <img
+                      src={
+                        info.archeryEvent != undefined &&
+                        info.archeryEvent.poster != null &&
+                        info.archeryEvent.poster
+                          ? info.archeryEvent.poster
+                          : logoLight
+                      }
+                      height="130"
+                    />
+                  </div>
                 </Col>
                 <Col md={9} sm={12}>
                   <Row>
                     <Col sm={12}>
-                  <H5 className="mx-md-5">Detail Order</H5>
-                  <div className="d-md-flex">
-                    <div className="mx-md-5 text-muted">
-                      <H5>ID ORDER</H5>
-                      <h4>{info.transactionInfo?.orderId}</h4>
-                    </div>
-                    <div className="mx-md-5 text-muted">
-                      <H5>Total</H5>
-                      <h4>{formatter.format(info.transactionInfo?.total)}</h4>
-                    </div>
-                    <div className="mx-md-5 text-muted">
-                      <H5>Status Pembayaran</H5>
+                      <H5 className="mx-md-5">Detail Order</H5>
+                      <div className="d-md-flex">
+                        <div className="mx-md-5 text-muted">
+                          <H5>ID ORDER</H5>
+                          <h4>{info.transactionInfo?.orderId}</h4>
+                        </div>
+                        <div className="mx-md-5 text-muted">
+                          <H5>Total</H5>
+                          <h4>{formatter.format(info.transactionInfo?.total)}</h4>
+                        </div>
+                        <div className="mx-md-5 text-muted">
+                          <H5>Status Pembayaran</H5>
 
-                      {info.transactionInfo != undefined &&
-                      info.transactionInfo.statusId == 1 ? (
-                        <h4 style={{ color: "green" }} className="fw-medium">
-                          <i>{info.transactionInfo.status}</i>
-                        </h4>
-                      ) : info.transactionInfo != undefined &&
-                        info.transactionInfo.statusId == 4 ? (
-                        <h4 style={{ color: "red" }} className="fw-medium">
-                          <i className="me-sm-2">{info.transactionInfo.status}</i>
-                          <span className="btn btn-primary mt-2" onClick={() => {
-                            window.location.reload();
-                          }}>Check status</span>
-                        </h4>
-                      ) : (
-                        <h4 style={{ color: "gray" }} className="fw-medium">
-                          <i>
-                            {info.transactionInfo
-                              ? info.transactionInfo.status
-                              : ""}
-                          </i>
-                        </h4>
-                      )}
-                    </div>
-                    <div>
-                      {/* <QRCode value={info.transactionInfo?.orderId} /> */}
-                      {info.transactionInfo != undefined &&
-                        info.transactionInfo.statusId == 0 ?
-                          <QRCode 
-                            bgColor="#FFFFFF"
-                            fgColor="#000000"
-                            level="Q"
-                            style={{ width: 100 }}
-                            value={`${info.transactionInfo?.orderId}`}
-                          /> : ""}
-                    </div>
-                  </div>
-                  <hr />
-                  </Col>
-                  <Col sm={12}>
-                      <H5 className="mx-md-5">Event</H5>
-                  <div className="d-md-flex">
-                    <div className="mx-md-5 text-muted">
-                      <h5>{info.archeryEvent?.eventName}</h5>
-                    </div>
-                    <div className="mx-md-5 text-muted">
-                      <H5>Lokasi</H5>
-                      <h5>{info.archeryEvent?.location}</h5>
-                    </div>
-                    <div className="mx-md-5 text-muted">
-                      <H5>Peserta</H5>
-                      {info.participant && info.participant.members ? (
-                        info.participant.members.map((i) => (
-                          <li key={i}>{i.name}</li>
-                        ))
-                      ) : (
-                        <></>
-                      )}
-                    </div>
-                    <div className="mx-md-5 text-muted">
-                      <H5>Kategori</H5>
-                      <h6>{info.participant?.categoryLabel}</h6>
-                    </div>
-                  </div>
-                  <hr />
-                  </Col>
-
-                  <Col sm={12}>
-                  <div className="d-flex justify-content-between">
-                    <div className="mx-md-5 text-muted">
-                      <H5>Tanggal Kualifikasi</H5>
-                      <p>{info.archeryEvent?.eventStartDatetime}</p>
-                    </div>
-                    <div className="mx-md-5 text-muted">
-                    {info.transactionInfo != undefined &&
-                      info.transactionInfo.statusId == 1 ? 
-                      <div>
-                        <Button
-                          href={
-                            info.participant ? "/display/stages/" + info.archeryEvent.eventSlug : ""
-                          }
-                          type="button"
-                          size="sm"
-                          style={{ backgroundColor: "#0D47A1" }}
-                        >
-                          Pilih Jadwal Kualifikasi
-                        </Button>
+                          {info.transactionInfo != undefined &&
+                          info.transactionInfo.statusId == 1 ? (
+                            <h4 style={{ color: "green" }} className="fw-medium">
+                              <i>{info.transactionInfo.status}</i>
+                            </h4>
+                          ) : info.transactionInfo != undefined &&
+                            info.transactionInfo.statusId == 4 ? (
+                            <h4 style={{ color: "red" }} className="fw-medium">
+                              <i className="me-sm-2">{info.transactionInfo.status}</i>
+                              <span
+                                className="btn btn-primary mt-2"
+                                onClick={() => {
+                                  window.location.reload();
+                                }}
+                              >
+                                Check status
+                              </span>
+                            </h4>
+                          ) : (
+                            <h4 style={{ color: "gray" }} className="fw-medium">
+                              <i>{info.transactionInfo ? info.transactionInfo.status : ""}</i>
+                            </h4>
+                          )}
+                        </div>
+                        <div>
+                          {/* <QRCode value={info.transactionInfo?.orderId} /> */}
+                          {info.transactionInfo != undefined &&
+                          info.transactionInfo.statusId == 0 ? (
+                            <QRCode
+                              bgColor="#FFFFFF"
+                              fgColor="#000000"
+                              level="Q"
+                              style={{ width: 100 }}
+                              value={`${info.transactionInfo?.orderId}`}
+                            />
+                          ) : (
+                            ""
+                          )}
+                        </div>
                       </div>
-                      :null}
-                      <Button
-                          href={info.participant ?"/display/stages/"+info.archeryEvent.eventSlug : ""}
-                          type="button"
-                          size="sm"
-                          style={{ backgroundColor: "#0D47A1" }}
-                        >
-                          Jadwal Eliminasi
-                      </Button>
-                    </div>
-                  </div>
-                  <hr />
-                  </Col>
+                      <hr />
+                    </Col>
+                    <Col sm={12}>
+                      <H5 className="mx-md-5">Event</H5>
+                      <div className="d-md-flex">
+                        <div className="mx-md-5 text-muted">
+                          <h5>{info.archeryEvent?.eventName}</h5>
+                        </div>
+                        <div className="mx-md-5 text-muted">
+                          <H5>Lokasi</H5>
+                          <h5>{info.archeryEvent?.location}</h5>
+                        </div>
+                        <div className="mx-md-5 text-muted">
+                          <H5>Peserta</H5>
+                          {info.participant && info.participant.members ? (
+                            info.participant.members.map((i) => <li key={i}>{i.name}</li>)
+                          ) : (
+                            <></>
+                          )}
+                        </div>
+                        <div className="mx-md-5 text-muted">
+                          <H5>Kategori</H5>
+                          <h6>{info.participant?.categoryLabel}</h6>
+                        </div>
+                      </div>
+                      <hr />
+                    </Col>
 
-                  {info?.transactionInfo?.statusId === 1 && info?.archeryEvent?.id && (
                     <Col sm={12}>
                       <div className="d-flex justify-content-between">
-                        <div className="mx-md-5 text-muted" />
-
-                        <div className="d-flex flex-column align-items-end mx-md-5 text-muted">
+                        <div className="mx-md-5 text-muted">
+                          <H5>Tanggal Kualifikasi</H5>
+                          <p>{info.archeryEvent?.eventStartDatetime}</p>
+                        </div>
+                        <div className="mx-md-5 text-muted">
+                          {info.transactionInfo != undefined &&
+                          info.transactionInfo.statusId == 1 ? (
+                            <div>
+                              <Button
+                                href={
+                                  info.participant
+                                    ? "/display/stages/" + info.archeryEvent.eventSlug
+                                    : ""
+                                }
+                                type="button"
+                                size="sm"
+                                style={{ backgroundColor: "#0D47A1" }}
+                              >
+                                Pilih Jadwal Kualifikasi
+                              </Button>
+                            </div>
+                          ) : null}
                           <Button
+                            href={
+                              info.participant
+                                ? "/display/stages/" + info.archeryEvent.eventSlug
+                                : ""
+                            }
                             type="button"
-                            href={hrefToCertificateList(
-                              info.archeryEvent.id,
-                              info.participant.members[0].id
-                            )}
+                            size="sm"
                             style={{ backgroundColor: "#0D47A1" }}
                           >
-                            Lihat Sertifikat Event <i className="mdi mdi-chevron-right" />
+                            Jadwal Eliminasi
                           </Button>
                         </div>
                       </div>
+                      <hr />
                     </Col>
-                  )}
 
-                  {info.transactionInfo != undefined &&
-                      info.transactionInfo.statusId == 4 ?
-                <Button
-                  type="button"
-                  size="md"
-                  onClick={handleClickPayment}
-                  style={{ backgroundColor: "#0D47A1" }}
-                >
-                  LAKUKAN PEMBAYARAN
-                </Button>
-                : null}
-                </Row>
+                    {info?.transactionInfo?.statusId === 1 &&
+                      info?.archeryEvent?.id &&
+                      (loadingCertificate ? (
+                        <Col sm={12}>
+                          <div className="d-md-flex mx-md-5 text-muted">Memuat sertifikat...</div>
+                        </Col>
+                      ) : (
+                        certificates?.length && (
+                          <Col sm={12}>
+                            <H5 className="mx-md-5 mb-3">Sertifikat yang Diperoleh</H5>
+
+                            <div className="d-md-flex mx-md-5">
+                              <Row className="mb-5">
+                                {certificates.map((certificate) => (
+                                  <Col md="6" lg="4" key={certificate.data.id}>
+                                    <DownloadableCertificate
+                                      certificate={certificate}
+                                      onDownload={() =>
+                                        handleCertificateDownload(certificate.data.typeCertificate)
+                                      }
+                                    />
+                                  </Col>
+                                ))}
+                              </Row>
+                            </div>
+                          </Col>
+                        )
+                      ))}
+
+                    {info.transactionInfo != undefined && info.transactionInfo.statusId == 4 ? (
+                      <Button
+                        type="button"
+                        size="md"
+                        onClick={handleClickPayment}
+                        style={{ backgroundColor: "#0D47A1" }}
+                      >
+                        LAKUKAN PEMBAYARAN
+                      </Button>
+                    ) : null}
+                  </Row>
                 </Col>
-                </Row>
+              </Row>
             </CardBody>
           </Card>
+        )}
       </Container>
     </React.Fragment>
   );
