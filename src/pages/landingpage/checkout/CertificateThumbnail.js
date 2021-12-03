@@ -22,11 +22,11 @@ const CertificateThumbnail = ({ certificate }) => {
     >
       <ThumbnailTextField field={fields[0]}>{templateData.memberName}</ThumbnailTextField>
 
-      {parseInt(templateData.typeCertificate) !== 1 && (
-        <ThumbnailTextField field={fields[1]}>{templateData.peringkatName}</ThumbnailTextField>
+      {parseInt(templateData.typeCertificate) === 2 && (
+        <ThumbnailTextField field={fields[1]}>{templateData.ranked}</ThumbnailTextField>
       )}
 
-      <ThumbnailTextField field={fields[2]}>{templateData.kategoriName}</ThumbnailTextField>
+      <ThumbnailTextField field={fields[2]}>{templateData.categoryName}</ThumbnailTextField>
 
       <image
         href={qrCodeUrl}
