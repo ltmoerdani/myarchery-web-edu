@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 // import QRCode from "qrcode.react";
 import { QRCode } from "react-qr-svg";
+import fileSaver from "file-saver";
 import { LoadingScreen } from "components";
 
 import DownloadableCertificate from "./DownloadableSertificate";
@@ -91,8 +92,7 @@ const CheckoutEvent = () => {
   const handleCertificateDownload = async (typeCertificate) => {
     setLoading(true);
     const download = await Certificate.download({
-      event_id: event_id,
-      member_id: participant_id,
+      participant_id: info.participant.id,
       type_certificate: typeCertificate,
     });
 
