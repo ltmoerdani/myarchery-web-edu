@@ -8,7 +8,6 @@ import CheckoutEvent from "../pages/landingpage/checkout";
 import DashboardOrderEvent from "../pages/landingpage/dashboard";
 import ArcherLogout from "pages/authArcher/logout";
 import ProfileArcher from "pages/landingpage/profile";
-import CertificatesPage from "pages/landingpage/certificate";
 import React from "react";
 import { Redirect } from "react-router-dom";
 
@@ -21,7 +20,6 @@ const routerDasboardArcher = [
   { path: "/marathon/register", component: RegisterMarathon },
   { path: "/marathon/register-done", component: RegisterMarathonDone },
   { path: "/archer/event/marathon/qualification/schedule/:member_id", component: ScheduleMarathon },
-  { path: "/archer/event/:event_id/member/:member_id/certificates", component: CertificatesPage },
 
   { path: "/checkout-event/:id", component: CheckoutEvent, exact: true },
   { path: "/archer/dashboard", component: DashboardOrderEvent, exact: true },
