@@ -281,7 +281,7 @@ const CheckoutEvent = () => {
                               <Button
                                 href={
                                   info.participant
-                                    ? "/display/stages/" + info.archeryEvent.eventSlug
+                                    ? "/archer/event/marathon/qualification/schedule/" + info.participant.members[0].id
                                     : ""
                                 }
                                 type="button"
