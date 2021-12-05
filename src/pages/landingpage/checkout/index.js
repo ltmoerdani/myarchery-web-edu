@@ -32,7 +32,7 @@ const CheckoutEvent = () => {
   const [certificates, setCertificates] = React.useState(null);
 
   const handleClickPayment = (snapToken = "") => {
-    window.snap.pay(`${info.transactionInfo ? info.transactionInfo.snapToken : snapToken}`, {
+    window.snap.pay(`${info != null && info.transactionInfo ? info.transactionInfo.snapToken : snapToken}`, {
       onSuccess: function () {
         console.log("success");
       },
