@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-// import { useDispatch } from "react-redux";
-// import * as AuthenticationStore from "store/slice/authentication";
-// import { AdminService } from "services";
+import { useSelector, useDispatch } from "react-redux";
+import * as AuthStore from "store/slice/authentication";
+import { ArcherService } from "services";
 import { withTranslation } from "react-i18next";
 
 import {
@@ -21,25 +21,29 @@ import user1 from "../../assets/images/users/avatar-man.png";
 
 const ProfileMenu = (props) => {
   const { push } = useHistory();
-  // const dispatch = useDispatch();
-  const [username, setUsername] = useState("Archer");
+  const dispatch = useDispatch();
+
   const [menu, setMenu] = useState(false);
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const username = userProfile?.name || "Archer";
   const [confirmLogout, setConfirmLogout] = React.useState(false);
+
+  React.useEffect(() => {
+    if (userProfile) {
+      return;
+    }
+    const getUser = async () => {
+      const { data, success } = await ArcherService.profile();
+      if (success) {
+        dispatch(AuthStore.profile(data));
+      }
+    };
+    getUser();
+  }, []);
 
   const handleShowConfirmLogout = () => setConfirmLogout(true);
   const handleCancelLogout = () => setConfirmLogout(false);
   const handleLogout = () => push("/archer/logout");
-
-  useEffect(() => {
-    const getUser = async () => {
-      // const { data, success } = await AdminService.profile();
-      // if (success) {
-        setUsername("Archer");
-        // dispatch(AuthenticationStore.profile(data));
-      // }
-    };
-    getUser();
-  }, [props.success]);
 
   return (
     <React.Fragment>
