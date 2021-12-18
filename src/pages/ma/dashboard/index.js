@@ -12,13 +12,16 @@ const DashboardWrapper = styled.div`
   margin: 40px 0;
   font-family: "Inter";
 
-  .dashboard-greeting {
-    .heading {
-      font-weight: 500;
-      color: #000000;
-    }
+  .heading {
+    font-weight: 500;
+    color: #000000;
   }
 `;
+
+function GreetingUserText({ children }) {
+  const text = children ? `Halo, ${children.name}` : "Halo!";
+  return <h1 className="heading">{text}</h1>;
+}
 
 function PageDashboard() {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
@@ -29,8 +32,8 @@ function PageDashboard() {
       </MetaTags>
 
       <Container fluid>
-        <div className="dashboard-greeting mb-5">
-          <h1 className="heading">Halo, {userProfile.name}</h1>
+        <div className="mb-5">
+          <GreetingUserText>{userProfile}</GreetingUserText>
           <p className="subheading">Selamat datang di myarchery.id</p>
         </div>
 
