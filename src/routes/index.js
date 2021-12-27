@@ -4,3 +4,4 @@ export { default as certificateRoutes } from "./certificate";
 export { default as landingpageRouters } from "./landingpage";
 export { default as archerRouters } from "./archer";
 export { default as routerDasboardArcher } from "./dashboardArcher";
+export { default as dashboardRoutes } from "./dashboard";

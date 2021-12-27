@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router, Redirect, Switch } from "react-router-dom";
-import "./assets/scss/theme.scss";
 import {
   AuthLayout,
   DashboardEventUmum,
@@ -16,6 +15,11 @@ import {
   routerDasboardArcher,
   certificateRoutes,
 } from "./routes";
+
+import { dashboardRoutes } from "./routes";
+import { LayoutDashboard } from "layouts/ma";
+
+import "./assets/scss/theme.scss";
 
 const App = () => {
   return (
@@ -74,6 +78,17 @@ const App = () => {
               component={route.component}
               key={idx}
               isAuthProtected={false}
+              exact
+            />
+          ))}
+
+          {dashboardRoutes.map((route) => (
+            <AuthenticationArcherMiddleware
+              path={route.path}
+              layout={LayoutDashboard}
+              component={route.component}
+              key={route.path}
+              isAuthProtected={true}
               exact
             />
           ))}
