@@ -1,9 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { ArcheryClubService } from "services";
 
 import MetaTags from "react-meta-tags";
 import { Container, Row, Col, Modal, ModalBody } from "reactstrap";
+import SweetAlert from "react-bootstrap-sweetalert";
 import { ButtonBlue, ButtonOutlineBlue } from "components/ma";
 import { FieldInputText, FieldSelect, FieldTextArea } from "./components";
 
@@ -22,17 +24,34 @@ function clubDataReducer(state, action) {
   return { ...state, ...action };
 }
 
+async function imageToBase64(imageFileRaw) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFileRaw);
+    reader.onload = () => {
+      const baseURL = reader.result;
+      resolve(baseURL);
+    };
+  });
+}
+
 function PageClubCreate() {
   const [clubData, updateClubData] = React.useReducer(clubDataReducer, clubDataStructure);
-  const [shouldShowConfirmCreate, setShowConfirmCreate] = React.useState(false);
 
+  const [shouldShowConfirmCreate, setShowConfirmCreate] = React.useState(false);
+  const [submitStatus, setSubmitStatus] = React.useState(null);
+
+  const closeModalConfirmation = () => setShowConfirmCreate(false);
+  const toggleModalConfirmation = () => setShowConfirmCreate((show) => !show);
+
+  const showAlertSuccess = submitStatus === "success";
   const breadcrumpCurrentPageLabel = "Buat Klub";
 
   const computeClubBasisAddress = () => {
     const infos = [
       clubData.clubBasisAddress,
-      clubData.clubBasisCity.label,
-      clubData.clubBasisProvince.label,
+      clubData.clubBasisCity?.label,
+      clubData.clubBasisProvince?.label,
     ];
     const byEmptyField = (info) => Boolean(info);
     return infos.filter(byEmptyField).join(", ");
@@ -57,8 +76,33 @@ function PageClubCreate() {
     setShowConfirmCreate(true);
   };
 
-  const closeModalConfirmation = () => setShowConfirmCreate(false);
-  const toggleModalConfirmation = () => setShowConfirmCreate((show) => !show);
+  const handleSubmitCreateClub = async () => {
+    setSubmitStatus("fetching");
+    const bannerBase64 = clubData.bannerImage && (await imageToBase64(clubData.bannerImage.raw));
+    const logoBase64 = clubData.logoImage && (await imageToBase64(clubData.logoImage.raw));
+
+    const payload = {
+      name: clubData.clubName,
+      banner: bannerBase64,
+      logo: logoBase64,
+      place_name: clubData.clubBasis,
+      province: clubData.clubBasisProvince.value,
+      city: clubData.clubBasisCity.value,
+      address: clubData.clubBasisAddress,
+      description: clubData.description,
+    };
+
+    const createdClub = await ArcheryClubService.create(payload);
+
+    if (createdClub?.success) {
+      setShowConfirmCreate(false);
+      setTimeout(() => {
+        setSubmitStatus("success");
+      }, 500);
+    } else if (createdClub?.error) {
+      setSubmitStatus("error");
+    }
+  };
 
   return (
     <ClubCreateWrapper>
@@ -238,14 +282,40 @@ function PageClubCreate() {
                 </table>
 
                 <div className="mt-5 d-flex justify-content-center">
-                  <ButtonBlue className="button-submit">Buat Klub</ButtonBlue>
+                  <ButtonBlue className="button-submit" onClick={handleSubmitCreateClub}>
+                    Buat Klub
+                  </ButtonBlue>
                 </div>
               </ModalConfirmWrapper>
             </ModalBody>
           </Modal>
+
+          <AlertSuccess show={showAlertSuccess} />
         </div>
       </Container>
     </ClubCreateWrapper>
+  );
+}
+
+function AlertSuccess({ show }) {
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      style={{ padding: "30px 40px" }}
+      customButtons={
+        <div className="d-flex flex-column w-100">
+          <ButtonBlue as={Link} to="/dashboard/clubs">
+            Kembali ke Klub Saya
+          </ButtonBlue>
+        </div>
+      }
+    >
+      <h4>Berhasil</h4>
+      <p>Klub Anda telah berhasil dibuat</p>
+    </SweetAlert>
   );
 }
 

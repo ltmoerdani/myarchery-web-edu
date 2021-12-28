@@ -1,10 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { ArcheryClubService } from "services";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
-import { ButtonBlue } from "components/ma";
+import { ButtonBlue, ButtonOutlineBlue } from "components/ma";
 
 import illustrationEmptyState from "assets/images/illustrations/create-club-empty-state.png";
 
@@ -13,7 +14,13 @@ function PageClubHome() {
   const breadcrumpCurrentPageLabel = "Klub Saya";
 
   React.useEffect(() => {
-    setClubs([]);
+    const fetchClubs = async () => {
+      const clubs = await ArcheryClubService.getMyClubs();
+      if (clubs?.success) {
+        setClubs(clubs.data);
+      }
+    };
+    fetchClubs();
   }, []);
 
   return (
@@ -30,40 +37,98 @@ function PageClubHome() {
           <span>{breadcrumpCurrentPageLabel}</span>
         </div>
 
-        <div className="card-dashboard">
-          {!clubs ? (
-            <div>Sedang memuat data...</div>
-          ) : (
-            <React.Fragment>
-              <div className="ilustration-container"></div>
-              <div className="empty-state-message">
-                Anda belum memiliki klub
-                <br />
-                Silakan membuat klub
-              </div>
-              <div className="empty-state-action-buttons">
-                <ButtonBlue
-                  as={Link}
-                  className="empty-state-button button-light"
-                  to="/dashboard/clubs/new"
-                >
-                  Buat Klub
-                </ButtonBlue>
-                <ButtonBlue as={Link} className="empty-state-button">
-                  Gabung Klub
-                </ButtonBlue>
-              </div>
-            </React.Fragment>
-          )}
-        </div>
+        {!clubs ? (
+          <div className="card-dashboard list-empty">
+            <h5>Sedang memuat data...</h5>
+          </div>
+        ) : clubs?.length ? (
+          <ClubList clubs={clubs} />
+        ) : (
+          <ClubListEmptyState />
+        )}
       </Container>
     </ClubPageWrapper>
+  );
+}
+
+function ClubListEmptyState() {
+  return (
+    <div className="card-dashboard list-empty">
+      <div className="ilustration-container"></div>
+      <div className="empty-state-message">
+        Anda belum memiliki klub
+        <br />
+        Silakan membuat klub
+      </div>
+      <div className="empty-state-action-buttons">
+        <ButtonBlue
+          as={Link}
+          className="club-dashboard-button button-light"
+          to="/dashboard/clubs/new"
+        >
+          Buat Klub
+        </ButtonBlue>
+        <ButtonBlue as={Link} className="club-dashboard-button">
+          Gabung Klub
+        </ButtonBlue>
+      </div>
+    </div>
+  );
+}
+
+function ClubList({ clubs }) {
+  const computeClubBasisFullAddress = (club) => {
+    const infos = [club.address, club.city, club.province];
+    const byEmptyField = (info) => Boolean(info);
+    return infos.filter(byEmptyField).join(", ");
+  };
+
+  return (
+    <div className="card-dashboard list-data">
+      <div className="list-data-action-buttons">
+        <ButtonBlue
+          as={Link}
+          className="club-dashboard-button button-light"
+          to="/dashboard/clubs/new"
+        >
+          Buat Klub
+        </ButtonBlue>
+        <ButtonBlue as={Link} className="club-dashboard-button">
+          Gabung Klub
+        </ButtonBlue>
+      </div>
+      {clubs?.map((club) => (
+        <div key={club.id} className="club-list-item">
+          <div className="club-logo">
+            <img className="club-logo-image" src={club.logo} />
+          </div>
+
+          <div className="club-list-item-content">
+            <h4 className="club-name">{club.name}</h4>
+            <div className="club-info">
+              <span>{computeClubBasisFullAddress(club)}</span>
+              <span>Jumlah anggota terdaftar: &mdash;</span>
+            </div>
+          </div>
+
+          <div className="club-list-item-actions">
+            <ButtonOutlineBlue className="club-dashboard-button">
+              {"Lihat Profil" || "Atur Klub"}
+            </ButtonOutlineBlue>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
 const ClubPageWrapper = styled.div`
   margin: 40px 0;
   font-family: "Inter";
+
+  .club-dashboard-button {
+    min-width: 120px;
+  }
 
   .button-light {
     background-color: #eef3fe;
@@ -74,12 +139,6 @@ const ClubPageWrapper = styled.div`
   .card-dashboard {
     position: relative;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: stretch;
-    gap: 1.25rem;
-
     padding: 3rem;
     padding-bottom: 3.5rem;
     min-height: 320px;
@@ -89,31 +148,95 @@ const ClubPageWrapper = styled.div`
     background-color: #ffffff;
     background-clip: border-box;
 
-    text-align: center;
+    &.list-data {
+      padding: 1.5rem;
 
-    .ilustration-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 300px;
+      .list-data-action-buttons {
+        margin-bottom: 1.25rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+      }
 
-      background-image: url(${illustrationEmptyState});
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: contain;
+      .club-list-item {
+        position: relative;
+        margin: 0 -1.5rem;
+        padding: 1.25rem;
+
+        display: flex;
+        gap: 1.25rem;
+
+        &:hover {
+          background-color: #eef3fe;
+        }
+
+        .club-logo {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: solid 1px #eeeeee;
+          background-color: var(--ma-gray-400);
+
+          &-image {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        .club-list-item-content {
+          flex-grow: 1;
+          padding-top: 0.875rem;
+
+          .club-name {
+            color: var(--ma-blue);
+          }
+
+          .club-info {
+            display: flex;
+            gap: 5rem;
+          }
+        }
+
+        .club-list-item-actions {
+          flex-shrink: 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
     }
 
-    .empty-state-message {
-      font-size: 1rem;
-    }
-
-    .empty-state-action-buttons {
+    &.list-empty {
       display: flex;
+      flex-direction: column;
       justify-content: center;
+      align-items: stretch;
       gap: 1.25rem;
 
-      .empty-state-button {
-        min-width: 120px;
+      text-align: center;
+
+      .ilustration-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 300px;
+
+        background-image: url(${illustrationEmptyState});
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+      }
+
+      .empty-state-message {
+        font-size: 1rem;
+      }
+
+      .empty-state-action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1.25rem;
       }
     }
   }
