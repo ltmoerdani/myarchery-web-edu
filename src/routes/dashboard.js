@@ -1,11 +1,5 @@
-import PageDashboard from "../pages/ma/dashboard";
+import PageDashboard from "pages/ma/dashboard";
 
-const dashboardRoutes = [
-  {
-    path: "/dashboard",
-    exact: true,
-    component: PageDashboard,
-  },
-];
+const dashboardRoutes = [{ path: "/dashboard", exact: true, component: PageDashboard }];
 
 export default dashboardRoutes;
