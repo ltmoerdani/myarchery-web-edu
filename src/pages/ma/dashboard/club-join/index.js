@@ -4,15 +4,17 @@ import styled from "styled-components";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
-import { ClubDataListView } from "./components/list-view";
+import { JoinClubDataListView } from "./components/list-view";
 
-function PageClubHome() {
-  const breadcrumpCurrentPageLabel = "Kembali";
+const PAGE_TITLE = "Daftar Klub";
+
+function PageClubJoin() {
+  const breadcrumbCurrentPageLabel = PAGE_TITLE;
 
   return (
-    <ClubPageWrapper>
+    <JoinClubPageWrapper>
       <MetaTags>
-        <title>Klub Saya | MyArchery.id</title>
+        <title>{PAGE_TITLE} | MyArchery.id</title>
       </MetaTags>
 
       <Container fluid>
@@ -20,18 +22,18 @@ function PageClubHome() {
           <Link to="/dashboard">
             <span className="breadcrumb__back-button">&lsaquo;</span>
           </Link>{" "}
-          <span>{breadcrumpCurrentPageLabel}</span>
+          <span>{breadcrumbCurrentPageLabel}</span>
         </div>
 
-        <ClubDataListView />
+        <JoinClubDataListView />
       </Container>
-    </ClubPageWrapper>
+    </JoinClubPageWrapper>
   );
 }
 
-const ClubPageWrapper = styled.div`
+const JoinClubPageWrapper = styled.div`
   margin: 40px 0;
   font-family: "Inter";
 `;
 
-export default PageClubHome;
+export default PageClubJoin;
