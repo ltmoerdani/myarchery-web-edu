@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import { ArcheryClubService } from "services";
 
 import SweetAlert from "react-bootstrap-sweetalert";
@@ -39,9 +38,7 @@ function ClubListItem({ club, isSelected, onSelected, onCancelSelected, onConfir
   return (
     <ClubListItemWrapper>
       <div className="club-logo">
-        <Link to={`/dashboard/clubs/detail/${club.detail.id}`}>
-          <img className="club-logo-image" src={club.detail.logo} />
-        </Link>
+        <img className="club-logo-image" src={club.detail.logo} />
       </div>
 
       <div className="club-list-item-content">
