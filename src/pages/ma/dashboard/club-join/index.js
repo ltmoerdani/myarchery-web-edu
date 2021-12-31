@@ -19,7 +19,7 @@ function PageClubJoin() {
 
       <Container fluid>
         <div className="dashboard-breadcrumb">
-          <Link to="/dashboard">
+          <Link to="/dashboard/clubs">
             <span className="breadcrumb__back-button">&lsaquo;</span>
           </Link>{" "}
           <span>{breadcrumbCurrentPageLabel}</span>

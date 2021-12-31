@@ -1,15 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-// import { ArcheryClubService } from "services";
+import { ArcheryClubService } from "services";
 
 import Select from "react-select";
 import { Button, ButtonBlue, ButtonOutlineBlue } from "components/ma";
 import { ClubList } from "./club-list";
 
-import { MockClubService } from "./mock/api-club";
-
-const FETCHING_LIMIT = 3;
+const TOTAL_LIMIT = 3;
 
 /**
  * - First load, data list berisi semua klub yang ada di "page" pertama
@@ -21,93 +19,103 @@ function JoinClubDataListView() {
     province: null,
     city: null,
   });
-  const [clubs, setClubs] = React.useState(null);
-  const [clubsFetchingErrors, setClubsFetchingErrors] = React.useState(null);
-  const [isLoadingClubs, setLoadingClubs] = React.useState(false);
-  const [currentPage, setCurrentPage] = React.useState(0);
-  const [isLastPage, setIsLastPage] = React.useState(false);
-  const [shouldExpandError, setExpandError] = React.useState(false);
+  const [isFilterDirty, setFilterDirty] = React.useState(false);
+  const [pagination, setPagination] = React.useState({
+    fetchingStatus: "idle",
+    clubs: [],
+    currentPage: 1,
+    isLastpage: false,
+  });
+  const [attemptCounts, setAttemptCounts] = React.useState(0);
+
   const inputDOM = React.useRef(null);
+  const clubLoaderDOM = React.useRef(null);
 
-  const fetchClubs = async (params) => {
-    setLoadingClubs(true);
-    setClubsFetchingErrors(null);
-
-    let queryStrings = null;
-    if (params) {
-      queryStrings = {
-        name: params.name || undefined,
-        province: params.province || undefined,
-        city: params.city || undefined,
-      };
-    }
-    // TODO: pindah ke service yang asli kalau sudah selesai
-    // const clubs = await ArcheryClubService.getUserClubs(queryStrings);
-    const clubs = await MockClubService.getUserClubs(queryStrings);
-    setLoadingClubs(false);
-
-    if (clubs.success) {
-      setClubs((previous) => {
-        if (!previous) {
-          return clubs.data;
-        }
-        return [...previous, ...clubs.data];
-      });
-
-      if (clubs.data.length < FETCHING_LIMIT) {
-        setIsLastPage(true);
-      } else {
-        setCurrentPage((current) => current + 1);
-      }
-    } else {
-      setClubsFetchingErrors({
-        errors: clubs?.errors || {},
-        message: clubs?.message || "Error tidak diketahui",
-      });
-    }
-  };
+  const { fetchingStatus, clubs, isLastPage, currentPage } = pagination;
+  const isLoadingClubs = fetchingStatus === "loading";
+  const isFetchingError = fetchingStatus === "error";
 
   React.useEffect(() => {
     fetchClubs();
-  }, []);
+  }, [attemptCounts]);
+
+  React.useEffect(() => {
+    if (isLoadingClubs || !clubLoaderDOM.current || isLastPage) {
+      return;
+    }
+    const option = { root: null, rootMargin: "-40px", threshold: 1 };
+    const handleOnOverlapping = (entries) => {
+      const target = entries[0];
+      if (target.isIntersecting) {
+        setAttemptCounts((counts) => counts + 1);
+      }
+    };
+    const observer = new IntersectionObserver(handleOnOverlapping, option);
+    observer.observe(clubLoaderDOM.current);
+
+    return () => {
+      // Berhenti ngemonitor target ketika dia di-unmounted
+      // supaya gak fetch dobel-dobel
+      observer.disconnect();
+    };
+  }, [isLoadingClubs, isLastPage]);
+
+  const fetchClubs = async () => {
+    setPagination((state) => ({ ...state, fetchingStatus: "loading" }));
+
+    const queryStrings = {
+      limit: TOTAL_LIMIT,
+      page: currentPage,
+      name: filterParams?.name || undefined,
+      province: filterParams?.province?.value || undefined,
+      city: filterParams?.city?.value || undefined,
+    };
+
+    const result = await ArcheryClubService.get(queryStrings);
+
+    if (result.success) {
+      setPagination((state) => ({
+        fetchingStatus: "success",
+        clubs: currentPage > 1 ? [...state.clubs, ...result.data] : result.data,
+        currentPage: state.currentPage + 1,
+        isLastPage: result.data.length < TOTAL_LIMIT,
+      }));
+    } else {
+      setPagination((state) => ({ ...state, fetchingStatus: "error" }));
+    }
+  };
 
   const updateSearchFiltering = (param, value) => {
+    setFilterDirty((isDirty) => !isDirty || true);
     setFilterParams((query) => ({
       ...query,
       [param]: value,
     }));
   };
 
+  const doInitialFetchClubs = () => {
+    setPagination({ club: [], currentPage: 1, isLastPage: false });
+    setAttemptCounts((counts) => counts + 1);
+  };
+
   const handleResetFiltering = () => {
-    if (!filterParams.name && !filterParams.province && !filterParams.city) {
+    if (!isFilterDirty) {
       inputDOM.current.focus();
       return;
     }
     setFilterParams({ name: "", province: null, city: null });
+    setFilterDirty(false);
     inputDOM.current.focus();
 
-    if (currentPage > 0) {
-      return;
-    }
-    setClubs(null);
-    setCurrentPage(0);
-    setIsLastPage(false);
-    fetchClubs();
+    doInitialFetchClubs();
   };
 
   const handleSubmitSearch = () => {
-    if (!filterParams.name && !filterParams.province && !filterParams.city) {
+    if (!isFilterDirty) {
       inputDOM.current.focus();
       return;
     }
-    setClubs(null);
-    setCurrentPage(0);
-    setIsLastPage(false);
-    fetchClubs({
-      name: filterParams.name,
-      province: filterParams.province?.value,
-      city: filterParams.city?.value,
-    });
+    doInitialFetchClubs();
   };
 
   return (
@@ -135,14 +143,12 @@ function JoinClubDataListView() {
         />
 
         <ButtonBlue onClick={handleSubmitSearch}>Cari</ButtonBlue>
-        {(filterParams.name || filterParams.province || filterParams.city) && (
-          <ButtonLink onClick={handleResetFiltering}>Reset Filter</ButtonLink>
-        )}
+        {isFilterDirty && <ButtonLink onClick={handleResetFiltering}>Reset Filter</ButtonLink>}
       </ListViewHeader>
 
       {clubs && (
         <React.Fragment>
-          {false && (
+          {filterParams.name && !clubs.length && (
             <SuggestionBar>
               <div className="suggestion-bar-content">
                 Tambahkan{" "}
@@ -151,51 +157,44 @@ function JoinClubDataListView() {
               </div>
 
               <div className="suggestion-bar-actions">
-                <ButtonOutlineBlue as={Link} to="/dashboard/clubs/new" className="button-wide">
+                <ButtonOutlineBlue
+                  as={Link}
+                  to={`/dashboard/clubs/new?suggestedName=${filterParams.name}`}
+                  className="button-wide"
+                >
                   Buat Klub
                 </ButtonOutlineBlue>
               </div>
             </SuggestionBar>
           )}
 
-          <ClubList clubs={clubs} />
+          <ClubList clubs={clubs} onJoinSuccess={() => doInitialFetchClubs()} />
+          {!isLastPage && !isFetchingError && (
+            <ListBottomEnd ref={clubLoaderDOM}>
+              {currentPage > 1 ? "Tunggu, ada lagi..." : "Sedang memuat klub"}
+            </ListBottomEnd>
+          )}
         </React.Fragment>
       )}
 
-      {isLoadingClubs ? (
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{ height: 80, padding: "1.25rem" }}
-        >
-          <h5>Sedang memuat data...</h5>
-        </div>
-      ) : (
-        clubsFetchingErrors && (
-          <React.Fragment>
-            <div style={{ padding: "1.5rem" }}>
-              <div className="p-5" style={{ backgroundColor: "var(--ma-gray-50)" }}>
-                <h5>Gagal memuat data klub</h5>
-                <button
-                  className="border-0 px-2 py-1 mb-3 rounded-2"
-                  style={{ backgroundColor: "var(--ma-gray-200)" }}
-                  onClick={() => setExpandError((expanded) => !expanded)}
-                >
-                  detail
-                </button>
-                {shouldExpandError && (
-                  <pre>{JSON.stringify(clubsFetchingErrors.message, null, 2)}</pre>
-                )}
-              </div>
-            </div>
-          </React.Fragment>
-        )
+      {!isLoadingClubs && isFetchingError && (
+        <ListBottomEnd>
+          <div className="content-with-button">
+            Ada error!
+            <ButtonRetry onClick={() => setAttemptCounts((counts) => counts + 1)}>
+              OK, coba lagi
+            </ButtonRetry>
+          </div>
+        </ListBottomEnd>
       )}
-      {!isLastPage ? (
-        <button onClick={() => fetchClubs()}>
-          &#40;Current page: {currentPage}&#41; Load More{" "}
-        </button>
-      ) : (
-        <span>This is last page!</span>
+      {isLastPage && (
+        <ListBottomEnd>
+          {clubs?.length
+            ? "Sudah semua"
+            : !filterParams.name
+            ? "Tidak ada klub untuk pencarian ini"
+            : ""}
+        </ListBottomEnd>
       )}
     </StyledListView>
   );
@@ -216,6 +215,11 @@ const StyledListView = styled.div`
 
   .button-wide {
     min-width: 120px;
+
+    &:disabled:hover {
+      box-shadow: none;
+      cursor: default;
+    }
   }
 
   .button-light {
@@ -297,5 +301,43 @@ const SuggestionBar = styled.div`
     padding-top: 8px;
   }
 `;
+
+const ListBottomEnd = styled.div`
+  padding: 1.25rem;
+  min-height: calc(80px + 1.25rem * 2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  color: var(--ma-gray-400);
+
+  .content-with-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`;
+
+const ButtonRetry = styled(Button)`
+  background-color: #eef3fe;
+  font-size: 0.75rem;
+  color: var(--ma-blue);
+
+  &:hover {
+    border: solid 1px var(--ma-blue);
+    background-color: var(--ma-blue);
+    color: #ffffff;
+  }
+`;
+
+// util
+// eslint-disable-next-line no-unused-vars
+function deDuplicateData(dirtyData) {
+  const uniqueIds = new Set();
+  return dirtyData.filter((club) => {
+    return !uniqueIds.has(club.detail.id) && uniqueIds.add(club.detail.id);
+  });
+}
 
 export { JoinClubDataListView };
