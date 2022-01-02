@@ -29,6 +29,31 @@ function PageClubManage() {
 
   const getTabClassNames = (id) => classnames({ "tab-selected": currentStep === id });
 
+  const updateClubData = (payload) => {
+    setClubDetail((state) => ({ ...state, ...payload }));
+  };
+
+  const handleSaveEdits = async () => {
+    const payload = {
+      id: clubDetail.id || clubId,
+      name: clubDetail.name,
+      banner: clubDetail.banner,
+      logo: clubDetail.logo,
+      place_name: clubDetail.placeName,
+      province: clubDetail.province.value,
+      city: clubDetail.city.value,
+      address: clubDetail.address,
+      description: clubDetail.description,
+    };
+
+    const result = await ArcheryClubService.edit(payload);
+    if (result.success) {
+      console.log("berhasil");
+    } else {
+      console.log("gagal");
+    }
+  };
+
   React.useEffect(() => {
     const fetchClubData = async () => {
       const result = await ArcheryClubService.getProfile({ id: clubId });
@@ -104,7 +129,17 @@ function PageClubManage() {
           <CardViewPanel>
             <WizardView currentStep={currentStep}>
               <WizardViewContent>
-                <ClubProfileDataView club={clubDetail} />
+                {clubDetail ? (
+                  <ClubProfileDataView
+                    club={clubDetail}
+                    updateClubData={updateClubData}
+                    onSave={handleSaveEdits}
+                  />
+                ) : (
+                  <div style={{ padding: "2rem", textAlign: "center" }}>
+                    <h5>Sedang memuat data klub</h5>
+                  </div>
+                )}
               </WizardViewContent>
 
               <WizardViewContent>

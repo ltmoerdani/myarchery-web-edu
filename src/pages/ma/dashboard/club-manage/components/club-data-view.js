@@ -1,11 +1,61 @@
 import React from "react";
 import styled from "styled-components";
+import { ArcheryClubService } from "services";
 
 import { Row, Col } from "reactstrap";
 import { ButtonBlue } from "components/ma";
 import { FieldInputText, FieldSelect, FieldTextArea } from "../../club-create/components";
 
-function ClubProfileDataView({ club }) {
+function ClubProfileDataView({ club, updateClubData, onSave }) {
+  const [provinceOptions, setProvinceOptions] = React.useState(null);
+  const [cityOptions, setCityOptions] = React.useState(null);
+
+  const handleFieldChange = (field, value) => {
+    updateClubData({ [field]: value });
+  };
+
+  const handleSaveEdits = () => {
+    onSave?.();
+  };
+
+  React.useEffect(() => {
+    const fetchProvinceOptions = async () => {
+      const result = await ArcheryClubService.getProvinces();
+      if (result.success) {
+        const provinceOptions = result.data.map((province) => ({
+          label: province.name,
+          value: parseInt(province.id),
+        }));
+        setProvinceOptions(provinceOptions);
+      } else {
+        console.log(result.errors || "error getting provinces list");
+      }
+    };
+
+    fetchProvinceOptions();
+  }, []);
+
+  React.useEffect(() => {
+    if (!club?.province?.value) {
+      return;
+    }
+
+    const fetchCityOptions = async () => {
+      const result = await ArcheryClubService.getCities({ province_id: club.province.value });
+      if (result.success) {
+        const cityOptions = result.data.map((city) => ({
+          label: city.name,
+          value: parseInt(city.id),
+        }));
+        setCityOptions(cityOptions);
+      } else {
+        console.log(result.errors || "error getting cities list");
+      }
+    };
+
+    fetchCityOptions();
+  }, [club.province]);
+
   return (
     <DataViewContainer>
       <ClubImagesWrapper className="mb-4">
@@ -80,7 +130,7 @@ function ClubProfileDataView({ club }) {
             name="province"
             placeholder="Pilih provinsi &#47; wilayah"
             required
-            options={[{ label: "Jawa Tengah", value: 33 }]}
+            options={provinceOptions}
             value={club?.province || null}
             onChange={(value) => handleFieldChange("province", value)}
           >
@@ -93,7 +143,7 @@ function ClubProfileDataView({ club }) {
             name="city"
             placeholder="Pilih kota"
             required
-            options={[{ label: "Kota Semarang", value: 74 }]}
+            options={cityOptions}
             value={club?.city || null}
             onChange={(value) => handleFieldChange("city", value)}
           >
@@ -112,8 +162,8 @@ function ClubProfileDataView({ club }) {
       </FieldTextArea>
 
       <div className="club-form-action">
-        <ButtonBlue className="button-submit-create" onClick={() => {}}>
-          Buat Klub
+        <ButtonBlue className="button-submit-save" onClick={handleSaveEdits}>
+          Simpan
         </ButtonBlue>
       </div>
     </DataViewContainer>
@@ -128,7 +178,7 @@ const DataViewContainer = styled.div`
     justify-content: flex-end;
     margin-top: 1.5rem;
 
-    .button-submit-create {
+    .button-submit-save {
       padding-left: 2rem;
       padding-right: 2rem;
     }

@@ -7,16 +7,29 @@ export default {
   getProfile(qs = null) {
     return API.get("/app/v1/archery/archery-club/profile", qs);
   },
+  create(data = null, qs = null) {
+    return API.post("/app/v1/archery/archery-club/", data, qs, true);
+  },
+  edit(data = null, qs = null) {
+    return API.put("/app/v1/archery/archery-club/update", data, qs, true);
+  },
   getClubsByUser(qs = null) {
     return API.get("/app/v1/archery/archery-club/my-club", qs);
   },
-  create(data = null, qs = null) {
-    return API.post("/app/v1/archery/archery-club/", data, qs, true);
+  getMembersByClub(qs = null) {
+    return API.get("/app/v1/archery/archery-club/get-club-member", qs);
   },
   setJoinClub(data = null, qs = null) {
     return API.post("/app/v1/archery/archery-club/join", data, qs, true);
   },
   getMembersByClub(qs = null) {
     return API.get("/app/v1/archery/archery-club/get-club-member", qs);
+  },
+  // TODO: provinsi & kota bisa dipindah ke service yang lebih proper
+  getProvinces() {
+    return API.get("/app/v1/archery/archery-club/get-province", null);
+  },
+  getCities(qs = null) {
+    return API.get("/app/v1/archery/archery-club/get-city", qs);
   },
 };
