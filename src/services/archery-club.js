@@ -7,7 +7,7 @@ export default {
   getProfile(qs = null) {
     return API.get("/app/v1/archery/archery-club/profile", qs);
   },
-  getUserClubs(qs = null) {
+  getClubsByUser(qs = null) {
     return API.get("/app/v1/archery/archery-club/my-club", qs);
   },
   create(data = null, qs = null) {
@@ -15,5 +15,8 @@ export default {
   },
   setJoinClub(data = null, qs = null) {
     return API.post("/app/v1/archery/archery-club/join", data, qs, true);
+  },
+  getMembersByClub(qs = null) {
+    return API.get("/app/v1/archery/archery-club/get-club-member", qs);
   },
 };
