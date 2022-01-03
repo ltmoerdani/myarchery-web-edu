@@ -14,6 +14,8 @@ const TOTAL_LIMIT = 3;
  * - Setelah hit search & set filtering, data list berisi hasil search+filternya
  */
 function JoinClubDataListView() {
+  const [provinceOptions, setProvinceOptions] = React.useState(null);
+  const [cityOptions, setCityOptions] = React.useState(null);
   const [filterParams, setFilterParams] = React.useState({
     name: "",
     province: null,
@@ -34,6 +36,47 @@ function JoinClubDataListView() {
   const { fetchingStatus, clubs, isLastPage, currentPage } = pagination;
   const isLoadingClubs = fetchingStatus === "loading";
   const isFetchingError = fetchingStatus === "error";
+
+  React.useEffect(() => {
+    const fetchProvinceOptions = async () => {
+      const result = await ArcheryClubService.getProvinces({ limit: 50, page: 1 });
+      if (result.success) {
+        const provinceOptions = result.data.map((province) => ({
+          label: province.name,
+          value: parseInt(province.id),
+        }));
+        setProvinceOptions(provinceOptions);
+      } else {
+        console.log(result.errors || "error getting provinces list");
+      }
+    };
+
+    fetchProvinceOptions();
+  }, []);
+
+  React.useEffect(() => {
+    if (!filterParams?.province?.value) {
+      return;
+    }
+
+    const fetchCityOptions = async () => {
+      const result = await ArcheryClubService.getCities({
+        province_id: filterParams.province.value,
+      });
+
+      if (result.success) {
+        const cityOptions = result.data.map((city) => ({
+          label: city.name,
+          value: parseInt(city.id),
+        }));
+        setCityOptions(cityOptions);
+      } else {
+        console.log(result.errors || "error getting cities list");
+      }
+    };
+
+    fetchCityOptions();
+  }, [filterParams.province]);
 
   React.useEffect(() => {
     fetchClubs();
@@ -94,7 +137,7 @@ function JoinClubDataListView() {
   };
 
   const doInitialFetchClubs = () => {
-    setPagination({ club: [], currentPage: 1, isLastPage: false });
+    setPagination({ clubs: [], currentPage: 1, isLastPage: false });
     setAttemptCounts((counts) => counts + 1);
   };
 
@@ -130,16 +173,17 @@ function JoinClubDataListView() {
         <SelectParam
           name="province"
           placeholder="Provinsi/Wilayah"
-          options={[{ value: "Jawa Tengah", label: "Jawa Tengah" }]}
+          options={provinceOptions}
           value={filterParams.province}
           onChange={(value) => updateSearchFiltering("province", value)}
         />
         <SelectParam
           name="city"
           placeholder="Kota"
-          options={[{ value: "Semarang", label: "Semarang" }]}
+          options={cityOptions}
           value={filterParams.city}
           onChange={(value) => updateSearchFiltering("city", value)}
+          disabled={!filterParams.province}
         />
 
         <ButtonBlue onClick={handleSubmitSearch}>Cari</ButtonBlue>
@@ -261,7 +305,7 @@ const SearchNameInput = styled.input`
   }
 `;
 
-function SelectParam({ name, placeholder, options, value, onChange }) {
+function SelectParam({ name, placeholder, options, value, onChange, disabled }) {
   return (
     <Select
       styles={{ container: (provided) => ({ ...provided, minWidth: "240px" }) }}
@@ -271,6 +315,7 @@ function SelectParam({ name, placeholder, options, value, onChange }) {
       options={options}
       value={value}
       onChange={onChange}
+      isDisabled={disabled}
     />
   );
 }

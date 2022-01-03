@@ -30,7 +30,11 @@ export function ClubList({ clubs, onJoinSuccess }) {
 
 function ClubListItem({ club, isSelected, onSelected, onCancelSelected, onConfirm }) {
   const computeClubBasisFullAddress = (club) => {
-    const infos = [club.detail.address, club.detail.city, club.detail.province];
+    const infos = [
+      club.detail.address,
+      club.detail.detailCity?.name,
+      club.detail.detailProvince?.name,
+    ];
     const byEmptyField = (info) => Boolean(info);
     return infos.filter(byEmptyField).join(", ");
   };
@@ -52,7 +56,15 @@ function ClubListItem({ club, isSelected, onSelected, onCancelSelected, onConfir
       </div>
 
       <div className="club-list-item-actions">
-        <ButtonOutlineBlue className="button-wide">Lihat Profil</ButtonOutlineBlue>
+        <ButtonOutlineBlue
+          className="button-wide"
+          as="a"
+          href={`/clubs/profile/${club.detail.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Lihat Profil
+        </ButtonOutlineBlue>
         {club.isJoin ? (
           <ButtonLink className="button-wide" disabled>
             &#10003; Member

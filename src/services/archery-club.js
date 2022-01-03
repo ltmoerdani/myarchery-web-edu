@@ -25,11 +25,20 @@ export default {
   setLeaveClub(qs = null) {
     return API.deleteByParams("/app/v1/archery/archery-club/left", qs);
   },
-  // TODO: provinsi & kota bisa dipindah ke service yang lebih proper
+  // TODO: provinsi & kota bisa dipindah ke service sendiri yang lebih proper
   getProvinces(qs = null) {
-    return API.get("/app/v1/archery/archery-club/get-province", qs);
+    const queryString = {
+      limit: qs?.limit || 50,
+      page: qs?.page || 1,
+    };
+    return API.get("/api/general/get-province", queryString);
   },
   getCities(qs = null) {
-    return API.get("/app/v1/archery/archery-club/get-city", qs);
+    const queryString = {
+      limit: qs?.limit || 50,
+      page: qs?.page || 1,
+      province_id: qs?.province_id,
+    };
+    return API.get("/api/general/get-city", queryString);
   },
 };

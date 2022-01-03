@@ -72,7 +72,15 @@ function ClubListItem({ club }) {
             Atur Klub
           </ButtonOutlineBlue>
         ) : (
-          <ButtonOutlineBlue className="button-wide">Lihat Profil</ButtonOutlineBlue>
+          <ButtonOutlineBlue
+            as="a"
+            href={`/clubs/profile/${club.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button-wide"
+          >
+            Lihat Profil
+          </ButtonOutlineBlue>
         )}
       </div>
     </ClubListItemWrapper>
