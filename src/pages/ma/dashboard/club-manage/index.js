@@ -247,8 +247,12 @@ const ClubManagePageWrapper = styled.div`
 `;
 
 function LandingPageLinkPlaceholder({ url = "" }) {
+  const handleClickCopyLink = () => {
+    navigator.clipboard.writeText(url);
+  };
+
   return (
-    <StyledLandingPageLink onClick={() => alert(url)}>
+    <StyledLandingPageLink onClick={handleClickCopyLink}>
       <StyledLinkInput value={url} placeholder="https://myarchery.id" disabled readOnly />
       <span className="icon-copy">
         <IconChainLink />

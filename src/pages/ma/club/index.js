@@ -14,6 +14,7 @@ import IconChainLink from "pages/ma/dashboard/club-manage/components/icons-mono/
 import IconUsers from "components/ma/icons/mono/users";
 
 const APP_URL = "https://myarchery.id";
+const LANDING_PAGE_ROUTE_PATH = "/clubs/profile/";
 const TOTAL_LIMIT = 3;
 const CURRENT_PAGE = 1;
 
@@ -23,6 +24,7 @@ function PageProfile() {
   const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
   const [clubDetail, setClubDetail] = React.useState(null);
   const [members, setMembers] = React.useState([]);
+  const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
 
   const { pathname } = location;
 
@@ -32,10 +34,6 @@ function PageProfile() {
       return parts.filter((part) => Boolean(part)).join(", ");
     }
     return "";
-  };
-
-  const computePageURL = () => {
-    return APP_URL + pathname;
   };
 
   React.useEffect(() => {
@@ -62,6 +60,15 @@ function PageProfile() {
     };
     fetchMemberList();
   }, []);
+
+  React.useEffect(() => {
+    if (!clubDetail?.id) {
+      return;
+    }
+    const theHost = process.env.NODE_ENV === "production" ? APP_URL : window.location.host;
+    const theFullURL = theHost + (pathname || LANDING_PAGE_ROUTE_PATH + clubDetail.id);
+    setLandingPageFullURL(theFullURL);
+  }, [clubDetail?.id]);
 
   return (
     <ClubProfilePageWrapper>
@@ -113,7 +120,7 @@ function PageProfile() {
 
               {clubDetail?.description && <p>{clubDetail.description}</p>}
 
-              <LandingPageLinkPlaceholder url={clubDetail?.landingPageUrl || computePageURL()} />
+              <LandingPageLinkPlaceholder url={landingPageFullURL} />
             </div>
           </ClubInfo>
         </Container>
@@ -259,8 +266,12 @@ const ClubInfo = styled.div`
 `;
 
 function LandingPageLinkPlaceholder({ url = "" }) {
+  const handleClickCopyLink = () => {
+    navigator.clipboard.writeText(url);
+  };
+
   return (
-    <StyledLandingPageLink onClick={() => alert(url)}>
+    <StyledLandingPageLink onClick={handleClickCopyLink}>
       <StyledLinkInput value={url} placeholder="https://myarchery.id" disabled readOnly />
       <span className="icon-copy">
         <IconChainLink />
