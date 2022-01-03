@@ -22,8 +22,8 @@ export default {
   setJoinClub(data = null, qs = null) {
     return API.post("/app/v1/archery/archery-club/join", data, qs, true);
   },
-  getMembersByClub(qs = null) {
-    return API.get("/app/v1/archery/archery-club/get-club-member", qs);
+  setLeaveClub(qs = null) {
+    return API.deleteByParams("/app/v1/archery/archery-club/left", qs);
   },
   // TODO: provinsi & kota bisa dipindah ke service yang lebih proper
   getProvinces(qs = null) {

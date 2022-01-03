@@ -1,13 +1,15 @@
 import React from "react";
 import styled from "styled-components";
+import classnames from "classnames";
 import { useParams, useLocation, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
 import { ArcheryClubService } from "services";
 
 import MetaTags from "react-meta-tags";
+import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
-import { ButtonBlue } from "components/ma";
+import { Button, ButtonBlue } from "components/ma";
 
 // TODO: pindah lokasi icon ke yang lebih proper
 import IconChainLink from "pages/ma/dashboard/club-manage/components/icons-mono/chain-link";
@@ -23,10 +25,56 @@ function PageProfile() {
   const location = useLocation();
   const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
   const [clubDetail, setClubDetail] = React.useState(null);
-  const [members, setMembers] = React.useState([]);
   const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
+  const [whichConfirmDialog, setWhichConfirmDialog] = React.useState(null);
+  const [membershipAttempts, setMembershipAttempts] = React.useState(0);
+  const [paginatedMembers, setPaginatedMembers] = React.useState({
+    fetchingStatus: "idle",
+    members: [],
+    currentPage: 1,
+    isLastPage: false,
+    attemptCounts: 0,
+  });
+  const [filterParams, setFilterParams] = React.useState({ name: "", gender: "all" });
+
+  const membersLoaderDOM = React.useRef(null);
+  const { members, fetchingStatus, currentPage, isLastPage, attemptCounts } = paginatedMembers;
+  const isLoadingMembers = fetchingStatus === "loading";
 
   const { pathname } = location;
+  const shoulShowConfirmJoin = whichConfirmDialog === "join";
+  const shoulShowConfirmLeave = whichConfirmDialog === "leave";
+
+  const getTabItemProps = (name) => ({
+    className: classnames("button-filter", { "filter-active": filterParams.gender === name }),
+    disabled: filterParams.gender === name,
+    onClick: () => {
+      setFilterParams((params) => ({ ...params, gender: name }));
+      doInitialFetchMembers();
+    },
+  });
+
+  const increaseAttemptCounts = () => {
+    setPaginatedMembers((state) => ({ ...state, attemptCounts: state.attemptCounts + 1 }));
+  };
+
+  const doInitialFetchMembers = () => {
+    setPaginatedMembers((state) => {
+      return {
+        fetchingStatus: state.fetchingStatus,
+        attemptCounts: state.attemptCounts + 1,
+        members: [],
+        currentPage: 1,
+        isLastPage: false,
+      };
+    });
+  };
+
+  const handleChangeSearchBox = (ev) => {
+    setFilterParams((params) => ({ ...params, name: ev.target.value }));
+  };
+
+  const handleClickSearchByName = () => doInitialFetchMembers();
 
   const computeFullAddress = () => {
     if (clubDetail) {
@@ -36,31 +84,89 @@ function PageProfile() {
     return "";
   };
 
+  const handleClickJoin = () => setWhichConfirmDialog("join");
+  const handleCancelJoin = () => setWhichConfirmDialog(null);
+  const handleAgreedJoin = async () => {
+    const result = await ArcheryClubService.setJoinClub({ club_id: clubDetail.id });
+    if (result.success) {
+      setMembershipAttempts((counts) => counts + 1);
+      doInitialFetchMembers();
+    }
+    setWhichConfirmDialog(null);
+  };
+
+  const handleClickLeave = () => setWhichConfirmDialog("leave");
+  const handleCancelLeaveClub = () => setWhichConfirmDialog(null);
+  const handleAgreedLeaveClub = async () => {
+    const result = await ArcheryClubService.setLeaveClub({ club_id: clubDetail?.id });
+    if (result.success) {
+      setMembershipAttempts((counts) => counts + 1);
+      doInitialFetchMembers();
+    }
+    setWhichConfirmDialog(null);
+  };
+
   React.useEffect(() => {
     const fetchClubData = async () => {
       const result = await ArcheryClubService.getProfile({ id: clubId });
-
       if (result.success) {
         setClubDetail(result.data);
-      } else {
-        console.log("gak sukses wkwk");
       }
     };
+
     fetchClubData();
-  }, []);
+  }, [membershipAttempts]);
 
   React.useEffect(() => {
     const fetchMemberList = async () => {
-      const queryString = { club_id: clubId, limit: TOTAL_LIMIT, page: CURRENT_PAGE };
+      setPaginatedMembers((state) => ({ ...state, fetchingStatus: "loading" }));
+      const queryString = {
+        club_id: clubId,
+        limit: TOTAL_LIMIT,
+        page: currentPage || CURRENT_PAGE,
+        name: filterParams.name || undefined,
+        gender: filterParams.gender === "all" ? undefined : filterParams.gender,
+      };
       const result = await ArcheryClubService.getMembersByClub(queryString);
 
       if (result.success) {
-        setMembers((state) => [...state, ...result.data]);
+        setPaginatedMembers((state) => ({
+          ...state,
+          fetchingStatus: "success",
+          members: currentPage > 1 ? [...state.members, ...result.data] : result.data,
+          currentPage: state.currentPage + 1,
+          isLastPage: result.data.length < TOTAL_LIMIT,
+        }));
+      } else {
+        setPaginatedMembers((state) => ({ ...state, fetchingStatus: "error" }));
       }
     };
-    fetchMemberList();
-  }, []);
 
+    fetchMemberList();
+  }, [attemptCounts]);
+
+  React.useEffect(() => {
+    if (isLoadingMembers || !membersLoaderDOM.current || isLastPage) {
+      return;
+    }
+    const option = { root: null, rootMargin: "-40px", threshold: 1 };
+    const handleOnOverlapping = (entries) => {
+      const target = entries[0];
+      if (target.isIntersecting) {
+        increaseAttemptCounts();
+      }
+    };
+    const observer = new IntersectionObserver(handleOnOverlapping, option);
+    observer.observe(membersLoaderDOM.current);
+
+    return () => {
+      // Berhenti ngemonitor target ketika dia di-unmounted
+      // supaya gak fetch dobel-dobel
+      observer.disconnect();
+    };
+  }, [isLoadingMembers, isLastPage]);
+
+  // URL landing page
   React.useEffect(() => {
     if (!clubDetail?.id) {
       return;
@@ -100,9 +206,35 @@ function PageProfile() {
                     Gabung Klub
                   </ButtonBlue>
                 ) : clubDetail?.isJoin ? (
-                  <ButtonBlue className="button-wide button-leave">Keluar Klub</ButtonBlue>
+                  <React.Fragment>
+                    <ButtonBlue className="button-wide button-leave" onClick={handleClickLeave}>
+                      Keluar Klub
+                    </ButtonBlue>
+
+                    {clubDetail && (
+                      <AlertConfirmLeave
+                        show={shoulShowConfirmLeave}
+                        club={clubDetail}
+                        onCancel={handleCancelLeaveClub}
+                        onConfirm={handleAgreedLeaveClub}
+                      />
+                    )}
+                  </React.Fragment>
                 ) : (
-                  <ButtonBlue className="button-wide">Gabung Klub</ButtonBlue>
+                  <React.Fragment>
+                    <ButtonBlue className="button-wide" onClick={handleClickJoin}>
+                      Gabung Klub
+                    </ButtonBlue>
+
+                    {clubDetail && (
+                      <AlertConfirmJoin
+                        show={shoulShowConfirmJoin}
+                        club={clubDetail}
+                        onCancel={handleCancelJoin}
+                        onConfirm={handleAgreedJoin}
+                      />
+                    )}
+                  </React.Fragment>
                 )}
               </div>
 
@@ -128,7 +260,24 @@ function PageProfile() {
 
       <SectionContent>
         <Container fluid>
-          <h4>Anggota</h4>
+          <h4 className="mb-4">Anggota</h4>
+
+          <div className="mb-5 d-flex justify-content-between">
+            <SearchBox>
+              <SearchBoxInput
+                className="search-box-input"
+                placeholder="Cari archer"
+                onChange={handleChangeSearchBox}
+              />{" "}
+              <ButtonBlue onClick={handleClickSearchByName}>Cari</ButtonBlue>
+            </SearchBox>
+
+            <FilterTabs className="filter-tabs">
+              <ButtonBlue {...getTabItemProps("all")}>Semua</ButtonBlue>
+              <Button {...getTabItemProps("female")}>Perempuan</Button>
+              <Button {...getTabItemProps("male")}>Laki-Laki</Button>
+            </FilterTabs>
+          </div>
 
           <MemberGrid>
             {members?.length ? (
@@ -136,14 +285,20 @@ function PageProfile() {
                 <MemberItem key={member.id}>
                   <div className="member-photo">
                     <div className="member-photo-container">
-                      <img className="member-photo-img" src={member.photo} />
+                      <img className="member-photo-img" src={member.avatar} />
                     </div>
                   </div>
 
                   <div className="member-detail">
                     <h5>{member.name}</h5>
-                    <div>Jenis kelamin</div>
-                    <div>Umur</div>
+                    <div>{member.gender}</div>
+                    <div>
+                      {member.age ? (
+                        `${member.age} tahun`
+                      ) : (
+                        <React.Fragment>&mdash;</React.Fragment>
+                      )}
+                    </div>
                   </div>
                 </MemberItem>
               ))
@@ -158,8 +313,6 @@ function PageProfile() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    // paddingTop: "1rem",
-                    // paddingBottom: "1rem",
                     padding: "1rem",
                     height: 100,
                   }}
@@ -169,6 +322,16 @@ function PageProfile() {
               </MemberItem>
             )}
           </MemberGrid>
+
+          {!isLastPage && (
+            <div
+              ref={membersLoaderDOM}
+              className="d-flex justify-content-center align-items-center"
+              style={{ height: "calc(100px + 2rem)", marginTop: "2rem" }}
+            >
+              Sedang memuat anggota klub...
+            </div>
+          )}
         </Container>
       </SectionContent>
     </ClubProfilePageWrapper>
@@ -342,6 +505,113 @@ const MemberItem = styled.div`
   .member-detail {
     flex-grow: 1;
     padding: 1rem;
+  }
+`;
+
+function AlertConfirmJoin({ show, club, onCancel, onConfirm }) {
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      onConfirm={onConfirm}
+      style={{ padding: "1.25rem" }}
+      customButtons={
+        <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
+          <ButtonBlue onClick={onConfirm}>Yakin</ButtonBlue>
+          <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
+            Batalkan
+          </Button>
+        </span>
+      }
+    >
+      <p>
+        Apakah Anda yakin akan bergabung dengan Klub
+        <br />
+        <strong>&quot;{club.name}&quot;</strong>?
+      </p>
+    </SweetAlert>
+  );
+}
+
+function AlertConfirmLeave({ show, club, onCancel, onConfirm }) {
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      onConfirm={onConfirm}
+      style={{ padding: "1.25rem" }}
+      customButtons={
+        <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
+          <Button onClick={onConfirm} style={{ color: "var(--ma-red)" }}>
+            Yakin
+          </Button>
+          <ButtonBlue onClick={onCancel}>Batalkan</ButtonBlue>
+        </span>
+      }
+    >
+      <h4>
+        Apakah Anda yakin akan keluar dari Klub <strong>&quot;{club.name}&quot;</strong>?
+      </h4>
+      <p>
+        <br />
+        Anda akan tetap terdaftar sebagai perwakilan klub dalam event yang sudah diikuti. Anda harus
+        bergabung ulang untuk menjadi bagian dari klub.
+      </p>
+    </SweetAlert>
+  );
+}
+
+const FilterTabs = styled.div`
+  display: flex;
+  gap: 0.5rem;
+
+  .button-filter {
+    background-color: transparent;
+    border-radius: 8px;
+    border: solid 1px transparent;
+    color: #495057;
+
+    &:hover {
+      box-shadow: none;
+      background-color: var(--ma-gray-100);
+    }
+  }
+
+  .filter-active {
+    background-color: #eef3fe;
+    border: solid 1px #eef3fe;
+    color: var(--ma-blue);
+    cursor: default;
+
+    &:hover {
+      background-color: #eef3fe;
+      box-shadow: none;
+    }
+  }
+`;
+
+const SearchBox = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const SearchBoxInput = styled.input`
+  padding: 0.47rem 0.75rem;
+  width: 400px;
+  border-radius: 4px;
+  border: none;
+  border: solid 1px var(--ma-gray-100);
+  background-color: var(--ma-gray-100);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:focus {
+    border-color: #2684ff;
+    background-color: var(--ma-gray-50);
+    box-shadow: 0 0 0 1px #2684ff;
   }
 `;
 

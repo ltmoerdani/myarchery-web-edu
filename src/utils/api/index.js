@@ -132,4 +132,20 @@ export default {
     };
     return fetch(`${endpoint}?${params}`, config);
   },
+
+  deleteByParams(endpoint, qs = null) {
+    const token = store.getState()?.authentication?.user?.accessToken;
+    let params = "";
+    if (qs) {
+      params = queryString.stringify(qs);
+    }
+    let config = {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Accept-Language": localStorage.getItem("I18N_LANGUAGE") || "en",
+      },
+    };
+    return fetch(`${endpoint}?${params}`, config);
+  }
 };
