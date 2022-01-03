@@ -207,34 +207,51 @@ function PageProfile() {
                   >
                     Gabung Klub
                   </ButtonBlue>
-                ) : clubDetail?.isJoin ? (
-                  <React.Fragment>
-                    <ButtonBlue className="button-wide button-leave" onClick={handleClickLeave}>
-                      Keluar Klub
-                    </ButtonBlue>
-
-                    {clubDetail && (
-                      <AlertConfirmLeave
-                        show={shoulShowConfirmLeave}
-                        club={clubDetail}
-                        onCancel={handleCancelLeaveClub}
-                        onConfirm={handleAgreedLeaveClub}
-                      />
-                    )}
-                  </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    <ButtonBlue className="button-wide" onClick={handleClickJoin}>
-                      Gabung Klub
-                    </ButtonBlue>
+                    {clubDetail?.isJoin ? (
+                      clubDetail?.isAdmin ? (
+                        <ButtonBlue
+                          as={Link}
+                          to={`/dashboard/clubs/detail/${clubDetail?.id || clubId}`}
+                          className="button-wide"
+                        >
+                          Edit Klub
+                        </ButtonBlue>
+                      ) : (
+                        <React.Fragment>
+                          <ButtonBlue
+                            className="button-wide button-leave"
+                            onClick={handleClickLeave}
+                          >
+                            Keluar Klub
+                          </ButtonBlue>
 
-                    {clubDetail && (
-                      <AlertConfirmJoin
-                        show={shoulShowConfirmJoin}
-                        club={clubDetail}
-                        onCancel={handleCancelJoin}
-                        onConfirm={handleAgreedJoin}
-                      />
+                          {clubDetail && (
+                            <AlertConfirmLeave
+                              show={shoulShowConfirmLeave}
+                              club={clubDetail}
+                              onCancel={handleCancelLeaveClub}
+                              onConfirm={handleAgreedLeaveClub}
+                            />
+                          )}
+                        </React.Fragment>
+                      )
+                    ) : (
+                      <React.Fragment>
+                        <ButtonBlue className="button-wide" onClick={handleClickJoin}>
+                          Gabung Klub
+                        </ButtonBlue>
+
+                        {clubDetail && (
+                          <AlertConfirmJoin
+                            show={shoulShowConfirmJoin}
+                            club={clubDetail}
+                            onCancel={handleCancelJoin}
+                            onConfirm={handleAgreedJoin}
+                          />
+                        )}
+                      </React.Fragment>
                     )}
                   </React.Fragment>
                 )}
