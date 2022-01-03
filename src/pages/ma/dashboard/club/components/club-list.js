@@ -10,7 +10,7 @@ export function ClubList({ clubs }) {
 
 function ClubListItem({ club }) {
   const computeClubBasisFullAddress = (club) => {
-    const infos = [club.address, club.city, club.province];
+    const infos = [club.address, club.detailCity?.name, club.detailProvince?.name];
     const byEmptyField = (info) => Boolean(info);
     return infos.filter(byEmptyField).join(", ");
   };
@@ -18,23 +18,62 @@ function ClubListItem({ club }) {
   return (
     <ClubListItemWrapper>
       <div className="club-logo">
-        <Link to={`/dashboard/clubs/detail/${club.id}`}>
-          <img className="club-logo-image" src={club.logo} />
-        </Link>
+        <img className="club-logo-image" src={club.logo} />
       </div>
 
       <div className="club-list-item-content">
-        <h4 className="club-name">{club.name}</h4>
+        <div className="d-flex align-items-start">
+          <h4 className="club-name">{club.name}</h4>
+          {club.isAdmin ? (
+            <span
+              style={{
+                marginLeft: "1rem",
+                display: "inline-block",
+                padding: "0.15rem 0.5rem",
+                borderRadius: "2em",
+                backgroundColor: "var(--ma-blue-300)",
+                fontSize: 12,
+                color: "#ffffff",
+              }}
+            >
+              Super Admin
+            </span>
+          ) : (
+            <span
+              style={{
+                marginLeft: "1rem",
+                display: "inline-block",
+                padding: "0.15rem 0.5rem",
+                borderRadius: "2em",
+                backgroundColor: "var(--ma-orange-300)",
+                fontSize: 12,
+                color: "#ffffff",
+              }}
+            >
+              Anggota
+            </span>
+          )}
+        </div>
         <div className="club-info">
-          <span>{computeClubBasisFullAddress(club)}</span>
-          <span>Jumlah anggota terdaftar: &mdash;</span>
+          <Address>{computeClubBasisFullAddress(club)}</Address>
+          <MemberCounts>
+            <BlueBullet>&#8226;</BlueBullet> Jumlah anggota terdaftar: {club.totalMember}
+          </MemberCounts>
         </div>
       </div>
 
       <div className="club-list-item-actions">
-        <ButtonOutlineBlue className="club-dashboard-button">
-          {"Lihat Profil" || "Atur Klub"}
-        </ButtonOutlineBlue>
+        {club.isAdmin ? (
+          <ButtonOutlineBlue
+            as={Link}
+            to={`/dashboard/clubs/detail/${club.id}`}
+            className="button-wide"
+          >
+            Atur Klub
+          </ButtonOutlineBlue>
+        ) : (
+          <ButtonOutlineBlue className="button-wide">Lihat Profil</ButtonOutlineBlue>
+        )}
       </div>
     </ClubListItemWrapper>
   );
@@ -86,4 +125,25 @@ const ClubListItemWrapper = styled.div`
     justify-content: center;
     align-items: center;
   }
+`;
+
+const Address = styled.span`
+  flex-basis: 50%;
+  display: inline-block;
+`;
+
+const MemberCounts = styled.span`
+  flex-basis: 50%;
+  position: relative;
+  display: inline-block;
+  padding-left: 2.5rem;
+`;
+
+const BlueBullet = styled.span`
+  position: absolute;
+  top: -0.4rem;
+  left: 0;
+  display: inline-block;
+  color: var(--ma-blue);
+  font-size: 1.25rem;
 `;
