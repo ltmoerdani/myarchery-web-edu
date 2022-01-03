@@ -10,29 +10,101 @@ const TOTAL_LIMIT = 3;
 const CURRENT_PAGE = 1;
 
 function MemberDataListView({ club }) {
-  const [selectedFilter, setSelectedFilter] = React.useState("all");
-  const [members, setMembers] = React.useState([]);
+  const [paginatedMembers, setPaginatedMembers] = React.useState({
+    fetchingStatus: "idle",
+    members: [],
+    currentPage: 1,
+    isLastPage: false,
+    attemptCounts: 0,
+  });
+  const [filterParams, setFilterParams] = React.useState({ name: "", gender: "all" });
+
+  const membersLoaderDOM = React.useRef(null);
+  const { members, fetchingStatus, currentPage, isLastPage, attemptCounts } = paginatedMembers;
+  const isLoadingMembers = fetchingStatus === "loading";
   const [selectedMemberId, setSelectedMemberId] = React.useState(null);
 
   const isMemberSelected = (id) => selectedMemberId === id;
 
   const getTabItemProps = (name) => ({
-    className: classnames("button-filter", { "filter-active": selectedFilter === name }),
-    disabled: selectedFilter === name,
-    onClick: () => setSelectedFilter(name),
+    className: classnames("button-filter", { "filter-active": filterParams.gender === name }),
+    disabled: filterParams.gender === name,
+    onClick: () => {
+      setFilterParams((params) => ({ ...params, gender: name }));
+      doInitialFetchMembers();
+    },
   });
+
+  const increaseAttemptCounts = () => {
+    setPaginatedMembers((state) => ({ ...state, attemptCounts: state.attemptCounts + 1 }));
+  };
+
+  const doInitialFetchMembers = () => {
+    setPaginatedMembers((state) => {
+      return {
+        fetchingStatus: state.fetchingStatus,
+        attemptCounts: state.attemptCounts + 1,
+        members: [],
+        currentPage: 1,
+        isLastPage: false,
+      };
+    });
+  };
+
+  const handleChangeSearchBox = (ev) => {
+    setFilterParams((params) => ({ ...params, name: ev.target.value }));
+  };
+
+  const handleClickSearchByName = () => doInitialFetchMembers();
+
+  React.useEffect(() => {
+    if (isLoadingMembers || !membersLoaderDOM.current || isLastPage) {
+      return;
+    }
+    const option = { root: null, rootMargin: "-40px", threshold: 1 };
+    const handleOnOverlapping = (entries) => {
+      const target = entries[0];
+      if (target.isIntersecting) {
+        increaseAttemptCounts();
+      }
+    };
+    const observer = new IntersectionObserver(handleOnOverlapping, option);
+    observer.observe(membersLoaderDOM.current);
+
+    return () => {
+      // Berhenti ngemonitor target ketika dia di-unmounted
+      // supaya gak fetch dobel-dobel
+      observer.disconnect();
+    };
+  }, [isLoadingMembers, isLastPage]);
 
   React.useEffect(() => {
     const fetchMemberList = async () => {
-      const queryString = { club_id: club.id, limit: TOTAL_LIMIT, page: CURRENT_PAGE };
+      setPaginatedMembers((state) => ({ ...state, fetchingStatus: "loading" }));
+      const queryString = {
+        club_id: club.id,
+        limit: TOTAL_LIMIT,
+        page: currentPage || CURRENT_PAGE,
+        name: filterParams.name || undefined,
+        gender: filterParams.gender === "all" ? undefined : filterParams.gender,
+      };
       const result = await ArcheryClubService.getMembersByClub(queryString);
 
       if (result.success) {
-        setMembers((state) => [...state, ...result.data]);
+        setPaginatedMembers((state) => ({
+          ...state,
+          fetchingStatus: "success",
+          members: currentPage > 1 ? [...state.members, ...result.data] : result.data,
+          currentPage: state.currentPage + 1,
+          isLastPage: result.data.length < TOTAL_LIMIT,
+        }));
+      } else {
+        setPaginatedMembers((state) => ({ ...state, fetchingStatus: "error" }));
       }
     };
+
     fetchMemberList();
-  }, []);
+  }, [attemptCounts]);
 
   const handleRemoveMember = async (member) => {
     const queryString = { club_id: club.id, member_id: member.id };
@@ -55,40 +127,52 @@ function MemberDataListView({ club }) {
         </FilterTabs>
 
         <SearchBox>
-          <SearchBoxInput className="search-box-input" placeholder="Cari archer" />{" "}
-          <ButtonBlue>Cari</ButtonBlue>
+          <SearchBoxInput
+            className="search-box-input"
+            placeholder="Cari archer"
+            onChange={handleChangeSearchBox}
+          />{" "}
+          <ButtonBlue onClick={handleClickSearchByName}>Cari</ButtonBlue>
         </SearchBox>
       </CardToolbarTop>
 
-      {members.map((member) => (
-        <MemberListItem key={member.id}>
-          <MemberFigure>
-            <AvatarPhoto>
-              <img src={member.photo} />
-            </AvatarPhoto>
-          </MemberFigure>
+      {members.length ? (
+        members.map((member) => (
+          <MemberListItem key={member.id}>
+            <MemberFigure>
+              <AvatarPhoto>
+                <img src={member.avatar} />
+              </AvatarPhoto>
+            </MemberFigure>
 
-          <MemberInfo>
-            <h4>{member.name}</h4>
-            <div>TBD: gender</div>
-            <div>TBD: umur</div>
-          </MemberInfo>
+            <MemberInfo>
+              <h4>{member.name}</h4>
+              <div>{member.gender || "Info jenis kelamin tidak tersedia"}</div>
+              <div>{member.age}</div>
+            </MemberInfo>
 
-          <MemberActions>
-            <ButtonRemove onClick={() => setSelectedMemberId(member.id)}>
-              <i className="bx bx-trash" />
-            </ButtonRemove>
+            <MemberActions>
+              <ButtonRemove onClick={() => setSelectedMemberId(member.id)}>
+                <i className="bx bx-trash" />
+              </ButtonRemove>
 
-            <AlertConfirmRemoveMember
-              key={member.id}
-              show={isMemberSelected(member.id)}
-              member={member}
-              onCancel={() => setSelectedMemberId(null)}
-              onConfirm={() => handleRemoveMember(member)}
-            />
-          </MemberActions>
-        </MemberListItem>
-      ))}
+              <AlertConfirmRemoveMember
+                key={member.id}
+                show={isMemberSelected(member.id)}
+                member={member}
+                onCancel={() => setSelectedMemberId(null)}
+                onConfirm={() => handleRemoveMember(member)}
+              />
+            </MemberActions>
+          </MemberListItem>
+        ))
+      ) : (
+        <ListBottomEnd>Belum ada anggota</ListBottomEnd>
+      )}
+
+      {!isLastPage && (
+        <ListBottomEnd ref={membersLoaderDOM}>Sedang memuat anggota klub...</ListBottomEnd>
+      )}
     </React.Fragment>
   );
 }
@@ -218,5 +302,22 @@ function AlertConfirmRemoveMember({ show, member, onCancel, onConfirm }) {
     </SweetAlert>
   );
 }
+
+const ListBottomEnd = styled.div`
+  padding: 1.25rem;
+  min-height: calc(80px + 1.25rem * 2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  color: var(--ma-gray-400);
+
+  .content-with-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`;
 
 export { MemberDataListView };
