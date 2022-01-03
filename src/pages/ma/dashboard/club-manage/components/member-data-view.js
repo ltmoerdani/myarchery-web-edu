@@ -4,7 +4,10 @@ import classnames from "classnames";
 import { ArcheryClubService } from "services";
 
 import SweetAlert from "react-bootstrap-sweetalert";
-import { Button, ButtonBlue } from "components/ma";
+import { Button, ButtonBlue, ButtonOutline } from "components/ma";
+
+import IconAge from "components/ma/icons/mono/age";
+import IconGender from "components/ma/icons/mono/gender";
 
 const TOTAL_LIMIT = 3;
 const CURRENT_PAGE = 1;
@@ -141,20 +144,40 @@ function MemberDataListView({ club }) {
           <MemberListItem key={member.id}>
             <MemberFigure>
               <AvatarPhoto>
-                <img src={member.avatar} />
+                {member.avatar && <img className="avatar-img" src={member.avatar} />}
               </AvatarPhoto>
             </MemberFigure>
 
             <MemberInfo>
-              <h4>{member.name}</h4>
-              <div>{member.gender || "Info jenis kelamin tidak tersedia"}</div>
-              <div>{member.age}</div>
+              <h5>{member.name}</h5>
+              <div>
+                <span className="info-icon">
+                  <IconGender size="20" />
+                </span>
+                {member.gender ? (
+                  <React.Fragment>
+                    {member.gender === "male" ? "Laki-laki" : "Perempuan"}
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>&mdash;</React.Fragment>
+                )}
+              </div>
+              <div>
+                <span className="info-icon">
+                  <IconAge size="20" />
+                </span>
+                {member.age ? `${member.age} tahun` : <React.Fragment>&mdash;</React.Fragment>}
+              </div>
             </MemberInfo>
 
             <MemberActions>
-              <ButtonRemove onClick={() => setSelectedMemberId(member.id)}>
-                <i className="bx bx-trash" />
-              </ButtonRemove>
+              {!member.isAdmin ? (
+                <ButtonRemove onClick={() => setSelectedMemberId(member.id)}>
+                  <i className="bx bx-trash" />
+                </ButtonRemove>
+              ) : (
+                <ButtonLinkAdmin disabled>Admin</ButtonLinkAdmin>
+              )}
 
               <AlertConfirmRemoveMember
                 key={member.id}
@@ -249,12 +272,22 @@ const AvatarPhoto = styled.div`
   min-width: 5rem;
   min-height: 5rem;
   border-radius: 50%;
-  background-color: var(--ma-gray-400);
+  background-color: var(--ma-gray-200);
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const MemberInfo = styled.div`
   flex-grow: 1;
   padding: 1.25rem;
+
+  .info-icon {
+    margin-right: 0.5rem;
+  }
 `;
 
 const MemberActions = styled.div`
@@ -317,6 +350,16 @@ const ListBottomEnd = styled.div`
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+  }
+`;
+
+const ButtonLinkAdmin = styled(ButtonOutline)`
+  &:disabled {
+    border-color: transparent;
+    &:hover {
+      background-color: transparent;
+      box-shadow: none;
+    }
   }
 `;
 

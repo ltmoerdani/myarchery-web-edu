@@ -14,6 +14,8 @@ import { Button, ButtonBlue } from "components/ma";
 // TODO: pindah lokasi icon ke yang lebih proper
 import IconChainLink from "pages/ma/dashboard/club-manage/components/icons-mono/chain-link";
 import IconUsers from "components/ma/icons/mono/users";
+import IconAge from "components/ma/icons/mono/age";
+import IconGender from "components/ma/icons/mono/gender";
 
 const APP_URL = "https://myarchery.id";
 const LANDING_PAGE_ROUTE_PATH = "/clubs/profile/";
@@ -191,7 +193,7 @@ function PageProfile() {
           <ClubInfo>
             <div className="info-photo">
               <div className="info-photo-container">
-                <img className="info-photo-img" src={clubDetail?.logo} />
+                {clubDetail?.logo && <img className="info-photo-img" src={clubDetail?.logo} />}
               </div>
             </div>
 
@@ -291,8 +293,22 @@ function PageProfile() {
 
                   <div className="member-detail">
                     <h5>{member.name}</h5>
-                    <div>{member.gender}</div>
                     <div>
+                      <span className="info-icon">
+                        <IconGender size="20" />
+                      </span>
+                      {member.gender ? (
+                        <React.Fragment>
+                          {member.gender === "male" ? "Laki-laki" : "Perempuan"}
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>&mdash;</React.Fragment>
+                      )}
+                    </div>
+                    <div>
+                      <span className="info-icon">
+                        <IconAge size="20" />
+                      </span>
                       {member.age ? (
                         `${member.age} tahun`
                       ) : (
@@ -392,11 +408,13 @@ const ClubInfo = styled.div`
     height: 225px;
     border-radius: 50%;
     overflow: hidden;
+    background-color: var(--ma-gray-200);
     border: solid 5px #efefef;
 
     .info-photo-img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
   }
 
@@ -505,6 +523,10 @@ const MemberItem = styled.div`
   .member-detail {
     flex-grow: 1;
     padding: 1rem;
+
+    .info-icon {
+      margin-right: 0.5rem;
+    }
   }
 `;
 
