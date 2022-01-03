@@ -315,7 +315,7 @@ function AlertConfirmRemoveMember({ show, member, onCancel, onConfirm }) {
   return (
     <SweetAlert
       show={show}
-      title=""
+      title="Perhatian"
       custom
       btnSize="md"
       onConfirm={onConfirm}
@@ -330,7 +330,7 @@ function AlertConfirmRemoveMember({ show, member, onCancel, onConfirm }) {
       }
     >
       <p>
-        Apakah yakin akan menghapus <strong>&quot;{member.name}&quot;</strong> dari klub?
+        Apakah yakin akan menghapus anggota <strong>&quot;{member.name}&quot;</strong> dari klub?
       </p>
     </SweetAlert>
   );

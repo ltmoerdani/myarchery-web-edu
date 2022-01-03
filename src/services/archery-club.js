@@ -25,6 +25,9 @@ export default {
   setLeaveClub(qs = null) {
     return API.deleteByParams("/app/v1/archery/archery-club/left", qs);
   },
+  removeUserFromClub(qs = null) {
+    return API.delete("/app/v1/archery/archery-club/kick", null, qs);
+  },
   // TODO: provinsi & kota bisa dipindah ke service sendiri yang lebih proper
   getProvinces(qs = null) {
     const queryString = {
