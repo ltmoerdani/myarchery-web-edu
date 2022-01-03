@@ -1,5 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import queryString from "query-string";
+import { useLocation, Link } from "react-router-dom";
 import styled from "styled-components";
 import { ArcheryClubService } from "services";
 
@@ -8,6 +9,8 @@ import { Container, Row, Col, Modal, ModalBody } from "reactstrap";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { ButtonBlue, ButtonOutlineBlue } from "components/ma";
 import { FieldInputText, FieldSelect, FieldTextArea } from "./components";
+
+import IconCamera from "components/ma/icons/mono/camera";
 
 const clubDataStructure = {
   logoImage: "",
@@ -36,7 +39,15 @@ async function imageToBase64(imageFileRaw) {
 }
 
 function PageClubCreate() {
-  const [clubData, updateClubData] = React.useReducer(clubDataReducer, clubDataStructure);
+  const { search } = useLocation();
+  const { suggestedName } = queryString.parse(search);
+  const [provinceOptions, setProvinceOptions] = React.useState(null);
+  const [cityOptions, setCityOptions] = React.useState(null);
+
+  const [clubData, updateClubData] = React.useReducer(clubDataReducer, {
+    ...clubDataStructure,
+    clubName: suggestedName,
+  });
 
   const [shouldShowConfirmCreate, setShowConfirmCreate] = React.useState(false);
   const [submitStatus, setSubmitStatus] = React.useState(null);
@@ -104,6 +115,46 @@ function PageClubCreate() {
     }
   };
 
+  React.useEffect(() => {
+    const fetchProvinceOptions = async () => {
+      const result = await ArcheryClubService.getProvinces({ limit: 50, page: 1 });
+      if (result.success) {
+        const provinceOptions = result.data.map((province) => ({
+          label: province.name,
+          value: parseInt(province.id),
+        }));
+        setProvinceOptions(provinceOptions);
+      } else {
+        console.log(result.errors || "error getting provinces list");
+      }
+    };
+
+    fetchProvinceOptions();
+  }, []);
+
+  React.useEffect(() => {
+    if (!clubData?.clubBasisProvince?.value) {
+      return;
+    }
+
+    const fetchCityOptions = async () => {
+      const result = await ArcheryClubService.getCities({
+        province_id: clubData.clubBasisProvince.value,
+      });
+      if (result.success) {
+        const cityOptions = result.data.map((city) => ({
+          label: city.name,
+          value: parseInt(city.id),
+        }));
+        setCityOptions(cityOptions);
+      } else {
+        console.log(result.errors || "error getting cities list");
+      }
+    };
+
+    fetchCityOptions();
+  }, [clubData?.clubBasisProvince]);
+
   return (
     <ClubCreateWrapper>
       <MetaTags>
@@ -136,8 +187,15 @@ function PageClubCreate() {
                   accept="image/jpg,image/jpeg,image/png"
                   onChange={(ev) => handleChooseImage("bannerImage", ev)}
                 />
-                {clubData.bannerImage && (
+                {clubData.bannerImage?.preview ? (
                   <img className="club-banner-image" src={clubData.bannerImage.preview} />
+                ) : (
+                  <div className="picker-empty-placeholder">
+                    <div>Pilih gambar banner</div>
+                    <div className="picker-empty-placeholder-icon">
+                      <IconCamera size="40" />
+                    </div>
+                  </div>
                 )}
               </label>
             </div>
@@ -153,8 +211,15 @@ function PageClubCreate() {
                   accept="image/jpg,image/jpeg,image/png"
                   onChange={(ev) => handleChooseImage("logoImage", ev)}
                 />
-                {clubData.logoImage && (
+                {clubData.logoImage?.preview ? (
                   <img className="club-logo-image" src={clubData.logoImage.preview} />
+                ) : (
+                  <div className="picker-empty-placeholder">
+                    <div>Pilih gambar logo</div>
+                    <div className="picker-empty-placeholder-icon">
+                      <IconCamera size="40" />
+                    </div>
+                  </div>
                 )}
               </label>
             </div>
@@ -196,6 +261,7 @@ function PageClubCreate() {
                 name="clubBasisProvince"
                 placeholder="Pilih provinsi &#47; wilayah"
                 required
+                options={provinceOptions}
                 value={clubData.clubBasisProvince}
                 onChange={(value) => handleFieldChange("clubBasisProvince", value)}
               >
@@ -208,6 +274,7 @@ function PageClubCreate() {
                 name="clubBasisCity"
                 placeholder="Pilih kota"
                 required
+                options={cityOptions}
                 value={clubData.clubBasisCity}
                 onChange={(value) => handleFieldChange("clubBasisCity", value)}
               >
@@ -305,6 +372,7 @@ function AlertSuccess({ show }) {
       custom
       btnSize="md"
       style={{ padding: "30px 40px" }}
+      onConfirm={() => {}}
       customButtons={
         <div className="d-flex flex-column w-100">
           <ButtonBlue as={Link} to="/dashboard/clubs">
@@ -348,6 +416,7 @@ const ClubCreateWrapper = styled.div`
 
 const ClubImagesWrapper = styled.div`
   .picker-input-control {
+    position: relative;
     margin: 0;
 
     .picker-file-input {
@@ -356,13 +425,31 @@ const ClubImagesWrapper = styled.div`
       top: 0;
       left: -2000px;
     }
+
+    .picker-empty-placeholder {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.75rem;
+
+      &-icon {
+        margin-top: 0.75rem;
+        color: #ffffff;
+      }
+    }
   }
 
   .club-image-top {
     position: relative;
     width: 100%;
-    padding-bottom: 25%;
-    background-color: var(--ma-blue);
+    padding-bottom: 42%;
+    background-color: var(--ma-gray-200);
     overflow: hidden;
 
     .club-banner-image {
@@ -380,20 +467,20 @@ const ClubImagesWrapper = styled.div`
   .club-image-bottom {
     position: relative;
     width: 100%;
-    min-height: 55px;
+    min-height: 90px;
   }
 
   .club-logo {
     position: absolute;
-    top: -55px;
+    top: -90px;
     left: 20px;
 
-    width: 110px;
-    height: 110px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
     overflow: hidden;
     border: solid 5px #efefef;
-    background-color: var(--ma-gray-400);
+    background-color: var(--ma-gray-200);
 
     &-image {
       object-fit: cover;
