@@ -26,8 +26,8 @@ export default {
     return API.get("/app/v1/archery/archery-club/get-club-member", qs);
   },
   // TODO: provinsi & kota bisa dipindah ke service yang lebih proper
-  getProvinces() {
-    return API.get("/app/v1/archery/archery-club/get-province", null);
+  getProvinces(qs = null) {
+    return API.get("/app/v1/archery/archery-club/get-province", qs);
   },
   getCities(qs = null) {
     return API.get("/app/v1/archery/archery-club/get-city", qs);

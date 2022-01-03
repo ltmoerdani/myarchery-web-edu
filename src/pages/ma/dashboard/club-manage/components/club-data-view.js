@@ -11,7 +11,23 @@ function ClubProfileDataView({ club, updateClubData, onSave }) {
   const [cityOptions, setCityOptions] = React.useState(null);
 
   const handleFieldChange = (field, value) => {
-    updateClubData({ [field]: value });
+    if (field === "province") {
+      // reset field city ketika province berubah
+      updateClubData({ province: value, city: null });
+    } else {
+      updateClubData({ [field]: value });
+    }
+  };
+
+  const handleChooseImage = (field, ev) => {
+    if (!ev.target.files?.[0]) {
+      return;
+    }
+    const imageRawData = ev.target.files[0];
+    const imagePreviewUrl = URL.createObjectURL(imageRawData);
+    updateClubData({
+      [field]: { preview: imagePreviewUrl, raw: imageRawData },
+    });
   };
 
   const handleSaveEdits = () => {
@@ -20,7 +36,7 @@ function ClubProfileDataView({ club, updateClubData, onSave }) {
 
   React.useEffect(() => {
     const fetchProvinceOptions = async () => {
-      const result = await ArcheryClubService.getProvinces();
+      const result = await ArcheryClubService.getProvinces({ limit: 50, page: 1 });
       if (result.success) {
         const provinceOptions = result.data.map((province) => ({
           label: province.name,

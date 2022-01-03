@@ -6,6 +6,7 @@ import { useWizardView } from "hooks/wizard-view";
 import { ArcheryClubService } from "services";
 
 import MetaTags from "react-meta-tags";
+import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
 import { ButtonBlue, WizardView, WizardViewContent } from "components/ma";
 import { ClubProfileDataView } from "./components/club-data-view";
@@ -20,12 +21,18 @@ const tabList = [
   { step: 2, label: "Data Anggota", icon: "members" },
 ];
 
+const APP_URL = "https://myarchery.id";
+const LANDING_PAGE_ROUTE_PATH = "/clubs/profile/";
+
 function PageClubManage() {
   const breadcrumbCurrentPageLabel = "Data Anggota";
 
   const { clubId } = useParams();
-  const [clubDetail, setClubDetail] = React.useState(null);
+  const [clubDetail, setClubDetail] = React.useState({});
   const { currentStep, goToStep } = useWizardView(tabList);
+  const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
+  const [successfulSavingCounts, setSuccessfulSavingCounts] = React.useState(0);
+  const [isAlertSuccessOpen, setAlertSuccessOpen] = React.useState(false);
 
   const getTabClassNames = (id) => classnames({ "tab-selected": currentStep === id });
 
@@ -34,21 +41,26 @@ function PageClubManage() {
   };
 
   const handleSaveEdits = async () => {
+    const bannerBase64 =
+      clubDetail.bannerImage && (await imageToBase64(clubDetail.bannerImage.raw));
+    const logoBase64 = clubDetail.logoImage && (await imageToBase64(clubDetail.logoImage.raw));
+
     const payload = {
       id: clubDetail.id || clubId,
       name: clubDetail.name,
-      banner: clubDetail.banner,
-      logo: clubDetail.logo,
+      banner: bannerBase64,
+      logo: logoBase64,
       place_name: clubDetail.placeName,
-      province: clubDetail.province.value,
-      city: clubDetail.city.value,
+      province: clubDetail.province?.value,
+      city: clubDetail.city?.value,
       address: clubDetail.address,
       description: clubDetail.description,
     };
 
     const result = await ArcheryClubService.edit(payload);
     if (result.success) {
-      console.log("berhasil");
+      setSuccessfulSavingCounts((counts) => counts + 1);
+      setAlertSuccessOpen(true);
     } else {
       console.log("gagal");
     }
@@ -59,23 +71,39 @@ function PageClubManage() {
       const result = await ArcheryClubService.getProfile({ id: clubId });
 
       if (result.success) {
+        const { detailProvince, detailCity } = result.data;
         setClubDetail({
           ...result.data,
-          province: {
-            label: result.data.detailProvince?.name,
-            value: parseInt(result.data.detailProvince?.id) || undefined,
-          },
-          city: {
-            label: result.data.detailCity?.name,
-            value: parseInt(result.data.detailCity?.id) || undefined,
-          },
+          province:
+            detailProvince?.id || detailProvince?.name
+              ? {
+                  label: detailProvince?.name,
+                  value: parseInt(detailProvince?.id) || undefined,
+                }
+              : null,
+          city:
+            detailCity?.id || detailCity?.name
+              ? {
+                  label: detailCity?.name,
+                  value: parseInt(detailCity?.id) || undefined,
+                }
+              : null,
         });
       } else {
         console.log("gak sukses wkwk");
       }
     };
     fetchClubData();
-  }, []);
+  }, [successfulSavingCounts]);
+
+  React.useEffect(() => {
+    if (!clubDetail?.id) {
+      return;
+    }
+    const theHost = process.env.NODE_ENV === "production" ? APP_URL : window.location.host;
+    const theFullURL = theHost + LANDING_PAGE_ROUTE_PATH + clubDetail.id;
+    setLandingPageFullURL(theFullURL);
+  }, [clubDetail?.id]);
 
   return (
     <ClubManagePageWrapper>
@@ -99,12 +127,18 @@ function PageClubManage() {
           <div className="club-info-content">
             <h4 className="club-name">{clubDetail?.name}</h4>
             <div className="club-info">
-              <LandingPageLinkPlaceholder url={clubDetail?.landingPageUrl} />
+              <LandingPageLinkPlaceholder url={landingPageFullURL} />
             </div>
           </div>
 
           <div className="club-info-actions">
-            <ButtonBlue as={Link} to="#" className="button-wide">
+            <ButtonBlue
+              as="a"
+              className="button-wide"
+              href={LANDING_PAGE_ROUTE_PATH + clubDetail?.id}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Lihat Klub
             </ButtonBlue>
           </div>
@@ -130,11 +164,18 @@ function PageClubManage() {
             <WizardView currentStep={currentStep}>
               <WizardViewContent>
                 {clubDetail ? (
-                  <ClubProfileDataView
-                    club={clubDetail}
-                    updateClubData={updateClubData}
-                    onSave={handleSaveEdits}
-                  />
+                  <React.Fragment>
+                    <ClubProfileDataView
+                      club={clubDetail}
+                      updateClubData={updateClubData}
+                      onSave={handleSaveEdits}
+                    />
+
+                    <AlertSuccess
+                      show={isAlertSuccessOpen}
+                      onConfirm={() => setAlertSuccessOpen(false)}
+                    />
+                  </React.Fragment>
                 ) : (
                   <div style={{ padding: "2rem", textAlign: "center" }}>
                     <h5>Sedang memuat data klub</h5>
@@ -296,5 +337,38 @@ const CardViewPanel = styled.div`
   background-color: #ffffff;
   background-clip: border-box;
 `;
+
+function AlertSuccess({ show, onConfirm }) {
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      style={{ padding: "30px 40px" }}
+      onConfirm={onConfirm}
+      customButtons={
+        <div className="d-flex flex-column w-100">
+          <ButtonBlue onClick={onConfirm}>Tutup</ButtonBlue>
+        </div>
+      }
+    >
+      <h4>Berhasil</h4>
+      <p>Data klub Anda telah berhasil diperbarui</p>
+    </SweetAlert>
+  );
+}
+
+// eslint-disable-next-line no-unused-vars
+async function imageToBase64(imageFileRaw) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFileRaw);
+    reader.onload = () => {
+      const baseURL = reader.result;
+      resolve(baseURL);
+    };
+  });
+}
 
 export default PageClubManage;
