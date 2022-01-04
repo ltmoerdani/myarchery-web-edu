@@ -111,7 +111,7 @@ function MemberDataListView({ club }) {
   }, [attemptCounts]);
 
   const handleRemoveMember = async (member) => {
-    const queryString = { club_id: club.id, member_id: member.id };
+    const queryString = { club_id: club.id, member_id: member.memberId };
     const result = await ArcheryClubService.removeUserFromClub(queryString);
     if (result.success) {
       console.log("Success removing member from club");
@@ -142,7 +142,7 @@ function MemberDataListView({ club }) {
 
       {members.length
         ? members.map((member) => (
-            <MemberListItem key={member.id}>
+            <MemberListItem key={member.memberId}>
               <MemberFigure>
                 <AvatarPhoto>
                   {member.avatar && <img className="avatar-img" src={member.avatar} />}
@@ -173,7 +173,7 @@ function MemberDataListView({ club }) {
 
               <MemberActions>
                 {!member.isAdmin ? (
-                  <ButtonRemove onClick={() => setSelectedMemberId(member.id)}>
+                  <ButtonRemove onClick={() => setSelectedMemberId(member.memberId)}>
                     <i className="bx bx-trash" />
                   </ButtonRemove>
                 ) : (
@@ -181,8 +181,8 @@ function MemberDataListView({ club }) {
                 )}
 
                 <AlertConfirmRemoveMember
-                  key={member.id}
-                  show={isMemberSelected(member.id)}
+                  key={member.memberId}
+                  show={isMemberSelected(member.memberId)}
                   member={member}
                   onCancel={() => setSelectedMemberId(null)}
                   onConfirm={() => handleRemoveMember(member)}
