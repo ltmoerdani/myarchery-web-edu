@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import classnames from "classnames";
 import { useWizardView } from "hooks/wizard-view";
@@ -9,6 +9,7 @@ import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
 import { ButtonBlue, WizardView, WizardViewContent } from "components/ma";
+import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { ClubProfileDataView } from "./components/club-data-view";
 import { MemberDataListView } from "./components/member-data-view";
 
@@ -25,14 +26,14 @@ const APP_URL = "https://myarchery.id";
 const LANDING_PAGE_ROUTE_PATH = "/clubs/profile/";
 
 function PageClubManage() {
-  const breadcrumbCurrentPageLabel = "Data Anggota";
-
   const { clubId } = useParams();
   const [clubDetail, setClubDetail] = React.useState({});
   const { currentStep, goToStep } = useWizardView(tabList);
   const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
   const [successfulSavingCounts, setSuccessfulSavingCounts] = React.useState(0);
   const [isAlertSuccessOpen, setAlertSuccessOpen] = React.useState(false);
+
+  const breadcrumbCurrentPageLabel = clubDetail?.name || "Klub";
 
   const getTabClassNames = (id) => classnames({ "tab-selected": currentStep === id });
 
@@ -112,12 +113,9 @@ function PageClubManage() {
       </MetaTags>
 
       <Container fluid>
-        <div className="dashboard-breadcrumb">
-          <Link to="/dashboard/clubs">
-            <span className="breadcrumb__back-button">&lsaquo;</span>
-          </Link>{" "}
-          <span>{breadcrumbCurrentPageLabel}</span>
-        </div>
+        <BreadcrumbDashboard to="/dashboard/clubs">
+          {breadcrumbCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <div className="club-info-header mb-5">
           <div className="club-logo">

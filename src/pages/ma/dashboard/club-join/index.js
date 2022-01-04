@@ -1,9 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
+import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { JoinClubDataListView } from "./components/list-view";
 
 const PAGE_TITLE = "Daftar Klub";
@@ -18,12 +18,9 @@ function PageClubJoin() {
       </MetaTags>
 
       <Container fluid>
-        <div className="dashboard-breadcrumb">
-          <Link to="/dashboard/clubs">
-            <span className="breadcrumb__back-button">&lsaquo;</span>
-          </Link>{" "}
-          <span>{breadcrumbCurrentPageLabel}</span>
-        </div>
+        <BreadcrumbDashboard to="/dashboard/clubs">
+          {breadcrumbCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <JoinClubDataListView />
       </Container>

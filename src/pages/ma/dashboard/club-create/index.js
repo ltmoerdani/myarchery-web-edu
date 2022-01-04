@@ -8,6 +8,7 @@ import MetaTags from "react-meta-tags";
 import { Container, Row, Col, Modal, ModalBody } from "reactstrap";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { ButtonBlue, ButtonOutlineBlue } from "components/ma";
+import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { FieldInputText, FieldSelect, FieldTextArea } from "./components";
 
 import IconCamera from "components/ma/icons/mono/camera";
@@ -162,12 +163,9 @@ function PageClubCreate() {
       </MetaTags>
 
       <Container fluid>
-        <div className="dashboard-breadcrumb">
-          <Link to="/dashboard/clubs">
-            <span className="breadcrumb__back-button">&lsaquo;</span>
-          </Link>{" "}
-          <span>{breadcrumpCurrentPageLabel}</span>
-        </div>
+        <BreadcrumbDashboard to="/dashboard/clubs">
+          {breadcrumpCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <div className="card-club-form">
           <h5>Data Profil</h5>
