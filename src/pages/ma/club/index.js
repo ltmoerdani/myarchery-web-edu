@@ -10,6 +10,7 @@ import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
 import { Button, ButtonBlue } from "components/ma";
+import { SkeletonMemberGridItem } from "./components/member-grid-item";
 
 // TODO: pindah lokasi icon ke yang lebih proper
 import IconChainLink from "pages/ma/dashboard/club-manage/components/icons-mono/chain-link";
@@ -299,72 +300,70 @@ function PageProfile() {
           </div>
 
           <MemberGrid>
-            {members?.length ? (
-              members.map((member) => (
-                <MemberItem key={member.id}>
-                  <div className="member-photo">
-                    <div className="member-photo-container">
-                      <img className="member-photo-img" src={member.avatar} />
+            {members?.length
+              ? members.map((member) => (
+                  <MemberItem key={member.id}>
+                    <div className="member-photo">
+                      <div className="member-photo-container">
+                        <img className="member-photo-img" src={member.avatar} />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="member-detail">
-                    <h5>{member.name}</h5>
-                    <div>
-                      <span className="info-icon">
-                        <IconGender size="20" />
-                      </span>
-                      {member.gender ? (
-                        <React.Fragment>
-                          {member.gender === "male" ? "Laki-laki" : "Perempuan"}
-                        </React.Fragment>
-                      ) : (
-                        <React.Fragment>&mdash;</React.Fragment>
-                      )}
+                    <div className="member-detail">
+                      <h5>{member.name}</h5>
+                      <div>
+                        <span className="info-icon">
+                          <IconGender size="20" />
+                        </span>
+                        {member.gender ? (
+                          <React.Fragment>
+                            {member.gender === "male" ? "Laki-laki" : "Perempuan"}
+                          </React.Fragment>
+                        ) : (
+                          <React.Fragment>&mdash;</React.Fragment>
+                        )}
+                      </div>
+                      <div>
+                        <span className="info-icon">
+                          <IconAge size="20" />
+                        </span>
+                        {member.age ? (
+                          `${member.age} tahun`
+                        ) : (
+                          <React.Fragment>&mdash;</React.Fragment>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <span className="info-icon">
-                        <IconAge size="20" />
-                      </span>
-                      {member.age ? (
-                        `${member.age} tahun`
-                      ) : (
-                        <React.Fragment>&mdash;</React.Fragment>
-                      )}
+                  </MemberItem>
+                ))
+              : !isLoadingMembers && (
+                  <MemberItem
+                    style={
+                      {
+                        // backgroundColor: "var(--ma-gray-50)",
+                        // border: "solid 1px var(--ma-gray-100)",
+                      }
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "1rem",
+                        height: 100,
+                      }}
+                    >
+                      <h5 style={{ color: "var(--ma-gray-400)" }}>Belum ada anggota</h5>
                     </div>
-                  </div>
-                </MemberItem>
-              ))
-            ) : (
-              <MemberItem
-                style={{
-                  backgroundColor: "var(--ma-gray-50)",
-                  border: "solid 1px var(--ma-gray-100)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "1rem",
-                    height: 100,
-                  }}
-                >
-                  <h5 style={{ color: "var(--ma-gray-400)" }}>Belum ada anggota</h5>
-                </div>
-              </MemberItem>
+                  </MemberItem>
+                )}
+
+            {!isLastPage && (
+              <div ref={membersLoaderDOM}>
+                <SkeletonMemberGridItem />
+              </div>
             )}
           </MemberGrid>
-
-          {!isLastPage && (
-            <div
-              ref={membersLoaderDOM}
-              className="d-flex justify-content-center align-items-center"
-              style={{ height: "calc(100px + 2rem)", marginTop: "2rem" }}
-            >
-              Sedang memuat anggota klub...
-            </div>
-          )}
         </Container>
       </SectionContent>
     </ClubProfilePageWrapper>
@@ -393,7 +392,7 @@ const ClubProfilePageWrapper = styled.div`
 
 const ClubInfoBanner = styled.div`
   width: 100%;
-  padding-top: 42%;
+  padding-top: 30%;
   position: relative;
   overflow: hidden;
   background-color: var(--ma-blue);
@@ -533,7 +532,7 @@ const MemberItem = styled.div`
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      background-color: var(--ma-gray-100);
+      background-color: var(--ma-gray-200);
     }
   }
 

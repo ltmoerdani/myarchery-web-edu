@@ -5,6 +5,7 @@ import { ArcheryClubService } from "services";
 
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Button, ButtonBlue, ButtonOutline } from "components/ma";
+import { SkeletonClubItem } from "../../components/skeletons/club-item";
 
 import IconAge from "components/ma/icons/mono/age";
 import IconGender from "components/ma/icons/mono/gender";
@@ -139,62 +140,62 @@ function MemberDataListView({ club }) {
         </SearchBox>
       </CardToolbarTop>
 
-      {members.length ? (
-        members.map((member) => (
-          <MemberListItem key={member.id}>
-            <MemberFigure>
-              <AvatarPhoto>
-                {member.avatar && <img className="avatar-img" src={member.avatar} />}
-              </AvatarPhoto>
-            </MemberFigure>
+      {members.length
+        ? members.map((member) => (
+            <MemberListItem key={member.id}>
+              <MemberFigure>
+                <AvatarPhoto>
+                  {member.avatar && <img className="avatar-img" src={member.avatar} />}
+                </AvatarPhoto>
+              </MemberFigure>
 
-            <MemberInfo>
-              <h5>{member.name}</h5>
-              <div>
-                <span className="info-icon">
-                  <IconGender size="20" />
-                </span>
-                {member.gender ? (
-                  <React.Fragment>
-                    {member.gender === "male" ? "Laki-laki" : "Perempuan"}
-                  </React.Fragment>
+              <MemberInfo>
+                <h5>{member.name}</h5>
+                <div>
+                  <span className="info-icon">
+                    <IconGender size="20" />
+                  </span>
+                  {member.gender ? (
+                    <React.Fragment>
+                      {member.gender === "male" ? "Laki-laki" : "Perempuan"}
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>&mdash;</React.Fragment>
+                  )}
+                </div>
+                <div>
+                  <span className="info-icon">
+                    <IconAge size="20" />
+                  </span>
+                  {member.age ? `${member.age} tahun` : <React.Fragment>&mdash;</React.Fragment>}
+                </div>
+              </MemberInfo>
+
+              <MemberActions>
+                {!member.isAdmin ? (
+                  <ButtonRemove onClick={() => setSelectedMemberId(member.id)}>
+                    <i className="bx bx-trash" />
+                  </ButtonRemove>
                 ) : (
-                  <React.Fragment>&mdash;</React.Fragment>
+                  <ButtonLinkAdmin disabled>Admin</ButtonLinkAdmin>
                 )}
-              </div>
-              <div>
-                <span className="info-icon">
-                  <IconAge size="20" />
-                </span>
-                {member.age ? `${member.age} tahun` : <React.Fragment>&mdash;</React.Fragment>}
-              </div>
-            </MemberInfo>
 
-            <MemberActions>
-              {!member.isAdmin ? (
-                <ButtonRemove onClick={() => setSelectedMemberId(member.id)}>
-                  <i className="bx bx-trash" />
-                </ButtonRemove>
-              ) : (
-                <ButtonLinkAdmin disabled>Admin</ButtonLinkAdmin>
-              )}
-
-              <AlertConfirmRemoveMember
-                key={member.id}
-                show={isMemberSelected(member.id)}
-                member={member}
-                onCancel={() => setSelectedMemberId(null)}
-                onConfirm={() => handleRemoveMember(member)}
-              />
-            </MemberActions>
-          </MemberListItem>
-        ))
-      ) : (
-        <ListBottomEnd>Belum ada anggota</ListBottomEnd>
-      )}
+                <AlertConfirmRemoveMember
+                  key={member.id}
+                  show={isMemberSelected(member.id)}
+                  member={member}
+                  onCancel={() => setSelectedMemberId(null)}
+                  onConfirm={() => handleRemoveMember(member)}
+                />
+              </MemberActions>
+            </MemberListItem>
+          ))
+        : !isLoadingMembers && <ListBottomEnd>Belum ada anggota</ListBottomEnd>}
 
       {!isLastPage && (
-        <ListBottomEnd ref={membersLoaderDOM}>Sedang memuat anggota klub...</ListBottomEnd>
+        <div ref={membersLoaderDOM}>
+          <SkeletonClubItem />
+        </div>
       )}
     </React.Fragment>
   );

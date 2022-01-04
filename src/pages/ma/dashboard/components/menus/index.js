@@ -20,7 +20,7 @@ const menuItems = [
     id: 2,
     icon: target,
     title: "Klub Saya",
-    description: "Event-event yang Anda ikuti. Temukan berbagai klub panahan di myarchery.id",
+    description: "Klub-klub yang Anda ikuti. Temukan berbagai klub panahan di myarchery.id",
     computeLink: () => "/dashboard/clubs",
   },
   {

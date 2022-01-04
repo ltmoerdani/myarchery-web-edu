@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-
 import { ArcheryClubService } from "services";
+
+import { SkeletonClubItem } from "../../components/skeletons/club-item";
 import { EmptyDataWithIllustration } from "./card-empty-data";
 import { ClubList } from "./club-list";
 import { ListViewHeader } from "./list-view-header";
@@ -105,7 +106,11 @@ export function ClubDataListView() {
       <StyledListView className="list-data">
         <ListViewHeader />
         <ClubList clubs={clubs} />
-        {!isLastPage && <ListBottomEnd ref={clubsLoaderDOM}>Sedang memuat klub...</ListBottomEnd>}
+        {!isLastPage && (
+          <div ref={clubsLoaderDOM}>
+            <SkeletonClubItem />
+          </div>
+        )}
       </StyledListView>
     );
   }
@@ -134,22 +139,5 @@ const StyledListView = styled.div`
     background-color: #eef3fe;
     border: solid 1px #eef3fe;
     color: var(--ma-blue);
-  }
-`;
-
-const ListBottomEnd = styled.div`
-  padding: 1.25rem;
-  min-height: calc(80px + 1.25rem * 2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1rem;
-  color: var(--ma-gray-400);
-
-  .content-with-button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
   }
 `;
