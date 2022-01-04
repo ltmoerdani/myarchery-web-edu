@@ -114,7 +114,7 @@ function MemberDataListView({ club }) {
     const queryString = { club_id: club.id, member_id: member.memberId };
     const result = await ArcheryClubService.removeUserFromClub(queryString);
     if (result.success) {
-      console.log("Success removing member from club");
+      doInitialFetchMembers();
     } else {
       console.log("Error/failed removing member from club");
     }
