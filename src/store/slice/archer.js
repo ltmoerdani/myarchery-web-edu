@@ -15,6 +15,8 @@ export const archerSlice = createSlice({
     },
     logout: state => {
       state.isLoggedIn = false
+      state.user = null
+      state.userProfile = null
     },
     register: state => {
       state.isLoggedIn = true

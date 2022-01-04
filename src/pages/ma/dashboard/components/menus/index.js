@@ -6,6 +6,7 @@ import UserProfileCard from "./UserProfileCard";
 
 import fileText from "assets/icons/event-menu-file-text.svg";
 import panah from "assets/icons/event-menu-panah.svg";
+import target from "assets/icons/target-club.svg";
 
 const menuItems = [
   {
@@ -13,12 +14,19 @@ const menuItems = [
     icon: fileText,
     title: "Sertifikat",
     description: "Sertifikat yang telah Anda dapatkan",
-    computeLink: (eventId) => `/dashboard/certificate/new?event_id=${eventId}`,
+    computeLink: () => "",
   },
   {
     id: 2,
+    icon: target,
+    title: "Klub Saya",
+    description: "Klub-klub yang Anda ikuti. Temukan berbagai klub panahan di myarchery.id",
+    computeLink: () => "/dashboard/clubs",
+  },
+  {
+    id: 3,
     icon: panah,
-    title: "Pertandingan",
+    title: "Event Saya",
     description: "Event-event yang Anda ikuti. Temukan berbagai event panahan di myarchery.id",
     computeLink: () => "",
   },
@@ -34,7 +42,7 @@ const MenuGridWrapper = styled.div`
   }
 
   @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 `;
 
@@ -43,7 +51,7 @@ function DashboardMenus() {
     <MenuGridWrapper>
       <UserProfileCard />
       {menuItems.map((menu) => (
-        <MenuItemCard key={menu.id} menu={menu} />
+        <MenuItemCard key={menu.id} menu={menu} href={menu.computeLink?.()} />
       ))}
     </MenuGridWrapper>
   );
