@@ -5,6 +5,7 @@ import { ArcheryClubService } from "services";
 
 import Select from "react-select";
 import { Button, ButtonBlue, ButtonOutlineBlue } from "components/ma";
+import { SkeletonClubItem } from "../../components/skeletons/club-item";
 import { ClubList } from "./club-list";
 
 const TOTAL_LIMIT = 3;
@@ -214,9 +215,9 @@ function JoinClubDataListView() {
 
           <ClubList clubs={clubs} onJoinSuccess={() => doInitialFetchClubs()} />
           {!isLastPage && !isFetchingError && (
-            <ListBottomEnd ref={clubLoaderDOM}>
-              {currentPage > 1 ? "Tunggu, ada lagi..." : "Sedang memuat klub"}
-            </ListBottomEnd>
+            <div ref={clubLoaderDOM}>
+              <SkeletonClubItem />
+            </div>
           )}
         </React.Fragment>
       )}
@@ -231,15 +232,8 @@ function JoinClubDataListView() {
           </div>
         </ListBottomEnd>
       )}
-      {isLastPage && (
-        <ListBottomEnd>
-          {clubs?.length
-            ? "Sudah semua"
-            : !filterParams.name
-            ? "Tidak ada klub untuk pencarian ini"
-            : ""}
-        </ListBottomEnd>
-      )}
+
+      {!clubs?.length && !isLoadingClubs && <ListBottomEnd>Belum ada klub</ListBottomEnd>}
     </StyledListView>
   );
 }
