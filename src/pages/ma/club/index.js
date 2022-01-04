@@ -111,7 +111,7 @@ function PageProfile() {
 
   React.useEffect(() => {
     const fetchClubData = async () => {
-      const result = await ArcheryClubService.getProfile({ id: clubId });
+      const result = await ArcheryClubService.getProfile({ club_id: clubId });
       if (result.success) {
         setClubDetail(result.data);
       }

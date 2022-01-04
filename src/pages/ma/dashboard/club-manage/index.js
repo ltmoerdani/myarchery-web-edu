@@ -69,7 +69,7 @@ function PageClubManage() {
 
   React.useEffect(() => {
     const fetchClubData = async () => {
-      const result = await ArcheryClubService.getProfile({ id: clubId });
+      const result = await ArcheryClubService.getProfile({ club_id: clubId });
 
       if (result.success) {
         const { detailProvince, detailCity } = result.data;
