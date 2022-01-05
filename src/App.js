@@ -1,17 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Redirect, Switch } from "react-router-dom";
-import "./assets/scss/theme.scss";
+import { AuthLayout, DashboardEventUmum, LandingPageLayout, LayoutArcher } from "./layouts";
+import { AuthenticationArcherMiddleware } from "./middlewares";
 import {
-  AuthLayout,
-  DashboardHorizontalLayout,
-  DashboardEventUmum,
-  LandingPageLayout,
-  LayoutArcher,
-} from "./layouts";
-import { AuthenticationMiddleware, AuthenticationArcherMiddleware } from "./middlewares";
-import {
-  authenticationRoutes,
-  dashboardRoutes,
   workingRoutes,
   eventRouters,
   landingpageRouters,
@@ -20,13 +11,18 @@ import {
   certificateRoutes,
 } from "./routes";
 
+import { dashboardRoutes, clubRoutes } from "./routes";
+import { LayoutDashboard, LayoutClub } from "layouts/ma";
+
+import "./assets/scss/theme.scss";
+
 const App = () => {
   return (
     <React.Fragment>
       <Router>
         <Switch>
-          {authenticationRoutes.map((route, idx) => (
-            <AuthenticationMiddleware
+          {workingRoutes.map((route, idx) => (
+            <AuthenticationArcherMiddleware
               path={route.path}
               layout={AuthLayout}
               component={route.component}
@@ -36,28 +32,9 @@ const App = () => {
             />
           ))}
 
-          {dashboardRoutes.map((route, idx) => (
-            <AuthenticationMiddleware
-              path={route.path}
-              layout={DashboardHorizontalLayout}
-              component={() => <Redirect to="/" />}
-              key={idx}
-              isAuthProtected={true}
-              exact
-            />
-          ))}
-          {workingRoutes.map((route, idx) => (
-            <AuthenticationMiddleware
-              path={route.path}
-              layout={AuthLayout}
-              component={route.component}
-              key={idx}
-              isAuthProtected={false}
-              exact
-            />
-          ))}
+          {/* TODO: hapus juga? */}
           {eventRouters.map((route, idx) => (
-            <AuthenticationMiddleware
+            <AuthenticationArcherMiddleware
               path={route.path}
               layout={DashboardEventUmum}
               component={route.component}
@@ -66,8 +43,9 @@ const App = () => {
               exact
             />
           ))}
+
           {certificateRoutes.map((route, idx) => (
-            <AuthenticationMiddleware
+            <AuthenticationArcherMiddleware
               path={route.path}
               layout={LandingPageLayout}
               component={route.component}
@@ -76,8 +54,9 @@ const App = () => {
               exact
             />
           ))}
+
           {landingpageRouters.map((route, idx) => (
-            <AuthenticationMiddleware
+            <AuthenticationArcherMiddleware
               path={route.path}
               layout={LandingPageLayout}
               component={route.component}
@@ -86,6 +65,7 @@ const App = () => {
               exact
             />
           ))}
+
           {archerRouters.map((route, idx) => (
             <AuthenticationArcherMiddleware
               path={route.path}
@@ -96,6 +76,29 @@ const App = () => {
               exact
             />
           ))}
+
+          {clubRoutes.map((route, idx) => (
+            <AuthenticationArcherMiddleware
+              path={route.path}
+              layout={LayoutClub}
+              component={route.component}
+              key={idx}
+              isAuthProtected={false}
+              exact
+            />
+          ))}
+
+          {dashboardRoutes.map((route) => (
+            <AuthenticationArcherMiddleware
+              path={route.path}
+              layout={LayoutDashboard}
+              component={route.component}
+              key={route.path}
+              isAuthProtected={true}
+              exact
+            />
+          ))}
+
           {routerDasboardArcher.map((route, idx) => (
             <AuthenticationArcherMiddleware
               path={route.path}
@@ -106,6 +109,7 @@ const App = () => {
               exact
             />
           ))}
+
           <Redirect to="/working/not-found" />
         </Switch>
       </Router>

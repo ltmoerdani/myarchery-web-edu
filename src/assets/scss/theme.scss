@@ -19,6 +19,29 @@
 // @import "./rtl/structure-rtl";
 // @import "./rtl/text-rtl";
 
+// Custom untuk desain My Archery baru
+:root {
+  --ma-blue: #0d47a1;
+  --ma-blue-50: #e8eaf1;
+  --ma-blue-300: #5d84c0;
+
+  --ma-red: #bf152c;
+
+  --ma-orange-300: #ffcd6a;
+
+  --ma-gray: #afafaf;
+  --ma-gray-50: #f6f6f6;
+  --ma-gray-100: #eeeeee;
+  --ma-gray-200: #e2e2e2;
+  --ma-gray-400: #afafaf;
+  --ma-gray-500: #757575;
+  --ma-gray-600: #545454;
+
+  --ma-txt-black: #1c1c1c;
+
+  --ma-header-height: 70px;
+}
+
 body {
   * {
     outline: none;
@@ -238,8 +261,7 @@ span.flatpickr-weekday {
   border: 0;
   font-size: 10px;
   padding: 1.35rem 1.25rem;
-  background: transparent escape-svg($btn-close-bg-dark) center /
-    $btn-close-width auto no-repeat;
+  background: transparent escape-svg($btn-close-bg-dark) center / $btn-close-width auto no-repeat;
   position: absolute;
   top: 0;
   right: 0;
@@ -394,7 +416,6 @@ div[class*=" col"] {
       border: solid 1px $danger;
     }
   }
-
 }
 
 .invalid-feedback {
