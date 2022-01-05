@@ -3,14 +3,8 @@ import { Button, Container, Row, Col, Card, CardBody} from 'reactstrap'
 import MetaTags from "react-meta-tags";
 import "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Carousel } from 'react-responsive-carousel'
-// import { Link } from "react-router-dom"
-// import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
-// import logomyarchery from "../../../assets/images/myachery/myachery.png"
-// import { useSelector } from "react-redux";
-// import { getAuthenticationStore } from "store/slice/authentication";
-// import Footer from "layouts/landingpage/Footer";
-// import EventCard from './components/EventCard';
-import './components/sass/header.scss'
+import CardAbout from './components/CardAbout';
+
 import banner_satu from '../../../assets/images/myachery/Banner 2(1).svg'
 import img_content from '../../../assets/images/myachery/content-landing-1-1.svg'
 import img_target from '../../../assets/images/myachery/target-landing.svg'
@@ -35,20 +29,15 @@ import img_usedby_dua from "../../../assets/images/myachery/image 19.svg"
 import img_usedby_tiga from "../../../assets/images/myachery/image 18.svg"
 import img_usedby_empat from "../../../assets/images/myachery/image 22.svg"
 
-import CardAbout from './components/CardAbout';
+
+import './components/sass/header.scss'
 
 function Home() {
-    // const path = window.location.pathname;
-
-
-    // let { isLoggedIn } = useSelector(getAuthenticationStore);
     return (
         <React.Fragment>
             <MetaTags>
             <title>MyAcher</title>
             </MetaTags>
-            {/* <div className="img-background"> */}
-            {/* <div className="px-3"> */}
             <Carousel 
                 showArrows={false}
                 infiniteLoop
@@ -92,8 +81,6 @@ function Home() {
                         </div>
                     </div>
                     </Carousel>
-        {/* </div> */}
-            {/* </div> */}
             <div className='content-landing mt-0'>
             <Container fluid>
                         <div className='py-5 px-3'>
@@ -280,7 +267,7 @@ function Home() {
                                 </div>
                             </div>
                     </Container>
-                        </div>
+                </div>
             </div>
         </React.Fragment>
     )

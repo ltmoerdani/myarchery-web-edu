@@ -215,7 +215,6 @@ $secondaty-one: #FFB420;
         font-size: 1.676em;
         line-height: 32.2px;
         font-weight: 400;
-        // width: 90%;
         margin-top: 0 !important;
 
         @media screen and (max-width: 1200px) {
@@ -289,7 +288,6 @@ $secondaty-one: #FFB420;
         font-size: 1.676em;
         line-height: 32.2px;
         font-weight: 400;
-        // width: 90%;
         margin-top: 0 !important;
         @media screen and (max-width: 1200px) {
             line-height: normal;
@@ -316,8 +314,6 @@ $secondaty-one: #FFB420;
 }
 
 .card-effect {
-    // padding: 8px 0;
-    // box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     transition: all .2s ease-out;
     &:hover {
         transform: translateY(-5px);
