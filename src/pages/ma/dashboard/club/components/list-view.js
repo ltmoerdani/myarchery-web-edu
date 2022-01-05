@@ -1,46 +1,86 @@
 import React from "react";
 import styled from "styled-components";
-
 import { ArcheryClubService } from "services";
+
+import { SkeletonClubItem } from "../../components/skeletons/club-item";
 import { EmptyDataWithIllustration } from "./card-empty-data";
 import { ClubList } from "./club-list";
 import { ListViewHeader } from "./list-view-header";
 
+const TOTAL_LIMIT = 3;
+const CURRENT_PAGE = 1;
+
 export function ClubDataListView() {
-  const [clubs, setClubs] = React.useState(null);
-  const [clubsFetchingErrors, setClubsFetchingErrors] = React.useState(null);
-  const [shouldExpandError, setExpandError] = React.useState(false);
+  const [paginatedClubs, setPaginatedClubs] = React.useState({
+    fetchingStatus: "idle",
+    clubs: [],
+    currentPage: 1,
+    isLastPage: false,
+    attemptCounts: 0,
+  });
+
+  const clubsLoaderDOM = React.useRef(null);
+
+  const { clubs, fetchingStatus, currentPage, isLastPage, attemptCounts } = paginatedClubs;
+  const isLoadingClubs = fetchingStatus === "loading";
+  const isErrorFetching = fetchingStatus === "error";
+
+  const increaseAttemptCounts = () => {
+    setPaginatedClubs((state) => ({ ...state, attemptCounts: state.attemptCounts + 1 }));
+  };
 
   React.useEffect(() => {
     const fetchClubs = async () => {
-      const clubs = await ArcheryClubService.getUserClubs();
-      if (clubs.success) {
-        setClubs(clubs.data);
+      setPaginatedClubs((state) => ({ ...state, fetchingStatus: "loading" }));
+      const result = await ArcheryClubService.getClubsByUser({
+        limit: TOTAL_LIMIT,
+        page: currentPage || CURRENT_PAGE,
+      });
+
+      if (result.success) {
+        setPaginatedClubs((state) => ({
+          ...state,
+          fetchingStatus: "success",
+          clubs: currentPage > 1 ? [...state.clubs, ...result.data] : result.data,
+          currentPage: state.currentPage + 1,
+          isLastPage: result.data.length < TOTAL_LIMIT,
+        }));
       } else {
-        setClubsFetchingErrors({
-          errors: clubs?.errors || {},
-          message: clubs?.message || "Error tidak diketahui",
-        });
+        setPaginatedClubs((state) => ({ ...state, fetchingStatus: "error" }));
       }
     };
-    fetchClubs();
-  }, []);
 
-  if (clubsFetchingErrors) {
+    fetchClubs();
+  }, [attemptCounts]);
+
+  React.useEffect(() => {
+    if (isLoadingClubs || !clubsLoaderDOM.current || isLastPage) {
+      return;
+    }
+    const option = { root: null, rootMargin: "-40px", threshold: 1 };
+    const handleOnOverlapping = (entries) => {
+      const target = entries[0];
+      if (target.isIntersecting) {
+        increaseAttemptCounts();
+      }
+    };
+    const observer = new IntersectionObserver(handleOnOverlapping, option);
+    observer.observe(clubsLoaderDOM.current);
+
+    return () => {
+      // Berhenti ngemonitor target ketika dia di-unmounted
+      // supaya gak fetch dobel-dobel
+      observer.disconnect();
+    };
+  }, [isLoadingClubs, isLastPage]);
+
+  if (isErrorFetching) {
     return (
       <StyledListView className="list-data">
         <ListViewHeader />
         <div style={{ padding: "1.5rem" }}>
           <div className="p-5" style={{ backgroundColor: "var(--ma-gray-50)" }}>
             <h5>Gagal memuat data klub</h5>
-            <button
-              className="border-0 px-2 py-1 mb-3 rounded-2"
-              style={{ backgroundColor: "var(--ma-gray-200)" }}
-              onClick={() => setExpandError((expanded) => !expanded)}
-            >
-              detail
-            </button>
-            {shouldExpandError && <pre>{JSON.stringify(clubsFetchingErrors.message, null, 2)}</pre>}
           </div>
         </div>
       </StyledListView>
@@ -66,6 +106,11 @@ export function ClubDataListView() {
       <StyledListView className="list-data">
         <ListViewHeader />
         <ClubList clubs={clubs} />
+        {!isLastPage && (
+          <div ref={clubsLoaderDOM}>
+            <SkeletonClubItem />
+          </div>
+        )}
       </StyledListView>
     );
   }

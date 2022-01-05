@@ -1,16 +1,40 @@
 import React from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { ArcheryClubService } from "services";
 
-import { ButtonBlue, ButtonOutlineBlue } from "components/ma";
+import SweetAlert from "react-bootstrap-sweetalert";
+import { Button, ButtonBlue, ButtonOutlineBlue } from "components/ma";
 
-export function ClubList({ clubs }) {
-  return clubs.map((club) => <ClubListItem key={club.id} club={club} />);
+export function ClubList({ clubs, onJoinSuccess }) {
+  const [selectedClubId, setSelectedClubId] = React.useState(null);
+
+  const handleAgreedJoinClub = async (clubDetail) => {
+    const result = await ArcheryClubService.setJoinClub({ club_id: clubDetail.id });
+    if (result.success) {
+      onJoinSuccess?.();
+    }
+    setSelectedClubId(null);
+  };
+
+  return clubs.map((club) => (
+    <ClubListItem
+      key={club.detail.id}
+      club={club}
+      isSelected={selectedClubId === club.detail.id}
+      onSelected={() => setSelectedClubId(club.detail.id)}
+      onCancelSelected={() => setSelectedClubId(null)}
+      onConfirm={() => handleAgreedJoinClub(club.detail)}
+    />
+  ));
 }
 
-function ClubListItem({ club }) {
+function ClubListItem({ club, isSelected, onSelected, onCancelSelected, onConfirm }) {
   const computeClubBasisFullAddress = (club) => {
-    const infos = [club.address, club.city, club.province];
+    const infos = [
+      club.detail.address,
+      club.detail.detailCity?.name,
+      club.detail.detailProvince?.name,
+    ];
     const byEmptyField = (info) => Boolean(info);
     return infos.filter(byEmptyField).join(", ");
   };
@@ -18,23 +42,46 @@ function ClubListItem({ club }) {
   return (
     <ClubListItemWrapper>
       <div className="club-logo">
-        <Link to={`/dashboard/clubs/detail/${club.id}`}>
-          <img className="club-logo-image" src={club.logo} />
-        </Link>
+        <img className="club-logo-image" src={club.detail.logo} />
       </div>
 
       <div className="club-list-item-content">
-        <h4 className="club-name">{club.name}</h4>
+        <h4 className="club-name">{club.detail.name}</h4>
         <div className="club-info">
-          <span>{computeClubBasisFullAddress(club)}</span>
-          <span>Jumlah anggota terdaftar: &mdash;</span>
+          <Address>{computeClubBasisFullAddress(club)}</Address>
+          <MemberCounts>
+            <BlueBullet>&#8226;</BlueBullet> Jumlah anggota terdaftar: {club.totalMember}
+          </MemberCounts>
         </div>
       </div>
 
       <div className="club-list-item-actions">
-        <ButtonOutlineBlue className="button-wide">Lihat Profil</ButtonOutlineBlue>
-        <ButtonBlue className="button-wide">Gabung Klub</ButtonBlue>
+        <ButtonOutlineBlue
+          className="button-wide"
+          as="a"
+          href={`/clubs/profile/${club.detail.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Lihat Profil
+        </ButtonOutlineBlue>
+        {club.isJoin ? (
+          <ButtonLink className="button-wide" disabled>
+            &#10003; Member
+          </ButtonLink>
+        ) : (
+          <ButtonBlue className="button-wide" onClick={() => onSelected?.(club)}>
+            Gabung Klub
+          </ButtonBlue>
+        )}
       </div>
+      <AlertConfirmJoin
+        key={club.detail.id}
+        show={isSelected}
+        club={club.detail}
+        onCancel={onCancelSelected}
+        onConfirm={onConfirm}
+      />
     </ClubListItemWrapper>
   );
 }
@@ -86,4 +133,64 @@ const ClubListItemWrapper = styled.div`
     align-items: center;
     gap: 0.75rem;
   }
+`;
+
+const ButtonLink = styled(Button)`
+  &,
+  &:focus,
+  &:active,
+  &:hover {
+    background-color: transparent;
+    border: solid 1px transparent;
+    box-shadow: none;
+    color: var(--ma-blue);
+  }
+`;
+
+function AlertConfirmJoin({ show, club, onCancel, onConfirm }) {
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      onConfirm={onConfirm}
+      style={{ padding: "1.25rem" }}
+      customButtons={
+        <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
+          <ButtonBlue onClick={onConfirm}>Yakin</ButtonBlue>
+          <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
+            Batalkan
+          </Button>
+        </span>
+      }
+    >
+      <p>
+        Apakah Anda yakin akan bergabung dengan Klub
+        <br />
+        <strong>&quot;{club.name}&quot;</strong>?
+      </p>
+    </SweetAlert>
+  );
+}
+
+const Address = styled.span`
+  flex-basis: 50%;
+  display: inline-block;
+`;
+
+const MemberCounts = styled.span`
+  flex-basis: 50%;
+  position: relative;
+  display: inline-block;
+  padding-left: 2.5rem;
+`;
+
+const BlueBullet = styled.span`
+  position: absolute;
+  top: -0.4rem;
+  left: 0;
+  display: inline-block;
+  color: var(--ma-blue);
+  font-size: 1.25rem;
 `;

@@ -95,7 +95,7 @@ const MenuItemContainer = styled.div`
   }
 `;
 
-export default function MenuItemCard({ menu, href }) {
+export default function MenuItemCard({ menu, href = "#" }) {
   return (
     <MenuItemContainer>
       <div className="menu-body">

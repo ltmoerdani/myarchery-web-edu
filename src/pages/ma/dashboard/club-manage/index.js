@@ -1,69 +1,191 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import classnames from "classnames";
+import { useWizardView } from "hooks/wizard-view";
+import { ArcheryClubService } from "services";
 
 import MetaTags from "react-meta-tags";
+import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
-import { Button, ButtonBlue } from "components/ma";
+import { ButtonBlue, WizardView, WizardViewContent } from "components/ma";
+import { BreadcrumbDashboard } from "../components/breadcrumb";
+import { ClubProfileDataView } from "./components/club-data-view";
+import { MemberDataListView } from "./components/member-data-view";
+
+import IconTabProfile from "./components/icons-colored/tab-profile";
+import IconTabMembers from "./components/icons-colored/tab-members";
+import IconChainLink from "./components/icons-mono/chain-link";
+
+const tabList = [
+  { step: 1, label: "Profil", icon: "profile" },
+  { step: 2, label: "Data Anggota", icon: "members" },
+];
+
+const APP_URL = "https://myarchery.id";
+const LANDING_PAGE_ROUTE_PATH = "/clubs/profile/";
 
 function PageClubManage() {
-  const breadcrumbCurrentPageLabel = "Data Anggota";
+  const { clubId } = useParams();
+  const [clubDetail, setClubDetail] = React.useState({});
+  const { currentStep, goToStep } = useWizardView(tabList);
+  const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
+  const [successfulSavingCounts, setSuccessfulSavingCounts] = React.useState(0);
+  const [isAlertSuccessOpen, setAlertSuccessOpen] = React.useState(false);
 
-  // const { clubId } = useParams();
+  const breadcrumbCurrentPageLabel = clubDetail?.name || "Klub";
+
+  const getTabClassNames = (id) => classnames({ "tab-selected": currentStep === id });
+
+  const updateClubData = (payload) => {
+    setClubDetail((state) => ({ ...state, ...payload }));
+  };
+
+  const handleSaveEdits = async () => {
+    const bannerBase64 =
+      clubDetail.bannerImage && (await imageToBase64(clubDetail.bannerImage.raw));
+    const logoBase64 = clubDetail.logoImage && (await imageToBase64(clubDetail.logoImage.raw));
+
+    const payload = {
+      id: clubDetail.id || clubId,
+      name: clubDetail.name,
+      banner: bannerBase64,
+      logo: logoBase64,
+      place_name: clubDetail.placeName,
+      province: clubDetail.province?.value,
+      city: clubDetail.city?.value,
+      address: clubDetail.address,
+      description: clubDetail.description,
+    };
+
+    const result = await ArcheryClubService.edit(payload);
+    if (result.success) {
+      setSuccessfulSavingCounts((counts) => counts + 1);
+      setAlertSuccessOpen(true);
+    } else {
+      console.log("gagal");
+    }
+  };
+
+  React.useEffect(() => {
+    const fetchClubData = async () => {
+      const result = await ArcheryClubService.getProfile({ club_id: clubId });
+
+      if (result.success) {
+        const { detailProvince, detailCity } = result.data;
+        setClubDetail({
+          ...result.data,
+          province:
+            detailProvince?.id || detailProvince?.name
+              ? {
+                  label: detailProvince?.name,
+                  value: parseInt(detailProvince?.id) || undefined,
+                }
+              : null,
+          city:
+            detailCity?.id || detailCity?.name
+              ? {
+                  label: detailCity?.name,
+                  value: parseInt(detailCity?.id) || undefined,
+                }
+              : null,
+        });
+      } else {
+        console.log("gak sukses wkwk");
+      }
+    };
+    fetchClubData();
+  }, [successfulSavingCounts]);
+
+  React.useEffect(() => {
+    if (!clubDetail?.id) {
+      return;
+    }
+    const theHost = process.env.NODE_ENV === "production" ? APP_URL : window.location.host;
+    const theFullURL = theHost + LANDING_PAGE_ROUTE_PATH + clubDetail.id;
+    setLandingPageFullURL(theFullURL);
+  }, [clubDetail?.id]);
 
   return (
     <ClubManagePageWrapper>
       <MetaTags>
-        <title>Manage Klub | MyArchery.id</title>
+        <title>{clubDetail?.name || "Manage Klub"} | MyArchery.id</title>
       </MetaTags>
 
       <Container fluid>
-        <div className="dashboard-breadcrumb">
-          <Link to="/dashboard/clubs">
-            <span className="breadcrumb__back-button">&lsaquo;</span>
-          </Link>{" "}
-          <span>{breadcrumbCurrentPageLabel}</span>
-        </div>
+        <BreadcrumbDashboard to="/dashboard/clubs">
+          {breadcrumbCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <div className="club-info-header mb-5">
           <div className="club-logo">
-            <img className="club-logo-image" src={"club?.logo"} />
+            <img className="club-logo-image" src={clubDetail?.logo} />
           </div>
 
           <div className="club-info-content">
-            <h4 className="club-name">{"club?.name"}</h4>
+            <h4 className="club-name">{clubDetail?.name}</h4>
             <div className="club-info">
-              <span>copy landing page link</span>
+              <LandingPageLinkPlaceholder url={landingPageFullURL} />
             </div>
           </div>
 
           <div className="club-info-actions">
-            <ButtonBlue as={Link} to="#" className="club-dashboard-button button-light">
+            <ButtonBlue
+              as="a"
+              className="button-wide"
+              href={LANDING_PAGE_ROUTE_PATH + clubDetail?.id}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Lihat Klub
             </ButtonBlue>
-            <ButtonBlue as={Link} to="#" className="club-dashboard-button">
-              Edit Klub
-            </ButtonBlue>
           </div>
         </div>
 
-        <div className="d-flex justify-content-between my-3">
-          <div className="filter-tabs">
-            <ButtonBlue className="button-filter filter-active">Semua</ButtonBlue>
-            <Button className="button-filter">Perempuan</Button>
-            <Button className="button-filter">Laki-laki</Button>
-          </div>
+        <div>
+          <CardTabs>
+            <CardTabItem className={getTabClassNames(1)} onClick={() => goToStep(1)}>
+              <span className="icon">
+                <IconTabProfile />
+              </span>
+              <span>Profil Klub</span>
+            </CardTabItem>
+            <CardTabItem className={getTabClassNames(2)} onClick={() => goToStep(2)}>
+              <span className="icon">
+                <IconTabMembers />
+              </span>
+              <span>Data Anggota</span>
+            </CardTabItem>{" "}
+          </CardTabs>
 
-          <div className="search-box">
-            <input className="search-box-input" placeholder="Cari archer" />{" "}
-            <ButtonBlue>Cari</ButtonBlue>
-          </div>
-        </div>
+          <CardViewPanel>
+            <WizardView currentStep={currentStep}>
+              <WizardViewContent>
+                {clubDetail ? (
+                  <React.Fragment>
+                    <ClubProfileDataView
+                      club={clubDetail}
+                      updateClubData={updateClubData}
+                      onSave={handleSaveEdits}
+                    />
 
-        <div className="card-dashboard">
-          <div className="loading-list-data">
-            <h5>Sedang memuat data...</h5>
-          </div>
+                    <AlertSuccess
+                      show={isAlertSuccessOpen}
+                      onConfirm={() => setAlertSuccessOpen(false)}
+                    />
+                  </React.Fragment>
+                ) : (
+                  <div style={{ padding: "2rem", textAlign: "center" }}>
+                    <h5>Sedang memuat data klub</h5>
+                  </div>
+                )}
+              </WizardViewContent>
+
+              <WizardViewContent>
+                <MemberDataListView club={clubDetail} />
+              </WizardViewContent>
+            </WizardView>
+          </CardViewPanel>
         </div>
       </Container>
     </ClubManagePageWrapper>
@@ -74,7 +196,7 @@ const ClubManagePageWrapper = styled.div`
   margin: 40px 0;
   font-family: "Inter";
 
-  .club-dashboard-button {
+  .button-wide {
     min-width: 120px;
   }
 
@@ -109,7 +231,7 @@ const ClubManagePageWrapper = styled.div`
 
     .club-info-content {
       flex-grow: 1;
-      padding-top: 0.875rem;
+      padding-top: 0.5rem;
     }
 
     .club-info-actions {
@@ -120,70 +242,135 @@ const ClubManagePageWrapper = styled.div`
       gap: 0.75rem;
     }
   }
+`;
 
-  .filter-tabs {
-    display: flex;
-    gap: 0.5rem;
+function LandingPageLinkPlaceholder({ url = "" }) {
+  const handleClickCopyLink = () => {
+    navigator.clipboard.writeText(url);
+  };
 
-    .button-filter {
-      background-color: transparent;
-      border: solid 1px transparent;
-      color: #495057;
+  return (
+    <StyledLandingPageLink onClick={handleClickCopyLink}>
+      <StyledLinkInput value={url} placeholder="https://myarchery.id" disabled readOnly />
+      <span className="icon-copy">
+        <IconChainLink />
+      </span>
+    </StyledLandingPageLink>
+  );
+}
 
-      &:hover {
-        box-shadow: none;
-        background-color: var(--ma-gray-100);
-      }
-    }
+const StyledLandingPageLink = styled.div`
+  position: relative;
+  width: 300px;
+  cursor: pointer;
 
-    .filter-active {
-      background-color: #eef3fe;
-      border: solid 1px #eef3fe;
-      color: var(--ma-blue);
-
-      &:hover {
-        background-color: #eef3fe;
-        box-shadow: none;
-        opacity: 0.5;
-      }
-    }
-  }
-
-  .search-box-input {
-    padding: 0.47rem 0.75rem;
-    width: 300px;
-    border-radius: 4px;
-    border: none;
-    border: solid 1px var(--ma-gray-100);
-    background-color: var(--ma-gray-100);
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-
-    &:focus {
-      border-color: #2684ff;
-      box-shadow: 0 0 0 1px #2684ff;
-    }
-  }
-
-  .card-dashboard {
-    position: relative;
-
-    padding: 3rem;
-    padding-bottom: 3.5rem;
-    min-height: 320px;
-    border-radius: 4px;
-    border: 0px solid rgb(246, 246, 246);
-    box-shadow: rgb(18 38 63 / 3%) 0px 0.75rem 1.5rem;
-    background-color: #ffffff;
-    background-clip: border-box;
-  }
-
-  .loading-list-data {
-    width: 100%;
-    height: 100%;
+  .icon-copy {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: calc(14px + 1.5rem);
     display: flex;
     justify-content: center;
     align-items: center;
+
+    background-color: rgba(238, 243, 254, 0.5);
+    color: var(--ma-blue);
   }
 `;
+
+const StyledLinkInput = styled.input`
+  padding: 0.47rem 0.75rem;
+  width: 100%;
+  background-color: #eef3fe;
+  border-radius: 4px;
+  border: solid 1px #eef3fe;
+  color: var(--ma-gray-600);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const CardTabs = styled.div`
+  display: flex;
+`;
+
+const CardTabItem = styled.button`
+  overflow: hidden;
+  min-width: 12rem;
+  padding: 10px;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  background-color: hotpink;
+  background-color: #eef3fe;
+
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+
+  color: var(--ma-gray-400);
+  font-weight: 600;
+
+  &.tab-selected {
+    background-color: #ffffff;
+    color: var(--ma-txt-black);
+
+    > .icon {
+      opacity: 1;
+    }
+  }
+
+  > .icon {
+    opacity: 0.5;
+  }
+`;
+
+const CardViewPanel = styled.div`
+  position: relative;
+
+  min-height: 12.5rem;
+  border-radius: 8px;
+  border-top-left-radius: 0;
+  border: 0px solid rgb(246, 246, 246);
+  box-shadow: rgb(18 38 63 / 3%) 0px 0.75rem 1.5rem;
+  background-color: #ffffff;
+  background-clip: border-box;
+`;
+
+function AlertSuccess({ show, onConfirm }) {
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      style={{ padding: "30px 40px" }}
+      onConfirm={onConfirm}
+      customButtons={
+        <div className="d-flex flex-column w-100">
+          <ButtonBlue onClick={onConfirm}>Tutup</ButtonBlue>
+        </div>
+      }
+    >
+      <h4>Berhasil</h4>
+      <p>Data klub Anda telah berhasil diperbarui</p>
+    </SweetAlert>
+  );
+}
+
+// eslint-disable-next-line no-unused-vars
+async function imageToBase64(imageFileRaw) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFileRaw);
+    reader.onload = () => {
+      const baseURL = reader.result;
+      resolve(baseURL);
+    };
+  });
+}
 
 export default PageClubManage;

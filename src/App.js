@@ -1,11 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Redirect, Switch } from "react-router-dom";
-import {
-  AuthLayout,
-  DashboardEventUmum,
-  LandingPageLayout,
-  LayoutArcher,
-} from "./layouts";
+import { AuthLayout, DashboardEventUmum, LandingPageLayout, LayoutArcher } from "./layouts";
 import { AuthenticationArcherMiddleware } from "./middlewares";
 import {
   workingRoutes,
@@ -16,8 +11,8 @@ import {
   certificateRoutes,
 } from "./routes";
 
-import { dashboardRoutes } from "./routes";
-import { LayoutDashboard, LayoutLandingPage} from "layouts/ma";
+import { dashboardRoutes, clubRoutes } from "./routes";
+import { LayoutDashboard, LayoutClub, LayoutLandingPage} from "layouts/ma";
 
 import "./assets/scss/theme.scss";
 
@@ -75,6 +70,17 @@ const App = () => {
             <AuthenticationArcherMiddleware
               path={route.path}
               layout={AuthLayout}
+              component={route.component}
+              key={idx}
+              isAuthProtected={false}
+              exact
+            />
+          ))}
+
+          {clubRoutes.map((route, idx) => (
+            <AuthenticationArcherMiddleware
+              path={route.path}
+              layout={LayoutClub}
               component={route.component}
               key={idx}
               isAuthProtected={false}

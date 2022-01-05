@@ -1,9 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
+import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { ClubDataListView } from "./components/list-view";
 
 function PageClubHome() {
@@ -16,12 +16,7 @@ function PageClubHome() {
       </MetaTags>
 
       <Container fluid>
-        <div className="dashboard-breadcrumb">
-          <Link to="/dashboard">
-            <span className="breadcrumb__back-button">&lsaquo;</span>
-          </Link>{" "}
-          <span>{breadcrumpCurrentPageLabel}</span>
-        </div>
+        <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
 
         <ClubDataListView />
       </Container>

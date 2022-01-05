@@ -93,21 +93,23 @@ export default {
     return fetch(`${endpoint}?${params}`, config);
   },
 
-  put(endpoint, data = null, qs = null) {
+  put(endpoint, data = null, qs = null, requestWithJSON = false) {
     const token = store.getState()?.authentication?.user?.accessToken;
     let params = "";
     if (qs) {
       params = queryString.stringify(qs);
     }
 
-    var formData = objectToFormData(data);
+    var payloadData = requestWithJSON ? JSON.stringify(data) : objectToFormData(data);
+    const contentType = requestWithJSON ? { "Content-Type": "application/json" } : {};
     let config = {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
         "Accept-Language": localStorage.getItem("I18N_LANGUAGE") || "en",
+        ...contentType,
       },
-      body: formData,
+      body: payloadData,
     };
     return fetch(`${endpoint}?${params}`, config);
   },
@@ -130,4 +132,20 @@ export default {
     };
     return fetch(`${endpoint}?${params}`, config);
   },
+
+  deleteByParams(endpoint, qs = null) {
+    const token = store.getState()?.authentication?.user?.accessToken;
+    let params = "";
+    if (qs) {
+      params = queryString.stringify(qs);
+    }
+    let config = {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Accept-Language": localStorage.getItem("I18N_LANGUAGE") || "en",
+      },
+    };
+    return fetch(`${endpoint}?${params}`, config);
+  }
 };
