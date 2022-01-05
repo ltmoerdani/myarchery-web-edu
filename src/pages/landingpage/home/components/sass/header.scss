@@ -1,8 +1,321 @@
+$primary-one: #0D47A1;
+$primaty-orange: #E86F00;
+$secondaty-one: #FFB420;
+
 .img-background {
-    background-image: url('../../../../../assets/images/myachery/Home.png');
-    height: 100vh;
+    background-image: url('../../../../../assets/images/myachery/Banner\ 2.svg');
+    height: 95vh;
     background-size: cover;
-    background-position: center;
+    background-position: top;
     position: relative;
 
+}
+
+.primary-color {
+    color: $primary-one;
+}
+
+.text-box {
+    width: 50vw;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 80%;
+    text-align: left;
+    transform: translate(-50%, -50%);
+    font-size: 1rem;
+
+    @media screen and (max-width: 1200px) {
+        top: 50%;
+        left: 80%;
+        transform: translate(-50%, -50%);
+        font-size: 0.5rem;
+    }
+
+    @media screen and (max-width: 600px) {
+        top: 50%;
+        left: 75%;
+        transform: translate(-50%, -50%);
+        font-size: 0.4rem;
+    }
+
+    .title-sub {
+        font-size: 2.795em;
+        text-transform: uppercase;
+        line-height: 49.19px;
+        font-weight: 600;
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+
+        }
+        @media screen and (max-width: 600px) {
+            line-height: normal;
+        }
+        
+    }
+
+    .title-hero {
+        font-size: 4.5em;
+        line-height: 79.2px;
+        letter-spacing: 9%;
+        font-style: italic;
+        font-weight: 800;
+        color: $secondaty-one;
+        text-transform: uppercase;
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+
+            
+        }
+        @media screen and (max-width: 600px) {
+            line-height: normal;
+
+            
+        }
+
+        
+    }
+
+    .content {
+        font-size: 1.677em;
+        line-height: 32.2px;
+        font-weight: 400;
+        width: 90%;
+        margin-top: 0 !important;
+
+        @media screen and (max-width: 1000px) {
+            line-height: normal;
+
+        }
+
+        @media screen and (max-width: 600px) {
+            line-height: normal;
+        }
+    }
+}
+
+.content-landing {
+    background-color: $primary-one;
+    height: 100%;
+    margin-top: 0;
+}
+
+.tag {
+    background-color: rgba($color: #E7EDF6, $alpha: 1.0);
+    color: $primary-one;
+    font-size: 11px;
+    border-radius: 100px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.tag-sub {
+    background-color: rgba($color: #FFF2D9, $alpha: 1.0);
+    color: $primaty-orange;
+    font-size: 11px;
+    border-radius: 100px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.look-event {
+    background-color: $secondaty-one;
+    min-height: 37vh;
+    position: relative;
+
+    .text {
+        text-align: right;
+        font-size: 24px;
+        line-height: 38.4px;
+        font-weight: 600;
+        position: absolute;
+        left: 0;
+        right: 70px;
+        top: calc(50% - 86px/2 - 40px);
+        color: #FFF2D9 !important;
+    }
+
+    .ases-satu {
+        position: absolute;
+        top: 10px;
+        right: -20px;
+    }
+
+    .ases-dua {
+        position: absolute;
+        top: 75%;
+        left: 10px;
+    }
+
+    .ases-tiga {
+        position: absolute;
+        top: 60%;
+        right: 10px;
+    }
+}
+
+.text-box-event {
+    color: white;
+    position: absolute;
+    width: 100%;
+    top: 40%;
+    left: 88%;
+    font-size: 1rem;
+    transform: translate(-50%, -50%);
+    @media screen and (max-width: 1200px) {
+        top: 40%;
+        left: 88%;
+        transform: translate(-50%, -50%);
+        font-size: 0.5rem;
+
+    }
+    @media screen and (max-width: 600px) {
+        top: 40%;
+        left: 88%;
+        transform: translate(-50%, -50%);
+        font-size: 0.4rem;
+
+    }
+
+    .title-sub {
+        font-size: 3.84em;
+        text-transform: uppercase;
+        line-height: 79.2px;
+        font-weight: 800;
+        color: $secondaty-one;
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+    }
+
+    .title-hero {
+        font-size: 3.84em;
+        line-height: 79.2px;
+        letter-spacing: 9%;
+        font-style: italic;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: white;
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+    }
+
+    .content {
+        font-size: 1.676em;
+        line-height: 32.2px;
+        font-weight: 400;
+        margin-top: 0 !important;
+
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+    }
+}
+
+.text-box-club {
+    color: white;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 35%;
+    font-size: 1rem;
+    @media screen and (max-width: 1200px) {
+        top: 40%;
+        left: 30%;
+        transform: translate(-50%, -50%);
+        font-size: 0.5rem;
+
+    }
+    @media screen and (max-width: 600px) {
+        top: 40%;
+        left: 33%;
+        transform: translate(-50%, -50%);
+        font-size: 0.4rem;
+
+    }
+    .title-sub {
+        font-size: 3.84em;
+        text-transform: uppercase;
+        line-height: 79.2px;
+        font-weight: 800;
+        color: $primary-one;
+        
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+    }
+
+    .title-hero {
+        font-size: 3.84em;
+        line-height: 79.2px;
+        letter-spacing: 9%;
+        font-style: italic;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: white;
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+    }
+
+    .content {
+        font-size: 1.676em;
+        line-height: 32.2px;
+        font-weight: 400;
+        margin-top: 0 !important;
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+        @media screen and (max-width: 1200px) {
+            line-height: normal;
+            
+        }
+    }
+}
+
+.series {
+    background-color: orange;
+    width: 90%;
+    height: 100%;
+    top: 20px;
+    left: 30px;
+    border-radius: 1%;
+    position: absolute;
+    @media screen and (max-width: 767px) {
+        height: 100vh;   
+    }
+}
+
+.card-effect {
+    transition: all .2s ease-out;
+    &:hover {
+        transform: translateY(-5px);
+    }
 }
