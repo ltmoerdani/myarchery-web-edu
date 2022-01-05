@@ -101,7 +101,7 @@ function UserProfileCard() {
         </div>
 
         <div className="profile-detail">
-          <h3 className="mt-3">{userProfile.name}</h3>
+          <h3 className="mt-3">{userProfile?.name}</h3>
           <p className="mt-4 d-flex flex-column">
             <span>Email</span>
             <span className="fw-bold">{userProfile.email}</span>{" "}

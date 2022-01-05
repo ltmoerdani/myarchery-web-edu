@@ -6,6 +6,7 @@ import UserProfileCard from "./UserProfileCard";
 
 import fileText from "assets/icons/event-menu-file-text.svg";
 import panah from "assets/icons/event-menu-panah.svg";
+import targetPanah from "assets/icons/event-menu-target-panah.svg";
 
 const menuItems = [
   {
@@ -22,6 +23,14 @@ const menuItems = [
     description: "Event-event yang Anda ikuti. Temukan berbagai event panahan di myarchery.id",
     computeLink: () => "",
   },
+  {
+    id: 3,
+    icon: targetPanah,
+    title: "Klub Saya",
+    description: "Daftar klub yang Anda ikuti. Temukan berbagai klub panahan di myacrhery.id",
+    computeLink: () => `/dashboard/clubs`
+
+  }
 ];
 
 const MenuGridWrapper = styled.div`
@@ -43,7 +52,7 @@ function DashboardMenus() {
     <MenuGridWrapper>
       <UserProfileCard />
       {menuItems.map((menu) => (
-        <MenuItemCard key={menu.id} menu={menu} />
+        <MenuItemCard key={menu.id} menu={menu} href={menu.computeLink} />
       ))}
     </MenuGridWrapper>
   );

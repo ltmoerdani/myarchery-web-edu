@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 import MetaTags from "react-meta-tags";
@@ -9,7 +9,7 @@ import { Button, ButtonBlue } from "components/ma";
 function PageClubManage() {
   const breadcrumbCurrentPageLabel = "Data Anggota";
 
-  const { clubId } = useParams();
+  // const { clubId } = useParams();
 
   return (
     <ClubManagePageWrapper>
