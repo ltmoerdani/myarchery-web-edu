@@ -349,12 +349,16 @@ function PageClubCreate() {
                 <div className="text-center">Apakah data yang Anda isi sudah benar?</div>
 
                 <ClubImagesWrapper className="my-4">
-                  <div className="club-image-top">
-                    <img className="club-banner-image" src={clubData.bannerImage.preview} />
+                  <div className="club-image-top preview">
+                    {clubData.bannerImage?.preview && (
+                      <img className="club-banner-image" src={clubData.bannerImage.preview} />
+                    )}
                   </div>
                   <div className="club-image-bottom">
-                    <div className="club-logo">
-                      <img className="club-logo-image" src={clubData.logoImage.preview} />
+                    <div className="club-logo preview">
+                      {clubData.logoImage?.preview && (
+                        <img className="club-logo-image" src={clubData.logoImage.preview} />
+                      )}
                     </div>
                   </div>
                 </ClubImagesWrapper>
@@ -379,7 +383,7 @@ function PageClubCreate() {
                     <tr>
                       <td>Deskripsi Singkat</td>
                       <td>:</td>
-                      <td>{clubData.description}</td>
+                      <td>{clubData.description || <React.Fragment>&mdash;</React.Fragment>}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -489,6 +493,10 @@ const ClubImagesWrapper = styled.div`
     padding-bottom: 42%;
     background-color: var(--ma-gray-200);
     overflow: hidden;
+
+    &.preview {
+      background-color: var(--ma-blue);
+    }
 
     .club-banner-image {
       position: absolute;
