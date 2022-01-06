@@ -9,7 +9,7 @@ import { ArcheryClubService } from "services";
 import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
-import { Button, ButtonBlue } from "components/ma";
+import { Button, ButtonBlue, AvatarDefault } from "components/ma";
 import { SkeletonMemberGridItem } from "./components/member-grid-item";
 
 // TODO: pindah lokasi icon ke yang lebih proper
@@ -304,7 +304,11 @@ function PageProfile() {
                   <MemberItem key={member.id}>
                     <div className="member-photo">
                       <div className="member-photo-container">
-                        <img className="member-photo-img" src={member.avatar} />
+                        {member.avatar ? (
+                          <img className="member-photo-img" src={member.avatar} />
+                        ) : (
+                          <AvatarDefault fullname={member.name} />
+                        )}
                       </div>
                     </div>
 
