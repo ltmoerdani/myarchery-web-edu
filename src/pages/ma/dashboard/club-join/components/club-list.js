@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { ArcheryClubService } from "services";
 
 import SweetAlert from "react-bootstrap-sweetalert";
-import { Button, ButtonBlue, ButtonOutlineBlue } from "components/ma";
+import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
 
 export function ClubList({ clubs, onJoinSuccess }) {
   const [selectedClubId, setSelectedClubId] = React.useState(null);
@@ -42,7 +42,11 @@ function ClubListItem({ club, isSelected, onSelected, onCancelSelected, onConfir
   return (
     <ClubListItemWrapper>
       <div className="club-logo">
-        <img className="club-logo-image" src={club.detail.logo} />
+        {club.detail.logo ? (
+          <img className="club-logo-image" src={club.detail.logo} />
+        ) : (
+          <AvatarDefault fullname={club.detail.name} />
+        )}
       </div>
 
       <div className="club-list-item-content">
@@ -94,7 +98,7 @@ const ClubListItemWrapper = styled.div`
   gap: 1.25rem;
 
   &:hover {
-    background-color: #eef3fe;
+    background-color: rgba(238, 243, 254, 0.5);
   }
 
   .club-logo {

@@ -264,7 +264,7 @@ const SearchBoxInput = styled.input`
 const MemberListItem = styled.div`
   display: flex;
   &:hover {
-    background-color: #eef3fe;
+    background-color: rgba(238, 243, 254, 0.5);
   }
 `;
 
