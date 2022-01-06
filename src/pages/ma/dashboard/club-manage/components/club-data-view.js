@@ -6,7 +6,7 @@ import { Row, Col } from "reactstrap";
 import { ButtonBlue } from "components/ma";
 import { FieldInputText, FieldSelect, FieldTextArea } from "../../club-create/components";
 
-function ClubProfileDataView({ club, updateClubData, onSave }) {
+function ClubProfileDataView({ club, updateClubData, errors, onSave }) {
   const [provinceOptions, setProvinceOptions] = React.useState(null);
   const [cityOptions, setCityOptions] = React.useState(null);
 
@@ -111,21 +111,23 @@ function ClubProfileDataView({ club, updateClubData, onSave }) {
       </ClubImagesWrapper>
 
       <FieldInputText
-        name="clubName"
+        name="name"
         placeholder="Masukkan nama tanpa kata &#34;Klub&#34;, contoh: &#34;Pro Archery&#34;"
         required
         value={club?.name || ""}
-        onChange={(value) => handleFieldChange("clubName", value)}
+        onChange={(value) => handleFieldChange("name", value)}
+        errors={errors?.name}
       >
         Nama Klub
       </FieldInputText>
 
       <FieldInputText
-        name="clubName"
+        name="placeName"
         placeholder="Masukkan tempat latihan klub. Contoh: GOR KEBON JERUK"
         required
         value={club?.placeName || ""}
         onChange={(value) => handleFieldChange("placeName", value)}
+        errors={errors?.placeName}
       >
         Nama Tempat Latihan
       </FieldInputText>
@@ -136,6 +138,7 @@ function ClubProfileDataView({ club, updateClubData, onSave }) {
         required
         value={club?.address || ""}
         onChange={(value) => handleFieldChange("address", value)}
+        errors={errors?.address}
       >
         Alamat Tempat Latihan
       </FieldInputText>
@@ -149,6 +152,7 @@ function ClubProfileDataView({ club, updateClubData, onSave }) {
             options={provinceOptions}
             value={club?.province || null}
             onChange={(value) => handleFieldChange("province", value)}
+            errors={errors?.province}
           >
             Provinsi&#47;Wilayah
           </FieldSelect>
@@ -162,6 +166,7 @@ function ClubProfileDataView({ club, updateClubData, onSave }) {
             options={cityOptions}
             value={club?.city || null}
             onChange={(value) => handleFieldChange("city", value)}
+            errors={errors?.city}
           >
             Kota
           </FieldSelect>

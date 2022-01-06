@@ -28,6 +28,7 @@ const LANDING_PAGE_ROUTE_PATH = "/clubs/profile/";
 function PageClubManage() {
   const { clubId } = useParams();
   const [clubDetail, setClubDetail] = React.useState({});
+  const [fieldErrors, setFieldErrors] = React.useState(null);
   const { currentStep, goToStep } = useWizardView(tabList);
   const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
   const [successfulSavingCounts, setSuccessfulSavingCounts] = React.useState(0);
@@ -39,9 +40,42 @@ function PageClubManage() {
 
   const updateClubData = (payload) => {
     setClubDetail((state) => ({ ...state, ...payload }));
+    // Invalidate errors
+    // Required field
+    const field = Object.keys(payload)[0];
+    const value = Object.values(payload)[0];
+    if (fieldErrors?.[field]?.length && value) {
+      const updatedErrors = { ...fieldErrors };
+      delete updatedErrors[field];
+      setFieldErrors(updatedErrors);
+    }
   };
 
   const handleSaveEdits = async () => {
+    // validate fields
+    const fieldsWithErrors = {};
+    const requiredFields = [
+      { name: "name", message: "Anda belum memasukkan nama klub" },
+      { name: "placeName", message: "Nama tempat latihan belum terisi" },
+      { name: "address", message: "Alamat tempat latihan belum terisi" },
+      { name: "province", message: "Provinsi belum dipilih" },
+      { name: "city", message: "Kota belum dipilih" },
+    ];
+
+    for (const field of requiredFields) {
+      if (!clubDetail[field.name]) {
+        fieldsWithErrors[field.name] = fieldsWithErrors[field.name]
+          ? [...fieldsWithErrors[field], field.message]
+          : [field.message];
+      }
+    }
+
+    if (Object.keys(fieldsWithErrors).length) {
+      setFieldErrors(fieldsWithErrors);
+      return;
+    }
+
+    // jalankan ketika valid saja
     const bannerBase64 =
       clubDetail.bannerImage && (await imageToBase64(clubDetail.bannerImage.raw));
     const logoBase64 = clubDetail.logoImage && (await imageToBase64(clubDetail.logoImage.raw));
@@ -166,6 +200,7 @@ function PageClubManage() {
                     <ClubProfileDataView
                       club={clubDetail}
                       updateClubData={updateClubData}
+                      errors={fieldErrors}
                       onSave={handleSaveEdits}
                     />
 
@@ -361,7 +396,6 @@ function AlertSuccess({ show, onConfirm }) {
   );
 }
 
-// eslint-disable-next-line no-unused-vars
 async function imageToBase64(imageFileRaw) {
   return new Promise((resolve) => {
     const reader = new FileReader();
