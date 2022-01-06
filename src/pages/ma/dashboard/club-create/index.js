@@ -42,8 +42,8 @@ async function imageToBase64(imageFileRaw) {
 function PageClubCreate() {
   const { search } = useLocation();
   const { suggestedName } = queryString.parse(search);
-  const [provinceOptions, setProvinceOptions] = React.useState(null);
-  const [cityOptions, setCityOptions] = React.useState(null);
+  const [provinceOptions, setProvinceOptions] = React.useState([]);
+  const [cityOptions, setCityOptions] = React.useState([]);
 
   const [clubData, updateClubData] = React.useReducer(clubDataReducer, {
     ...clubDataStructure,
@@ -134,7 +134,10 @@ function PageClubCreate() {
   }, []);
 
   React.useEffect(() => {
+    handleFieldChange("clubBasisCity", null);
+
     if (!clubData?.clubBasisProvince?.value) {
+      setCityOptions([]);
       return;
     }
 
@@ -268,9 +271,12 @@ function PageClubCreate() {
             <Col>
               <FieldSelect
                 name="clubBasisCity"
-                placeholder="Pilih kota"
+                placeholder={
+                  clubData.clubBasisProvince ? "Pilih kota" : "Pilih provinsi terlebih dulu"
+                }
                 required
                 options={cityOptions}
+                disabled={!clubData.clubBasisProvince}
                 value={clubData.clubBasisCity}
                 onChange={(value) => handleFieldChange("clubBasisCity", value)}
               >

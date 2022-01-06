@@ -2,7 +2,17 @@ import * as React from "react";
 import styled from "styled-components";
 import Select from "react-select";
 
-function FieldSelect({ children, label, name, placeholder, required, options, value, onChange }) {
+function FieldSelect({
+  children,
+  label,
+  name,
+  placeholder,
+  required,
+  options,
+  value,
+  onChange,
+  disabled,
+}) {
   return (
     <FieldSelectWrapper>
       <label className="field-label">
@@ -16,6 +26,7 @@ function FieldSelect({ children, label, name, placeholder, required, options, va
         options={options}
         value={value}
         onChange={onChange}
+        isDisabled={disabled}
       />
     </FieldSelectWrapper>
   );
