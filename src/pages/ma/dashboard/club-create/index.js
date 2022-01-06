@@ -49,6 +49,7 @@ function PageClubCreate() {
     ...clubDataStructure,
     clubName: suggestedName,
   });
+  const [fieldErrors, setFieldErrors] = React.useState(null);
 
   const [shouldShowConfirmCreate, setShowConfirmCreate] = React.useState(false);
   const [submitStatus, setSubmitStatus] = React.useState(null);
@@ -71,6 +72,13 @@ function PageClubCreate() {
 
   const handleFieldChange = (field, value) => {
     updateClubData({ [field]: value });
+    // Invalidate errors
+    // Required field
+    if (fieldErrors[field]?.length && value) {
+      const updatedErrors = { ...fieldErrors };
+      delete updatedErrors[field];
+      setFieldErrors(updatedErrors);
+    }
   };
 
   const handleChooseImage = (field, ev) => {
@@ -85,7 +93,28 @@ function PageClubCreate() {
   };
 
   const handleClickConfirmCreate = () => {
-    setShowConfirmCreate(true);
+    const fieldsWithErrors = {};
+    const requiredFields = [
+      { name: "clubName", message: "Anda belum memasukkan nama klub" },
+      { name: "clubBasis", message: "Nama tempat latihan belum terisi" },
+      { name: "clubBasisAddress", message: "Alamat tempat latihan belum terisi" },
+      { name: "clubBasisProvince", message: "Provinsi belum dipilih" },
+      { name: "clubBasisCity", message: "Kota belum dipilih" },
+    ];
+
+    for (const field of requiredFields) {
+      if (!clubData[field.name]) {
+        fieldsWithErrors[field.name] = fieldsWithErrors[field.name]
+          ? [...fieldsWithErrors[field], field.message]
+          : [field.message];
+      }
+    }
+
+    if (Object.keys(fieldsWithErrors).length) {
+      setFieldErrors(fieldsWithErrors);
+    } else {
+      setShowConfirmCreate(true);
+    }
   };
 
   const handleSubmitCreateClub = async () => {
@@ -228,6 +257,7 @@ function PageClubCreate() {
             name="clubName"
             placeholder="Masukkan nama tanpa kata &#34;Klub&#34;, contoh: &#34;Pro Archery&#34;"
             required
+            errors={fieldErrors?.clubName}
             value={clubData.clubName}
             onChange={(value) => handleFieldChange("clubName", value)}
           >
@@ -238,6 +268,7 @@ function PageClubCreate() {
             name="clubBasis"
             placeholder="Masukkan tempat latihan klub. Contoh: GOR KEBON JERUK"
             required
+            errors={fieldErrors?.clubBasis}
             value={clubData.clubBasis}
             onChange={(value) => handleFieldChange("clubBasis", value)}
           >
@@ -248,6 +279,7 @@ function PageClubCreate() {
             name="clubBasisAddress"
             placeholder="Masukkan alamat tempat latihan klub. Contoh: Nama Jalan, Kecamatan, Kelurahan"
             required
+            errors={fieldErrors?.clubBasisAddress}
             value={clubData.clubBasisAddress}
             onChange={(value) => handleFieldChange("clubBasisAddress", value)}
           >
@@ -260,6 +292,7 @@ function PageClubCreate() {
                 name="clubBasisProvince"
                 placeholder="Pilih provinsi &#47; wilayah"
                 required
+                errors={fieldErrors?.clubBasisProvince}
                 options={provinceOptions}
                 value={clubData.clubBasisProvince}
                 onChange={(value) => handleFieldChange("clubBasisProvince", value)}
@@ -275,6 +308,7 @@ function PageClubCreate() {
                   clubData.clubBasisProvince ? "Pilih kota" : "Pilih provinsi terlebih dulu"
                 }
                 required
+                errors={fieldErrors?.clubBasisCity}
                 options={cityOptions}
                 disabled={!clubData.clubBasisProvince}
                 value={clubData.clubBasisCity}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import Select from "react-select";
+import { FieldErrorMessage } from "./FieldErrorMessage";
 
 function FieldSelect({
   children,
@@ -12,6 +13,7 @@ function FieldSelect({
   value,
   onChange,
   disabled,
+  errors,
 }) {
   return (
     <FieldSelectWrapper>
@@ -28,6 +30,7 @@ function FieldSelect({
         onChange={onChange}
         isDisabled={disabled}
       />
+      <FieldErrorMessage errors={errors} />
     </FieldSelectWrapper>
   );
 }
