@@ -7,11 +7,13 @@ import { ArcheryClubService } from "services";
 import MetaTags from "react-meta-tags";
 import { Container, Row, Col, Modal, ModalBody } from "reactstrap";
 import SweetAlert from "react-bootstrap-sweetalert";
+import { LoadingScreen } from "components";
 import { ButtonBlue, ButtonOutlineBlue } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { FieldInputText, FieldSelect, FieldTextArea } from "./components";
 
 import IconCamera from "components/ma/icons/mono/camera";
+import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 
 const clubDataStructure = {
   logoImage: "",
@@ -52,13 +54,22 @@ function PageClubCreate() {
   const [fieldErrors, setFieldErrors] = React.useState(null);
 
   const [shouldShowConfirmCreate, setShowConfirmCreate] = React.useState(false);
-  const [submitStatus, setSubmitStatus] = React.useState(null);
+  const [submitStatus, setSubmitStatus] = React.useState({
+    status: "idle",
+    errors: null,
+  });
 
   const closeModalConfirmation = () => setShowConfirmCreate(false);
   const toggleModalConfirmation = () => setShowConfirmCreate((show) => !show);
 
-  const showAlertSuccess = submitStatus === "success";
+  const isFetching = submitStatus.status === "fetching";
+  const showAlertSuccess = submitStatus.status === "success";
+  const showAlertErrors = submitStatus.status === "error" && Boolean(submitStatus.errors);
   const breadcrumpCurrentPageLabel = "Buat Klub";
+
+  const handleConfirmError = () => {
+    setSubmitStatus((state) => ({ ...state, status: "idle" }));
+  };
 
   const computeClubBasisAddress = () => {
     const infos = [
@@ -118,7 +129,7 @@ function PageClubCreate() {
   };
 
   const handleSubmitCreateClub = async () => {
-    setSubmitStatus("fetching");
+    setSubmitStatus((state) => ({ ...state, status: "fetching" }));
     const bannerBase64 = clubData.bannerImage && (await imageToBase64(clubData.bannerImage.raw));
     const logoBase64 = clubData.logoImage && (await imageToBase64(clubData.logoImage.raw));
 
@@ -137,11 +148,10 @@ function PageClubCreate() {
 
     if (createdClub?.success) {
       setShowConfirmCreate(false);
-      setTimeout(() => {
-        setSubmitStatus("success");
-      }, 500);
-    } else if (createdClub?.error) {
-      setSubmitStatus("error");
+      setSubmitStatus((state) => ({ ...state, status: "success", errors: null }));
+    } else if (createdClub?.errors) {
+      const errorsFromServer = changeFieldName(createdClub.errors, "name", "clubName");
+      setSubmitStatus((state) => ({ ...state, status: "error", errors: errorsFromServer }));
     }
   };
 
@@ -394,10 +404,17 @@ function PageClubCreate() {
                   </ButtonBlue>
                 </div>
               </ModalConfirmWrapper>
+
+              <LoadingScreen loading={isFetching} />
             </ModalBody>
           </Modal>
 
           <AlertSuccess show={showAlertSuccess} />
+          <AlertErrors
+            show={showAlertErrors}
+            onConfirm={handleConfirmError}
+            errors={submitStatus.errors}
+          />
         </div>
       </Container>
     </ClubCreateWrapper>
@@ -423,6 +440,48 @@ function AlertSuccess({ show }) {
     >
       <h4>Berhasil</h4>
       <p>Klub Anda telah berhasil dibuat</p>
+    </SweetAlert>
+  );
+}
+
+function AlertErrors({ show, onConfirm, errors }) {
+  const renderErrorMessages = () => {
+    if (errors) {
+      const fields = Object.keys(errors);
+      const messages = fields.map((field) => {
+        return `${errors[field].map((message) => `- ${message}\n`).join("")}`;
+      });
+      return `${messages.join("")}`;
+    }
+    return "Error tidak diketahui.";
+  };
+
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      style={{ padding: "30px 40px", width: "720px" }}
+      onConfirm={() => onConfirm?.()}
+      customButtons={
+        <span className="d-flex flex-column w-100">
+          <ButtonBlue onClick={onConfirm}>Tutup</ButtonBlue>
+        </span>
+      }
+    >
+      <h4>
+        <IconAlertTriangle />
+      </h4>
+      <div className="text-start">
+        <p>
+          Terdapat error teknis dalam memproses data klub Anda. Silakan berikan pesan error berikut
+          kepada technical support:
+        </p>
+        <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
+          {renderErrorMessages()}
+        </pre>
+      </div>
     </SweetAlert>
   );
 }
@@ -559,5 +618,12 @@ const ModalConfirmWrapper = styled.div`
     min-width: 120px;
   }
 `;
+
+function changeFieldName(obj, originalName, newName) {
+  const tranformedObj = obj;
+  tranformedObj[newName] = tranformedObj[originalName];
+  delete tranformedObj[originalName];
+  return tranformedObj;
+}
 
 export default PageClubCreate;

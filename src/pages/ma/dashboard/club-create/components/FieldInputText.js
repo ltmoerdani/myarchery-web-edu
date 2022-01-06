@@ -2,7 +2,16 @@ import * as React from "react";
 import styled from "styled-components";
 import { FieldErrorMessage } from "./FieldErrorMessage";
 
-function FieldInputText({ children, label, required, name, placeholder, value, onChange, errors }) {
+function FieldInputText({
+  children,
+  label,
+  required,
+  name,
+  placeholder,
+  value = "",
+  onChange,
+  errors,
+}) {
   const fieldID = name ? `field-input-${name}` : undefined;
 
   const handleChange = (ev) => {
