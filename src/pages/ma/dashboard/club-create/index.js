@@ -269,7 +269,7 @@ function PageClubCreate() {
             required
             errors={fieldErrors?.clubName}
             value={clubData.clubName}
-            onChange={(value) => handleFieldChange("clubName", value)}
+            onChange={(value) => handleFieldChange("clubName", value.trim())}
           >
             Nama Klub
           </FieldInputText>
@@ -280,7 +280,7 @@ function PageClubCreate() {
             required
             errors={fieldErrors?.clubBasis}
             value={clubData.clubBasis}
-            onChange={(value) => handleFieldChange("clubBasis", value)}
+            onChange={(value) => handleFieldChange("clubBasis", value.trim())}
           >
             Nama Tempat Latihan
           </FieldInputText>
@@ -291,7 +291,7 @@ function PageClubCreate() {
             required
             errors={fieldErrors?.clubBasisAddress}
             value={clubData.clubBasisAddress}
-            onChange={(value) => handleFieldChange("clubBasisAddress", value)}
+            onChange={(value) => handleFieldChange("clubBasisAddress", value.trim())}
           >
             Alamat Tempat Latihan
           </FieldInputText>

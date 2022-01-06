@@ -9,7 +9,7 @@ import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
 import { LoadingScreen } from "components";
-import { ButtonBlue, WizardView, WizardViewContent } from "components/ma";
+import { ButtonBlue, WizardView, WizardViewContent, AvatarDefault } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { ClubProfileDataView } from "./components/club-data-view";
 import { MemberDataListView } from "./components/member-data-view";
@@ -164,7 +164,11 @@ function PageClubManage() {
 
         <div className="club-info-header mb-5">
           <div className="club-logo">
-            <img className="club-logo-image" src={clubDetail?.logo} />
+            {clubDetail?.logo ? (
+              <img className="club-logo-image" src={clubDetail?.logo} />
+            ) : (
+              <AvatarDefault fullname={clubDetail?.name} />
+            )}
           </div>
 
           <div className="club-info-content">
