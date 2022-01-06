@@ -74,7 +74,7 @@ function PageClubCreate() {
     updateClubData({ [field]: value });
     // Invalidate errors
     // Required field
-    if (fieldErrors[field]?.length && value) {
+    if (fieldErrors?.[field]?.length && value) {
       const updatedErrors = { ...fieldErrors };
       delete updatedErrors[field];
       setFieldErrors(updatedErrors);
