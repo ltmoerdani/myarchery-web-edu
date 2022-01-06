@@ -15,7 +15,6 @@ import { SkeletonMemberGridItem } from "./components/member-grid-item";
 // TODO: pindah lokasi icon ke yang lebih proper
 import IconChainLink from "pages/ma/dashboard/club-manage/components/icons-mono/chain-link";
 import IconUsers from "components/ma/icons/mono/users";
-import IconAge from "components/ma/icons/mono/age";
 import IconGender from "components/ma/icons/mono/gender";
 
 const APP_URL = "https://myarchery.id";
@@ -319,16 +318,6 @@ function PageProfile() {
                           <React.Fragment>
                             {member.gender === "male" ? "Laki-laki" : "Perempuan"}
                           </React.Fragment>
-                        ) : (
-                          <React.Fragment>&mdash;</React.Fragment>
-                        )}
-                      </div>
-                      <div>
-                        <span className="info-icon">
-                          <IconAge size="20" />
-                        </span>
-                        {member.age ? (
-                          `${member.age} tahun`
                         ) : (
                           <React.Fragment>&mdash;</React.Fragment>
                         )}
