@@ -8,6 +8,7 @@ import { ArcheryClubService } from "services";
 import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
+import { LoadingScreen } from "components";
 import { ButtonBlue, WizardView, WizardViewContent } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { ClubProfileDataView } from "./components/club-data-view";
@@ -16,6 +17,7 @@ import { MemberDataListView } from "./components/member-data-view";
 import IconTabProfile from "./components/icons-colored/tab-profile";
 import IconTabMembers from "./components/icons-colored/tab-members";
 import IconChainLink from "./components/icons-mono/chain-link";
+import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 
 const tabList = [
   { step: 1, label: "Profil", icon: "profile" },
@@ -31,12 +33,16 @@ function PageClubManage() {
   const [fieldErrors, setFieldErrors] = React.useState(null);
   const { currentStep, goToStep } = useWizardView(tabList);
   const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
+  const [submitStatus, setSubmitStatus] = React.useState({ status: "idle", errors: null });
   const [successfulSavingCounts, setSuccessfulSavingCounts] = React.useState(0);
-  const [isAlertSuccessOpen, setAlertSuccessOpen] = React.useState(false);
 
   const breadcrumbCurrentPageLabel = clubDetail?.name || "Klub";
+  const isFetching = submitStatus.status === "fetching";
+  const isSubmitSuccess = submitStatus.status === "success";
+  const isSubmitError = submitStatus.status === "error";
 
   const getTabClassNames = (id) => classnames({ "tab-selected": currentStep === id });
+  const handleConfirmError = () => setSubmitStatus((state) => ({ ...state, status: "idle" }));
 
   const updateClubData = (payload) => {
     setClubDetail((state) => ({ ...state, ...payload }));
@@ -76,6 +82,7 @@ function PageClubManage() {
     }
 
     // jalankan ketika valid saja
+    setSubmitStatus((state) => ({ ...state, status: "fetching" }));
     const bannerBase64 =
       clubDetail.bannerImage && (await imageToBase64(clubDetail.bannerImage.raw));
     const logoBase64 = clubDetail.logoImage && (await imageToBase64(clubDetail.logoImage.raw));
@@ -94,10 +101,14 @@ function PageClubManage() {
 
     const result = await ArcheryClubService.edit(payload);
     if (result.success) {
+      setSubmitStatus((state) => ({ ...state, status: "success" }));
       setSuccessfulSavingCounts((counts) => counts + 1);
-      setAlertSuccessOpen(true);
     } else {
-      console.log("gagal");
+      setSubmitStatus((state) => ({
+        ...state,
+        status: "error",
+        errors: result?.errors,
+      }));
     }
   };
 
@@ -204,9 +215,15 @@ function PageClubManage() {
                       onSave={handleSaveEdits}
                     />
 
+                    <LoadingScreen loading={isFetching} />
                     <AlertSuccess
-                      show={isAlertSuccessOpen}
-                      onConfirm={() => setAlertSuccessOpen(false)}
+                      show={isSubmitSuccess}
+                      onConfirm={() => setSubmitStatus((state) => ({ ...state, status: "idle" }))}
+                    />
+                    <AlertErrors
+                      show={isSubmitError}
+                      onConfirm={handleConfirmError}
+                      errors={submitStatus.errors}
                     />
                   </React.Fragment>
                 ) : (
@@ -392,6 +409,48 @@ function AlertSuccess({ show, onConfirm }) {
     >
       <h4>Berhasil</h4>
       <p>Data klub Anda telah berhasil diperbarui</p>
+    </SweetAlert>
+  );
+}
+
+function AlertErrors({ show, onConfirm, errors }) {
+  const renderErrorMessages = () => {
+    if (errors) {
+      const fields = Object.keys(errors);
+      const messages = fields.map((field) => {
+        return `${errors[field].map((message) => `- ${message}\n`).join("")}`;
+      });
+      return `${messages.join("")}`;
+    }
+    return "Error tidak diketahui.";
+  };
+
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      style={{ padding: "30px 40px", width: "720px" }}
+      onConfirm={() => onConfirm?.()}
+      customButtons={
+        <span className="d-flex flex-column w-100">
+          <ButtonBlue onClick={onConfirm}>Tutup</ButtonBlue>
+        </span>
+      }
+    >
+      <h4>
+        <IconAlertTriangle />
+      </h4>
+      <div className="text-start">
+        <p>
+          Terdapat error teknis dalam memproses data klub Anda. Silakan berikan pesan error berikut
+          kepada technical support:
+        </p>
+        <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
+          {renderErrorMessages()}
+        </pre>
+      </div>
     </SweetAlert>
   );
 }
