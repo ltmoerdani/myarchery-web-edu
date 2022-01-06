@@ -134,13 +134,13 @@ function PageClubCreate() {
     const logoBase64 = clubData.logoImage && (await imageToBase64(clubData.logoImage.raw));
 
     const payload = {
-      name: clubData.clubName,
+      name: clubData.clubName.trim(),
       banner: bannerBase64,
       logo: logoBase64,
-      place_name: clubData.clubBasis,
+      place_name: clubData.clubBasis.trim(),
       province: clubData.clubBasisProvince.value,
       city: clubData.clubBasisCity.value,
-      address: clubData.clubBasisAddress,
+      address: clubData.clubBasisAddress.trim(),
       description: clubData.description,
     };
 
@@ -269,7 +269,7 @@ function PageClubCreate() {
             required
             errors={fieldErrors?.clubName}
             value={clubData.clubName}
-            onChange={(value) => handleFieldChange("clubName", value.trim())}
+            onChange={(value) => handleFieldChange("clubName", value)}
           >
             Nama Klub
           </FieldInputText>
@@ -280,7 +280,7 @@ function PageClubCreate() {
             required
             errors={fieldErrors?.clubBasis}
             value={clubData.clubBasis}
-            onChange={(value) => handleFieldChange("clubBasis", value.trim())}
+            onChange={(value) => handleFieldChange("clubBasis", value)}
           >
             Nama Tempat Latihan
           </FieldInputText>
@@ -291,7 +291,7 @@ function PageClubCreate() {
             required
             errors={fieldErrors?.clubBasisAddress}
             value={clubData.clubBasisAddress}
-            onChange={(value) => handleFieldChange("clubBasisAddress", value.trim())}
+            onChange={(value) => handleFieldChange("clubBasisAddress", value)}
           >
             Alamat Tempat Latihan
           </FieldInputText>

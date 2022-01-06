@@ -131,7 +131,7 @@ function ClubProfileDataView({ club, updateClubData, errors, onSave }) {
         placeholder="Masukkan nama tanpa kata &#34;Klub&#34;, contoh: &#34;Pro Archery&#34;"
         required
         value={club?.name || ""}
-        onChange={(value) => handleFieldChange("name", value.trim())}
+        onChange={(value) => handleFieldChange("name", value)}
         errors={errors?.name}
       >
         Nama Klub
@@ -142,7 +142,7 @@ function ClubProfileDataView({ club, updateClubData, errors, onSave }) {
         placeholder="Masukkan tempat latihan klub. Contoh: GOR KEBON JERUK"
         required
         value={club?.placeName || ""}
-        onChange={(value) => handleFieldChange("placeName", value.trim())}
+        onChange={(value) => handleFieldChange("placeName", value)}
         errors={errors?.placeName}
       >
         Nama Tempat Latihan
@@ -153,7 +153,7 @@ function ClubProfileDataView({ club, updateClubData, errors, onSave }) {
         placeholder="Masukkan alamat tempat latihan klub. Contoh: Nama Jalan, Kecamatan, Kelurahan"
         required
         value={club?.address || ""}
-        onChange={(value) => handleFieldChange("address", value.trim())}
+        onChange={(value) => handleFieldChange("address", value)}
         errors={errors?.address}
       >
         Alamat Tempat Latihan

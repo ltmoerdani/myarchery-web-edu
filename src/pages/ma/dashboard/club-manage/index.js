@@ -89,13 +89,13 @@ function PageClubManage() {
 
     const payload = {
       id: clubDetail.id || clubId,
-      name: clubDetail.name,
+      name: clubDetail.name.trim(),
       banner: bannerBase64,
       logo: logoBase64,
-      place_name: clubDetail.placeName,
+      place_name: clubDetail.placeName.trim(),
       province: clubDetail.province?.value,
       city: clubDetail.city?.value,
-      address: clubDetail.address,
+      address: clubDetail.address.trim(),
       description: clubDetail.description,
     };
 
