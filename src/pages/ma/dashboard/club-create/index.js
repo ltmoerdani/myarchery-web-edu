@@ -168,9 +168,7 @@ function PageClubCreate() {
         </BreadcrumbDashboard>
 
         <div className="card-club-form">
-          <h5>Data Profil</h5>
-
-          <ClubImagesWrapper className="my-4">
+          <ClubImagesWrapper className="mb-4">
             {/* Banner image */}
             <div>
               <label
@@ -189,10 +187,10 @@ function PageClubCreate() {
                   <img className="club-banner-image" src={clubData.bannerImage.preview} />
                 ) : (
                   <div className="picker-empty-placeholder">
-                    <div>Pilih gambar banner</div>
                     <div className="picker-empty-placeholder-icon">
                       <IconCamera size="40" />
                     </div>
+                    <div>Foto Banner</div>
                   </div>
                 )}
               </label>
@@ -213,10 +211,10 @@ function PageClubCreate() {
                   <img className="club-logo-image" src={clubData.logoImage.preview} />
                 ) : (
                   <div className="picker-empty-placeholder">
-                    <div>Pilih gambar logo</div>
                     <div className="picker-empty-placeholder-icon">
                       <IconCamera size="40" />
                     </div>
+                    <div>Foto Profil</div>
                   </div>
                 )}
               </label>
@@ -435,9 +433,11 @@ const ClubImagesWrapper = styled.div`
       justify-content: center;
       align-items: center;
       font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ma-gray-400);
 
       &-icon {
-        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
         color: #ffffff;
       }
     }
