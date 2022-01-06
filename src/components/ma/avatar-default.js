@@ -2,7 +2,11 @@ import * as React from "react";
 import styled from "styled-components";
 
 function AvatarDefault({ fullname }) {
-  const names = fullname.split(" ");
+  if (!fullname) {
+    return <StyledAvatar>&#58;D</StyledAvatar>; // :D
+  }
+
+  const names = fullname.trim().toUpperCase().split(" ");
   if (names?.length === 1) {
     const firstInitial = names[0][0];
     return <StyledAvatar>{firstInitial}</StyledAvatar>;
@@ -25,6 +29,7 @@ const StyledAvatar = styled.div`
   background-color: #eef3fe;
   color: var(--ma-blue);
   font-size: 2rem;
+  text-transform: uppercase;
   user-select: none;
 `;
 
