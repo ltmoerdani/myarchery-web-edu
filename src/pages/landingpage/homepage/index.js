@@ -76,7 +76,6 @@ const LandingPage = () => {
   let { isLoggedIn } = useSelector(getAuthenticationStore);
   console.log(isLoggedIn)
 
-  console.log(event)
 
 
   return (
