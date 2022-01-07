@@ -129,7 +129,8 @@ function EventItemCard({ event: order }) {
       </div>
 
       <div className="event-footer">
-        <Link className="event-link" to={hrefToEventHome}>
+        {/* TODO: arahkan link ke url yang benar setelah siap */}
+        <Link className="event-link" to={"#" || hrefToEventHome}>
           <i className="bx bx-right-arrow-alt fs-3" style={{ color: "var(--ma-blue)" }} />
         </Link>
       </div>
