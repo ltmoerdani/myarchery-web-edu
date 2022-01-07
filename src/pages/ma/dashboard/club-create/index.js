@@ -7,11 +7,13 @@ import { ArcheryClubService } from "services";
 import MetaTags from "react-meta-tags";
 import { Container, Row, Col, Modal, ModalBody } from "reactstrap";
 import SweetAlert from "react-bootstrap-sweetalert";
+import { LoadingScreen } from "components";
 import { ButtonBlue, ButtonOutlineBlue } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { FieldInputText, FieldSelect, FieldTextArea } from "./components";
 
 import IconCamera from "components/ma/icons/mono/camera";
+import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 
 const clubDataStructure = {
   logoImage: "",
@@ -42,22 +44,32 @@ async function imageToBase64(imageFileRaw) {
 function PageClubCreate() {
   const { search } = useLocation();
   const { suggestedName } = queryString.parse(search);
-  const [provinceOptions, setProvinceOptions] = React.useState(null);
-  const [cityOptions, setCityOptions] = React.useState(null);
+  const [provinceOptions, setProvinceOptions] = React.useState([]);
+  const [cityOptions, setCityOptions] = React.useState([]);
 
   const [clubData, updateClubData] = React.useReducer(clubDataReducer, {
     ...clubDataStructure,
     clubName: suggestedName,
   });
+  const [fieldErrors, setFieldErrors] = React.useState(null);
 
   const [shouldShowConfirmCreate, setShowConfirmCreate] = React.useState(false);
-  const [submitStatus, setSubmitStatus] = React.useState(null);
+  const [submitStatus, setSubmitStatus] = React.useState({
+    status: "idle",
+    errors: null,
+  });
 
   const closeModalConfirmation = () => setShowConfirmCreate(false);
   const toggleModalConfirmation = () => setShowConfirmCreate((show) => !show);
 
-  const showAlertSuccess = submitStatus === "success";
+  const isFetching = submitStatus.status === "fetching";
+  const showAlertSuccess = submitStatus.status === "success";
+  const showAlertErrors = submitStatus.status === "error" && Boolean(submitStatus.errors);
   const breadcrumpCurrentPageLabel = "Buat Klub";
+
+  const handleConfirmError = () => {
+    setSubmitStatus((state) => ({ ...state, status: "idle" }));
+  };
 
   const computeClubBasisAddress = () => {
     const infos = [
@@ -71,6 +83,13 @@ function PageClubCreate() {
 
   const handleFieldChange = (field, value) => {
     updateClubData({ [field]: value });
+    // Invalidate errors
+    // Required field
+    if (fieldErrors?.[field]?.length && value) {
+      const updatedErrors = { ...fieldErrors };
+      delete updatedErrors[field];
+      setFieldErrors(updatedErrors);
+    }
   };
 
   const handleChooseImage = (field, ev) => {
@@ -85,22 +104,43 @@ function PageClubCreate() {
   };
 
   const handleClickConfirmCreate = () => {
-    setShowConfirmCreate(true);
+    const fieldsWithErrors = {};
+    const requiredFields = [
+      { name: "clubName", message: "Anda belum memasukkan nama klub" },
+      { name: "clubBasis", message: "Nama tempat latihan belum terisi" },
+      { name: "clubBasisAddress", message: "Alamat tempat latihan belum terisi" },
+      { name: "clubBasisProvince", message: "Provinsi belum dipilih" },
+      { name: "clubBasisCity", message: "Kota belum dipilih" },
+    ];
+
+    for (const field of requiredFields) {
+      if (!clubData[field.name]) {
+        fieldsWithErrors[field.name] = fieldsWithErrors[field.name]
+          ? [...fieldsWithErrors[field], field.message]
+          : [field.message];
+      }
+    }
+
+    if (Object.keys(fieldsWithErrors).length) {
+      setFieldErrors(fieldsWithErrors);
+    } else {
+      setShowConfirmCreate(true);
+    }
   };
 
   const handleSubmitCreateClub = async () => {
-    setSubmitStatus("fetching");
+    setSubmitStatus((state) => ({ ...state, status: "fetching" }));
     const bannerBase64 = clubData.bannerImage && (await imageToBase64(clubData.bannerImage.raw));
     const logoBase64 = clubData.logoImage && (await imageToBase64(clubData.logoImage.raw));
 
     const payload = {
-      name: clubData.clubName,
+      name: clubData.clubName.trim(),
       banner: bannerBase64,
       logo: logoBase64,
-      place_name: clubData.clubBasis,
+      place_name: clubData.clubBasis.trim(),
       province: clubData.clubBasisProvince.value,
       city: clubData.clubBasisCity.value,
-      address: clubData.clubBasisAddress,
+      address: clubData.clubBasisAddress.trim(),
       description: clubData.description,
     };
 
@@ -108,11 +148,10 @@ function PageClubCreate() {
 
     if (createdClub?.success) {
       setShowConfirmCreate(false);
-      setTimeout(() => {
-        setSubmitStatus("success");
-      }, 500);
-    } else if (createdClub?.error) {
-      setSubmitStatus("error");
+      setSubmitStatus((state) => ({ ...state, status: "success", errors: null }));
+    } else if (createdClub?.errors) {
+      const errorsFromServer = changeFieldName(createdClub.errors, "name", "clubName");
+      setSubmitStatus((state) => ({ ...state, status: "error", errors: errorsFromServer }));
     }
   };
 
@@ -134,7 +173,10 @@ function PageClubCreate() {
   }, []);
 
   React.useEffect(() => {
+    handleFieldChange("clubBasisCity", null);
+
     if (!clubData?.clubBasisProvince?.value) {
+      setCityOptions([]);
       return;
     }
 
@@ -168,9 +210,7 @@ function PageClubCreate() {
         </BreadcrumbDashboard>
 
         <div className="card-club-form">
-          <h5>Data Profil</h5>
-
-          <ClubImagesWrapper className="my-4">
+          <ClubImagesWrapper className="mb-4">
             {/* Banner image */}
             <div>
               <label
@@ -189,10 +229,10 @@ function PageClubCreate() {
                   <img className="club-banner-image" src={clubData.bannerImage.preview} />
                 ) : (
                   <div className="picker-empty-placeholder">
-                    <div>Pilih gambar banner</div>
                     <div className="picker-empty-placeholder-icon">
                       <IconCamera size="40" />
                     </div>
+                    <div>Foto Banner</div>
                   </div>
                 )}
               </label>
@@ -213,10 +253,10 @@ function PageClubCreate() {
                   <img className="club-logo-image" src={clubData.logoImage.preview} />
                 ) : (
                   <div className="picker-empty-placeholder">
-                    <div>Pilih gambar logo</div>
                     <div className="picker-empty-placeholder-icon">
                       <IconCamera size="40" />
                     </div>
+                    <div>Foto Profil</div>
                   </div>
                 )}
               </label>
@@ -227,6 +267,7 @@ function PageClubCreate() {
             name="clubName"
             placeholder="Masukkan nama tanpa kata &#34;Klub&#34;, contoh: &#34;Pro Archery&#34;"
             required
+            errors={fieldErrors?.clubName}
             value={clubData.clubName}
             onChange={(value) => handleFieldChange("clubName", value)}
           >
@@ -237,6 +278,7 @@ function PageClubCreate() {
             name="clubBasis"
             placeholder="Masukkan tempat latihan klub. Contoh: GOR KEBON JERUK"
             required
+            errors={fieldErrors?.clubBasis}
             value={clubData.clubBasis}
             onChange={(value) => handleFieldChange("clubBasis", value)}
           >
@@ -247,6 +289,7 @@ function PageClubCreate() {
             name="clubBasisAddress"
             placeholder="Masukkan alamat tempat latihan klub. Contoh: Nama Jalan, Kecamatan, Kelurahan"
             required
+            errors={fieldErrors?.clubBasisAddress}
             value={clubData.clubBasisAddress}
             onChange={(value) => handleFieldChange("clubBasisAddress", value)}
           >
@@ -259,6 +302,7 @@ function PageClubCreate() {
                 name="clubBasisProvince"
                 placeholder="Pilih provinsi &#47; wilayah"
                 required
+                errors={fieldErrors?.clubBasisProvince}
                 options={provinceOptions}
                 value={clubData.clubBasisProvince}
                 onChange={(value) => handleFieldChange("clubBasisProvince", value)}
@@ -270,9 +314,13 @@ function PageClubCreate() {
             <Col>
               <FieldSelect
                 name="clubBasisCity"
-                placeholder="Pilih kota"
+                placeholder={
+                  clubData.clubBasisProvince ? "Pilih kota" : "Pilih provinsi terlebih dulu"
+                }
                 required
+                errors={fieldErrors?.clubBasisCity}
                 options={cityOptions}
+                disabled={!clubData.clubBasisProvince}
                 value={clubData.clubBasisCity}
                 onChange={(value) => handleFieldChange("clubBasisCity", value)}
               >
@@ -311,12 +359,16 @@ function PageClubCreate() {
                 <div className="text-center">Apakah data yang Anda isi sudah benar?</div>
 
                 <ClubImagesWrapper className="my-4">
-                  <div className="club-image-top">
-                    <img className="club-banner-image" src={clubData.bannerImage.preview} />
+                  <div className="club-image-top preview">
+                    {clubData.bannerImage?.preview && (
+                      <img className="club-banner-image" src={clubData.bannerImage.preview} />
+                    )}
                   </div>
                   <div className="club-image-bottom">
-                    <div className="club-logo">
-                      <img className="club-logo-image" src={clubData.logoImage.preview} />
+                    <div className="club-logo preview">
+                      {clubData.logoImage?.preview && (
+                        <img className="club-logo-image" src={clubData.logoImage.preview} />
+                      )}
                     </div>
                   </div>
                 </ClubImagesWrapper>
@@ -341,7 +393,7 @@ function PageClubCreate() {
                     <tr>
                       <td>Deskripsi Singkat</td>
                       <td>:</td>
-                      <td>{clubData.description}</td>
+                      <td>{clubData.description || <React.Fragment>&mdash;</React.Fragment>}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -352,10 +404,17 @@ function PageClubCreate() {
                   </ButtonBlue>
                 </div>
               </ModalConfirmWrapper>
+
+              <LoadingScreen loading={isFetching} />
             </ModalBody>
           </Modal>
 
           <AlertSuccess show={showAlertSuccess} />
+          <AlertErrors
+            show={showAlertErrors}
+            onConfirm={handleConfirmError}
+            errors={submitStatus.errors}
+          />
         </div>
       </Container>
     </ClubCreateWrapper>
@@ -381,6 +440,48 @@ function AlertSuccess({ show }) {
     >
       <h4>Berhasil</h4>
       <p>Klub Anda telah berhasil dibuat</p>
+    </SweetAlert>
+  );
+}
+
+function AlertErrors({ show, onConfirm, errors }) {
+  const renderErrorMessages = () => {
+    if (errors) {
+      const fields = Object.keys(errors);
+      const messages = fields.map((field) => {
+        return `${errors[field].map((message) => `- ${message}\n`).join("")}`;
+      });
+      return `${messages.join("")}`;
+    }
+    return "Error tidak diketahui.";
+  };
+
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      style={{ padding: "30px 40px", width: "720px" }}
+      onConfirm={() => onConfirm?.()}
+      customButtons={
+        <span className="d-flex flex-column w-100">
+          <ButtonBlue onClick={onConfirm}>Tutup</ButtonBlue>
+        </span>
+      }
+    >
+      <h4>
+        <IconAlertTriangle />
+      </h4>
+      <div className="text-start">
+        <p>
+          Terdapat error teknis dalam memproses data klub Anda. Silakan berikan pesan error berikut
+          kepada technical support:
+        </p>
+        <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
+          {renderErrorMessages()}
+        </pre>
+      </div>
     </SweetAlert>
   );
 }
@@ -435,9 +536,11 @@ const ClubImagesWrapper = styled.div`
       justify-content: center;
       align-items: center;
       font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ma-gray-400);
 
       &-icon {
-        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
         color: #ffffff;
       }
     }
@@ -449,6 +552,10 @@ const ClubImagesWrapper = styled.div`
     padding-bottom: 42%;
     background-color: var(--ma-gray-200);
     overflow: hidden;
+
+    &.preview {
+      background-color: var(--ma-blue);
+    }
 
     .club-banner-image {
       position: absolute;
@@ -511,5 +618,12 @@ const ModalConfirmWrapper = styled.div`
     min-width: 120px;
   }
 `;
+
+function changeFieldName(obj, originalName, newName) {
+  const tranformedObj = obj;
+  tranformedObj[newName] = tranformedObj[originalName];
+  delete tranformedObj[originalName];
+  return tranformedObj;
+}
 
 export default PageClubCreate;

@@ -8,7 +8,8 @@ import { ArcheryClubService } from "services";
 import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
-import { ButtonBlue, WizardView, WizardViewContent } from "components/ma";
+import { LoadingScreen } from "components";
+import { ButtonBlue, WizardView, WizardViewContent, AvatarClubDefault } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import { ClubProfileDataView } from "./components/club-data-view";
 import { MemberDataListView } from "./components/member-data-view";
@@ -16,6 +17,7 @@ import { MemberDataListView } from "./components/member-data-view";
 import IconTabProfile from "./components/icons-colored/tab-profile";
 import IconTabMembers from "./components/icons-colored/tab-members";
 import IconChainLink from "./components/icons-mono/chain-link";
+import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 
 const tabList = [
   { step: 1, label: "Profil", icon: "profile" },
@@ -28,42 +30,85 @@ const LANDING_PAGE_ROUTE_PATH = "/clubs/profile/";
 function PageClubManage() {
   const { clubId } = useParams();
   const [clubDetail, setClubDetail] = React.useState({});
+  const [fieldErrors, setFieldErrors] = React.useState(null);
   const { currentStep, goToStep } = useWizardView(tabList);
   const [landingPageFullURL, setLandingPageFullURL] = React.useState("");
+  const [submitStatus, setSubmitStatus] = React.useState({ status: "idle", errors: null });
   const [successfulSavingCounts, setSuccessfulSavingCounts] = React.useState(0);
-  const [isAlertSuccessOpen, setAlertSuccessOpen] = React.useState(false);
 
   const breadcrumbCurrentPageLabel = clubDetail?.name || "Klub";
+  const isFetching = submitStatus.status === "fetching";
+  const isSubmitSuccess = submitStatus.status === "success";
+  const isSubmitError = submitStatus.status === "error";
 
   const getTabClassNames = (id) => classnames({ "tab-selected": currentStep === id });
+  const handleConfirmError = () => setSubmitStatus((state) => ({ ...state, status: "idle" }));
 
   const updateClubData = (payload) => {
     setClubDetail((state) => ({ ...state, ...payload }));
+    // Invalidate errors
+    // Required field
+    const field = Object.keys(payload)[0];
+    const value = Object.values(payload)[0];
+    if (fieldErrors?.[field]?.length && value) {
+      const updatedErrors = { ...fieldErrors };
+      delete updatedErrors[field];
+      setFieldErrors(updatedErrors);
+    }
   };
 
   const handleSaveEdits = async () => {
+    // validate fields
+    const fieldsWithErrors = {};
+    const requiredFields = [
+      { name: "name", message: "Anda belum memasukkan nama klub" },
+      { name: "placeName", message: "Nama tempat latihan belum terisi" },
+      { name: "address", message: "Alamat tempat latihan belum terisi" },
+      { name: "province", message: "Provinsi belum dipilih" },
+      { name: "city", message: "Kota belum dipilih" },
+    ];
+
+    for (const field of requiredFields) {
+      if (!clubDetail[field.name]) {
+        fieldsWithErrors[field.name] = fieldsWithErrors[field.name]
+          ? [...fieldsWithErrors[field], field.message]
+          : [field.message];
+      }
+    }
+
+    if (Object.keys(fieldsWithErrors).length) {
+      setFieldErrors(fieldsWithErrors);
+      return;
+    }
+
+    // jalankan ketika valid saja
+    setSubmitStatus((state) => ({ ...state, status: "fetching" }));
     const bannerBase64 =
       clubDetail.bannerImage && (await imageToBase64(clubDetail.bannerImage.raw));
     const logoBase64 = clubDetail.logoImage && (await imageToBase64(clubDetail.logoImage.raw));
 
     const payload = {
       id: clubDetail.id || clubId,
-      name: clubDetail.name,
+      name: clubDetail.name.trim(),
       banner: bannerBase64,
       logo: logoBase64,
-      place_name: clubDetail.placeName,
+      place_name: clubDetail.placeName.trim(),
       province: clubDetail.province?.value,
       city: clubDetail.city?.value,
-      address: clubDetail.address,
+      address: clubDetail.address.trim(),
       description: clubDetail.description,
     };
 
     const result = await ArcheryClubService.edit(payload);
     if (result.success) {
+      setSubmitStatus((state) => ({ ...state, status: "success" }));
       setSuccessfulSavingCounts((counts) => counts + 1);
-      setAlertSuccessOpen(true);
     } else {
-      console.log("gagal");
+      setSubmitStatus((state) => ({
+        ...state,
+        status: "error",
+        errors: result?.errors,
+      }));
     }
   };
 
@@ -119,7 +164,11 @@ function PageClubManage() {
 
         <div className="club-info-header mb-5">
           <div className="club-logo">
-            <img className="club-logo-image" src={clubDetail?.logo} />
+            {clubDetail?.logo ? (
+              <img className="club-logo-image" src={clubDetail?.logo} />
+            ) : (
+              <AvatarClubDefault />
+            )}
           </div>
 
           <div className="club-info-content">
@@ -166,12 +215,19 @@ function PageClubManage() {
                     <ClubProfileDataView
                       club={clubDetail}
                       updateClubData={updateClubData}
+                      errors={fieldErrors}
                       onSave={handleSaveEdits}
                     />
 
+                    <LoadingScreen loading={isFetching} />
                     <AlertSuccess
-                      show={isAlertSuccessOpen}
-                      onConfirm={() => setAlertSuccessOpen(false)}
+                      show={isSubmitSuccess}
+                      onConfirm={() => setSubmitStatus((state) => ({ ...state, status: "idle" }))}
+                    />
+                    <AlertErrors
+                      show={isSubmitError}
+                      onConfirm={handleConfirmError}
+                      errors={submitStatus.errors}
                     />
                   </React.Fragment>
                 ) : (
@@ -361,7 +417,48 @@ function AlertSuccess({ show, onConfirm }) {
   );
 }
 
-// eslint-disable-next-line no-unused-vars
+function AlertErrors({ show, onConfirm, errors }) {
+  const renderErrorMessages = () => {
+    if (errors) {
+      const fields = Object.keys(errors);
+      const messages = fields.map((field) => {
+        return `${errors[field].map((message) => `- ${message}\n`).join("")}`;
+      });
+      return `${messages.join("")}`;
+    }
+    return "Error tidak diketahui.";
+  };
+
+  return (
+    <SweetAlert
+      show={show}
+      title=""
+      custom
+      btnSize="md"
+      style={{ padding: "30px 40px", width: "720px" }}
+      onConfirm={() => onConfirm?.()}
+      customButtons={
+        <span className="d-flex flex-column w-100">
+          <ButtonBlue onClick={onConfirm}>Tutup</ButtonBlue>
+        </span>
+      }
+    >
+      <h4>
+        <IconAlertTriangle />
+      </h4>
+      <div className="text-start">
+        <p>
+          Terdapat error teknis dalam memproses data klub Anda. Silakan berikan pesan error berikut
+          kepada technical support:
+        </p>
+        <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
+          {renderErrorMessages()}
+        </pre>
+      </div>
+    </SweetAlert>
+  );
+}
+
 async function imageToBase64(imageFileRaw) {
   return new Promise((resolve) => {
     const reader = new FileReader();
