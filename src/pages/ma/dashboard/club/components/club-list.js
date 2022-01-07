@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
-import { ButtonOutlineBlue } from "components/ma";
+import { ButtonOutlineBlue, AvatarClubDefault } from "components/ma";
 
 export function ClubList({ clubs }) {
   return clubs.map((club) => <ClubListItem key={club.id} club={club} />);
@@ -18,7 +18,7 @@ function ClubListItem({ club }) {
   return (
     <ClubListItemWrapper>
       <div className="club-logo">
-        <img className="club-logo-image" src={club.logo} />
+        {club.logo ? <img className="club-logo-image" src={club.logo} /> : <AvatarClubDefault />}
       </div>
 
       <div className="club-list-item-content">
@@ -95,7 +95,7 @@ const ClubListItemWrapper = styled.div`
   gap: 1.25rem;
 
   &:hover {
-    background-color: #eef3fe;
+    background-color: rgba(238, 243, 254, 0.5);
   }
 
   .club-logo {

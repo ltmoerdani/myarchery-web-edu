@@ -35,15 +35,7 @@ const menuItems = [
 const MenuGridWrapper = styled.div`
   display: grid;
   gap: 24px;
-  grid-template-columns: 1fr;
-
-  @media (min-width: 680px) {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
 `;
 
 function DashboardMenus() {

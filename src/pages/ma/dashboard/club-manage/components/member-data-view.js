@@ -4,7 +4,7 @@ import classnames from "classnames";
 import { ArcheryClubService } from "services";
 
 import SweetAlert from "react-bootstrap-sweetalert";
-import { Button, ButtonBlue, ButtonOutline } from "components/ma";
+import { Button, ButtonBlue, ButtonOutline, AvatarDefault } from "components/ma";
 import { SkeletonClubItem } from "../../components/skeletons/club-item";
 
 import IconAge from "components/ma/icons/mono/age";
@@ -145,7 +145,11 @@ function MemberDataListView({ club }) {
             <MemberListItem key={member.memberId}>
               <MemberFigure>
                 <AvatarPhoto>
-                  {member.avatar && <img className="avatar-img" src={member.avatar} />}
+                  {member.avatar ? (
+                    <img className="avatar-img" src={member.avatar} />
+                  ) : (
+                    <AvatarDefault fullname={member.name} />
+                  )}
                 </AvatarPhoto>
               </MemberFigure>
 
@@ -260,7 +264,7 @@ const SearchBoxInput = styled.input`
 const MemberListItem = styled.div`
   display: flex;
   &:hover {
-    background-color: #eef3fe;
+    background-color: rgba(238, 243, 254, 0.5);
   }
 `;
 
@@ -270,8 +274,9 @@ const MemberFigure = styled.div`
 `;
 
 const AvatarPhoto = styled.div`
-  min-width: 5rem;
-  min-height: 5rem;
+  overflow: hidden;
+  width: 5rem;
+  height: 5rem;
   border-radius: 50%;
   background-color: var(--ma-gray-200);
 

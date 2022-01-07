@@ -10,7 +10,7 @@ import DashboardMenus from "./components/menus";
 
 const DashboardWrapper = styled.div`
   margin: 40px 0;
-  font-family: "Inter";
+  font-family: "Inter", sans-serif;
 
   .heading {
     font-weight: 500;
@@ -39,11 +39,28 @@ function PageDashboard() {
 
         <DashboardMenus />
 
-        <h3 className="mt-5 mb-3">Event-Event Terbaru</h3>
+        <LatestEventsHeader className="mt-5 mb-4">
+          <h3 className="events-heading">3 Event Terbaru yang Diikuti</h3>
+          <div className="events-description">
+            Lihat semua pertandingan yang diikuti di Menu Event Saya
+          </div>
+        </LatestEventsHeader>
         <LatestEventsList />
       </Container>
     </DashboardWrapper>
   );
 }
+
+const LatestEventsHeader = styled.div`
+  .events-heading {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .events-description {
+    font-size: 0.875rem;
+    color: var(--ma-gray-500);
+  }
+`;
 
 export default PageDashboard;
