@@ -39,7 +39,6 @@ function ProfileArcher() {
       }
 
       console.log(base64URL)
-      console.log(profile)
 
       const handleChange = ({ key, value }) => {
           console.log(key, value)

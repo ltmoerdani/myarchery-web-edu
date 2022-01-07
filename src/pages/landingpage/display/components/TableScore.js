@@ -22,14 +22,6 @@ class TableScore extends Component {
     this.tableScrol = React.createRef();
   }
 
-  componentDidMount() {
-    console.log(this.tableScrol.current)
-    console.log(this.tableScrol.current.scrollHeight)
-    window.setInterval(() => {
-         this.tableScrol.current.scrollTop += 10
-    }, 1000)
-  }
-
   render() {
     const columns = [
       {
@@ -131,7 +123,6 @@ class TableScore extends Component {
                               if(rowIndex > 2 && rowIndex <= 10)
                                 style = {background:"rgba(238, 236, 242, 0.44) none repeat scroll 0% 0%",color:"black"};
                             
-                              console.log("rowIndex",rowIndex);
                               if(this.props.memberOld[row.id] != undefined && ((this.props.memberOld[row.id].pos == row.pos && this.props.memberOld[row.id].total != row.total) || this.props.memberOld[row.id].pos != row.pos)){
                                 console.log("masuk")
                                 style = {...style,animationDuration: "2s",animationName: this.props.animationDuration}

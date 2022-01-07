@@ -5,24 +5,14 @@ import {
   Container,
   Row,
   Col,
-//   Card,
-//   CardBody,
-//   CardHeader,
   Button
 } from "reactstrap";
-import { Link } from "react-router-dom"
-import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
-import logomyarchery from "../../../assets/images/myachery/myachery.png"
-import { useSelector } from "react-redux";
-import { getAuthenticationStore } from "store/slice/authentication";
-import Footer from "layouts/landingpage/Footer";
 import "./components/sass/displayscore.scss"
 import TableScore from './components/TableScore';
 import { EventsService } from "services";
 import { useParams } from "react-router-dom";
 
 function DisplayScore() {
-    const path = window.location.pathname;
     const { slug } = useParams();
     const [memberScoringMale, setMemberScoringMale] = useState([]);
     const [memberScoringFemale, setMemberScoringFemale] = useState([]);
@@ -56,8 +46,8 @@ function DisplayScore() {
               if (data) {
                   setEventDetail(data);
                   let cat = {...data.flatCategories[0],
-                    id: `${data.flatCategories[0].teamCategoryId}.${data.flatCategories[0].ageCategoryId}.${data.flatCategories[0].competitionCategoryId}.${data.flatCategories[0].distanceId}`,
-                    "label":data.flatCategories[0].archeryEventCategoryLabel}
+                    id: `${data?.flatCategories[0]?.teamCategoryId}.${data?.flatCategories[0]?.ageCategoryId}.${data?.flatCategories[0]?.competitionCategoryId}.${data?.flatCategories[0]?.distanceId}`,
+                    "label":data?.flatCategories[0]?.archeryEventCategoryLabel}
                   setCategory(cat);
               }
           } else {
@@ -130,44 +120,15 @@ function DisplayScore() {
           await getScoring(eventDetail.id,category,gender)
         }
       }
-    let { isLoggedIn } = useSelector(getAuthenticationStore);
     return (
         <React.Fragment>
             <MetaTags>
             <title>{eventDetail.eventName}</title>
             </MetaTags>
-            <div className="px-4 py-1 sticky-top bg-light d-flex justify-content-between">
-          {/* <Row>
-            <Col md={6}> */}
-              <Link to="/archer/dashboard">
-              <div>
-                <img src={logomyarchery} width="91" />
-              </div>
-              </Link>
-            {/* </Col>
-            <Col md={6}> */}
-              { isLoggedIn ? (
-                <div>
-                  <ProfileMenuArcher color="black" />
-                </div>
-              ) : (
-                  <div>
-                    <Link style={{padding:"20px"}} to={"/archer/login?path="+path}>
-                    <Button className="float-end" color="outline-dark">Masuk</Button>
-                </Link>
-                    <Link>
-                        <Button className="me-2" color='primary'>Daftar</Button>
-                    </Link>
-                </div>
-                )
-              }
-            {/* </Col>
-          </Row> */}
-        </div>
         <Container>
             {/* Detail header about live scoring */}
             <div>
-                <div className="d-flex justify-content-between">
+                <div className="d-flex justify-content-between pt-4">
                     <div className="d-flex">
                         <span className="header-detail pt-1 pe-2"></span>
                         <span>
@@ -224,7 +185,6 @@ function DisplayScore() {
                   <TableScore title={{style:{color:"#e12c4b"},label:"Perempuan"}} member={memberScoringFemale} animationDuration={memberScoringOld.current.animationDuration} memberOld={memberScoringOld.current.female} />
                 :null}
         </Container>
-        <Footer />
         </React.Fragment>
     )
 }

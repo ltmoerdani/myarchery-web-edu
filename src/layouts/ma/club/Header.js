@@ -16,7 +16,7 @@ const Header = () => {
         <div className="navbar-header">
           <div className="d-flex">
             <div className="navbar-brand-box">
-              <Link to="/dashboard" className="logo logo-dark">
+              <Link to="/home" className="logo logo-dark">
                 <span className="logo-sm">
                   <img src={logo} alt="" height="64" />
                 </span>
