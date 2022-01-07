@@ -13,28 +13,19 @@ const formatDate = (datetimeString) => {
   return date.reverse().join("/");
 };
 
-const makeLocationText = (location, city) => {
-  if (!location) {
-    return "Lokasi tidak tersedia";
-  }
-  return [location, city].filter((loc) => Boolean(loc)).join(", ");
-};
-
 const InfoDisplayWrapper = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 0.4rem;
-
   margin-bottom: 0.5rem;
-  font-size: 14px;
 
   .info-icon {
     transform: translateY(-2px);
   }
 `;
 
-function EventLocation({ location, city }) {
-  const locationTextLabel = makeLocationText(location, city);
+function EventCity({ children, city }) {
+  const locationTextLabel = children || city || "Kota tidak tersedia";
   return (
     <InfoDisplayWrapper>
       <span className="info-icon">
@@ -98,6 +89,7 @@ const EventItemCardWrapper = styled.div`
 
     .event-title {
       color: var(--ma-blue);
+      font-weight: 600;
       margin-bottom: 1rem;
     }
   }
@@ -131,7 +123,7 @@ function EventItemCard({ event: order }) {
         </div>
 
         <h4 className="event-title">{archeryEvent.eventName}</h4>
-        <EventLocation location={archeryEvent.location} city={archeryEvent.city} />
+        <EventCity city={archeryEvent.city} />
         <EventDateRange from={archeryEvent.eventStartDatetime} to={archeryEvent.eventEndDatetime} />
         <EventCategory category={participant.categoryLabel} />
       </div>
