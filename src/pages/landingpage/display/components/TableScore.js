@@ -22,13 +22,13 @@ class TableScore extends Component {
     this.tableScrol = React.createRef();
   }
 
-  componentDidMount() {
-    console.log(this.tableScrol.current)
-    console.log(this.tableScrol.current.scrollHeight)
-    window.setInterval(() => {
-         this.tableScrol.current.scrollTop += 10
-    }, 1000)
-  }
+  // componentDidMount() {
+  //   console.log(this.tableScrol.current)
+  //   console.log(this.tableScrol.current.scrollHeight)
+  //   window.setInterval(() => {
+  //        this.tableScrol.current.scrollTop += 10
+  //   }, 1000)
+  // }
 
   render() {
     const columns = [

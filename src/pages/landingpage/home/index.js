@@ -4,11 +4,12 @@ import MetaTags from "react-meta-tags";
 import "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Carousel } from 'react-responsive-carousel'
 import CardAbout from './components/CardAbout';
+import {Link} from 'react-router-dom'
 
 import banner_satu from '../../../assets/images/myachery/Banner 2(1).svg'
-import img_content from '../../../assets/images/myachery/content-landing-1-1.svg'
+import img_content from '../../../assets/images/myachery/content-landing-1-2.svg'
 import img_target from '../../../assets/images/myachery/target-landing.svg'
-import img_content_two from '../../../assets/images/myachery/content-landing-2-1.svg'
+// import img_content_two from '../../../assets/images/myachery/content-landing-2-1.svg'
 import ases_satu from "../../../assets/images/myachery/ases-satu.svg"
 import ases_dua from "../../../assets/images/myachery/ases-dua.svg"
 import ases_tiga from "../../../assets/images/myachery/ases-tiga.svg"
@@ -27,18 +28,18 @@ import img_about_enam from "../../../assets/images/myachery/image 28.svg"
 import img_usedby_satu from "../../../assets/images/myachery/image 20.svg"
 import img_usedby_dua from "../../../assets/images/myachery/image 19.svg"
 import img_usedby_tiga from "../../../assets/images/myachery/image 18.svg"
-import img_usedby_empat from "../../../assets/images/myachery/image 22.svg"
-
+import kerawang from "../../../assets/images/myachery/kerawang.svg"
 
 import './components/sass/header.scss'
+//TODO: Clrea all the comment before commit please
 
 function Home() {
     return (
         <React.Fragment>
             <MetaTags>
-            <title>MyAcher</title>
+            <title>Home | MyArchery</title>
             </MetaTags>
-            <Carousel 
+            <Carousel
                 showArrows={false}
                 infiniteLoop
                 autoPlay
@@ -50,7 +51,7 @@ function Home() {
                     <div className='position-relative'>
                         <img src={banner_satu} />
                         <div className='text-box'>
-                            <span className='title-sub'>selemat datang di<br /></span>
+                            <span className='title-sub'>selemat datang di<br/></span>
                             <span className='title-hero'>myachery</span>
                             <div className='content'>
                                 <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
@@ -61,7 +62,7 @@ function Home() {
                     <div className='position-relative'>
                         <img src={banner_satu} />
                         <div className='text-box'>
-                            <span className='title-sub'>selemat datang di<br /></span>
+                            <span className='title-sub'>selamat datang di<br/></span>
                             <span className='title-hero'>myachery</span>
                             <div className='content'>
                                 <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
@@ -72,7 +73,7 @@ function Home() {
                     <div className='position-relative'>
                         <img src={banner_satu} />
                         <div className='text-box'>
-                            <span className='title-sub'>selemat datang di<br /></span>
+                            <span className='title-sub'>selamat datang di<br/></span>
                             <span className='title-hero'>myachery</span>
                             <div className='content'>
                                 <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
@@ -105,9 +106,9 @@ function Home() {
                                         <div className='mt-2'>
                                             <p>Kegiatan scoring untuk kembali menumbuhkan semangat berlatih panahan serta ajang silaturahmi secara langsung sesuai dengan protocol Kesehatan saat ini.</p>
                                         </div>
-                                        <div>
+                                        <Link to="/event/pro-archery/1631782893-the-hub-scoring-2021">
                                             <Button color='primary' outline>Lihat Detail</Button>
-                                        </div>
+                                        </Link>
                                     </div>
                                 </CardBody>
                             </Card>
@@ -115,26 +116,26 @@ function Home() {
                     <Col md={4} sm={12}>
                     <Card>
                                     <div className='w-100'>
-                                        <img src={img_content_two} style={{width: '100%'}} />
+                                        <img src={kerawang} style={{width: '100%'}} />
                                     </div>
                                 <CardBody>
                                     <div>
-                                        <span className='tag-sub px-3 py-1'>DKI Jakarta Series</span>
-                                        <h3 className='primary-color mt-2'>Pro Archery - 2021</h3>
+                                        <span className='tag-sub px-3 py-1'>Barebow Karawang</span>
+                                        <h3 className='primary-color mt-2'>Latihan Bersama Barebow Karawang</h3>
                                         <div className='mt-2'>
                                             <span className='bx bx-map'></span>
-                                            <span className='ms-1'>Bekasis</span>
+                                            <span className='ms-1'>Masjid Al-Ghamar Karawang</span>
                                         </div>
                                         <div>
                                             <span className='bx bx-calendar'></span>
-                                            <span className='ms-1'>01 Februari 2021 - 28 Februari 2021</span>
+                                            <span className='ms-1'>13 November 2021 - 13 November 2021</span>
                                         </div>
                                         <div className='mt-2'>
-                                            <p>Kegiatan scoring untuk kembali menumbuhkan semangat berlatih panahan serta ajang silaturahmi secara langsung sesuai dengan protocol Kesehatan saat ini.</p>
+                                            <p>Latihan Bersama Barebow Karawang.</p>
                                         </div>
-                                        <div>
+                                        <Link to="/event/barebow-karawang/1636560432-latihan-bersama-barebow-karawang">
                                             <Button color='primary' outline>Lihat Detail</Button>
-                                        </div>
+                                        </Link>
                                     </div>
                                 </CardBody>
                             </Card>
@@ -165,6 +166,7 @@ function Home() {
             <div>
                 <div className='position-relative'>
                     <img src={banner_dua} style={{width: '100%'}} />
+                    <div>
                     <div className='text-box-event'>
                     <span className='title-sub'>buat event</span>
                     <span className='title-hero'>sekarang</span>
@@ -175,10 +177,13 @@ function Home() {
                         <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
                     </div>
                     </div>
-                </div>        
+                    </div>
+                </div>  
+
             <div>
                 <div className='py-5 position-relative'>
                     <img src={banner_tiga} style={{width: '100%'}} />
+                    <div>
                     <div className='text-box-club'>
                     <span className='title-sub'>jadi bagian</span>
                     <span className='title-hero'>dari klub</span>
@@ -186,8 +191,11 @@ function Home() {
                             <span>Berkumpul dan mamantau kegiatan klub secara virtual lebih</span><br />
                             <span>mudah melalui MyArchery</span>
                         </div>
-                        <Button color='warning' style={{backgroundColor: "#FFF", color: '#0D47A1'}}>Buat Klub</Button>
-                        <Button className='ms-2' color='warning' style={{backgroundColor: "#0D47A1"}}>Gabung Klub</Button>
+                        <div className='d-flex d-md-block justify-content-center'>
+                        <Button color='warning' style={{backgroundColor: "#FFF", color: '#0D47A1', textAlign: 'left' }}>Buat Klub</Button>
+                        <Button className='ms-2' color='warning' style={{backgroundColor: "#0D47A1", textAlign: 'left'}}>Gabung Klub</Button>
+                        </div>
+                    </div>
                     </div>
                     </div>
                 </div>
@@ -262,7 +270,7 @@ function Home() {
                                         <img src={img_usedby_satu} />
                                         <img src={img_usedby_dua} />
                                         <img src={img_usedby_tiga} />
-                                        <img src={img_usedby_empat} />
+                                        {/* <img src={img_usedby_empat} /> */}
                                     </div>
                                 </div>
                             </div>

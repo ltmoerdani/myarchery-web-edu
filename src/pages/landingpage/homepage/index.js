@@ -7,26 +7,18 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Button
 } from "reactstrap";
 import { useParams } from "react-router-dom";
-import Footer from "layouts/landingpage/Footer";
 import { EventsService } from "services";
-import { Link } from "react-router-dom";
 import { getAuthenticationStore } from "store/slice/authentication";
 import { useSelector } from "react-redux";
-import ProfileMenuArcher from "components/TopbarDropdown/ProfileMenuArcher";
-// import bgauth from "../../../assets/images/myachery/bg-landingpage.jpg"
-import logomyarchery from "../../../assets/images/myachery/myachery.png"
 import Countdown from "react-countdown";
 import "./components/sass/landingpage.scss"
-// import { dummyHtml } from './components/htmldummy'
 
 
 const LandingPage = () => {
   const { slug } = useParams();
   const [event, setEvent] = useState({})
-  const path = window.location.pathname;
   
   useEffect(async () => {
     const { data, success } = await EventsService.getEventBySlug({ slug });
@@ -35,17 +27,10 @@ const LandingPage = () => {
     }
   }, []);
 
-  // let eventStartDate = new Date(event.eventStartDatetime)
-  // let eventEndDate = new Date(event.eventEndDatetime)
-  // let regStartDate = new Date(event.registrationStartDatetime)
-  // let regEndDate = new Date(event.registrationEndDatetime)
-
   const renderer = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
-      // Render a completed state
       return <span>You are good to go!</span>;
     } else {
-      // Render a countdown
       return (
         <>
           <div className="coming-box">
@@ -88,9 +73,10 @@ const LandingPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // console.log(windowDimensions)
   let { isLoggedIn } = useSelector(getAuthenticationStore);
   console.log(isLoggedIn)
+
+  console.log(event)
 
 
   return (
@@ -98,33 +84,9 @@ const LandingPage = () => {
       <MetaTags>
         <title>{event.eventName}</title>
       </MetaTags>
-      {/* import navbar */}
-        <div className="px-4 py-1 sticky-top bg-light d-flex justify-content-between">
-          {/* <Row>
-            <Col md={6}> */}
-              <Link to="/archer/dashboard">
-              <div>
-                <img src={logomyarchery} width="91" />
-              </div>
-              </Link>
-            {/* </Col>
-            <Col md={6}> */}
-              { isLoggedIn ? (
-                <div>
-                  <ProfileMenuArcher color="black" />
-                </div>
-              ) : (
-                <Link style={{padding:"20px"}} to={"/archer/login?path="+path}>
-                <Button className="float-end" color="outline-dark">Masuk</Button>
-              </Link>
-                )
-              }
-            {/* </Col>
-          </Row> */}
-        </div>
         <Container>
             <div>
-                <img className="w-100 h-landing" src={event.poster} />
+                <img className="w-100 h-landing" src={event?.poster} />
             </div>
             <div>
               <Row className="mt-4">
@@ -196,7 +158,6 @@ const LandingPage = () => {
               </Row>
             </div>
         </Container>
-      <Footer />
     </React.Fragment>
   );
 };
