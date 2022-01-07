@@ -5,11 +5,13 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Carousel } from 'react-responsive-carousel'
 import CardAbout from './components/CardAbout';
 import {Link} from 'react-router-dom'
+import { useSelector } from "react-redux";
+import { getAuthenticationStore } from "store/slice/authentication";
+
 
 import banner_satu from '../../../assets/images/myachery/Banner 2(1).svg'
 import img_content from '../../../assets/images/myachery/content-landing-1-2.svg'
 import img_target from '../../../assets/images/myachery/target-landing.svg'
-// import img_content_two from '../../../assets/images/myachery/content-landing-2-1.svg'
 import ases_satu from "../../../assets/images/myachery/ases-satu.svg"
 import ases_dua from "../../../assets/images/myachery/ases-dua.svg"
 import ases_tiga from "../../../assets/images/myachery/ases-tiga.svg"
@@ -34,6 +36,9 @@ import './components/sass/header.scss'
 //TODO: Clrea all the comment before commit please
 
 function Home() {
+
+    let { isLoggedIn } = useSelector(getAuthenticationStore);
+
     return (
         <React.Fragment>
             <MetaTags>
@@ -192,10 +197,10 @@ function Home() {
                             <span>mudah melalui MyArchery</span>
                         </div>
                         <div className='d-flex d-md-block justify-content-center'>
-                        <Link to="/dashboard/clubs/new">
+                        <Link to={`${!isLoggedIn ? "/archer/login?path=/dashboard/clubs/new" : "/dashboard/clubs/new"}`}>
                             <Button color='warning' style={{backgroundColor: "#FFF", color: '#0D47A1', textAlign: 'left' }}>Buat Klub</Button>
                         </Link>
-                        <Link to="/dashboard/clubs/join">
+                        <Link to={`${ !isLoggedIn ? "/archer/login?path=/dashboard/clubs/join" : "/dashboard/clubs/join"}`}>
                             <Button className='ms-2' color='warning' style={{backgroundColor: "#0D47A1", textAlign: 'left'}}>Gabung Klub</Button>
                         </Link>
                         </div>

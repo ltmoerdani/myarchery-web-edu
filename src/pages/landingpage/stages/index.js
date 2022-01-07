@@ -119,7 +119,6 @@ function Stages() {
       getElimination();
     }, [eventDetail.id, gender, category]);
 
-    console.log(elimination)
     const path = window.location.pathname;
     let { isLoggedIn } = useSelector(getAuthenticationStore);
     return (
