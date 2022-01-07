@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { ArcheryClubService } from "services";
 
 import SweetAlert from "react-bootstrap-sweetalert";
-import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
+import { Button, ButtonBlue, ButtonOutlineBlue, AvatarClubDefault } from "components/ma";
 
 export function ClubList({ clubs, onJoinSuccess }) {
   const [selectedClubId, setSelectedClubId] = React.useState(null);
@@ -45,7 +45,7 @@ function ClubListItem({ club, isSelected, onSelected, onCancelSelected, onConfir
         {club.detail.logo ? (
           <img className="club-logo-image" src={club.detail.logo} />
         ) : (
-          <AvatarDefault fullname={club.detail.name} />
+          <AvatarClubDefault />
         )}
       </div>
 

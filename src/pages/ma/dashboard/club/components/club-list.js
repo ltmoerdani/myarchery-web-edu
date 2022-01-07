@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
-import { ButtonOutlineBlue, AvatarDefault } from "components/ma";
+import { ButtonOutlineBlue, AvatarClubDefault } from "components/ma";
 
 export function ClubList({ clubs }) {
   return clubs.map((club) => <ClubListItem key={club.id} club={club} />);
@@ -18,11 +18,7 @@ function ClubListItem({ club }) {
   return (
     <ClubListItemWrapper>
       <div className="club-logo">
-        {club.logo ? (
-          <img className="club-logo-image" src={club.logo} />
-        ) : (
-          <AvatarDefault fullname={club.name} />
-        )}
+        {club.logo ? <img className="club-logo-image" src={club.logo} /> : <AvatarClubDefault />}
       </div>
 
       <div className="club-list-item-content">

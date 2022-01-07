@@ -9,7 +9,7 @@ import { ArcheryClubService } from "services";
 import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
-import { Button, ButtonBlue, AvatarDefault } from "components/ma";
+import { Button, ButtonBlue, AvatarDefault, AvatarClubDefault } from "components/ma";
 import { SkeletonMemberGridItem } from "./components/member-grid-item";
 
 // TODO: pindah lokasi icon ke yang lebih proper
@@ -193,7 +193,11 @@ function PageProfile() {
           <ClubInfo>
             <div className="info-photo">
               <div className="info-photo-container">
-                {clubDetail?.logo && <img className="info-photo-img" src={clubDetail?.logo} />}
+                {clubDetail?.logo ? (
+                  <img className="info-photo-img" src={clubDetail?.logo} />
+                ) : (
+                  <AvatarClubDefaultLarge />
+                )}
               </div>
             </div>
 
@@ -453,6 +457,10 @@ const ClubInfo = styled.div`
       }
     }
   }
+`;
+
+const AvatarClubDefaultLarge = styled(AvatarClubDefault)`
+  font-size: 4rem;
 `;
 
 function LandingPageLinkPlaceholder({ url = "" }) {
