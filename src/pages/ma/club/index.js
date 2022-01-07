@@ -9,13 +9,12 @@ import { ArcheryClubService } from "services";
 import MetaTags from "react-meta-tags";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Container } from "reactstrap";
-import { Button, ButtonBlue } from "components/ma";
+import { Button, ButtonBlue, AvatarDefault, AvatarClubDefault } from "components/ma";
 import { SkeletonMemberGridItem } from "./components/member-grid-item";
 
 // TODO: pindah lokasi icon ke yang lebih proper
 import IconChainLink from "pages/ma/dashboard/club-manage/components/icons-mono/chain-link";
 import IconUsers from "components/ma/icons/mono/users";
-import IconAge from "components/ma/icons/mono/age";
 import IconGender from "components/ma/icons/mono/gender";
 
 const APP_URL = "https://myarchery.id";
@@ -194,7 +193,11 @@ function PageProfile() {
           <ClubInfo>
             <div className="info-photo">
               <div className="info-photo-container">
-                {clubDetail?.logo && <img className="info-photo-img" src={clubDetail?.logo} />}
+                {clubDetail?.logo ? (
+                  <img className="info-photo-img" src={clubDetail?.logo} />
+                ) : (
+                  <AvatarClubDefaultLarge />
+                )}
               </div>
             </div>
 
@@ -305,7 +308,11 @@ function PageProfile() {
                   <MemberItem key={member.id}>
                     <div className="member-photo">
                       <div className="member-photo-container">
-                        <img className="member-photo-img" src={member.avatar} />
+                        {member.avatar ? (
+                          <img className="member-photo-img" src={member.avatar} />
+                        ) : (
+                          <AvatarDefault fullname={member.name} />
+                        )}
                       </div>
                     </div>
 
@@ -319,16 +326,6 @@ function PageProfile() {
                           <React.Fragment>
                             {member.gender === "male" ? "Laki-laki" : "Perempuan"}
                           </React.Fragment>
-                        ) : (
-                          <React.Fragment>&mdash;</React.Fragment>
-                        )}
-                      </div>
-                      <div>
-                        <span className="info-icon">
-                          <IconAge size="20" />
-                        </span>
-                        {member.age ? (
-                          `${member.age} tahun`
                         ) : (
                           <React.Fragment>&mdash;</React.Fragment>
                         )}
@@ -460,6 +457,10 @@ const ClubInfo = styled.div`
       }
     }
   }
+`;
+
+const AvatarClubDefaultLarge = styled(AvatarClubDefault)`
+  font-size: 4rem;
 `;
 
 function LandingPageLinkPlaceholder({ url = "" }) {
