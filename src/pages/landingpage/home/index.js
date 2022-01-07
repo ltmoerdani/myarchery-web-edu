@@ -192,8 +192,12 @@ function Home() {
                             <span>mudah melalui MyArchery</span>
                         </div>
                         <div className='d-flex d-md-block justify-content-center'>
-                        <Button color='warning' style={{backgroundColor: "#FFF", color: '#0D47A1', textAlign: 'left' }}>Buat Klub</Button>
-                        <Button className='ms-2' color='warning' style={{backgroundColor: "#0D47A1", textAlign: 'left'}}>Gabung Klub</Button>
+                        <Link to="/dashboard/clubs/new">
+                            <Button color='warning' style={{backgroundColor: "#FFF", color: '#0D47A1', textAlign: 'left' }}>Buat Klub</Button>
+                        </Link>
+                        <Link to="/dashboard/clubs/join">
+                            <Button className='ms-2' color='warning' style={{backgroundColor: "#0D47A1", textAlign: 'left'}}>Gabung Klub</Button>
+                        </Link>
                         </div>
                     </div>
                     </div>
