@@ -52,8 +52,10 @@ const ProfileMenu = (props) => {
       <React.Fragment>
         <List className="d-none d-lg-flex my-auto">
           <ListInlineItem className="d-flex justify-content-center align-items-center">
-            <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
-            <span className="d-none d-lg-inline-block ms-2 me-1">{username}</span>
+            <Link to="/dashboard">
+              <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
+              <span style={{color: '#000'}} className="d-none d-lg-inline-block ms-2 me-1">{username}</span>
+            </Link>
           </ListInlineItem>
 
           <ListInlineItem className="d-flex justify-content-center align-items-center">

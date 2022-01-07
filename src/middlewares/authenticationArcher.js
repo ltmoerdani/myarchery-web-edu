@@ -25,6 +25,7 @@ const AuthenticationArcherMiddleware = ({
       dispatch(AuthenticationStore.profile(data));
     }
   }, []);
+  
   return (
     <Route
       {...rest}

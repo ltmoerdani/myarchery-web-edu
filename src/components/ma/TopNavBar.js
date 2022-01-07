@@ -15,6 +15,7 @@ import {
   Button,
 } from "reactstrap";
 import SweetAlert from "react-bootstrap-sweetalert";
+import { Link } from 'react-router-dom'
 
 // TODO: Barangkali data source image bisa dari resource
 import user1 from "../../assets/images/users/avatar-man.png";
@@ -50,8 +51,10 @@ const ProfileMenu = (props) => {
       {/* Menu ketika layar large ke atas */}
       <List className="d-none d-lg-flex my-auto">
         <ListInlineItem className="d-flex justify-content-center align-items-center">
-          <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
-          <span className="d-none d-lg-inline-block ms-2 me-1">{username}</span>
+          <Link to="/dashboard">
+            <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
+            <span style={{color: '#000'}} className="d-none d-lg-inline-block ms-2 me-1">{username}</span>
+          </Link>
         </ListInlineItem>
 
         <ListInlineItem className="d-flex justify-content-center align-items-center">

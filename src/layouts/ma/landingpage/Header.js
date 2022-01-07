@@ -18,14 +18,13 @@ import logo from "assets/images/myachery/myachery.png";
 
 const Header = () => {
   let { isLoggedIn } = useSelector(getAuthenticationStore);
-  console.log(isLoggedIn)
   return (
     <React.Fragment>
       <header id="page-topbar">
         <div className="navbar-header">
           <div className="d-flex">
             <div className="navbar-brand-box">
-              <Link to="/dashboard" className="logo logo-dark">
+              <Link to="/home" className="logo logo-dark">
                 <span className="logo-sm">
                   <img src={logo} alt="" height="64" />
                 </span>
