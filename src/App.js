@@ -12,7 +12,7 @@ import {
 } from "./routes";
 
 import { dashboardRoutes, clubRoutes } from "./routes";
-import { LayoutDashboard, LayoutClub } from "layouts/ma";
+import { LayoutDashboard, LayoutClub, LayoutLandingPage} from "layouts/ma";
 
 import "./assets/scss/theme.scss";
 
@@ -58,7 +58,7 @@ const App = () => {
           {landingpageRouters.map((route, idx) => (
             <AuthenticationArcherMiddleware
               path={route.path}
-              layout={LandingPageLayout}
+              layout={LayoutLandingPage}
               component={route.component}
               key={idx}
               isAuthProtected={false}

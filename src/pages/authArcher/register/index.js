@@ -1,8 +1,6 @@
 // availity-reactstrap-validation
 import myachery from "assets/images/myachery/logo-myarchery.png"
 import React, { useState, useEffect } from "react"
-// import google from "assets/images/myachery/Google.png"
-// import facebook from "assets/images/myachery/Facebook.png"
 import ladBg from "assets/images/myachery/achery-lad.png"
 import { AvField, AvForm } from "availity-reactstrap-validation"
 import MetaTags from "react-meta-tags"
@@ -12,9 +10,6 @@ import { Col, Container, Row } from "reactstrap"
 import toastr from "toastr"
 import { useDispatch, useSelector } from "react-redux";
 import * as AuthenticationStore from "store/slice/authentication"
-// import logoImg from "../../../assets/images/logo.svg"
-// import images
-// import profileImg from "../../../assets/images/profile-img.png"
 
 const RegisterArcher = (props) => {
   const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore)
@@ -25,7 +20,6 @@ const RegisterArcher = (props) => {
   let history = useHistory();
   
   const handleValidSubmit = async (event, values) => {
-    console.log(values)
     const { data, errors, message, success } = await ArcherService.register(values)
     if (success) {
       if (data) {
