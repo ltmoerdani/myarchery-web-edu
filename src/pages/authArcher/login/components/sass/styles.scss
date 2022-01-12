@@ -1,0 +1,27 @@
+$secondary-orange: #FFC34D;
+$primary-one: #0D47A1;
+
+.circle-yellow{
+    background-color: $secondary-orange;
+    width: 100%;
+    height: 100vmin;
+    position: absolute;
+    left: -51%;
+    clip-path: circle(50% at 50% 50%);
+}
+
+.circle-blue{
+    background-color: $primary-one;
+    width: 100%;
+    height: 100vmin;
+    position: absolute;
+    left: -45%;
+    clip-path: circle(50% at 50% 50%);
+}
+
+.img-circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: -15%;
+}
