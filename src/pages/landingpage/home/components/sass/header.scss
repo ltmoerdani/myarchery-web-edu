@@ -135,7 +135,7 @@ $secondaty-one: #FFB420;
 
 .look-event {
     background-color: $secondaty-one;
-    min-height: 42vh;
+    min-height: 250px;
     position: relative;
 
     @media screen and (max-width: 1024px) {
@@ -143,11 +143,11 @@ $secondaty-one: #FFB420;
     }
 
     @media screen and (max-width: 768px) {
-        min-height: 10vh;
+        min-height: 250px;
     }
 
     @media screen and (max-width: 600px) {
-        min-height: 37vh;
+        min-height: 20vh;
     }
 
     .text {
@@ -163,7 +163,12 @@ $secondaty-one: #FFB420;
         @media screen and (max-width: 768px) {
             left: 0;
             right: 70px;
-            top: 10%;
+            top: 30%;
+        }
+        @media screen and (max-width: 1024px) {
+            left: 0;
+            right: 70px;
+            top: 30%;
         }
     }
 
@@ -393,4 +398,31 @@ $secondaty-one: #FFB420;
     &:hover {
         transform: translateY(-5px);
     }
+}
+
+.line-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.img-responsive-event-one {
+    width: 100%;
+    height: 465px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.img-responsive-event-two {
+    width: 100%;
+    height: 165px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.responsive-event-lain {
+
 }
