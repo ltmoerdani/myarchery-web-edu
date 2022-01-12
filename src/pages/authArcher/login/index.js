@@ -156,13 +156,7 @@ const LoginArcher = (props) => {
                   </div>
 
                   <div className="mt-4 text-center">
-                    {/* <Link
-                      to={"/authentication/forgot-password"}
-                      className="text-muted"
-                    >
-                      <i className="mdi mdi-lock me-1" />
-                      Forgot your password?
-                    </Link> */}
+                   
                   </div>
                   <div className="mt-5 text-center">
                 <p>
@@ -172,16 +166,9 @@ const LoginArcher = (props) => {
                     Disini{" "}
                   </Link>{" "}
                 </p>
-                {/* <p>
-                  © {new Date().getFullYear()} Skote. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Themesbrand
-                </p> */}
+               
               </div>
                 </AvForm>
-                {/* <div className="d-flex justify-content-center pt-5">
-                  <img src={facebook} style={{ cursor: "pointer" }} />
-                  <img src={google} style={{ cursor: "pointer" }} />
-                </div> */}
               </div>
             </Col>
           </Row>

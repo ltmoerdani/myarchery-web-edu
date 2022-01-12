@@ -27,8 +27,8 @@ $primary-one: #0D47A1;
 }
 
 .responsive-form{
-    padding-top: 10%;
+    padding-top: 0;
     @media screen and (min-width: 1440px) {
-        padding-top: 30%;
+        padding-top: 20%;
     }
 }
