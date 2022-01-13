@@ -44,7 +44,7 @@ return (
                                             <Col md={3} sm={12}>
                                                 <div className="w-75 mx-auto">
                                                     <span>
-                                                        <h5>{i.dayLabel}<br></br>{i.dateLabel}</h5>
+                                                        <h5>{i.dayLabel}<br /><br />{i.dateLabel}</h5>
                                                     </span>
                                                 </div>
                                             </Col>
