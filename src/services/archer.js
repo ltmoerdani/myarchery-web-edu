@@ -10,4 +10,10 @@ export default {
     profile(qs = null) {
         return API.get("/app/v1/user", qs)
     },
+    updateProfile(data = null, qs = null) {
+        return API.put("/app/v1/user/update-profile", data, qs, true)
+    },
+    updateAvatar(data = null, qs = null) {
+        return API.put("/app/v1/user/update-avatar", data, qs, true)
+    }
 }

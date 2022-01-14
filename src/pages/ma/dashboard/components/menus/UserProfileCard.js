@@ -91,7 +91,7 @@ const CardMenuProfileContainer = styled.div`
   }
 `;
 
-function UserProfileCard() {
+function UserProfileCard({to}) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
   return (
     <CardMenuProfileContainer>
@@ -111,7 +111,7 @@ function UserProfileCard() {
 
       <div className="profile-footer">
         <div className="float-end">
-          <ButtonOutlineBlue rounded as={Link} to="#">
+          <ButtonOutlineBlue rounded as={Link} to={to}>
             Edit Profil
           </ButtonOutlineBlue>
         </div>
