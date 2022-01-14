@@ -77,6 +77,9 @@ const LandingPage = () => {
   console.log(isLoggedIn)
 
 
+  const eventEndDate = new Date(event?.eventEndDatetime)
+  console.log(eventEndDate.getTime())
+  console.log(Date.now())
 
   return (
     <React.Fragment>
@@ -104,6 +107,8 @@ const LandingPage = () => {
                   </div>
                 </CardBody>
               </Card>
+              { eventEndDate.getTime() < Date.now() ? null : (
+                <>
                 <div className="button-items mt-4">
                   <a  target="_blank" rel="noreferrer" href={`/event/register/process/${slug}`} className="btn btn-success me-1 w-100">
                     DAFTAR EVENT
@@ -114,6 +119,9 @@ const LandingPage = () => {
                     LIVE SCORING
                   </a>
                 </div>
+                </>
+                )
+                }
                 </Col>
                 <Col md={8} sm={12}>
                 <div>
@@ -143,6 +151,8 @@ const LandingPage = () => {
                   </div>
                 </CardBody>
               </Card>
+              { eventEndDate.getTime() < Date.now() ? null : (
+                <>
                 <div className="button-items mt-4">
                   <a  target="_blank" rel="noreferrer" href={`/event/register/process/${slug}`} className="btn btn-success me-1 w-100">
                     DAFTAR EVENT
@@ -153,6 +163,9 @@ const LandingPage = () => {
                     LIVE SCORING
                   </a>
                 </div>
+                </>
+                  )
+                }
                 </Col>
               </Row>
             </div>
