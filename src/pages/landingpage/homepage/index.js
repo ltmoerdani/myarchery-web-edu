@@ -76,8 +76,6 @@ const LandingPage = () => {
   let { isLoggedIn } = useSelector(getAuthenticationStore);
   console.log(isLoggedIn)
 
-
-
   return (
     <React.Fragment>
       <MetaTags>
@@ -104,16 +102,18 @@ const LandingPage = () => {
                   </div>
                 </CardBody>
               </Card>
+                <>
                 <div className="button-items mt-4">
-                  <a  target="_blank" rel="noreferrer" href={`/event/register/process/${slug}`} className="btn btn-success me-1 w-100">
+                  <a  target="_blank" rel="noreferrer" href="#" className="btn btn-success me-1 w-100">
                     DAFTAR EVENT
                   </a>
                 </div>
                 <div className="button-items mt-4">
-                  <a  target="_blank" rel="noreferrer" href={`/display/score/${slug}`} className="btn btn-warning me-1 w-100">
+                  <a  target="_blank" rel="noreferrer" href="#" className="btn btn-warning me-1 w-100">
                     LIVE SCORING
                   </a>
                 </div>
+                </>
                 </Col>
                 <Col md={8} sm={12}>
                 <div>
@@ -143,16 +143,18 @@ const LandingPage = () => {
                   </div>
                 </CardBody>
               </Card>
+                <>
                 <div className="button-items mt-4">
-                  <a  target="_blank" rel="noreferrer" href={`/event/register/process/${slug}`} className="btn btn-success me-1 w-100">
+                  <a  target="_blank" rel="noreferrer" href="#" className="btn btn-success me-1 w-100">
                     DAFTAR EVENT
                   </a>
                 </div>
                 <div className="button-items mt-4">
-                  <a  target="_blank" rel="noreferrer" href={`/display/score/${slug}`} className="btn btn-warning me-1 w-100">
+                  <a  target="_blank" rel="noreferrer" href="#" className="btn btn-warning me-1 w-100">
                     LIVE SCORING
                   </a>
                 </div>
+                </>
                 </Col>
               </Row>
             </div>
