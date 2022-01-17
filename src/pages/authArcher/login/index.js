@@ -145,7 +145,9 @@ const LoginArcher = (props) => {
                       Ingat Saya
                     </label>
                     <div className="float-end">
-                      <a style={{color: '#0D47A1', fontSize: '14px', lineHeight: '19.6px'}}>Lupa sandi</a>
+                      <Link to="/archer/forgot-password">
+                        <span style={{color: '#0D47A1', fontSize: '14px', lineHeight: '19.6px'}}>Lupa sandi</span>
+                      </Link>
                     </div>
                   </div>
 
