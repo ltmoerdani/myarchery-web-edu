@@ -2,6 +2,8 @@ import * as React from "react";
 import styled from "styled-components";
 import { useWizardView } from "../../../hooks/wizard-view";
 import { eventCategories } from "../../../constants";
+import { CategoryService } from "services";
+import { useParams } from "react-router-dom";
 
 // import CurrencyFormat from "react-currency-format";
 import { Container, Row, Col } from "reactstrap";
@@ -10,7 +12,7 @@ import { Button, ButtonOutline, WizardView, WizardViewContent } from "components
 import classnames from "classnames";
 // import format from "date-fns/format";
 // import id from "date-fns/locale/id";
-import imgLandingPageDetailEvent from "assets/images/myachery/img-landing-page-event-detail.png"
+// import imgLandingPageDetailEvent from "assets/images/myachery/img-landing-page-event-detail.png"
 
 const { TEAM_CATEGORIES } = eventCategories;
 
@@ -62,20 +64,39 @@ const categoryTabsList = [
 // }
 
 function LandingPage() {
+  const {slug} = useParams();
   const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
+  const [eventData, setEventData] = React.useState({})
+  const [time, setTime] = React.useState({})
+  const [expired, setExpired] = React.useState(false)
 
   // const categoriesByTeam = React.useMemo(
   //   () => computeCategoriesByTeam(eventData.eventCategories),
   //   []
   // );
 
-  const wordHtml = () => {
-  return (
-    <>
-    <p><span style={{whiteSpace: 'pre-wrap'}}>Peraturan pertandingan pada The HuB Scoring menggunakan peraturan Internasional World Archery.<br /><br />&nbsp; &nbsp; Babak kualifikasi<br />&nbsp; &nbsp; Babak Kualifikasi dilaksanakan pada hari selasa &ndash; jum&rsquo;at dimulai tanggal 28 September hingga 29 Oktober 2021<br />&nbsp; &nbsp; &nbsp; &nbsp; Selasa &ndash; kamis,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 4. Jam 15.00 &ndash; 17.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Jumat,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 15.00 &ndash; 17.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Sabtu,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Ahad,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; Babak eliminasi<br />&nbsp; &nbsp; Peserta individu yang lolos ke babak eliminasi adalah 16 besar/ Babak eliminasi 1/8 untuk divisi Recurve/Nasional U-16, Compound U-16 dan Barebow Umum.</span></p>
-    </>
-  )
+  const getDataEventDetail = async () => {
+    const {message, errors, data} = await CategoryService.getDetailEvent({slug})
+    if (data) {
+      setEventData(eventData)
+      console.log(message)
+      console.log(errors)
+    }
+    console.log(message)
+    console.log(errors)
   }
+
+  React.useEffect(() => {
+    getDataEventDetail();
+  }, [])
+
+  // const wordHtml = () => {
+  // return (
+  //   <>
+  //   <p><span style={{whiteSpace: 'pre-wrap'}}>Peraturan pertandingan pada The HuB Scoring menggunakan peraturan Internasional World Archery.<br /><br />&nbsp; &nbsp; Babak kualifikasi<br />&nbsp; &nbsp; Babak Kualifikasi dilaksanakan pada hari selasa &ndash; jum&rsquo;at dimulai tanggal 28 September hingga 29 Oktober 2021<br />&nbsp; &nbsp; &nbsp; &nbsp; Selasa &ndash; kamis,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 4. Jam 15.00 &ndash; 17.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Jumat,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 15.00 &ndash; 17.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Sabtu,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Ahad,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; Babak eliminasi<br />&nbsp; &nbsp; Peserta individu yang lolos ke babak eliminasi adalah 16 besar/ Babak eliminasi 1/8 untuk divisi Recurve/Nasional U-16, Compound U-16 dan Barebow Umum.</span></p>
+  //   </>
+  // )
+  // }
 
   const categories =[
     {
@@ -116,23 +137,59 @@ function LandingPage() {
     },
   ]
 
+  var countDownDate = new Date("Jan 20, 2022 15:37:25").getTime();
+  var x = setInterval(function() {
+
+    var payload = {...time}
+
+    var now = new Date().getTime();
+
+    var distance = countDownDate - now;
+      
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    payload['days'] = days
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    payload['hours'] = hours
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    payload['minutes'] = minutes
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    payload['seconds'] = seconds
+
+    setTime(payload)
+      
+    if (distance < 0) {
+      setExpired(true)
+      clearInterval(x);
+    }
+  }, 1000);
+
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  const dateEventStart = new Date(eventData?.publicInformation?.eventStart)
+  const dateEventEnd = new Date(eventData?.publicInformation?.eventEnd)
+
+  const handlerEvenDate = (date) => {
+    const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`
+    return dateEvent
+  }
+
   return (
     <PageWrapper>
       <Container fluid>
         <div className="event-banner">
-          <img className="event-banner-image" src={imgLandingPageDetailEvent} />
+          <img className="event-banner-image" src={eventData?.publicInformation?.eventBanner} />
         </div>
 
         <Row className="mt-3">
           <Col md="8">
-            <h1 className="event-heading">Pro Archery - 2021</h1>
+            <h1 className="event-heading">{eventData?.publicInformation?.eventName}</h1>
             <div>Oleh Pro Archery Club</div>
 
             <div className="content-section mt-5">
               {/* Optional field */}
                 <React.Fragment>
                   <h5 className="content-info-heading">Deskripsi</h5>
-                  <p>Kegiatan scoring untuk kembali menumbuhkan semangat berlatih panahan serta ajang silaturahmi secara langsung sesuai dengan protocol Kesehatan saat ini.</p>
+                  <p>{eventData?.publicInformation?.eventDescription}</p>
                 </React.Fragment>
               {/* Required fields */}
               <h5 className="content-info-heading">Waktu &amp; Tempat</h5>
@@ -142,32 +199,38 @@ function LandingPage() {
                     <td style={{ minWidth: 120 }}>Tanggal Event</td>
                     <td style={{ minWidth: "0.5rem" }}>:</td>
                     <td>
-                      01 Februari 2022 - 28 Februari 2022
+                      {`${handlerEvenDate(dateEventStart)} ${handlerEvenDate(dateEventEnd)}`}
                     </td>
                   </tr>
                   <tr>
                     <td>Lokasi</td>
                     <td>:</td>
-                    <td>Lapangan Panahan Utama Pro Archery</td>
+                    <td>{eventData?.publicInformation?.eventLocation}</td>
                   </tr>
                   <tr>
                     <td>Kota</td>
                     <td>:</td>
-                    <td>Bekasi</td>
+                    <td>{eventData?.publicInformation?.eventCity?.nameCity}</td>
                   </tr>
                   <tr>
                     <td>Lapangan</td>
                     <td>:</td>
-                    <td>Outdoor</td>
+                    <td>{eventData?.publicInformation?.eventLocationType}</td>
                   </tr>
                 </tbody>
               </table>
-              <div>
-              <h5 className="content-info-heading">Peraturan</h5>
-                <div>
-                  {wordHtml()}
-                </div>
-              </div>
+              {
+                eventData?.moreInformation?.map((information) => {
+                  return(
+                    <div key={information.id}>
+                    <h5 className="content-info-heading">{information?.title}</h5>
+                      <div>
+                        <p>{information?.description}</p>
+                      </div>
+                    </div>
+                  )
+                })
+              }
 
               <h5 className="content-info-heading">Biaya Registrasi</h5>
               <div>
@@ -194,24 +257,27 @@ function LandingPage() {
             <div className="event-countdown-box">
               <h5>Waktu tersisa</h5>
 
-              <div className="countdown-timer">
+              {!expired ? (
+                <div className="countdown-timer">
                 <div className="countdown-item">
-                  266
+                  {time?.days}
                   <span className="timer-unit">Hari</span>
                 </div>
                 <div className="countdown-item">
-                  266
+                  {time?.hours}
                   <span className="timer-unit">Jam</span>
                 </div>
                 <div className="countdown-item">
-                  266
+                  {time?.minutes}
                   <span className="timer-unit">Menit</span>
                 </div>
                 <div className="countdown-item">
-                  266
+                  {time?.seconds}
                   <span className="timer-unit">Detik</span>
                 </div>
               </div>
+              ): "Expired"
+              }
 
               <Button style={{ width: "100%",backgroundColor: '#0D47A1', color: '#FFF' }} disabled>
                 Daftar
