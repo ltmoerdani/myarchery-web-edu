@@ -24,61 +24,65 @@ const categoryTabsList = [
   { step: 4, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
 ];
 
-// function computeCategoriesByTeam(categoriesData) {
-//   const categoriesByTeam = {
-//     [TEAM_CATEGORIES.TEAM_INDIVIDUAL]: [],
-//     [TEAM_CATEGORIES.TEAM_MALE]: [],
-//     [TEAM_CATEGORIES.TEAM_FEMALE]: [],
-//     [TEAM_CATEGORIES.TEAM_MIXED]: [],
-//   };
+function computeCategoriesByTeam(categoriesData) {
+  const categoriesByTeam = {
+    [TEAM_CATEGORIES.TEAM_INDIVIDUAL]: [],
+    [TEAM_CATEGORIES.TEAM_MALE]: [],
+    [TEAM_CATEGORIES.TEAM_FEMALE]: [],
+    [TEAM_CATEGORIES.TEAM_MIXED]: [],
+  };
 
-//   categoriesData.forEach((competition) => {
-//     competition.categoryDetails?.forEach((detail) => {
-//       detail.distance?.forEach((distanceItem, index) => {
-//         const newCategory = {
-//           ...detail,
-//           key: `${detail.key}-${index + 1}`,
-//           competitionCategory: competition.competitionCategory?.value,
-//           ageCategory: detail.ageCategory?.value,
-//           distance: distanceItem.value,
-//           teamCategory: detail.teamCategory?.value,
-//         };
+  categoriesData?.forEach((competition) => {
+    // console.log(competition)
+    // competition?.categoryDetails?.forEach((detail) => {
+      // detail?.distance?.forEach((distanceItem, index) => {
+        const newCategory = {
+          ...competition,
+          key: `${competition?.categoryDetailsId}`,
+          competitionCategory: competition.competitionCategoryId?.label,
+          ageCategory: competition?.ageCategoryId?.label,
+          distance: competition?.distanceId.label,
+          teamCategory: competition?.teamCategoryId?.label,
+        };
 
-//         if (
-//           detail.teamCategory?.value === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE ||
-//           detail.teamCategory?.value === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE
-//         ) {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL].push(newCategory);
-//         } else if (detail.teamCategory?.value === "Beregu Putra") {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE].push(newCategory);
-//         } else if (detail.teamCategory?.value === "Beregu Putri") {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE].push(newCategory);
-//         } else if (detail.teamCategory?.value === "Beregu Campuran") {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED].push(newCategory);
-//         }
-//       });
-//     });
-//   });
+        if (
+          competition?.teamCategoryId?.id === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE ||
+          competition?.teamCategoryId?.id === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE ||
+          competition?.teamCategoryId?.id === TEAM_CATEGORIES.TEAM_INDIVIDUAL
+        ) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL].push(newCategory);
+        } else if (competition?.teamCategoryId?.id === TEAM_CATEGORIES.TEAM_MALE) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE].push(newCategory);
+        } else if (competition?.teamCategoryId?.id === TEAM_CATEGORIES.TEAM_FEMALE) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE].push(newCategory);
+        } else if (competition?.teamCategoryId?.id === TEAM_CATEGORIES.TEAM_MIXED) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED].push(newCategory);
+        }
+      // });
+    // });
+  });
 
-//   return categoriesByTeam;
-// }
+  return categoriesByTeam;
+}
 
 function LandingPage() {
   const {slug} = useParams();
   const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
   const [eventData, setEventData] = React.useState({})
-  const [time, setTime] = React.useState({})
-  const [expired, setExpired] = React.useState(false)
+  // const [time, setTime] = React.useState({})
+  // const [expired, setExpired] = React.useState(false)
 
-  // const categoriesByTeam = React.useMemo(
-  //   () => computeCategoriesByTeam(eventData.eventCategories),
-  //   []
-  // );
+  const categoriesByTeam = React.useMemo(
+    () => computeCategoriesByTeam(eventData?.eventCategories),
+    []
+  );
+
+  console.log(categoriesByTeam)
 
   const getDataEventDetail = async () => {
     const {message, errors, data} = await CategoryService.getDetailEvent({slug})
     if (data) {
-      setEventData(eventData)
+      setEventData(data)
       console.log(message)
       console.log(errors)
     }
@@ -98,70 +102,70 @@ function LandingPage() {
   // )
   // }
 
-  const categories =[
-    {
-      ageCategory: "Umum",
-      competitionCategory: "Barebow",
-      distance: "50m",
-      quota: 100
-    },
-    {
-      ageCategory: "Umum",
-      competitionCategory: "Barebow",
-      distance: "50m",
-      quota: 100
-    },
-    {
-      ageCategory: "Umum",
-      competitionCategory: "Barebow",
-      distance: "50m",
-      quota: 100
-    },
-    {
-      ageCategory: "Umum",
-      competitionCategory: "Barebow",
-      distance: "50m",
-      quota: 100
-    },
-    {
-      ageCategory: "Umum",
-      competitionCategory: "Barebow",
-      distance: "50m",
-      quota: 100
-    },
-    {
-      ageCategory: "Umum",
-      competitionCategory: "Barebow",
-      distance: "50m",
-      quota: 100
-    },
-  ]
+  // const categories =[
+  //   {
+  //     ageCategory: "Umum",
+  //     competitionCategory: "Barebow",
+  //     distance: "50m",
+  //     quota: 100
+  //   },
+  //   {
+  //     ageCategory: "Umum",
+  //     competitionCategory: "Barebow",
+  //     distance: "50m",
+  //     quota: 100
+  //   },
+  //   {
+  //     ageCategory: "Umum",
+  //     competitionCategory: "Barebow",
+  //     distance: "50m",
+  //     quota: 100
+  //   },
+  //   {
+  //     ageCategory: "Umum",
+  //     competitionCategory: "Barebow",
+  //     distance: "50m",
+  //     quota: 100
+  //   },
+  //   {
+  //     ageCategory: "Umum",
+  //     competitionCategory: "Barebow",
+  //     distance: "50m",
+  //     quota: 100
+  //   },
+  //   {
+  //     ageCategory: "Umum",
+  //     competitionCategory: "Barebow",
+  //     distance: "50m",
+  //     quota: 100
+  //   },
+  // ]
 
-  var countDownDate = new Date("Jan 20, 2022 15:37:25").getTime();
-  var x = setInterval(function() {
+  // var countDownDate = new Date("Jan 20, 2022 15:37:25").getTime();
+  // var x = setInterval(function() {
 
-    var payload = {...time}
+  //   var payload = {...time}
 
-    var now = new Date().getTime();
+  //   var now = new Date().getTime();
 
-    var distance = countDownDate - now;
+  //   var distance = countDownDate - now;
       
-    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    payload['days'] = days
-    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    payload['hours'] = hours
-    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    payload['minutes'] = minutes
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    payload['seconds'] = seconds
+  //   var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  //   payload['days'] = days
+  //   var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  //   payload['hours'] = hours
+  //   var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  //   payload['minutes'] = minutes
+  //   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  //   payload['seconds'] = seconds
 
-    setTime(payload)
+  //   setTime(payload)
       
-    if (distance < 0) {
-      setExpired(true)
-      clearInterval(x);
-    }
-  }, 1000);
+  //   if (distance < 0) {
+  //     setExpired(true)
+  //     clearInterval(x);
+  //   }
+  // }, 1000);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -257,27 +261,27 @@ function LandingPage() {
             <div className="event-countdown-box">
               <h5>Waktu tersisa</h5>
 
-              {!expired ? (
+              {/* {!expired ? ( */}
                 <div className="countdown-timer">
                 <div className="countdown-item">
-                  {time?.days}
+                  {/* {time?.days} */}
                   <span className="timer-unit">Hari</span>
                 </div>
                 <div className="countdown-item">
-                  {time?.hours}
+                  {/* {time?.hours} */}
                   <span className="timer-unit">Jam</span>
                 </div>
                 <div className="countdown-item">
-                  {time?.minutes}
+                  {/* {time?.minutes} */}
                   <span className="timer-unit">Menit</span>
                 </div>
                 <div className="countdown-item">
-                  {time?.seconds}
+                  {/* {time?.seconds} */}
                   <span className="timer-unit">Detik</span>
                 </div>
               </div>
-              ): "Expired"
-              }
+              {/* ): "Expired" */}
+              {/* } */}
 
               <Button style={{ width: "100%",backgroundColor: '#0D47A1', color: '#FFF' }} disabled>
                 Daftar
@@ -313,16 +317,16 @@ function LandingPage() {
           {/* TODO: Dicommet dulu nanti bergunua ketika sudah bisa integrate API */}
           <WizardView currentStep={currentStep}>
             <WizardViewContent>
-              <EventCategoryGrid categories={categories} />
+              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL]} />
             </WizardViewContent>
             <WizardViewContent>
-              <EventCategoryGrid categories={categories} />
+              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]} />
             </WizardViewContent>
             <WizardViewContent>
-              <EventCategoryGrid categories={categories} />
+              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]} />
             </WizardViewContent>
             <WizardViewContent>
-              <EventCategoryGrid categories={categories} />
+              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]} />
             </WizardViewContent>
           </WizardView>
         </div>
