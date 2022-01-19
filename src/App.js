@@ -11,8 +11,13 @@ import {
   certificateRoutes,
 } from "./routes";
 
-import { dashboardRoutes, clubRoutes } from "./routes";
-import { LayoutDashboard, LayoutClub, LayoutLandingPage} from "layouts/ma";
+import { dashboardRoutes, clubRoutes, eventRegistrationRoutes } from "./routes";
+import {
+  LayoutDashboard,
+  LayoutClub,
+  LayoutLandingPage,
+  LayoutEventRegistration,
+} from "layouts/ma";
 
 import "./assets/scss/theme.scss";
 
@@ -37,6 +42,17 @@ const App = () => {
             <AuthenticationArcherMiddleware
               path={route.path}
               layout={DashboardEventUmum}
+              component={route.component}
+              key={idx}
+              isAuthProtected={false}
+              exact
+            />
+          ))}
+
+          {eventRegistrationRoutes.map((route, idx) => (
+            <AuthenticationArcherMiddleware
+              path={route.path}
+              layout={LayoutEventRegistration}
               component={route.component}
               key={idx}
               isAuthProtected={false}
