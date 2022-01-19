@@ -4,6 +4,7 @@ import { useWizardView } from "../../../hooks/wizard-view";
 import { eventCategories } from "../../../constants";
 import { CategoryService } from "services";
 import { useParams } from "react-router-dom";
+import Countdown from 'react-countdown';
 
 // import CurrencyFormat from "react-currency-format";
 import { Container, Row, Col } from "reactstrap";
@@ -74,10 +75,9 @@ function LandingPage() {
 
   const categoriesByTeam = React.useMemo(
     () => computeCategoriesByTeam(eventData?.eventCategories),
-    []
+    [eventData?.eventCategories]
   );
 
-  console.log(categoriesByTeam)
 
   const getDataEventDetail = async () => {
     const {message, errors, data} = await CategoryService.getDetailEvent({slug})
@@ -141,31 +141,6 @@ function LandingPage() {
   //   },
   // ]
 
-  // var countDownDate = new Date("Jan 20, 2022 15:37:25").getTime();
-  // var x = setInterval(function() {
-
-  //   var payload = {...time}
-
-  //   var now = new Date().getTime();
-
-  //   var distance = countDownDate - now;
-      
-  //   var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  //   payload['days'] = days
-  //   var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  //   payload['hours'] = hours
-  //   var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  //   payload['minutes'] = minutes
-  //   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  //   payload['seconds'] = seconds
-
-  //   setTime(payload)
-      
-  //   if (distance < 0) {
-  //     setExpired(true)
-  //     clearInterval(x);
-  //   }
-  // }, 1000);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -187,7 +162,7 @@ function LandingPage() {
         <Row className="mt-3">
           <Col md="8">
             <h1 className="event-heading">{eventData?.publicInformation?.eventName}</h1>
-            <div>Oleh Pro Archery Club</div>
+            <div>Oleh {`${eventData?.admins?.name}`} Club</div>
 
             <div className="content-section mt-5">
               {/* Optional field */}
@@ -261,27 +236,7 @@ function LandingPage() {
             <div className="event-countdown-box">
               <h5>Waktu tersisa</h5>
 
-              {/* {!expired ? ( */}
-                <div className="countdown-timer">
-                <div className="countdown-item">
-                  {/* {time?.days} */}
-                  <span className="timer-unit">Hari</span>
-                </div>
-                <div className="countdown-item">
-                  {/* {time?.hours} */}
-                  <span className="timer-unit">Jam</span>
-                </div>
-                <div className="countdown-item">
-                  {/* {time?.minutes} */}
-                  <span className="timer-unit">Menit</span>
-                </div>
-                <div className="countdown-item">
-                  {/* {time?.seconds} */}
-                  <span className="timer-unit">Detik</span>
-                </div>
-              </div>
-              {/* ): "Expired" */}
-              {/* } */}
+              <Countdown date={"Jan 20, 2022 15:37:25"} renderer={HandlerCountDown} />
 
               <Button style={{ width: "100%",backgroundColor: '#0D47A1', color: '#FFF' }} disabled>
                 Daftar
@@ -333,6 +288,36 @@ function LandingPage() {
       </Container>
     </PageWrapper>
   );
+}
+
+function HandlerCountDown({days ,hours, minutes, seconds, completed}) {
+  if (completed) {
+    return(
+      <>
+        <span>Expired</span>
+      </>
+    )
+  }
+  return(
+    <div className="countdown-timer">
+      <div className="countdown-item">
+        {days}
+        <span className="timer-unit">Hari</span>
+      </div>
+      <div className="countdown-item">
+        {hours}
+        <span className="timer-unit">Jam</span>
+      </div>
+      <div className="countdown-item">
+        {minutes}
+        <span className="timer-unit">Menit</span>
+      </div>
+      <div className="countdown-item">
+        {seconds}
+        <span className="timer-unit">Detik</span>
+      </div>
+    </div>
+  )
 }
 
 // function CopywritingRegistrationFee({ eventData }) {
