@@ -56,7 +56,7 @@ function Home() {
                     <div className='position-relative'>
                         <img src={banner_satu} />
                         <div className='text-box'>
-                            <span className='title-sub'>selemat datang di<br/></span>
+                            <span className='title-sub'>selamat datang di<br/></span>
                             <span className='title-hero'>myachery</span>
                             <div className='content'>
                                 <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
