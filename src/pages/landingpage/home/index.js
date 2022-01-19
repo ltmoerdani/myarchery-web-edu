@@ -60,7 +60,9 @@ function Home() {
                             <span className='title-hero'>myachery</span>
                             <div className='content'>
                                 <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
+                                <Button className='btn btn-hero'>
+                                    <span className='btn-hero-text'>Lihat Event</span>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -71,7 +73,9 @@ function Home() {
                             <span className='title-hero'>myachery</span>
                             <div className='content'>
                                 <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
+                                <Button className='btn btn-hero'>
+                                    <span className='btn-hero-text'>Lihat Event</span>
+                                </Button>                            
                             </div>
                         </div>
                     </div>
@@ -82,7 +86,9 @@ function Home() {
                             <span className='title-hero'>myachery</span>
                             <div className='content'>
                                 <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
+                                <Button className='btn btn-hero'>
+                                    <span className='btn-hero-text'>Lihat Event</span>
+                                </Button>                            
                             </div>
                         </div>
                     </div>
@@ -179,7 +185,9 @@ function Home() {
                             <span>Buat berbagai event panahan dengan pengaturan sistem</span><br />
                             <span>skoring, pemeringkatan, dan pengaturan dari MyArchery</span>
                         </div>
-                        <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
+                        <Button className='btn btn-hero'>
+                            <span className='btn-hero-text'>Lihat Event</span>
+                        </Button>                    
                     </div>
                     </div>
                     </div>

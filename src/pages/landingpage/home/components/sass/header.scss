@@ -394,3 +394,27 @@ $secondaty-one: #FFB420;
         transform: translateY(-5px);
     }
 }
+
+.btn-hero {
+    background-color: $secondaty-one !important;
+    border-color: $secondaty-one !important;
+    width: 17.813em;
+    height: 3.25em;
+
+    @media screen and (max-width: 600px) {
+        width: 10em;
+        height: 3.25em;
+    }
+
+    .btn-hero-text {
+        color: $primary-one !important;
+        line-height: 1.75em;
+        font-size: 1.25em;
+        
+        @media screen and (max-width: 600px) {
+            line-height: 1.75em;
+            font-size: 1em;
+        }
+    }
+
+}
