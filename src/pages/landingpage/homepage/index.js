@@ -5,13 +5,9 @@ import { eventCategories } from "../../../constants";
 import { EventsService } from "services";
 import { useParams } from "react-router-dom";
 import Countdown from "react-countdown";
-// import CurrencyFormat from "react-currency-format";
 import { Container, Row, Col } from "reactstrap";
 import { Button, ButtonOutline, WizardView, WizardViewContent } from "components/ma";
 import classnames from "classnames";
-// import format from "date-fns/format";
-// import id from "date-fns/locale/id";
-// import imgLandingPageDetailEvent from "assets/images/myachery/img-landing-page-event-detail.png"
 
 const { TEAM_CATEGORIES } = eventCategories;
 
@@ -61,8 +57,6 @@ function LandingPage() {
   const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
   const [eventData, setEventData] = React.useState({});
   const [category, setCategory] = React.useState({});
-  // const [time, setTime] = React.useState({})
-  // const [expired, setExpired] = React.useState(false)
 
   const getDataEventDetail = async () => {
     const { message, errors, data } = await EventsService.getDetailEvent({ slug });
@@ -93,16 +87,6 @@ function LandingPage() {
   }, [eventData?.id]);
 
   const categoriesByTeam = React.useMemo(() => computeCategoriesByTeam(category), [category]);
-
-  console.log(categoriesByTeam);
-
-  // const wordHtml = () => {
-  // return (
-  //   <>
-  //   <p><span style={{whiteSpace: 'pre-wrap'}}>Peraturan pertandingan pada The HuB Scoring menggunakan peraturan Internasional World Archery.<br /><br />&nbsp; &nbsp; Babak kualifikasi<br />&nbsp; &nbsp; Babak Kualifikasi dilaksanakan pada hari selasa &ndash; jum&rsquo;at dimulai tanggal 28 September hingga 29 Oktober 2021<br />&nbsp; &nbsp; &nbsp; &nbsp; Selasa &ndash; kamis,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 4. Jam 15.00 &ndash; 17.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Jumat,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 15.00 &ndash; 17.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Sabtu,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; &nbsp; &nbsp; Ahad,<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 1. Jam 08.00 &ndash; 10.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 2. Jam 10.00 &ndash; 12.00<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kloter 3. Jam 13.00 &ndash; 15.00<br />&nbsp; &nbsp; Babak eliminasi<br />&nbsp; &nbsp; Peserta individu yang lolos ke babak eliminasi adalah 16 besar/ Babak eliminasi 1/8 untuk divisi Recurve/Nasional U-16, Compound U-16 dan Barebow Umum.</span></p>
-  //   </>
-  // )
-  // }
 
   const months = [
     "January",
@@ -244,7 +228,6 @@ function LandingPage() {
             ))}
           </div>
 
-          {/* TODO: Dicommet dulu nanti bergunua ketika sudah bisa integrate API */}
           <WizardView currentStep={currentStep}>
             <WizardViewContent>
               <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL]} />
