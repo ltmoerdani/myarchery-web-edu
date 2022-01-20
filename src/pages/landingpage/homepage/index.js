@@ -211,7 +211,7 @@ function LandingPage() {
           </Col>
         </Row>
 
-        <div className="mt-4">
+        <div className="mt-4" id="kategori-lomba">
           <h5 className="text-black">Kategori Lomba</h5>
 
           <div className="event-team-tabs mt-3 mb-4">
@@ -277,11 +277,11 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
           <span className="timer-unit">Detik</span>
         </div>
       </div>
-      <Link to="#">
+      <a href="#kategori-lomba">
         <Button style={{ width: "100%", backgroundColor: "#0D47A1", color: "#FFF" }}>
           Daftar
         </Button>
-      </Link>
+      </a>
     </div>
   );
 }
