@@ -195,7 +195,7 @@ function LandingPage() {
             <div className="event-countdown-box">
               <h5>Waktu tersisa</h5>
 
-              <Countdown date={"Jan 20, 2022 15:37:25"} renderer={HandlerCountDown} />
+              <Countdown date={`${eventData?.publicInformation?.eventEndRegister}`} renderer={HandlerCountDown} />
 
               <Button style={{ width: "100%", backgroundColor: "#0D47A1", color: "#FFF" }} disabled>
                 Daftar
@@ -251,9 +251,9 @@ function LandingPage() {
 function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   if (completed) {
     return (
-      <>
+      <div>
         <span>Expired</span>
-      </>
+      </div>
     );
   }
   return (
