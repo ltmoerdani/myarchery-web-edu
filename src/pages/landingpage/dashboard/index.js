@@ -132,8 +132,8 @@ const DashboardOrderEvent = () => {
                                                 <h4>{i.archeryEvent.eventName}</h4>
                                                 <p className="text-muted fw-medium">
                                                     {i.archeryEvent.eventType} 
-                                                    <br></br>
-                                                    <br></br>
+                                                    <br />
+                                                    <br />
                                                     {i.participant ? i.participant.categoryLabel : null}
                                                 </p>
                                                 <p className="text-muted fw-medium">
