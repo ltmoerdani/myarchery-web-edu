@@ -1,34 +1,34 @@
-$secondary-orange: #FFC34D;
-$primary-one: #0D47A1;
+$secondary-orange: #ffc34d;
+$primary-one: #0d47a1;
 
-.circle-yellow{
-    background-color: $secondary-orange;
-    width: 100%;
-    height: 100vmin;
-    position: absolute;
-    left: -51%;
-    clip-path: circle(50% at 50% 50%);
+.circle-yellow {
+  background-color: $secondary-orange;
+  width: 100%;
+  height: 100vmin;
+  position: absolute;
+  left: -51%;
+  clip-path: circle(50% at 50% 50%);
 }
 
-.circle-blue{
-    background-color: $primary-one;
-    width: 100%;
-    height: 100vmin;
-    position: absolute;
-    left: -45%;
-    clip-path: circle(50% at 50% 50%);
+.circle-blue {
+  background-color: $primary-one;
+  width: 100%;
+  height: 100vmin;
+  position: absolute;
+  left: -45%;
+  clip-path: circle(50% at 50% 50%);
 }
 
 .img-circle {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: -15%;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: -15%;
 }
 
-.responsive-form{
-    padding-top: 10%;
-    @media screen and (min-width: 1440px) {
-        padding-top: 30%;
-    }
+.responsive-form {
+  padding-top: 10%;
+  @media screen and (min-width: 1440px) {
+    padding-top: 30%;
+  }
 }
