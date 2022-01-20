@@ -6,7 +6,7 @@ import { EventsService } from "services";
 import { useParams, Link } from "react-router-dom";
 import Countdown from "react-countdown";
 import { Container, Row, Col } from "reactstrap";
-import { Button, ButtonOutline, WizardView, WizardViewContent } from "components/ma";
+import { ButtonOutline, WizardView, WizardViewContent, ButtonBlue } from "components/ma";
 import classnames from "classnames";
 
 const { TEAM_CATEGORIES } = eventCategories;
@@ -277,11 +277,9 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
           <span className="timer-unit">Detik</span>
         </div>
       </div>
-      <a href="#kategori-lomba">
-        <Button style={{ width: "100%", backgroundColor: "#0D47A1", color: "#FFF" }}>
+        <ButtonBlue as={Link} to="#kategori-lomba" style={{width: '100%'}}>
           Daftar
-        </Button>
-      </a>
+        </ButtonBlue>
     </div>
   );
 }
