@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useWizardView } from "../../../hooks/wizard-view";
 import { eventCategories } from "../../../constants";
 import { EventsService } from "services";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Countdown from "react-countdown";
 import { Container, Row, Col } from "reactstrap";
 import { Button, ButtonOutline, WizardView, WizardViewContent } from "components/ma";
@@ -189,17 +189,18 @@ function LandingPage() {
           <Col md="4">
             <div className="event-notice-find">
               Temukan lebih banyak event panahan di{" "}
-              <a className="event-preview-link">myarchery.id</a>
+              <Link to="/home">
+                <a className="event-preview-link">myarchery.id</a>
+              </Link>
             </div>
 
             <div className="event-countdown-box">
               <h5>Waktu tersisa</h5>
 
-              <Countdown date={`${eventData?.publicInformation?.eventEndRegister}`} renderer={HandlerCountDown} />
-
-              <Button style={{ width: "100%", backgroundColor: "#0D47A1", color: "#FFF" }} disabled>
-                Daftar
-              </Button>
+              <Countdown
+                date={`${eventData?.publicInformation?.eventEndRegister}`}
+                renderer={HandlerCountDown}
+              />
             </div>
 
             <div className="mt-4">
@@ -257,23 +258,30 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
     );
   }
   return (
-    <div className="countdown-timer">
-      <div className="countdown-item">
-        {days}
-        <span className="timer-unit">Hari</span>
+    <div>
+      <div className="countdown-timer">
+        <div className="countdown-item">
+          {days}
+          <span className="timer-unit">Hari</span>
+        </div>
+        <div className="countdown-item">
+          {hours}
+          <span className="timer-unit">Jam</span>
+        </div>
+        <div className="countdown-item">
+          {minutes}
+          <span className="timer-unit">Menit</span>
+        </div>
+        <div className="countdown-item">
+          {seconds}
+          <span className="timer-unit">Detik</span>
+        </div>
       </div>
-      <div className="countdown-item">
-        {hours}
-        <span className="timer-unit">Jam</span>
-      </div>
-      <div className="countdown-item">
-        {minutes}
-        <span className="timer-unit">Menit</span>
-      </div>
-      <div className="countdown-item">
-        {seconds}
-        <span className="timer-unit">Detik</span>
-      </div>
+      <Link to="#">
+        <Button style={{ width: "100%", backgroundColor: "#0D47A1", color: "#FFF" }}>
+          Daftar
+        </Button>
+      </Link>
     </div>
   );
 }
