@@ -39,8 +39,8 @@ const ModalParticipantMemberProfile = props => {
                 </div>
               </Col>
               <Col md={12}>
-              <br /></br>
-              <br /></br>
+              <br />
+              <br />
               <div>
               {participant && participant.schedule && participant.schedule.length > 0 ?
               <div>
