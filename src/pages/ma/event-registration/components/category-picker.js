@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import classnames from "classnames";
 
 import { Modal, ModalBody } from "reactstrap";
 import { ButtonBlue } from "components/ma";
@@ -61,7 +62,7 @@ function PickerControl({
   const handleSelectCategory = (category) => onChange?.(category);
 
   return (
-    <StyledBSModal size="lg" isOpen toggle={toggle} onClosed={onClosed}>
+    <StyledBSModal size="xl" isOpen toggle={toggle} onClosed={onClosed}>
       {groupedCategories && filters?.length ? (
         <StyledBSModalBody>
           <div>
@@ -71,37 +72,59 @@ function PickerControl({
 
           <TeamFilterList>
             {filters.map((filter) => (
-              <li key={filter.value}>
+              <TeamFilterItem key={filter.value}>
+                <input
+                  type="radio"
+                  id={`filter-item-${filter.value}`}
+                  className="filter-item-radio"
+                  name={`filter-item`}
+                  value={filter?.value || ""}
+                  checked={selectedFilter === filter.value}
+                  onChange={() => setSelectedFilter(filter.value)}
+                />
                 <TeamFilterBadge htmlFor={`filter-item-${filter.value}`}>
-                  <input
-                    type="radio"
-                    id={`filter-item-${filter.value}`}
-                    name={`filter-item`}
-                    value={filter?.value || ""}
-                    checked={selectedFilter === filter.value}
-                    onChange={() => setSelectedFilter(filter.value)}
-                  />
                   {filter.label}
                 </TeamFilterBadge>
-              </li>
+              </TeamFilterItem>
             ))}
           </TeamFilterList>
 
           <CategoryGrid>
-            {groupedCategories[selectedFilter].map((category) => (
-              <li key={category.id}>
-                <CategoryItem>
+            {groupedCategories[selectedFilter].map((category) => {
+              const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
+              const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
+              return (
+                <CategoryItem key={category.id}>
                   <input
                     type="radio"
+                    id={`category-item-${category.id}`}
+                    className="category-item-radio"
                     name="categoryId"
                     value={category.id || ""}
                     checked={value?.id === category.id}
                     onChange={() => handleSelectCategory(category)}
+                    disabled={shouldOptionDisabled}
                   />
-                  {category.categoryLabel}
+                  <CategoryItemLabel
+                    htmlFor={`category-item-${category.id}`}
+                    className={classnames({ "not-available": shouldOptionDisabled })}
+                  >
+                    <h5 className="category-name">{category.categoryLabel}</h5>
+                    <div>
+                      {!category.isOpen ? (
+                        <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
+                      ) : isQuotaAvailable ? (
+                        <QuotaLabel>
+                          {category.totalParticipant}&#47;{category.quota}
+                        </QuotaLabel>
+                      ) : (
+                        <QuotaLabelMuted>Habis</QuotaLabelMuted>
+                      )}
+                    </div>
+                  </CategoryItemLabel>
                 </CategoryItem>
-              </li>
-            ))}
+              );
+            })}
           </CategoryGrid>
 
           <div className="float-end">
@@ -138,24 +161,99 @@ const TeamFilterList = styled.ul`
   padding: 0;
 `;
 
+const TeamFilterItem = styled.li`
+  ${TeamFilterList} > & {
+    position: relative;
+    overflow: hidden;
+
+    .filter-item-radio {
+      position: absolute;
+      top: 0;
+      left: -2000px;
+      visibility: hidden;
+    }
+  }
+`;
+
 const TeamFilterBadge = styled.label`
   display: inline-block;
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   border: solid 1px var(--ma-blue);
   color: var(--ma-blue);
+
+  .filter-item-radio:checked + & {
+    background-color: var(--ma-blue);
+    color: #ffffff;
+  }
 `;
 
 const CategoryGrid = styled.ul`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
+  list-style: none;
+  padding: 0;
 `;
 
-const CategoryItem = styled.label`
+const CategoryItem = styled.li`
+  ${CategoryGrid} > & {
+    position: relative;
+    overflow: hidden;
+
+    .category-item-radio {
+      position: absolute;
+      top: 0;
+      left: -2000px;
+      visibility: hidden;
+    }
+  }
+`;
+
+const CategoryItemLabel = styled.label`
+  width: 100%;
+  height: 100%;
   padding: 1rem;
   border: solid 1px var(--ma-gray-100);
   border-radius: 0.25rem;
+
+  .category-name {
+    font-weight: 600;
+  }
+
+  &.not-available {
+    background-color: var(--ma-gray-80);
+
+    .category-name {
+      color: var(--ma-gray-400);
+    }
+  }
+
+  .category-item-radio:checked + & {
+    border-color: var(--ma-blue-primary-50);
+    background-color: var(--ma-blue-primary-50);
+
+    .category-name {
+      color: var(--ma-blue);
+    }
+  }
+`;
+
+const QuotaLabel = styled.span`
+  margin: 0;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 2rem;
+  background-color: #aeddc2;
+`;
+
+const QuotaLabelMuted = styled.span`
+  margin: 0;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 2rem;
+  background-color: var(--ma-gray-50);
+  color: var(--ma-gray-400);
 `;
 
 function makeTeamCategoriesFilters(data) {
