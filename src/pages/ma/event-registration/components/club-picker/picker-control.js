@@ -147,6 +147,7 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
                 </ClubActionButtonsGroup>
               </ClubItem>
             ))}
+          <ClubItemSkeleton />
         </ListViewBody>
       </StyledBSModalBody>
     </StyledBSModal>
@@ -282,6 +283,98 @@ const ButtonAsMemberStatus = styled(Button)`
 `;
 
 const ListViewBody = styled.div``;
+
+function ClubItemSkeleton() {
+  return (
+    <StyledClubItemSkeleton>
+      <ClubItemBodySkeleton>
+        <MediaLogoSkeleton />
+
+        <MediaContent>
+          <ClubNameSkeleton>nama klub</ClubNameSkeleton>
+          <div className="club-info">
+            <AddressSkeleton>alamat</AddressSkeleton>
+            <MemberCountsSkeleton>Jumlah anggota terdaftar</MemberCountsSkeleton>
+          </div>
+        </MediaContent>
+      </ClubItemBodySkeleton>
+
+      <ClubActionButtonsGroup>
+        <ButtonSkeleton>button</ButtonSkeleton>
+        <ButtonSkeleton>button</ButtonSkeleton>
+      </ClubActionButtonsGroup>
+    </StyledClubItemSkeleton>
+  );
+}
+
+const StyledClubItemSkeleton = styled.div`
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 1rem;
+  animation: glowing 1.5s infinite;
+
+  @keyframes glowing {
+    from {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+`;
+
+const ClubItemBodySkeleton = styled.div`
+  margin: 0;
+  display: flex;
+  gap: 1.5rem;
+
+  ${StyledClubItemSkeleton} > & {
+    flex: 3 1 0%;
+  }
+`;
+
+const MediaLogoSkeleton = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--ma-gray-200);
+  color: var(--ma-gray-200);
+`;
+
+const ClubNameSkeleton = styled.h4`
+  width: 300px;
+  color: var(--ma-gray-200);
+  background-color: var(--ma-gray-200);
+`;
+
+const AddressSkeleton = styled.div`
+  width: 300px;
+  color: var(--ma-gray-200);
+  background-color: var(--ma-gray-200);
+`;
+
+const MemberCountsSkeleton = styled.span`
+  width: 300px;
+  background-color: var(--ma-gray-200);
+  color: var(--ma-gray-200);
+`;
+
+const ButtonSkeleton = styled.div`
+  width: 120px;
+  padding: 0.47rem 0.75rem;
+  border: solid 1px var(--ma-gray-200);
+  border-radius: 4px;
+  background-color: var(--ma-gray-200);
+  color: var(--ma-gray-200);
+`;
 
 const ClubItem = styled.div`
   position: relative;
