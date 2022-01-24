@@ -52,7 +52,7 @@ const ProfileMenu = (props) => {
       <List className="d-none d-lg-flex my-auto">
         <ListInlineItem className="d-flex justify-content-center align-items-center">
           <Link to="/dashboard">
-            <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
+            <img className="rounded-circle header-profile-user" src={userProfile?.avatar || user1} alt="Header Avatar" />
             <span style={{ color: "#000" }} className="d-none d-lg-inline-block ms-2 me-1">
               {username}
             </span>
@@ -70,7 +70,7 @@ const ProfileMenu = (props) => {
       {/* Menu ketika layar medium ke bawah */}
       <Dropdown isOpen={menu} toggle={() => setMenu(!menu)} className="d-inline-block d-lg-none">
         <DropdownToggle className="btn header-item " id="page-header-user-dropdown" tag="button">
-          <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
+          <img className="rounded-circle header-profile-user" src={userProfile?.avatar || user1} alt="Header Avatar" />
           <span className="d-none d-xl-inline-block ms-2 me-1">{username}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>
