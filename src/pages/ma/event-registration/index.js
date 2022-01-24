@@ -20,6 +20,7 @@ import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
 import IconMail from "components/ma/icons/mono/mail";
+import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
@@ -64,6 +65,7 @@ function PageEventRegistration() {
     eventDetailData?.publicInformation.eventName || ""
   }`;
   const isLoadingSubmit = submitStatus.status === "loading";
+  const isErrorSubmit = submitStatus.status === "error";
   const participantCounts = 1;
 
   const handleClickNext = () => {
@@ -391,7 +393,14 @@ function PageEventRegistration() {
                   {currentStep === 1 ? (
                     <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
                   ) : (
-                    <ButtonConfirmPayment onConfirm={() => handleSubmitOrder()} />
+                    <React.Fragment>
+                      <ButtonConfirmPayment onConfirm={() => handleSubmitOrder()} />
+                      <AlertSubmitError
+                        isError={isErrorSubmit}
+                        errors={submitStatus.errors}
+                        onConfirm={() => dispatchSubmitStatus({ status: "idle" })}
+                      />
+                    </React.Fragment>
                   )}
                 </div>
               </TicketCard>
@@ -644,6 +653,66 @@ function ButtonConfirmPayment({ onConfirm }) {
         }
       >
         <p>Apakah data pemesanan Anda sudah benar?</p>
+      </SweetAlert>
+    </React.Fragment>
+  );
+}
+
+function AlertSubmitError({ isError, errors, onConfirm }) {
+  const [isAlertOpen, setAlertOpen] = React.useState(false);
+
+  const renderErrorMessages = () => {
+    if (errors) {
+      const fields = Object.keys(errors);
+      const messages = fields.map((field) => {
+        return `${errors[field].map((message) => `- ${message}\n`).join("")}`;
+      });
+      if (messages.length) {
+        return `${messages.join("")}`;
+      }
+    }
+    return "Error tidak diketahui.";
+  };
+
+  const handleConfirm = () => {
+    setAlertOpen(false);
+    onConfirm?.();
+  };
+
+  React.useEffect(() => {
+    if (!isError) {
+      return;
+    }
+    setAlertOpen(true);
+  }, [isError]);
+
+  return (
+    <React.Fragment>
+      <SweetAlert
+        show={isAlertOpen}
+        title=""
+        custom
+        btnSize="md"
+        style={{ padding: "30px 40px", width: "720px" }}
+        onConfirm={handleConfirm}
+        customButtons={
+          <span className="d-flex flex-column w-100">
+            <ButtonBlue onClick={handleConfirm}>Tutup</ButtonBlue>
+          </span>
+        }
+      >
+        <h4>
+          <IconAlertTriangle />
+        </h4>
+        <div className="text-start">
+          <p>
+            Terdapat error teknis dalam memproses data klub Anda. Silakan berikan pesan error
+            berikut kepada technical support:
+          </p>
+          <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
+            {renderErrorMessages()}
+          </pre>
+        </div>
       </SweetAlert>
     </React.Fragment>
   );
