@@ -1,11 +1,26 @@
 import * as React from "react";
+import { useParams, useLocation, useHistory } from "react-router-dom";
 import styled from "styled-components";
+import queryString from "query-string";
+import { useSelector } from "react-redux";
+import * as AuthStore from "store/slice/authentication";
 import { useWizardView } from "hooks/wizard-view";
+import { CategoryService, OrderEventService } from "services";
 
 import MetaTags from "react-meta-tags";
-import { Container as BSContainer, Modal, ModalBody } from "reactstrap";
-import { WizardView, WizardViewContent, ButtonBlue } from "components/ma";
+import { Container as BSContainer, Table as BSTable } from "reactstrap";
+import CurrencyFormat from "react-currency-format";
+import SweetAlert from "react-bootstrap-sweetalert";
+import { LoadingScreen } from "components";
+import { WizardView, WizardViewContent, Button, ButtonBlue, AvatarDefault } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
+import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
+
+import IconAddress from "components/ma/icons/mono/address";
+import IconGender from "components/ma/icons/mono/gender";
+import IconAge from "components/ma/icons/mono/age";
+import IconMail from "components/ma/icons/mono/mail";
+import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
 
@@ -15,9 +30,122 @@ const tabList = [
 ];
 
 function PageEventRegistration() {
-  const { currentStep, goToNextStep, goToStep } = useWizardView(tabList);
+  const { slug } = useParams();
+  const { search } = useLocation();
+  const { categoryId } = queryString.parse(search);
+  const history = useHistory();
 
-  const breadcrumpCurrentPageLabel = "Pendaftaran {eventName}";
+  const { currentStep, goToNextStep, goToStep } = useWizardView(tabList);
+  const [eventDetail, updateEventDetail] = React.useReducer(eventDetailReducer, {
+    status: "idle",
+    data: null,
+    errors: null,
+  });
+  const [eventCategories, updateEventCategories] = React.useReducer(eventCategoriesReducer, {
+    status: "idle",
+    data: null,
+    errors: null,
+  });
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const [formData, updateFormData] = React.useReducer(formReducer, {
+    data: { category: null, club: null },
+    errors: {},
+  });
+  const [submitStatus, dispatchSubmitStatus] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    { status: "idle", errors: null }
+  );
+
+  const { category, club } = formData.data;
+  const eventDetailData = eventDetail?.data;
+  const isLoadingEventDetail = eventDetail.status === "loading";
+  const eventId = eventDetailData?.id;
+  const breadcrumpCurrentPageLabel = `Pendaftaran ${
+    eventDetailData?.publicInformation.eventName || ""
+  }`;
+  const isLoadingSubmit = submitStatus.status === "loading";
+  const participantCounts = 1;
+
+  const handleClickNext = () => {
+    let validationErrors = {};
+    if (!category?.id) {
+      validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
+    }
+    if (!club?.detail.id) {
+      validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
+    }
+    updateFormData({ errors: validationErrors });
+
+    const isValid = !Object.keys(validationErrors)?.length;
+    if (isValid) {
+      goToNextStep();
+    }
+  };
+
+  const handleSubmitOrder = async () => {
+    dispatchSubmitStatus({ status: "loading", errors: null });
+    // payload kategory individual
+    const payload = {
+      event_category_id: category.id,
+      club_id: club.detail.id,
+    };
+    const result = await OrderEventService.register(payload);
+    if (result.success) {
+      dispatchSubmitStatus({ status: "success" });
+      history.push(`/dashboard/transactions/${result.data.id}`);
+    } else {
+      dispatchSubmitStatus({ status: "error", errors: result.errors });
+    }
+  };
+
+  React.useEffect(() => {
+    const getEventDetail = async () => {
+      updateEventDetail({ status: "loading", errors: null });
+      const result = await CategoryService.getDetailEvent({ slug });
+      if (result.success) {
+        updateEventDetail({ status: "success", data: result.data });
+      } else {
+        updateEventDetail({ status: "error", errors: result.errors });
+      }
+    };
+
+    getEventDetail();
+  }, []);
+
+  React.useEffect(() => {
+    if (!eventId) {
+      return;
+    }
+    const getCategories = async () => {
+      updateEventCategories({ status: "loading", errors: null });
+      const result = await CategoryService.getCategory({ event_id: eventId });
+      if (result.success) {
+        updateEventCategories({ status: "success", data: result.data });
+      } else {
+        updateEventCategories({ status: "error", errors: result.errors });
+      }
+    };
+    getCategories();
+  }, [eventId]);
+
+  React.useEffect(() => {
+    if (!eventCategories.data) {
+      return;
+    }
+
+    let category;
+    for (const group in eventCategories.data) {
+      const targetCategory = eventCategories.data[group].find(
+        (category) => parseInt(category.id) === parseInt(categoryId)
+      );
+      if (targetCategory) {
+        category = targetCategory;
+        break;
+      }
+    }
+
+    category && updateFormData({ type: "FIELD", payload: { category } });
+  }, [eventCategories]);
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -26,11 +154,13 @@ function PageEventRegistration() {
   return (
     <StyledPageWrapper>
       <MetaTags>
-        <title>Pendaftaran Event {"{eventName}"} | MyArchery.id</title>
+        <title>
+          Pendaftaran {eventDetailData?.publicInformation.eventName || ""} | MyArchery.id
+        </title>
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
+        <BreadcrumbDashboard to="#">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
 
         <StepIndicator>
           <Step
@@ -51,174 +181,227 @@ function PageEventRegistration() {
             <WizardView currentStep={currentStep}>
               <WizardViewContent noContainer>
                 <ContentCard>
-                  <div className="d-flex">
-                    <div>
-                      <span>{"{icon}"}</span>
-                    </div>
-                    <h4>Detail Pendaftaran</h4>
-                  </div>
+                  <MainCardHeader>
+                    <WrappedIcon>
+                      <IconAddress />
+                    </WrappedIcon>
+                    <MainCardHeaderText>Detail Pendaftaran</MainCardHeaderText>
+                  </MainCardHeader>
 
-                  <div className="d-flex flex-column">
-                    <label>Kategori Lomba</label>
-                    <EventCategoryPicker
-                    />
-                  </div>
+                  <FieldSelectCategory
+                    groupedOptions={eventCategories?.data}
+                    value={category}
+                    onChange={(category) =>
+                      updateFormData({ type: "FIELD", payload: { category } })
+                    }
+                  >
+                    Kategori Lomba
+                  </FieldSelectCategory>
 
-                  <div className="d-flex flex-column">
-                    <label>Nama Pendaftar</label>
-                    <input disabled />
-                  </div>
+                  <FieldInputText
+                    placeholder="Nama Pendaftar"
+                    disabled
+                    value={userProfile.name}
+                    onChange={() => {}}
+                  >
+                    Nama Pendaftar
+                  </FieldInputText>
 
-                  <div className="d-flex justify-content-between">
-                    <div className="d-flex flex-column">
-                      <label>Email</label>
-                      <input disabled />
-                    </div>
+                  <SplitFields>
+                    <FieldInputText
+                      placeholder="Email"
+                      disabled
+                      value={userProfile.email}
+                      onChange={() => {}}
+                    >
+                      Email
+                    </FieldInputText>
 
-                    <div className="d-flex flex-column">
-                      <label>No. Telepon</label>
-                      <input disabled />
-                    </div>
-                  </div>
+                    <FieldInputText
+                      placeholder="No. Telepon"
+                      disabled
+                      value={userProfile.phoneNumber}
+                      onChange={() => {}}
+                    >
+                      No. Telepon
+                    </FieldInputText>
+                  </SplitFields>
 
-                  <div>
+                  <div className="mt-5 mb-0">
                     <h5>Data Peserta</h5>
-                    <p>Masukkan email peserta yang telah terdaftar</p>
                   </div>
 
-                  <div className="d-flex flex-column">
-                    <label>Nama Klub</label>
-                    <ClubPicker />
-                    <span>Dapat dikosongkan jika tidak mewakili klub</span>
-                  </div>
-
-                  <div className="d-flex justify-content-between align-items-end">
-                    <div className="d-flex flex-column">
-                      <label>Peserta</label>
-                      <input />
-                    </div>
-
-                    <div>
-                      <label>Sama dengan pendaftar</label>
-                      <span>{"<SwitchToggle />"}</span>
-                    </div>
-                  </div>
+                  <FieldSelectClub
+                    value={club}
+                    onChange={(club) => updateFormData({ type: "FIELD", payload: { club } })}
+                  >
+                    Nama Klub
+                  </FieldSelectClub>
                 </ContentCard>
               </WizardViewContent>
 
               <WizardViewContent noContainer>
                 <ContentCard>
-                  <div className="d-flex">
-                    <div>
-                      <span>{"{icon}"}</span>
-                    </div>
-                    <h4>Detail Pendaftar</h4>
-                  </div>
+                  <MainCardHeader>
+                    <WrappedIcon>
+                      <IconAddress />
+                    </WrappedIcon>
+                    <MainCardHeaderText>Detail Pendaftar</MainCardHeaderText>
+                  </MainCardHeader>
+
+                  <BSTable responsive className="mt-3">
+                    <tbody>
+                      <tr>
+                        <td>Nama Pendaftar</td>
+                        <td width="16">:</td>
+                        <td>
+                          <div>{userProfile.name}</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Email</td>
+                        <td width="16">:</td>
+                        <td>
+                          <div>{userProfile.email}</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>No. Telepon</td>
+                        <td width="16">:</td>
+                        <td>{userProfile.phoneNumber || <span>&ndash;</span>}</td>
+                      </tr>
+                    </tbody>
+                  </BSTable>
                 </ContentCard>
 
                 <ContentCard>
                   <ClubDetailLabel>Nama Klub</ClubDetailLabel>
-                  <ClubDetailValue>{"{clubName}"}</ClubDetailValue>
+                  <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
                 </ContentCard>
 
                 <ParticipantCard>
                   <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
 
-                  <EventMediaObject>
-                    <div>
-                      <span>{"{src=avatar}"}</span>
-                    </div>
+                  <ParticipantMediaObject>
+                    <MediaParticipantAvatar>
+                      <ParticipantAvatar>
+                        <AvatarDefault fullname={userProfile.name} />
+                      </ParticipantAvatar>
+                    </MediaParticipantAvatar>
 
-                    <div>
-                      <h5>{"{name}"}</h5>
-                      <p>{"{email}"}</p>
-                      <div className="d-flex">
-                        <p>{"{gender}"}</p>
-                        <p>{"{age}"}</p>
-                      </div>
-                    </div>
-                  </EventMediaObject>
-                </ParticipantCard>
+                    <MediaParticipantContent>
+                      <ParticipantName>
+                        <span>{userProfile.name}</span>
+                        <span>
+                          <IconBadgeVerified />
+                        </span>
+                      </ParticipantName>
 
-                <ParticipantCard>
-                  <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
+                      <LabelWithIcon icon={<IconMail size="20" />}>
+                        {userProfile.email}
+                      </LabelWithIcon>
 
-                  <EventMediaObject>
-                    <div>
-                      <span>{"{src=avatar}"}</span>
-                    </div>
+                      <RowedLabel>
+                        <LabelWithIcon icon={<IconGender size="20" />}>
+                          {(userProfile.gender === "male" && "Laki-laki") ||
+                            (userProfile.gender === "female" && "Perempuan")}
+                        </LabelWithIcon>
 
-                    <div>
-                      <h5>{"{name}"}</h5>
-                      <p>{"{email}"}</p>
-                      <div className="d-flex">
-                        <p>{"{gender}"}</p>
-                        <p>{"{age}"}</p>
-                      </div>
-                    </div>
-                  </EventMediaObject>
+                        <LabelWithIcon icon={<IconAge size="20" />}>
+                          {userProfile.age} Tahun
+                        </LabelWithIcon>
+                      </RowedLabel>
+                    </MediaParticipantContent>
+                  </ParticipantMediaObject>
                 </ParticipantCard>
               </WizardViewContent>
             </WizardView>
           </div>
 
           <div>
-            <TicketCard>
-              <h4>Tiket Lomba</h4>
+            {isLoadingEventDetail ? (
+              <TicketCard>Sedang memuat data event...</TicketCard>
+            ) : eventDetailData ? (
+              <TicketCard>
+                <h4 className="mb-3">Tiket Lomba</h4>
 
-              <EventMediaObject>
-                <div>
-                  <span>{"{src=eventBanner}"}</span>
+                <EventMediaObject>
+                  <div>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        overflow: "hidden",
+                        width: 60,
+                        height: 60,
+                        borderRadius: 4,
+                      }}
+                    >
+                      <img
+                        src={eventDetailData?.publicInformation.eventBanner}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </span>
+                  </div>
+
+                  <EventMediaObjectContent>
+                    <h5>{eventDetailData?.publicInformation.eventName}</h5>
+                    <p className="mb-0">{eventDetailData?.publicInformation.eventLocation}</p>
+                  </EventMediaObjectContent>
+                </EventMediaObject>
+
+                <TicketDivider />
+
+                <TicketSectionDetail>
+                  <div>
+                    <DetailLabel>Jenis Regu</DetailLabel>
+                    <DetailValue>
+                      {category?.teamCategoryDetail?.label || category?.teamCategoryId || (
+                        <React.Fragment>&ndash;</React.Fragment>
+                      )}
+                    </DetailValue>
+                  </div>
+
+                  <div>
+                    <DetailLabel>Kategori</DetailLabel>
+                    <DetailValue>
+                      {category?.categoryLabel || <React.Fragment>&ndash;</React.Fragment>}
+                    </DetailValue>
+                  </div>
+
+                  <div>
+                    <DetailLabel>Jumlah Peserta</DetailLabel>
+                    <DetailValue>{participantCounts} Orang</DetailValue>
+                  </div>
+                </TicketSectionDetail>
+
+                <div className="d-flex flex-column justify-content-between">
+                  <TicketSectionTotal>
+                    <LabelTotal>Total Pembayaran</LabelTotal>
+                    <TotalWithCurrency
+                      displayType={"text"}
+                      value={category ? Number(category?.fee) : 0}
+                      prefix="Rp"
+                      thousandSeparator={"."}
+                      decimalSeparator={","}
+                      decimalScale={2}
+                      fixedDecimalScale
+                    />
+                  </TicketSectionTotal>
+
+                  {currentStep === 1 ? (
+                    <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
+                  ) : (
+                    <ButtonConfirmPayment onConfirm={() => handleSubmitOrder()} />
+                  )}
                 </div>
-
-                <div>
-                  <h5>{"{eventName}"}</h5>
-                  <p>{"{eventLocation}"}</p>
-                </div>
-              </EventMediaObject>
-
-              <TicketDivider />
-
-              <TicketSectionDetail>
-                <div>
-                  <DetailLabel>Jenis Regu</DetailLabel>
-                  <DetailValue>{"{teamCategory}"}</DetailValue>
-                </div>
-
-                <div>
-                  <DetailLabel>Kategori</DetailLabel>
-                  <DetailValue>{"{categoryName}"}</DetailValue>
-                </div>
-
-                <div>
-                  <DetailLabel>Jumlah Peserta</DetailLabel>
-                  <DetailValue>{"{participantCounts}"}</DetailValue>
-                </div>
-              </TicketSectionDetail>
-
-              <div className="d-flex flex-column justify-content-between">
-                <TicketSectionTotal>
-                  <LabelTotal>Total Pembayaran</LabelTotal>
-                  <TotalAmount>Rp{"{fee}"}</TotalAmount>
-                </TicketSectionTotal>
-
-                {currentStep === 1 ? (
-                  <ButtonBlue onClick={() => goToNextStep()}>Selanjutnya</ButtonBlue>
-                ) : (
-                  <ButtonBlue
-                    onClick={() => {
-                      alert("Apakah data pemesanan Anda sudah benar?");
-                      // TODO: alert konfirmasi
-                    }}
-                  >
-                    Lanjutkan Pembayaran
-                  </ButtonBlue>
-                )}
-              </div>
-            </TicketCard>
+              </TicketCard>
+            ) : (
+              <TicketCard>Ada kesalahan dalam memuat data.</TicketCard>
+            )}
           </div>
         </SplitDisplay>
       </Container>
+      <LoadingScreen loading={isLoadingSubmit} />
     </StyledPageWrapper>
   );
 }
@@ -280,6 +463,31 @@ const ContentCard = styled.div`
   background-color: #ffffff;
 `;
 
+const MainCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+`;
+
+const MainCardHeaderText = styled.h4`
+  margin: 0;
+`;
+
+const WrappedIcon = styled.div`
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: solid 1px #c4c4c4;
+`;
+
+const SplitFields = styled.div`
+  display: flex;
+  gap: 1.375rem;
+`;
+
 const ParticipantCard = styled.div`
   margin-bottom: 1rem;
   padding: 0.5rem;
@@ -295,17 +503,77 @@ const ParticipantHeadingLabel = styled.div`
   font-weight: 600;
 `;
 
+const ParticipantMediaObject = styled.div`
+  margin: 1.25rem 0;
+  display: flex;
+  gap: 1.5rem;
+`;
+
+const MediaParticipantAvatar = styled.div`
+  flex-grow: 0;
+`;
+
+const ParticipantAvatar = styled.div`
+  overflow: hidden;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+`;
+
+const MediaParticipantContent = styled.div`
+  margin: auto 0;
+`;
+
+const ParticipantName = styled.h5`
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+`;
+
+const RowedLabel = styled.div`
+  display: flex;
+  gap: 1.5rem;
+`;
+
+function LabelWithIcon({ icon, children }) {
+  return (
+    <StyledLabelWithIcon>
+      {icon && <span className="label-icon">{icon}</span>}
+      <span>{children}</span>
+    </StyledLabelWithIcon>
+  );
+}
+
+const StyledLabelWithIcon = styled.p`
+  margin: 0;
+  margin-bottom: 0.5rem;
+  color: var(--ma-gray-500);
+
+  .label-icon {
+    margin-right: 0.5rem;
+  }
+`;
+
 const ClubDetailLabel = styled.h6`
   font-size: 12px;
   font-weight: 400;
 `;
 
 const ClubDetailValue = styled.p`
+  margin: 0;
+  font-size: 15px;
   font-weight: 600;
 `;
 
 const EventMediaObject = styled.div`
   display: flex;
+  gap: 1rem;
+`;
+
+const EventMediaObjectContent = styled.div`
+  flex: 1 1 0%;
+  margin: auto;
 `;
 
 const TicketCard = styled(ContentCard)`
@@ -327,6 +595,7 @@ const DetailLabel = styled.h6`
 const DetailValue = styled.p`
   font-size: 15px;
   font-weight: 600;
+  text-transform: capitalize;
 `;
 
 const TicketSectionTotal = styled.div`
@@ -341,98 +610,70 @@ const LabelTotal = styled.span`
   font-size: 15px;
 `;
 
-const TotalAmount = styled.span`
+const TotalWithCurrency = styled(CurrencyFormat)`
   color: var(--ma-blue);
   font-size: 18px;
   font-weight: 600;
 `;
 
-function EventCategoryPicker() {
-  const [isModalOpen, setModalOpen] = React.useState(false);
+function ButtonConfirmPayment({ onConfirm }) {
+  const [isAlertOpen, setAlertOpen] = React.useState(false);
+
+  const handleConfirmSubmit = () => {
+    setAlertOpen(false);
+    onConfirm?.();
+  };
 
   return (
-    <div>
-      <button onClick={() => setModalOpen(true)}>open modal &rarr;</button>
-      <Modal
-        size="lg"
-        isOpen={isModalOpen}
-        toggle={() => setModalOpen((open) => !open)}
-        onClosed={() => setModalOpen(false)}
+    <React.Fragment>
+      <ButtonBlue onClick={() => setAlertOpen(true)}>Lanjutkan Pembayaran</ButtonBlue>
+      <SweetAlert
+        show={isAlertOpen}
+        title=""
+        custom
+        btnSize="md"
+        onConfirm={handleConfirmSubmit}
+        style={{ padding: "1.25rem" }}
+        customButtons={
+          <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
+            <Button onClick={() => setAlertOpen(false)} style={{ color: "var(--ma-blue)" }}>
+              Cek Kembali
+            </Button>
+            <ButtonBlue onClick={handleConfirmSubmit}>Sudah Benar</ButtonBlue>
+          </span>
+        }
       >
-        <ModalBody>
-          <div>
-            <h5>Kategori Lomba</h5>
-            <p>Silakan pilih salah satu kategori</p>
-          </div>
-
-          <TeamFilterList>
-            <li>
-              <TeamFilterBadge>Individu Putra</TeamFilterBadge>
-            </li>
-          </TeamFilterList>
-
-          <CategoryGrid>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((categoryId) => (
-              <li key={categoryId}>
-                <CategoryItem>
-                  <input type="radio" name="categoryId" defaultValue={categoryId} />
-                  Umum - Barebow - 50m
-                </CategoryItem>
-              </li>
-            ))}
-          </CategoryGrid>
-
-          <div className="float-end">
-            <ButtonBlue onClick={() => setModalOpen(false)}>Tutup</ButtonBlue>
-          </div>
-        </ModalBody>
-      </Modal>
-    </div>
+        <p>Apakah data pemesanan Anda sudah benar?</p>
+      </SweetAlert>
+    </React.Fragment>
   );
 }
 
-const TeamFilterList = styled.ul`
-  display: flex;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-`;
+function eventDetailReducer(state, action) {
+  if (action) {
+    return { ...state, ...action };
+  }
+  return state;
+}
 
-const TeamFilterBadge = styled.span`
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  border: solid 1px var(--ma-blue);
-  color: var(--ma-blue);
-`;
+function eventCategoriesReducer(state, action) {
+  if (action) {
+    return { ...state, ...action };
+  }
+  return state;
+}
 
-const CategoryGrid = styled.ul`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
-`;
-
-const CategoryItem = styled.label`
-  padding: 1rem;
-  border: solid 1px var(--ma-gray-100);
-  border-radius: 0.25rem;
-`;
-
-function ClubPicker() {
-  const [isModalOpen, setModalOpen] = React.useState(false);
-  return (
-    <div>
-      <button onClick={() => setModalOpen(true)}>open modal &rarr;</button>
-      <Modal
-        size="lg"
-        isOpen={isModalOpen}
-        toggle={() => setModalOpen((open) => !open)}
-        onClosed={() => setModalOpen(false)}
-      >
-        <ModalBody>Club Picker</ModalBody>
-      </Modal>
-    </div>
-  );
+function formReducer(state, action) {
+  if (action.type === "FIELD") {
+    return {
+      ...state,
+      data: { ...state.data, ...action.payload },
+    };
+  }
+  if (action) {
+    return { ...state, ...action };
+  }
+  return state;
 }
 
 export default PageEventRegistration;
