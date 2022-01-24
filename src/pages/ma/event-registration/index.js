@@ -36,7 +36,7 @@ function PageEventRegistration() {
   const { categoryId } = queryString.parse(search);
   const history = useHistory();
 
-  const { currentStep, goToNextStep, goToStep } = useWizardView(tabList);
+  const { currentStep, goToNextStep, goToPreviousStep, goToStep } = useWizardView(tabList);
   const [eventDetail, updateEventDetail] = React.useReducer(eventDetailReducer, {
     status: "idle",
     data: null,
@@ -394,7 +394,10 @@ function PageEventRegistration() {
                     <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
                   ) : (
                     <React.Fragment>
-                      <ButtonConfirmPayment onConfirm={() => handleSubmitOrder()} />
+                      <ButtonConfirmPayment
+                        onConfirm={() => handleSubmitOrder()}
+                        onCancel={() => goToPreviousStep()}
+                      />
                       <AlertSubmitError
                         isError={isErrorSubmit}
                         errors={submitStatus.errors}
@@ -625,12 +628,17 @@ const TotalWithCurrency = styled(CurrencyFormat)`
   font-weight: 600;
 `;
 
-function ButtonConfirmPayment({ onConfirm }) {
+function ButtonConfirmPayment({ onConfirm, onCancel }) {
   const [isAlertOpen, setAlertOpen] = React.useState(false);
 
   const handleConfirmSubmit = () => {
     setAlertOpen(false);
     onConfirm?.();
+  };
+
+  const handleCancelSubmit = () => {
+    setAlertOpen(false);
+    onCancel?.();
   };
 
   return (
@@ -645,7 +653,7 @@ function ButtonConfirmPayment({ onConfirm }) {
         style={{ padding: "1.25rem" }}
         customButtons={
           <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
-            <Button onClick={() => setAlertOpen(false)} style={{ color: "var(--ma-blue)" }}>
+            <Button onClick={handleCancelSubmit} style={{ color: "var(--ma-blue)" }}>
               Cek Kembali
             </Button>
             <ButtonBlue onClick={handleConfirmSubmit}>Sudah Benar</ButtonBlue>
