@@ -4,13 +4,17 @@ import MetaTags from "react-meta-tags";
 import { AvField, AvForm } from "availity-reactstrap-validation";
 import login_background from "assets/images/myachery/login-background.svg";
 import { Container, Row, Col } from "reactstrap";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Countdown from "react-countdown";
+import { ArcherService } from "services";
 
 import "./components/sass/styles.scss";
 
 function Verification() {
-  let countTime = 60000;
+  let countTime = 600000;
+
+  const { email } = useParams();
+  console.log(email);
 
   const [active, setActive] = useState(false);
   // const [btnDisable, setBtnDisable] = useState(false)
@@ -35,8 +39,25 @@ function Verification() {
   console.log(Object.keys(digit).length);
 
   const handleValidSubmit = async (event, values) => {
-    console.log(event);
     console.log(values);
+    let number = [
+      values?.digitSatu,
+      values?.digitDua,
+      values?.digitTiga,
+      values?.digitEmpat,
+      values?.digitLima,
+    ].join("");
+    console.log(parseInt(number));
+    const { data, message, errors } = await ArcherService.verificationPassword({
+      email: email,
+      code: number,
+    });
+    if (data) {
+      console.log(message);
+      console.log(errors);
+    }
+    console.log(message);
+    console.log(errors);
   };
 
   const getCountDown = () => {
@@ -86,7 +107,7 @@ function Verification() {
                   <div className="mb-3 mt-3 d-flex justify-content-around">
                     <div className="me-3">
                       <AvField
-                        name="digit-satu"
+                        name="digitSatu"
                         onChange={(e) => handlerSetDigit(e)}
                         className="form-control btn-box-border font-size-24"
                         type="text"
@@ -96,7 +117,7 @@ function Verification() {
                     </div>
                     <div className="me-3">
                       <AvField
-                        name="digit-dua"
+                        name="digitDua"
                         onChange={(e) => handlerSetDigit(e)}
                         className="form-control btn-box-border font-size-24"
                         type="text"
@@ -106,7 +127,7 @@ function Verification() {
                     </div>
                     <div className="me-3">
                       <AvField
-                        name="digit-tiga"
+                        name="digitTiga"
                         onChange={(e) => handlerSetDigit(e)}
                         className="form-control btn-box-border font-size-24"
                         type="text"
@@ -116,7 +137,7 @@ function Verification() {
                     </div>
                     <div className="me-3">
                       <AvField
-                        name="digit-empat"
+                        name="digitEmpat"
                         onChange={(e) => handlerSetDigit(e)}
                         className="form-control btn-box-border font-size-24"
                         type="text"
@@ -126,7 +147,7 @@ function Verification() {
                     </div>
                     <div>
                       <AvField
-                        name="digit-lima"
+                        name="digitLima"
                         onChange={(e) => handlerSetDigit(e)}
                         className="form-control btn-box-border font-size-24"
                         type="text"

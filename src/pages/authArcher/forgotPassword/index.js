@@ -1,16 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import MetaTags from "react-meta-tags";
 import { AvField, AvForm } from "availity-reactstrap-validation";
 import login_background from "assets/images/myachery/login-background.svg";
 import { Container, Row, Col } from "reactstrap";
 import { Link } from "react-router-dom";
+import { ArcherService } from "services";
+import SweetAlert from "react-bootstrap-sweetalert";
+import { useHistory } from "react-router-dom";
 
 import "./components/sass/styles.scss";
 
 function ForgotPassword() {
+  const [confirm, setConfirm] = useState(false);
+  const [faild, setFaild] = useState(false);
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const { push } = useHistory();
+
+  const handleGoVerification = () => push(`/archer/verification/${email}`);
+  const onFaildClikOk = () => setFaild(false);
+
   const handleValidSubmit = async (event, values) => {
-    console.log(event);
-    console.log(values);
+    setEmail(values.email);
+    const { data, message, errors } = await ArcherService.forgotPassword(values);
+    if (data) {
+      setMessage(message);
+      console.log(errors);
+      setConfirm(true);
+    }
+    setMessage(message);
+    setFaild(true);
   };
   return (
     <React.Fragment>
@@ -81,6 +101,40 @@ function ForgotPassword() {
           </Row>
         </div>
       </Container>
+
+      <SweetAlert
+        title=""
+        show={confirm}
+        custom
+        btnSize="md"
+        reverseButtons={true}
+        confirmBtnText="Ya"
+        confirmBtnBsStyle="outline-primary"
+        cancelBtnBsStyle="primary"
+        onConfirm={handleGoVerification}
+        style={{ padding: "30px 40px" }}
+      >
+        <p className="text-muted">
+          Kode berhasil dikirim ke alamat email anda.
+          <br />
+          <small>Check spam jika tidak ada</small>
+        </p>
+      </SweetAlert>
+
+      <SweetAlert
+        title=""
+        show={faild}
+        custom
+        btnSize="md"
+        reverseButtons={true}
+        confirmBtnText="Ya"
+        confirmBtnBsStyle="outline-primary"
+        cancelBtnBsStyle="primary"
+        onConfirm={onFaildClikOk}
+        style={{ padding: "30px 40px" }}
+      >
+        <p className="text-muted">{message}</p>
+      </SweetAlert>
     </React.Fragment>
   );
 }
