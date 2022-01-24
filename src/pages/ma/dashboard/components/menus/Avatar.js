@@ -25,13 +25,13 @@ const AvatarWrapper = styled.div`
   }
 `;
 
-function Avatar({ size = "96px" }) {
+function Avatar({ size = "96px", imageSrc }) {
   // TODO: kondisional render foto user atau fallback ke icon avatar
   // ...
   return (
     <AvatarWrapper style={{ "--thumbnail-radius": size }}>
       <div className="avatar-empty-container">
-        <img className="avatar-empty-icon" src={user} />
+        <img className="avatar-empty-icon" src={imageSrc || user} />
       </div>
     </AvatarWrapper>
   );

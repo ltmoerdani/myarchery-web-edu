@@ -97,7 +97,7 @@ function UserProfileCard({to}) {
     <CardMenuProfileContainer>
       <div className="profile-body">
         <div className="profile-avatar">
-          <Avatar imageSrc="" />
+          <Avatar imageSrc={userProfile?.avatar} />
         </div>
 
         <div className="profile-detail">
