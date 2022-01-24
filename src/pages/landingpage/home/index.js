@@ -149,7 +149,7 @@ function Home() {
                                         <div className='line-clamp mb-2' dangerouslySetInnerHTML={{__html: dataEvent[numberEventOne]?.description}}></div>
                                             {/* <p >{dataEvent[0]?.description}</p> */}
                                         </div>
-                                        <a href={dataEvent[numberEventOne]?.eventSlug}>
+                                        <a href={dataEvent[numberEventOne]?.eventUrl}>
                                             <Button color='primary' outline>Lihat Detail</Button>
                                         </a>
                                     </div>
