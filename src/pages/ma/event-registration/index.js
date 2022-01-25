@@ -191,6 +191,7 @@ function PageEventRegistration() {
                   </MainCardHeader>
 
                   <FieldSelectCategory
+                    required
                     groupedOptions={eventCategories?.data}
                     value={category}
                     onChange={(category) =>
@@ -234,11 +235,21 @@ function PageEventRegistration() {
                   </div>
 
                   <FieldSelectClub
+                    required
                     value={club}
                     onChange={(club) => updateFormData({ type: "FIELD", payload: { club } })}
                   >
                     Nama Klub
                   </FieldSelectClub>
+
+                  <FieldInputText
+                    placeholder="Nama Pendaftar"
+                    disabled
+                    value={userProfile.email}
+                    onChange={() => {}}
+                  >
+                    Peserta
+                  </FieldInputText>
                 </ContentCard>
               </WizardViewContent>
 
