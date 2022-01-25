@@ -3,3 +3,9 @@
     background-color: #FFF;
     width: 150px;
 }
+
+.cut-text { 
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }

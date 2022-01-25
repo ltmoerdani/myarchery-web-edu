@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Nav,
   NavItem,
@@ -30,6 +30,41 @@ function PageTransactionDetail() {
       setActiveTab(tab);
     }
   };
+
+  useEffect(() => {
+    const snapSrcUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const myMidtransClientKey = "SB-Mid-client-y_BGhv-exWF6m27x"; //change this according to your client-key
+
+    const script = document.createElement("script");
+    script.src = snapSrcUrl;
+    script.setAttribute("data-client-key", myMidtransClientKey);
+    script.async = true;
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleClickPayment = () => {
+    console.log("klik bayar sekarang");
+    window.snap.pay("8a38cec9-eb94-470f-a189-2b4c1ed33261", {
+      onSuccess: function () {
+        console.log("success");
+      },
+      onPending: function () {
+        console.log("pending");
+      },
+      onError: function () {
+        console.log("error");
+      },
+      onClose: function () {
+        console.log("customer closed the popup without finishing the payment");
+      },
+    });
+  };
+
   return (
     <React.Fragment>
       <MetaTags>
@@ -187,6 +222,9 @@ function PageTransactionDetail() {
                         <hr />
                       </tr>
                     </table>
+                    <div>
+                      <div className="cut-text">hallo</div>
+                    </div>
                   </div>
                 </CardBody>
               </Card>
@@ -259,17 +297,21 @@ function PageTransactionDetail() {
                         </div>
                       </Col>
                       <Col md={5}>
-                      <div style={{float: 'right'}}>
-                      <span>Biaya Pendaftaran</span>
-                        <div>
-                          <h5>Rp238,000</h5>
+                        <div style={{ float: "right" }}>
+                          <span>Biaya Pendaftaran</span>
+                          <div>
+                            <h5>Rp238,000</h5>
+                          </div>
+                          <div>
+                            <button
+                              onClick={handleClickPayment}
+                              className="btn"
+                              style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                            >
+                              Bayar Sekarang
+                            </button>
+                          </div>
                         </div>
-                        <div>
-                          <button className="btn" style={{backgroundColor: '#0D47A1', color: '#FFF'}}>
-                            Bayar Sekarang
-                          </button>
-                        </div>
-                      </div>
                       </Col>
                     </Row>
                   </div>
