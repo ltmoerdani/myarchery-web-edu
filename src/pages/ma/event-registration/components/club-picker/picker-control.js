@@ -166,7 +166,15 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
                   </ClubItemBody>
 
                   <ClubActionButtonsGroup>
-                    <ButtonLanding>Lihat Profil</ButtonLanding>
+                    <ButtonOutlineBlue
+                      as="a"
+                      href={`/clubs/profile/${club.detail.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="button-wide"
+                    >
+                      Lihat Profil
+                    </ButtonOutlineBlue>
                     {club.isJoin ? (
                       <ButtonAsMemberStatus disabled>&#10003; Member</ButtonAsMemberStatus>
                     ) : (
@@ -293,10 +301,6 @@ const ClubSelected = styled.div`
   background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 0 0 3px var(--ma-blue) inset;
   color: var(--ma-blue);
-`;
-
-const ButtonLanding = styled(ButtonOutlineBlue)`
-  min-width: 7.5rem;
 `;
 
 const ButtonJoin = styled(ButtonBlue)`
@@ -516,6 +520,10 @@ const BlueBullet = styled.span`
 const ClubActionButtonsGroup = styled(ActionButtonsGroup)`
   flex: 1 0 0%;
   align-items: center;
+
+  .button-wide {
+    min-width: 7.5rem;
+  }
 `;
 
 function clubsReducer(state, action) {
