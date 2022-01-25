@@ -5,7 +5,7 @@ import queryString from "query-string";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
 import { useWizardView } from "hooks/wizard-view";
-import { CategoryService, OrderEventService } from "services";
+import { EventsService, OrderEventService } from "services";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer, Table as BSTable } from "reactstrap";
@@ -103,7 +103,7 @@ function PageEventRegistration() {
   React.useEffect(() => {
     const getEventDetail = async () => {
       updateEventDetail({ status: "loading", errors: null });
-      const result = await CategoryService.getDetailEvent({ slug });
+      const result = await EventsService.getDetailEvent({ slug });
       if (result.success) {
         updateEventDetail({ status: "success", data: result.data });
       } else {
@@ -120,7 +120,7 @@ function PageEventRegistration() {
     }
     const getCategories = async () => {
       updateEventCategories({ status: "loading", errors: null });
-      const result = await CategoryService.getCategory({ event_id: eventId });
+      const result = await EventsService.getCategory({ event_id: eventId });
       if (result.success) {
         updateEventCategories({ status: "success", data: result.data });
       } else {
