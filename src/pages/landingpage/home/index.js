@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Button, Container, Row, Col, Card, CardBody} from 'reactstrap'
+import React from "react";
+import { Button, Container, Row, Col, Card, CardBody } from "reactstrap";
 import MetaTags from "react-meta-tags";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
@@ -7,111 +7,132 @@ import CardAbout from "./components/CardAbout";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
-import { Landingpage } from "services"
 
-import banner_satu from '../../../assets/images/myachery/Banner 2(1).svg'
-// import img_content from '../../../assets/images/myachery/content-landing-1-2.svg'
-import img_target from '../../../assets/images/myachery/target-landing.svg'
-import ases_satu from "../../../assets/images/myachery/ases-satu.svg"
-import ases_dua from "../../../assets/images/myachery/ases-dua.svg"
-import ases_tiga from "../../../assets/images/myachery/ases-tiga.svg"
-import banner_dua from "../../../assets/images/myachery/bANNER2 1.svg"
-import banner_tiga from "../../../assets/images/myachery/bANNER3a 1.svg"
-import series_satu from "../../../assets/images/myachery/image 6.svg"
-import series_dua from "../../../assets/images/myachery/image 4.svg"
-import series_tiga from "../../../assets/images/myachery/image 5.svg"
-import series_empat from "../../../assets/images/myachery/image 7.svg"
-import img_about_satu from "../../../assets/images/myachery/image 25.svg"
-import img_about_dua from "../../../assets/images/myachery/image 32.svg"
-import img_about_tiga from "../../../assets/images/myachery/image 31.svg"
-import img_about_empat from "../../../assets/images/myachery/image 29.svg"
-import img_about_lima from "../../../assets/images/myachery/image 30.svg"
-import img_about_enam from "../../../assets/images/myachery/image 28.svg"
-import img_usedby_satu from "../../../assets/images/myachery/image 20.svg"
-import img_usedby_dua from "../../../assets/images/myachery/image 19.svg"
-import img_usedby_tiga from "../../../assets/images/myachery/image 18.svg"
-// import kerawang from "../../../assets/images/myachery/kerawang.svg"
+import banner_satu from "../../../assets/images/myachery/Banner 2(1).svg";
+import img_content from "../../../assets/images/myachery/content-landing-1-2.svg";
+import img_target from "../../../assets/images/myachery/target-landing.svg";
+import ases_satu from "../../../assets/images/myachery/ases-satu.svg";
+import ases_dua from "../../../assets/images/myachery/ases-dua.svg";
+import ases_tiga from "../../../assets/images/myachery/ases-tiga.svg";
+import banner_dua from "../../../assets/images/myachery/bANNER2 1.svg";
+import banner_tiga from "../../../assets/images/myachery/bANNER3a 1.svg";
+import series_satu from "../../../assets/images/myachery/image 6.svg";
+import series_dua from "../../../assets/images/myachery/image 4.svg";
+import series_tiga from "../../../assets/images/myachery/image 5.svg";
+import series_empat from "../../../assets/images/myachery/image 7.svg";
+import img_about_satu from "../../../assets/images/myachery/image 25.svg";
+import img_about_dua from "../../../assets/images/myachery/image 32.svg";
+import img_about_tiga from "../../../assets/images/myachery/image 31.svg";
+import img_about_empat from "../../../assets/images/myachery/image 29.svg";
+import img_about_lima from "../../../assets/images/myachery/image 30.svg";
+import img_about_enam from "../../../assets/images/myachery/image 28.svg";
+import img_usedby_satu from "../../../assets/images/myachery/image 20.svg";
+import img_usedby_dua from "../../../assets/images/myachery/image 19.svg";
+import img_usedby_tiga from "../../../assets/images/myachery/image 18.svg";
+import kerawang from "../../../assets/images/myachery/kerawang.svg";
 
-import './components/sass/header.scss'
+import "./components/sass/header.scss";
 //TODO: Clrea all the comment before commit please
 
 function Home() {
   let { isLoggedIn } = useSelector(getAuthenticationStore);
 
-    const [dataEvent, setDataEventList] = useState([])
-
-    let { isLoggedIn } = useSelector(getAuthenticationStore);
-
-    useEffect(() => {
-        getEventListbyLimit();
-    }, [])
-
-    const getEventListbyLimit = async () => {
-        const {message, errors, data} = await Landingpage.getEvent({
-            limit: 3,
-        })
-        if (data) {
-            setDataEventList(data)
-        }
-        console.log(message)
-        console.log(errors)
-    }
-
-    const getDateEvent = (number) => {
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        let date = new Date(dataEvent[number]?.eventStartDatetime)
-        let startDate = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`
-
-        let dateend = new Date(dataEvent[number]?.eventEndDatetime)
-        let EndDate = `${dateend.getDate()} ${monthNames[dateend.getMonth()]} ${dateend.getFullYear()}`
-        return (
-            <>
-                <span>{startDate}-{EndDate}</span>
-            </>
-        )
-    }
-
-    // const getEventNameUrl = () => {}
-
-    let numberEventOne = 1
-    let numberEventTwo = 2
-    
-
-    return (
-        <React.Fragment>
-            <MetaTags>
-            <title>Home | MyArchery</title>
-            </MetaTags>
-            <Carousel
-                showArrows={false}
-                infiniteLoop
-                autoPlay
-                showThumbs={false}
-                swipeScrollTolerance={5}
-                interval={2000}
-                showStatus={false}
-                >
-                    <div className='position-relative'>
-                        <img src={banner_satu} />
-                        <div className='text-box'>
-                            <span className='title-sub'>selamat datang di<br/></span>
-                            <span className='title-hero'>myachery</span>
-                            <div className='content'>
-                                <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='position-relative'>
-                        <img src={banner_satu} />
-                        <div className='text-box'>
-                            <span className='title-sub'>selamat datang di<br/></span>
-                            <span className='title-hero'>myachery</span>
-                            <div className='content'>
-                                <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
-                            </div>
-                        </div>
+  return (
+    <React.Fragment>
+      <MetaTags>
+        <title>Home | MyArchery</title>
+      </MetaTags>
+      <Carousel
+        showArrows={false}
+        infiniteLoop
+        autoPlay
+        showThumbs={false}
+        swipeScrollTolerance={5}
+        interval={2000}
+        showStatus={false}
+      >
+        <div className="position-relative">
+          <img src={banner_satu} />
+          <div className="text-box">
+            <span className="title-sub">
+              selemat datang di
+              <br />
+            </span>
+            <span className="title-hero">myachery</span>
+            <div className="content">
+              <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
+              <Button color="warning" style={{ backgroundColor: "#ffb420" }}>
+                Lihat Event
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="position-relative">
+          <img src={banner_satu} />
+          <div className="text-box">
+            <span className="title-sub">
+              selamat datang di
+              <br />
+            </span>
+            <span className="title-hero">myachery</span>
+            <div className="content">
+              <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
+              <Button color="warning" style={{ backgroundColor: "#ffb420" }}>
+                Lihat Event
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="position-relative">
+          <img src={banner_satu} />
+          <div className="text-box">
+            <span className="title-sub">
+              selamat datang di
+              <br />
+            </span>
+            <span className="title-hero">myachery</span>
+            <div className="content">
+              <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
+              <Button color="warning" style={{ backgroundColor: "#ffb420" }}>
+                Lihat Event
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Carousel>
+      <div className="content-landing mt-0">
+        <Container fluid>
+          <div className="py-5 px-3">
+            <Row>
+              <Col md={8} sm={12}>
+                <Card>
+                  <div className="w-100">
+                    <img src={img_content} style={{ width: "100%" }} />
+                  </div>
+                  <CardBody>
+                    <div>
+                      <span className="tag px-3 py-1">Games</span>
+                      <h3 className="primary-color mt-2">The Hub Scoring - 2021</h3>
+                      <div className="mt-2">
+                        <span className="bx bx-map"></span>
+                        <span className="ms-1">Cibubur</span>
+                      </div>
+                      <div>
+                        <span className="bx bx-calendar"></span>
+                        <span className="ms-1">01 Februari 2021 - 28 Februari 2021</span>
+                      </div>
+                      <div className="mt-2">
+                        <p>
+                          Kegiatan scoring untuk kembali menumbuhkan semangat berlatih panahan serta
+                          ajang silaturahmi secara langsung sesuai dengan protocol Kesehatan saat
+                          ini.
+                        </p>
+                      </div>
+                      <Link to="/event/pro-archery/1631782893-the-hub-scoring-2021">
+                        <Button color="primary" outline>
+                          Lihat Detail
+                        </Button>
+                      </Link>
                     </div>
                   </CardBody>
                 </Card>
@@ -142,87 +163,29 @@ function Home() {
                         </Button>
                       </Link>
                     </div>
-                    </Carousel>
-            <div className='content-landing mt-0'>
-            <Container fluid>
-                        <div className='py-5 px-3'>
-                <Row>
-                    <Col md={8} sm={12}>
-                            <Card>
-                                    <div className='img-responsive-event-one'>
-                                        <img src={dataEvent[numberEventOne]?.poster} style={{width: '100%',height: "100%", objectFit: 'cover'}} />
-                                    </div>
-                                <CardBody>
-                                    <div>
-                                        <span className='tag px-3 py-1'>{dataEvent[numberEventOne]?.eventCompetition}</span>
-                                        <h3 className='primary-color mt-2'>{dataEvent[numberEventOne]?.eventName}</h3>
-                                        <div className='mt-2'>
-                                            <span className='bx bx-map'></span>
-                                            <span className='ms-1'>{dataEvent[numberEventOne]?.location}</span>
-                                        </div>
-                                        <div>
-                                            <span className='bx bx-calendar'></span>
-                                            <span className='ms-1'>{getDateEvent(numberEventOne)}</span>
-                                        </div>
-                                        <div className='mt-2'>
-                                        <div className='line-clamp mb-2' dangerouslySetInnerHTML={{__html: dataEvent[numberEventOne]?.description}}></div>
-                                            {/* <p >{dataEvent[0]?.description}</p> */}
-                                        </div>
-                                        <a href={dataEvent[numberEventOne]?.eventUrl}>
-                                            <Button color='primary' outline>Lihat Detail</Button>
-                                        </a>
-                                    </div>
-                                </CardBody>
-                            </Card>
-                    </Col>
-                    <Col md={4} sm={12}>
-                    <Card>
-                                    <div className='img-responsive-event-two'>
-                                        <img src={dataEvent[numberEventTwo]?.poster} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-                                    </div>
-                                <CardBody>
-                                    <div>
-                                        <span className='tag-sub px-3 py-1'>{dataEvent[numberEventTwo]?.eventCompetition}</span>
-                                        <h3 className='primary-color mt-2'>{dataEvent[numberEventTwo]?.eventName}</h3>
-                                        <div className='mt-2'>
-                                            <span className='bx bx-map'></span>
-                                            <span className='ms-1'>{dataEvent[numberEventTwo]?.location}</span>
-                                        </div>
-                                        <div>
-                                            <span className='bx bx-calendar'></span>
-                                            <span className='ms-1'>{getDateEvent(numberEventTwo)}</span>
-                                        </div>
-                                        <div className='mt-2'>
-                                        <div className='line-clamp mb-2' dangerouslySetInnerHTML={{__html: dataEvent[numberEventTwo]?.description}}></div>
-                                            {/* <p>Latihan Bersama Barebow Karawang.</p> */}
-                                        </div>
-                                        <a href={dataEvent[numberEventTwo]?.eventUrl}>
-                                            <Button color='primary' outline>Lihat Detail</Button>
-                                        </a>
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        <div className='look-event card-effect'>
-                            <div className='w-100'>
-                                <img  src={img_target} style={{width: '30%'}} />
-                            </div>
-                                <div className='ases-satu'>
-                                    <img style={{width: '65%'}} src={ases_satu} />
-                                </div>
-                                <div className='ases-dua'>
-                                    <img style={{width: '60%'}} src={ases_dua} />
-                                </div>
-                                <div className='ases-tiga'>
-                                    <a href='#'>
-                                        <img style={{width: '60%'}} src={ases_tiga} />
-                                    </a>
-                                </div>
-                            <div className='text'>
-                                <h3 style={{color: 'white'}}>Lihat Event <br />Lainnya</h3>
-                            </div>
-                        </div>
-                    </Col>
-                </Row>
+                  </CardBody>
+                </Card>
+                <div className="look-event card-effect">
+                  <div className="w-100">
+                    <img src={img_target} style={{ width: "30%" }} />
+                  </div>
+                  <div className="ases-satu">
+                    <img style={{ width: "65%" }} src={ases_satu} />
+                  </div>
+                  <div className="ases-dua">
+                    <img style={{ width: "60%" }} src={ases_dua} />
+                  </div>
+                  <div className="ases-tiga">
+                    <a href="#">
+                      <img style={{ width: "60%" }} src={ases_tiga} />
+                    </a>
+                  </div>
+                  <div className="text">
+                    <h3 style={{ color: "white" }}>
+                      Lihat Event <br />
+                      Lainnya
+                    </h3>
+                  </div>
                 </div>
               </Col>
             </Row>
