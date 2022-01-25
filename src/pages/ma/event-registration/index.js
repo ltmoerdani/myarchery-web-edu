@@ -96,7 +96,7 @@ function PageEventRegistration() {
       dispatchSubmitStatus({ status: "success" });
       history.push(`/dashboard/transactions/${result.data.id}`);
     } else {
-      dispatchSubmitStatus({ status: "error", errors: result.errors });
+      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
     }
   };
 
@@ -670,15 +670,20 @@ function AlertSubmitError({ isError, errors, onConfirm }) {
   const [isAlertOpen, setAlertOpen] = React.useState(false);
 
   const renderErrorMessages = () => {
+    if (errors && typeof errors === "string") {
+      return errors;
+    }
+
     if (errors) {
       const fields = Object.keys(errors);
-      const messages = fields.map((field) => {
-        return `${errors[field].map((message) => `- ${message}\n`).join("")}`;
-      });
+      const messages = fields.map(
+        (field) => `${errors[field].map((message) => `- ${message}\n`).join("")}`
+      );
       if (messages.length) {
         return `${messages.join("")}`;
       }
     }
+
     return "Error tidak diketahui.";
   };
 
@@ -714,8 +719,8 @@ function AlertSubmitError({ isError, errors, onConfirm }) {
         </h4>
         <div className="text-start">
           <p>
-            Terdapat kendala teknis dalam memproses data. Silakan berikan pesan error berikut kepada
-            technical support, atau coba kembali beberapa saat lagi:
+            Terdapat kendala teknis dalam memproses data. Coba kembali beberapa saat lagi, atau
+            silakan berikan pesan error berikut kepada technical support:
           </p>
           <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
             {renderErrorMessages()}
