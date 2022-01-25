@@ -134,7 +134,11 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
                     className={classnames({ "club-disabled": !club.isJoin })}
                   >
                     <MediaLogo>
-                      <AvatarClubDefault />
+                      {club.detail.logo ? (
+                        <img className="club-logo-img" src={club.detail.logo} />
+                      ) : (
+                        <AvatarClubDefault />
+                      )}
                       {club.detail.id === value?.detail.id && (
                         <ClubSelected>
                           <IconCheck size="36" />
@@ -465,6 +469,12 @@ const MediaLogo = styled.div`
   overflow: hidden;
   border: solid 1px #eeeeee;
   background-color: var(--ma-gray-400);
+
+  .club-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const MediaContent = styled.div`
