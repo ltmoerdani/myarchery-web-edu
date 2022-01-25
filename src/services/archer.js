@@ -15,5 +15,14 @@ export default {
     },
     updateAvatar(data = null, qs = null) {
         return API.put("/app/v1/user/update-avatar", data, qs, true)
+    },
+    forgotPassword(data = null, qs = null) {
+        return API.post("/app/v1/auth/forgot-password", data, qs)
+    },
+    verificationPassword(data = null, qs = null) {
+        return API.post("/app/v1/auth/validate-code-password", data, qs)
+    },
+    resetPassword(data = null, qs = null) {
+        return API.post("/app/v1/auth/reset-password", data, qs)
     }
 }
