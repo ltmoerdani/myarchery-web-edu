@@ -22,7 +22,7 @@ const RadioInput = ({
     if (onChange)
       onChange({
         key: name,
-        value: valueOnly ? option.id : option,
+        value: valueOnly ? option?.id : option,
       });
   };
 
@@ -31,7 +31,7 @@ const RadioInput = ({
       <div>
         {label && <Label>{label}</Label>}
         <div>
-          {options.map(option => {
+          {options?.map(option => {
             return (
               <div
                 className={`form-check form-radio-primary ${
@@ -48,6 +48,7 @@ const RadioInput = ({
                   name={name}
                   disabled={disabled}
                   readOnly={readOnly}
+                  value={option.id}
                 />
                 <Label className="form-check-label" htmlFor={option.id}>
                   {option.label}
@@ -73,7 +74,7 @@ const RadioInput = ({
             <Input
               type="radio"
               className="form-check-Input"
-              id={option.id}
+              id={option?.id}
               onChange={e => handleChange(e)}
               name={name}
               disabled={disabled}

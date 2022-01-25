@@ -27,8 +27,13 @@ $primary-one: #0d47a1;
 }
 
 .responsive-form {
-  padding-top: 0;
+  padding-top: 10%;
   @media screen and (min-width: 1440px) {
-    padding-top: 20%;
+    padding-top: 30%;
   }
+}
+
+.btn-box-border {
+  box-sizing: border-box;
+  text-align: center;
 }
