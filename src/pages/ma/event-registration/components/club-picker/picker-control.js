@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { ArcheryClubService } from "services";
 
 import Select from "react-select";
+import SweetAlert from "react-bootstrap-sweetalert";
 import { Modal, ModalBody } from "reactstrap";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarClubDefault } from "components/ma";
 
@@ -75,6 +76,16 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
       observer.disconnect();
     };
   }, [isLoadingClubs, hasMore]);
+
+  const handleJoinClub = async (club) => {
+    updateClubs({ status: "loading", errors: null });
+    const result = await ArcheryClubService.setJoinClub({ club_id: club.detail.id });
+    if (result.success) {
+      updateClubs({ type: "REFETCH" });
+    } else {
+      updateClubs({ status: "error", errors: result.errors });
+    }
+  };
 
   return (
     <StyledBSModal {...modalProps}>
@@ -178,7 +189,10 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
                     {club.isJoin ? (
                       <ButtonAsMemberStatus disabled>&#10003; Member</ButtonAsMemberStatus>
                     ) : (
-                      <ButtonJoin>Gabung Klub</ButtonJoin>
+                      <ButtonConfirmJoin
+                        club={club.detail}
+                        onConfirm={() => handleJoinClub(club)}
+                      />
                     )}
                   </ClubActionButtonsGroup>
                 </ClubItem>
@@ -302,6 +316,48 @@ const ClubSelected = styled.div`
   box-shadow: 0 0 0 3px var(--ma-blue) inset;
   color: var(--ma-blue);
 `;
+
+function ButtonConfirmJoin({ club, onConfirm, onCancel }) {
+  const [isAlertOpen, setAlertOpen] = React.useState(false);
+
+  const handleConfirmSubmit = () => {
+    setAlertOpen(false);
+    onConfirm?.();
+  };
+
+  const handleCancelSubmit = () => {
+    setAlertOpen(false);
+    onCancel?.();
+  };
+
+  return (
+    <React.Fragment>
+      <ButtonJoin onClick={() => setAlertOpen(true)}>Gabung Klub</ButtonJoin>
+      <SweetAlert
+        show={isAlertOpen}
+        title=""
+        custom
+        btnSize="md"
+        onConfirm={handleConfirmSubmit}
+        style={{ padding: "1.25rem" }}
+        customButtons={
+          <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
+            <ButtonBlue onClick={handleConfirmSubmit}>Yakin</ButtonBlue>
+            <Button onClick={handleCancelSubmit} style={{ color: "var(--ma-blue)" }}>
+              Batalkan
+            </Button>
+          </span>
+        }
+      >
+        <p>
+          Apakah Anda yakin akan bergabung dengan Klub
+          <br />
+          <strong>&quot;{club.name}&quot;</strong>?
+        </p>
+      </SweetAlert>
+    </React.Fragment>
+  );
+}
 
 const ButtonJoin = styled(ButtonBlue)`
   min-width: 7.5rem;
