@@ -135,21 +135,14 @@ $secondaty-one: #FFB420;
 
 .look-event {
     background-color: $secondaty-one;
-    min-height: 250px;
+    height: 399px;
     position: relative;
 
-    @media screen and (max-width: 1024px) {
-        min-height: 18.5vh;
-    }
-
-    @media screen and (max-width: 768px) {
-        min-height: 250px;
-    }
-
     @media screen and (max-width: 600px) {
-        min-height: 20vh;
+        height: 250px;
     }
 
+    
     .text {
         text-align: right;
         font-size: 24px;
@@ -158,8 +151,10 @@ $secondaty-one: #FFB420;
         position: absolute;
         left: 0;
         right: 70px;
+        top: 50%;
         top: calc(50% - 86px/2 - 40px);
         color: #FFF2D9 !important;
+
         @media screen and (max-width: 768px) {
             left: 0;
             right: 70px;
@@ -169,6 +164,24 @@ $secondaty-one: #FFB420;
             left: 0;
             right: 70px;
             top: 30%;
+        }
+    }
+
+    .target-landing {
+        width: 60%;
+        position: absolute;
+        
+        @media screen and (max-width: 768px) {
+            width: 25%;
+            top: unset;
+        }
+
+        @media screen and (min-width: 1440px) {
+            width: 50%;
+        }
+
+        @media screen and (min-width: 1920px) {
+            width: 40%;
         }
     }
 
@@ -183,10 +196,11 @@ $secondaty-one: #FFB420;
 
     .ases-dua {
         position: absolute;
-        top: 75%;
+        top: 80%;
         left: 10px;
-        @media screen and (min-width: 768px) {
-            top: 50% ;
+
+        @media screen and (max-width: 768px) {
+            top: 70%;
         }
     }
 
@@ -418,6 +432,27 @@ $secondaty-one: #FFB420;
 .img-responsive-event-two {
     width: 100%;
     height: 165px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.card-responsive-event-one {
+    height: 392px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.card-responsive-event-two {
+    height: 265px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.card-list-event {
+    height: 399px;
     @media screen and (max-width: 768px){
         height: auto;
     }
