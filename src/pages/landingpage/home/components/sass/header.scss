@@ -418,3 +418,13 @@ $secondaty-one: #FFB420;
     }
 
 }
+
+.btn-position {
+    position: absolute;
+    left: 40%;
+
+    @media screen and (max-width: 600px) {
+        position: unset;
+        
+    }
+}
