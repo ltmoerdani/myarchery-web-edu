@@ -714,8 +714,8 @@ function AlertSubmitError({ isError, errors, onConfirm }) {
         </h4>
         <div className="text-start">
           <p>
-            Terdapat error teknis dalam memproses data klub Anda. Silakan berikan pesan error
-            berikut kepada technical support:
+            Terdapat kendala teknis dalam memproses data. Silakan berikan pesan error berikut kepada
+            technical support, atau coba kembali beberapa saat lagi:
           </p>
           <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
             {renderErrorMessages()}
