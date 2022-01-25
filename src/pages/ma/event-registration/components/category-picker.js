@@ -32,7 +32,7 @@ function PickerButton({ children, onClick }) {
     <StyledPickerButton onClick={onClick}>
       <StyledPickerButtonBody>{children}</StyledPickerButtonBody>
       <StyledPickerIndicator>
-        <IconChevronDown />
+        <IconChevronDown size="20" />
       </StyledPickerIndicator>
     </StyledPickerButton>
   );
