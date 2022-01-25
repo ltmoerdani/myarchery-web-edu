@@ -94,7 +94,7 @@ function PageEventRegistration() {
     const result = await OrderEventService.register(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions/${result.data.id}`);
+      history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
     } else {
       dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
     }
