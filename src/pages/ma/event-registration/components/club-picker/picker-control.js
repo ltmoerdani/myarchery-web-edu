@@ -10,16 +10,18 @@ import IconCheck from "components/ma/icons/mono/check";
 
 import classnames from "classnames";
 
-const TOTAL_LIMIT = 10;
+const TOTAL_LIMIT = 4;
 
 function PickerControl({ toggle, onClosed, value = {}, onChange }) {
   const modalProps = { isOpen: true, size: "xl", toggle, onClosed };
 
+  const clubsLoaderDOM = React.useRef(null);
   const [clubs, updateClubs] = React.useReducer(clubsReducer, {
     status: "idle",
     page: 1,
+    hasMore: true,
     attempts: 0,
-    data: null,
+    data: [],
     errors: null,
   });
   const [searchParams, updateSearchParams] = React.useReducer(searchParamsReducer, {
@@ -29,7 +31,8 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
   });
   const { provinces, cities } = useAdministrativeAreaFilters(searchParams.province?.value);
 
-  const { page, attempts, data: clubsData } = clubs;
+  const { page, attempts, data: clubsData, hasMore } = clubs;
+  const isLoadingClubs = clubs.status === "loading";
 
   React.useEffect(() => {
     refetchClubs();
@@ -46,11 +49,32 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
     };
     const result = await ArcheryClubService.get(queryStrings);
     if (result.success) {
-      updateClubs({ status: "success", data: result.data });
+      updateClubs({ type: "REFETCH_SUCCESS", payload: result.data });
     } else {
       updateClubs({ status: "error", errors: result.errors });
     }
   };
+
+  React.useEffect(() => {
+    if (isLoadingClubs || !clubsLoaderDOM.current) {
+      return;
+    }
+    const option = { root: null, rootMargin: "0px", threshold: 1.0 };
+    const handleOnOverlapping = (entries) => {
+      const target = entries[0];
+      if (target.isIntersecting) {
+        updateClubs({ type: "FETCH_MORE" });
+      }
+    };
+    const observer = new IntersectionObserver(handleOnOverlapping, option);
+    observer.observe(clubsLoaderDOM.current);
+
+    return () => {
+      // Berhenti ngemonitor target ketika dia di-unmounted
+      // supaya gak fetch dobel-dobel
+      observer.disconnect();
+    };
+  }, [isLoadingClubs, hasMore]);
 
   return (
     <StyledBSModal {...modalProps}>
@@ -86,68 +110,74 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
         </ListViewHeader>
 
         <ListViewBody>
-          {Boolean(clubsData?.length) &&
-            clubsData.map((club) => (
-              <ClubItem
-                key={club.id}
-                className={classnames({
-                  "club-disabled": !club.isJoin,
-                  "club-selected": club.detail.id === value?.detail.id,
-                })}
-              >
-                <input
-                  type="radio"
-                  name="club"
-                  id={`radio-club-${club.detail.id}`}
-                  className="club-item-radio"
-                  value={club.detail.id}
-                  checked={club.detail.id === value?.detail.id}
-                  onChange={() => onChange?.(club)}
-                  disabled={!club.isJoin}
-                />
-                <ClubItemBody
-                  htmlFor={`radio-club-${club.detail.id}`}
-                  className={classnames({ "club-disabled": !club.isJoin })}
+          {clubsData?.length
+            ? clubsData.map((club) => (
+                <ClubItem
+                  key={club.detail.id}
+                  className={classnames({
+                    "club-disabled": !club.isJoin,
+                    "club-selected": club.detail.id === value?.detail.id,
+                  })}
                 >
-                  <MediaLogo>
-                    <AvatarClubDefault />
-                    {club.detail.id === value?.detail.id && (
-                      <ClubSelected>
-                        <IconCheck size="36" />
-                      </ClubSelected>
+                  <input
+                    type="radio"
+                    name="club"
+                    id={`radio-club-${club.detail.id}`}
+                    className="club-item-radio"
+                    value={club.detail.id}
+                    checked={club.detail.id === value?.detail.id}
+                    onChange={() => onChange?.(club)}
+                    disabled={!club.isJoin}
+                  />
+                  <ClubItemBody
+                    htmlFor={`radio-club-${club.detail.id}`}
+                    className={classnames({ "club-disabled": !club.isJoin })}
+                  >
+                    <MediaLogo>
+                      <AvatarClubDefault />
+                      {club.detail.id === value?.detail.id && (
+                        <ClubSelected>
+                          <IconCheck size="36" />
+                        </ClubSelected>
+                      )}
+                    </MediaLogo>
+
+                    <MediaContent>
+                      <h4 className="club-name">{club.detail.name}</h4>
+                      <div className="club-info">
+                        <Address>
+                          {computeClubBasisFullAddress({
+                            address: club.detail.address,
+                            city: club.detail.detailCity?.name,
+                            province: club.detail.detailProvince?.name,
+                          })}
+                        </Address>
+
+                        <MemberCounts>
+                          <BlueBullet>&#8226;</BlueBullet> Jumlah anggota terdaftar:{" "}
+                          {club.totalMember}
+                        </MemberCounts>
+                      </div>
+                    </MediaContent>
+                  </ClubItemBody>
+
+                  <ClubActionButtonsGroup>
+                    <ButtonLanding>Lihat Profil</ButtonLanding>
+                    {club.isJoin ? (
+                      <ButtonAsMemberStatus disabled>&#10003; Member</ButtonAsMemberStatus>
+                    ) : (
+                      <ButtonJoin>Gabung Klub</ButtonJoin>
                     )}
-                  </MediaLogo>
+                  </ClubActionButtonsGroup>
+                </ClubItem>
+              ))
+            : !isLoadingClubs && <ClubItemEmpty>Belum ada klub untuk pencarian ini</ClubItemEmpty>}
 
-                  <MediaContent>
-                    <h4 className="club-name">{club.detail.name}</h4>
-                    <div className="club-info">
-                      <Address>
-                        {computeClubBasisFullAddress({
-                          address: club.detail.address,
-                          city: club.detail.detailCity?.name,
-                          province: club.detail.detailProvince?.name,
-                        })}
-                      </Address>
-
-                      <MemberCounts>
-                        <BlueBullet>&#8226;</BlueBullet> Jumlah anggota terdaftar:{" "}
-                        {club.totalMember}
-                      </MemberCounts>
-                    </div>
-                  </MediaContent>
-                </ClubItemBody>
-
-                <ClubActionButtonsGroup>
-                  <ButtonLanding>Lihat Profil</ButtonLanding>
-                  {club.isJoin ? (
-                    <ButtonAsMemberStatus disabled>&#10003; Member</ButtonAsMemberStatus>
-                  ) : (
-                    <ButtonJoin>Gabung Klub</ButtonJoin>
-                  )}
-                </ClubActionButtonsGroup>
-              </ClubItem>
-            ))}
-          <ClubItemSkeleton />
+          {hasMore && (
+            <div ref={clubsLoaderDOM}>
+              <ClubItemSkeleton />
+            </div>
+          )}
         </ListViewBody>
       </StyledBSModalBody>
     </StyledBSModal>
@@ -403,6 +433,14 @@ const ClubItem = styled.div`
   }
 `;
 
+const ClubItemEmpty = styled.div`
+  overflow: hidden;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const ClubItemBody = styled.label`
   margin: 0;
   display: flex;
@@ -472,8 +510,26 @@ const ClubActionButtonsGroup = styled(ActionButtonsGroup)`
 
 function clubsReducer(state, action) {
   if (action.type === "REFETCH") {
-    return { ...state, attempts: state.attempts + 1 };
+    return { ...state, attempts: state.attempts + 1, page: 1, hasMore: true, data: [] };
   }
+
+  if (action.type === "FETCH_MORE") {
+    return { ...state, attempts: state.attempts + 1, page: state.page + 1 };
+  }
+
+  if (action.type === "REFETCH_SUCCESS") {
+    const nextState = {
+      ...state,
+      status: "success",
+      data: state.page > 1 ? [...state.data, ...action.payload] : action.payload,
+    };
+
+    if (action.payload.length < TOTAL_LIMIT) {
+      return { ...nextState, hasMore: false };
+    }
+    return nextState;
+  }
+
   return { ...state, ...action };
 }
 
