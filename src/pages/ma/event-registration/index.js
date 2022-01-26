@@ -109,6 +109,8 @@ function PageEventRegistration() {
     const payload = {
       event_category_id: category.id,
       club_id: club.detail.id,
+      team_name: teamName,
+      user_id: participantCounts > 1 ? participants.map((member) => member.data.id) : undefined,
     };
     const result = await OrderEventService.register(payload);
     if (result.success) {
