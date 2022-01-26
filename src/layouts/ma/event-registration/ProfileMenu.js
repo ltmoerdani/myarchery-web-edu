@@ -53,7 +53,7 @@ const ProfileMenu = (props) => {
         <List className="d-none d-lg-flex my-auto">
           <ListInlineItem className="d-flex justify-content-center align-items-center">
             <Link to="/dashboard">
-              <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
+              <img className="rounded-circle header-profile-user" src={userProfile?.avatar || user1} alt="Header Avatar" />
               <span style={{color: '#000'}} className="d-none d-lg-inline-block ms-2 me-1">{username}</span>
             </Link>
           </ListInlineItem>
