@@ -41,7 +41,7 @@ const MenuGridWrapper = styled.div`
 function DashboardMenus() {
   return (
     <MenuGridWrapper>
-      <UserProfileCard />
+      <UserProfileCard to="/dashboard/profile" />
       {menuItems.map((menu) => (
         <MenuItemCard key={menu.id} menu={menu} href={menu.computeLink?.()} />
       ))}
