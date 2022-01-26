@@ -12,6 +12,7 @@ const dashboardRoutes = [
   { path: "/dashboard/clubs/new", exact: true, component: PageClubCreate },
   { path: "/dashboard/clubs/join", exact: true, component: PageClubJoin },
   { path: "/dashboard/clubs/detail/:clubId", exact: true, component: PageClubManage },
+  { path: "/dashboard/transactions/:orderId", exact: true, component: PageTransactionDetail },
   { path: "/dashboard/profile", exact: true, component: PageProfileHome}
 ];
 
