@@ -201,6 +201,9 @@ function LandingPage() {
                 date={`${eventData?.publicInformation?.eventEndRegister}`}
                 renderer={HandlerCountDown}
               />
+              <ButtonBlue as={Link} to={`/event-registration/${slug}`} style={{ width: "100%" }}>
+                Daftar
+              </ButtonBlue>
             </div>
 
             <div className="mt-4">
@@ -231,16 +234,28 @@ function LandingPage() {
 
           <WizardView currentStep={currentStep}>
             <WizardViewContent>
-              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL]} />
+              <EventCategoryGrid
+                slug={slug}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL]}
+              />
             </WizardViewContent>
             <WizardViewContent>
-              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]} />
+              <EventCategoryGrid
+                slug={slug}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]}
+              />
             </WizardViewContent>
             <WizardViewContent>
-              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]} />
+              <EventCategoryGrid
+                slug={slug}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]}
+              />
             </WizardViewContent>
             <WizardViewContent>
-              <EventCategoryGrid categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]} />
+              <EventCategoryGrid
+                slug={slug}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]}
+              />
             </WizardViewContent>
           </WizardView>
         </div>
@@ -250,6 +265,7 @@ function LandingPage() {
 }
 
 function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
+  // const { slug } = useParams();
   if (completed) {
     return (
       <div>
@@ -277,9 +293,6 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
           <span className="timer-unit">Detik</span>
         </div>
       </div>
-        <ButtonBlue as={Link} to="#kategori-lomba" style={{width: '100%'}}>
-          Daftar
-        </ButtonBlue>
     </div>
   );
 }
@@ -317,7 +330,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
 //   );
 // }
 
-function EventCategoryGrid({ categories }) {
+function EventCategoryGrid({ categories, slug }) {
   return (
     <div className="event-category-grid">
       {categories.map((category, index) => (
@@ -328,14 +341,15 @@ function EventCategoryGrid({ categories }) {
               <span className="category-quota-label">0&#47;{category.quota}</span>
             </div>
             <div>
-              <button
-                disabled={!categories?.isOpen}
+              <ButtonBlue
+                as={Link}
+                to={`/event-registration/${slug}?categoryId=${category?.id}`}
                 className="btn btn-primary"
                 corner="8"
                 style={{ width: 120 }}
               >
                 Daftar
-              </button>
+              </ButtonBlue>
             </div>
           </div>
         </div>
