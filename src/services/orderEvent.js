@@ -10,4 +10,7 @@ export default {
   getAll(qs = null) {
     return API.get("/app/v1/archery/event-order", qs);
   },
+  getMemberEmails(qs = null) {
+    return API.get("/app/v1/archery/event-order/check-email", qs);
+  },
 };
