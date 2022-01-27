@@ -95,6 +95,45 @@ function PageEventRegistration() {
     if (!club?.detail.id) {
       validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
     }
+
+    if (["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)) {
+      if (!teamName) {
+        validationErrors = { ...validationErrors, teamName: ["Nama tim harus diisi"] };
+      }
+    }
+
+    // required, untuk kategori tim putra/putri
+    if (["male_team", "female_team"].some((team) => team === category?.teamCategoryId)) {
+      if (participants.filter((member) => member.data).length <= 1) {
+        participants
+          .filter((member) => !member.data)
+          .forEach((member) => {
+            validationErrors = { ...validationErrors, [member.name]: ["Peserta harus dipilih"] };
+          });
+      }
+    }
+
+    // required, untuk kategori tim campuran, min 1 cewek & 1 cowok
+    if (category?.teamCategoryId === "mix_team") {
+      const maleMembers = participants.filter((member) => member.data?.gender === "male");
+      const femaleMembers = participants.filter((member) => member.data?.gender === "female");
+      const emptyFieldName = participants.find((member) => !member.data).name;
+
+      if (maleMembers.length < 1) {
+        validationErrors = {
+          ...validationErrors,
+          [emptyFieldName]: ["Peserta putra harus dipilih"],
+        };
+      }
+
+      if (femaleMembers.length < 1) {
+        validationErrors = {
+          ...validationErrors,
+          [emptyFieldName]: ["Peserta putri harus dipilih"],
+        };
+      }
+    }
+
     updateFormData({ errors: validationErrors });
 
     const isValid = !Object.keys(validationErrors)?.length;
