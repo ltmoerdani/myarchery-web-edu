@@ -54,6 +54,7 @@ function FieldSelectEmailMember({
         }}
         value={value}
         getOptionValue={(option) => option?.id}
+        isClearable
         onChange={(option) => onChange?.(option)}
       />
       <FieldErrorMessage errors={errors} />
