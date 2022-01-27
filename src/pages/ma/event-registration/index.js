@@ -372,7 +372,7 @@ function PageEventRegistration() {
                     <FieldInputText
                       key={participants[0].name}
                       name={participants[0].name}
-                      placeholder="Nama Pendaftar"
+                      placeholder="Nama Peserta"
                       disabled
                       value={participants[0].value}
                       onChange={() => {}}
@@ -386,44 +386,26 @@ function PageEventRegistration() {
                     teamFilters={["male_team", "female_team", "mix_team"]}
                     teamCategoryId={category?.teamCategoryId}
                   >
-                    {participants.map((participant, index) => {
-                      const labelText = `Peserta${
-                        participants.length > 1 ? ` ${index + 1}` : false
-                      }`;
-
-                      return index === 0 ? (
-                        <FieldInputText
-                          key={participant.name}
-                          name={participant.name}
-                          placeholder="Nama Pendaftar"
-                          disabled
-                          value={participant.value}
-                          onChange={() => {}}
-                          errors={formErrors[participant.name]}
-                        >
-                          {labelText}
-                        </FieldInputText>
-                      ) : (
-                        <FieldSelectEmailMember
-                          key={participant.name}
-                          name={participant.name}
-                          placeholder="Pilih peserta"
-                          required
-                          value={participant.data || null}
-                          formData={formData.data}
-                          onChange={(profile) =>
-                            updateFormData({
-                              type: "FIELD_MEMBER_EMAIL",
-                              name: participant.name,
-                              payload: profile,
-                            })
-                          }
-                          errors={formErrors[participant.name]}
-                        >
-                          {labelText}
-                        </FieldSelectEmailMember>
-                      );
-                    })}
+                    {participants.map((participant, index) => (
+                      <FieldSelectEmailMember
+                        key={participant.name}
+                        name={participant.name}
+                        placeholder="Pilih peserta"
+                        required
+                        value={participant.data || null}
+                        formData={formData.data}
+                        onChange={(profile) =>
+                          updateFormData({
+                            type: "FIELD_MEMBER_EMAIL",
+                            name: participant.name,
+                            payload: profile,
+                          })
+                        }
+                        errors={formErrors[participant.name]}
+                      >
+                        Peserta {index + 1}
+                      </FieldSelectEmailMember>
+                    ))}
                   </SegmentByTeamCategory>
                 </ContentCard>
               </WizardViewContent>
