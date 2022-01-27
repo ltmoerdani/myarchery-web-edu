@@ -28,7 +28,8 @@ function FieldSelectEmailMember({
       email: searchQuery,
     });
 
-    return result.success ? result.data : [];
+    const excludeCurrentUser = (user) => user.userId !== formData.participants[0].data.id;
+    return result.success ? result.data.filter(excludeCurrentUser) : [];
   };
 
   return (
