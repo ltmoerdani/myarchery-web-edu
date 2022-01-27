@@ -2,12 +2,10 @@ import * as React from "react";
 import styled from "styled-components";
 import { OrderEventService } from "services";
 
-import { AsyncPaginate } from "react-select-async-paginate";
+import AsyncSelect from "react-select/async";
 import { FieldErrorMessage } from "./field-error-message";
 
 import classnames from "classnames";
-
-const FETCHING_LIMIT = 5;
 
 function FieldSelectEmailMember({
   children,
@@ -30,19 +28,7 @@ function FieldSelectEmailMember({
       email: searchQuery,
     });
 
-    if (result.success) {
-      return {
-        options: result.data.map(() => ({ label: "member.email", value: "member.id" })),
-        hasMore: result.data.length >= FETCHING_LIMIT,
-        additional: { page: 1 },
-      };
-    }
-
-    return {
-      options: [],
-      hasMore: false,
-      additional: { page: 1 },
-    };
+    return result.success ? result.data : [];
   };
 
   return (
@@ -56,21 +42,19 @@ function FieldSelectEmailMember({
           {required && <span className="field-required">*</span>}
         </label>
       )}
-      <AsyncPaginate
+      <AsyncSelect
         styles={computeCustomStylesWithValidation(errors)}
         name={name}
-        loadOptions={loadOptions}
         placeholder={placeholder}
-        value={value}
-        onChange={(option) => {
-          onChange?.(option);
-        }}
+        cacheOptions
+        loadOptions={loadOptions}
+        getOptionLabel={(option) => option.email}
         noOptionsMessage={({ inputValue }) => {
           return !inputValue ? "Cari berdasarkan nama email" : "Pengguna tidak ditemukan";
         }}
-        isSearchable
-        debounceTimeout={500}
-        additional={{ page: 1 }}
+        value={value}
+        getOptionValue={(option) => option?.id}
+        onChange={(option) => onChange?.(option)}
       />
       <FieldErrorMessage errors={errors} />
     </FieldSelectEmailMemberWrapper>
