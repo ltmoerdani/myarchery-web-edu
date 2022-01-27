@@ -3,9 +3,18 @@ import styled from "styled-components";
 
 import { EventCategoryPicker } from "./category-picker";
 
-function FieldSelectCategory({ children, label, required, name, groupedOptions, value, onChange }) {
+function FieldSelectCategory({
+  children,
+  label,
+  required,
+  name,
+  groupedOptions,
+  value,
+  onChange,
+  errors,
+}) {
   const fieldID = name ? `field-input-${name}` : undefined;
-  const pickerProps = { groupedOptions, value, onChange };
+  const pickerProps = { groupedOptions, value, onChange, errors };
 
   return (
     <StyledFieldWrapper>
