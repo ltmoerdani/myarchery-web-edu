@@ -109,7 +109,10 @@ function PageEventRegistration() {
         participants
           .filter((member) => !member.data)
           .forEach((member) => {
-            validationErrors = { ...validationErrors, [member.name]: ["Peserta harus dipilih"] };
+            validationErrors = {
+              ...validationErrors,
+              [member.name]: ["Harus dipilih lebih dari 1 peserta"],
+            };
           });
       }
     }
