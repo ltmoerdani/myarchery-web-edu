@@ -147,21 +147,16 @@ function PageEventRegistration() {
     dispatchSubmitStatus({ status: "loading", errors: null });
 
     const nonEmptyParticipants = participants.filter((member) => Boolean(member.data));
-
-    const getParticipantIds = () => {
-      const userAsFirstParticipant = participants[0].data.id;
-      const remainingParticipants = nonEmptyParticipants
-        .map((member, index) => (index > 0 ? member.data.userId : undefined))
-        .filter((data) => Boolean(data));
-      return [userAsFirstParticipant, ...remainingParticipants];
+    const getUserIdsFromParticipants = () => {
+      return nonEmptyParticipants.map((member) => member.data.userId);
     };
 
     // payload kategory individual
     const payload = {
       event_category_id: category.id,
       club_id: club.detail.id,
-      team_name: teamName,
-      user_id: nonEmptyParticipants.length > 1 ? getParticipantIds() : undefined,
+      team_name: teamName || undefined,
+      user_id: nonEmptyParticipants.length > 1 ? getUserIdsFromParticipants() : undefined,
     };
 
     const result = await OrderEventService.register(payload);
