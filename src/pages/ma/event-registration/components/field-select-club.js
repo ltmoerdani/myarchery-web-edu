@@ -3,9 +3,18 @@ import styled from "styled-components";
 
 import { ClubPicker } from "./club-picker";
 
-function FieldSelectClub({ children, label, required, name, groupedOptions, value, onChange }) {
+function FieldSelectClub({
+  children,
+  label,
+  required,
+  name,
+  groupedOptions,
+  value,
+  onChange,
+  errors,
+}) {
   const fieldID = name ? `field-input-${name}` : undefined;
-  const pickerProps = { groupedOptions, value, onChange };
+  const pickerProps = { groupedOptions, value, onChange, errors };
 
   return (
     <StyledFieldWrapper>

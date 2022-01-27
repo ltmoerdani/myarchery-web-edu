@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { OrderEventService } from "services";
 
 import { AsyncPaginate } from "react-select-async-paginate";
+import { FieldErrorMessage } from "./field-error-message";
 
 import classnames from "classnames";
 
@@ -71,6 +72,7 @@ function FieldSelectEmailMember({
         debounceTimeout={500}
         additional={{ page: 1 }}
       />
+      <FieldErrorMessage errors={errors} />
     </FieldSelectEmailMemberWrapper>
   );
 }

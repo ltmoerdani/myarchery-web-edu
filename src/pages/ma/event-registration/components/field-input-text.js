@@ -1,6 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
 
+import { FieldErrorMessage } from "./field-error-message";
+
 import classnames from "classnames";
 
 function FieldInputText({
@@ -12,6 +14,7 @@ function FieldInputText({
   value = "",
   onChange,
   disabled,
+  errors,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
 
@@ -31,7 +34,7 @@ function FieldInputText({
         </label>
       )}
       <input
-        className="field-input-text"
+        className={classnames("field-input-text", { "field-invalid": errors?.length })}
         id={fieldID}
         name={name}
         placeholder={placeholder}
@@ -39,6 +42,7 @@ function FieldInputText({
         onChange={handleChange}
         disabled={disabled}
       />
+      <FieldErrorMessage errors={errors} />
     </FieldInputTextWrapper>
   );
 }
@@ -91,6 +95,10 @@ const FieldInputTextWrapper = styled.div`
       border-color: var(--ma-gray-50);
       color: var(--ma-gray-400);
       opacity: 1;
+    }
+
+    &.field-invalid {
+      border-color: var(--ma-red);
     }
   }
 `;

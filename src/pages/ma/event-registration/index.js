@@ -77,6 +77,7 @@ function PageEventRegistration() {
   );
 
   const { category, teamName, club, participants } = formData.data;
+  const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
   const isLoadingEventDetail = eventDetail.status === "loading";
   const eventId = eventDetailData?.id;
@@ -134,7 +135,7 @@ function PageEventRegistration() {
       }
     }
 
-    updateFormData({ errors: validationErrors });
+    updateFormData({ type: "FORM_INVALID", errors: validationErrors });
 
     const isValid = !Object.keys(validationErrors)?.length;
     if (isValid) {
@@ -267,6 +268,7 @@ function PageEventRegistration() {
                         payload: category,
                       });
                     }}
+                    errors={formErrors.category}
                   >
                     Kategori Lomba
                   </FieldSelectCategory>
@@ -328,6 +330,7 @@ function PageEventRegistration() {
                       placeholder="Masukkan Nama Tim"
                       value={teamName}
                       onChange={(inputValue) => updateFormData({ teamName: inputValue })}
+                      errors={formErrors.teamName}
                     >
                       Nama Tim
                     </FieldInputText>
@@ -337,6 +340,7 @@ function PageEventRegistration() {
                     required
                     value={club}
                     onChange={(clubValue) => updateFormData({ club: clubValue })}
+                    errors={formErrors.club}
                   >
                     Nama Klub
                   </FieldSelectClub>
@@ -352,6 +356,7 @@ function PageEventRegistration() {
                       disabled
                       value={participants[0].value}
                       onChange={() => {}}
+                      errors={formErrors[participants[0].name]}
                     >
                       Peserta
                     </FieldInputText>
@@ -374,6 +379,7 @@ function PageEventRegistration() {
                           disabled
                           value={participant.value}
                           onChange={() => {}}
+                          errors={formErrors[participant.name]}
                         >
                           {labelText}
                         </FieldInputText>
@@ -396,6 +402,7 @@ function PageEventRegistration() {
                               payload: profile,
                             })
                           }
+                          errors={formErrors[participant.name]}
                         >
                           {labelText}
                         </FieldSelectEmailMember>
@@ -1002,6 +1009,13 @@ function formReducer(state, action) {
     return {
       ...state,
       data: { ...state.data, participants: nextParticipantsState },
+    };
+  }
+
+  if (action.type === "FORM_INVALID") {
+    return {
+      ...state,
+      errors: action.errors,
     };
   }
 
