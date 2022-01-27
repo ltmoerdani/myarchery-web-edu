@@ -389,11 +389,7 @@ function PageEventRegistration() {
                           name={participant.name}
                           placeholder="Pilih peserta"
                           required
-                          value={
-                            participant.data
-                              ? { label: participant.data.email, value: participant.data.id }
-                              : null
-                          }
+                          value={participant.data || null}
                           formData={formData.data}
                           onChange={(profile) =>
                             updateFormData({
