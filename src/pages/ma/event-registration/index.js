@@ -14,21 +14,43 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { LoadingScreen } from "components";
 import { WizardView, WizardViewContent, Button, ButtonBlue, AvatarDefault } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
+import {
+  FieldInputText,
+  FieldSelectCategory,
+  FieldSelectClub,
+  FieldSelectEmailMember,
+} from "./components";
 
 import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
 import IconMail from "components/ma/icons/mono/mail";
 import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
+import IconInfo from "components/ma/icons/mono/info";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
+import { stringUtil } from "utils";
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
   { step: 2, label: "Pemesanan" },
 ];
+
+const initialFormState = {
+  data: {
+    category: null,
+    teamName: "",
+    club: null,
+    participants: [
+      { name: `member-email-${stringUtil.createRandom()}`, value: "", data: null },
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
+    ],
+  },
+  errors: {},
+};
 
 function PageEventRegistration() {
   const { slug } = useParams();
@@ -48,16 +70,14 @@ function PageEventRegistration() {
     errors: null,
   });
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
-  const [formData, updateFormData] = React.useReducer(formReducer, {
-    data: { category: null, club: null },
-    errors: {},
-  });
+  const [formData, updateFormData] = React.useReducer(formReducer, initialFormState);
   const [submitStatus, dispatchSubmitStatus] = React.useReducer(
     (state, action) => ({ ...state, ...action }),
     { status: "idle", errors: null }
   );
 
-  const { category, club } = formData.data;
+  const { category, teamName, club, participants } = formData.data;
+  const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
   const isLoadingEventDetail = eventDetail.status === "loading";
   const eventId = eventDetailData?.id;
@@ -66,7 +86,7 @@ function PageEventRegistration() {
   }`;
   const isLoadingSubmit = submitStatus.status === "loading";
   const isErrorSubmit = submitStatus.status === "error";
-  const participantCounts = 1;
+  const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
 
   const handleClickNext = () => {
     let validationErrors = {};
@@ -76,7 +96,49 @@ function PageEventRegistration() {
     if (!club?.detail.id) {
       validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
     }
-    updateFormData({ errors: validationErrors });
+
+    if (["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)) {
+      if (!teamName) {
+        validationErrors = { ...validationErrors, teamName: ["Nama tim harus diisi"] };
+      }
+    }
+
+    // required, untuk kategori tim putra/putri
+    if (["male_team", "female_team"].some((team) => team === category?.teamCategoryId)) {
+      if (participants.filter((member) => member.data).length <= 1) {
+        participants
+          .filter((member) => !member.data)
+          .forEach((member) => {
+            validationErrors = {
+              ...validationErrors,
+              [member.name]: ["Harus dipilih lebih dari 1 peserta"],
+            };
+          });
+      }
+    }
+
+    // required, untuk kategori tim campuran, min 1 cewek & 1 cowok
+    if (category?.teamCategoryId === "mix_team") {
+      const maleMembers = participants.filter((member) => member.data?.gender === "male");
+      const femaleMembers = participants.filter((member) => member.data?.gender === "female");
+      const emptyFieldName = participants.find((member) => !member.data).name;
+
+      if (maleMembers.length < 1) {
+        validationErrors = {
+          ...validationErrors,
+          [emptyFieldName]: ["Peserta putra harus dipilih"],
+        };
+      }
+
+      if (femaleMembers.length < 1) {
+        validationErrors = {
+          ...validationErrors,
+          [emptyFieldName]: ["Peserta putri harus dipilih"],
+        };
+      }
+    }
+
+    updateFormData({ type: "FORM_INVALID", errors: validationErrors });
 
     const isValid = !Object.keys(validationErrors)?.length;
     if (isValid) {
@@ -86,17 +148,34 @@ function PageEventRegistration() {
 
   const handleSubmitOrder = async () => {
     dispatchSubmitStatus({ status: "loading", errors: null });
+
+    const nonEmptyParticipants = participants.filter((member) => Boolean(member.data));
+    const getUserIdsFromParticipants = () => {
+      return nonEmptyParticipants.map((member) => member.data.userId);
+    };
+
     // payload kategory individual
     const payload = {
       event_category_id: category.id,
       club_id: club.detail.id,
+      team_name: teamName || undefined,
+      user_id: nonEmptyParticipants.length > 1 ? getUserIdsFromParticipants() : undefined,
     };
+
     const result = await OrderEventService.register(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
       history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
     } else {
-      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
+      const makeErrorData = () => {
+        // handle errors berupa [] / array kosongan
+        // dan ketika null
+        if (!result.errors?.length) {
+          return result.message;
+        }
+        return result.errors;
+      };
+      dispatchSubmitStatus({ status: "error", errors: makeErrorData() });
     }
   };
 
@@ -146,8 +225,15 @@ function PageEventRegistration() {
       }
     }
 
-    category && updateFormData({ type: "FIELD", payload: { category } });
+    category && updateFormData({ category });
   }, [eventCategories]);
+
+  React.useEffect(() => {
+    if (!userProfile) {
+      return;
+    }
+    updateFormData({ type: "DEFAULT_FIELD_MEMBER_EMAIL", payload: userProfile });
+  }, [userProfile]);
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -194,9 +280,14 @@ function PageEventRegistration() {
                     required
                     groupedOptions={eventCategories?.data}
                     value={category}
-                    onChange={(category) =>
-                      updateFormData({ type: "FIELD", payload: { category } })
-                    }
+                    onChange={(category) => {
+                      updateFormData({
+                        type: "CHANGE_CATEGORY",
+                        default: userProfile,
+                        payload: category,
+                      });
+                    }}
+                    errors={formErrors.category}
                   >
                     Kategori Lomba
                   </FieldSelectCategory>
@@ -211,45 +302,110 @@ function PageEventRegistration() {
                   </FieldInputText>
 
                   <SplitFields>
-                    <FieldInputText
-                      placeholder="Email"
-                      disabled
-                      value={userProfile.email}
-                      onChange={() => {}}
-                    >
-                      Email
-                    </FieldInputText>
+                    <SplitFieldItem>
+                      <FieldInputText
+                        placeholder="Email"
+                        disabled
+                        value={userProfile.email}
+                        onChange={() => {}}
+                      >
+                        Email
+                      </FieldInputText>
+                    </SplitFieldItem>
 
-                    <FieldInputText
-                      placeholder="No. Telepon"
-                      disabled
-                      value={userProfile.phoneNumber}
-                      onChange={() => {}}
-                    >
-                      No. Telepon
-                    </FieldInputText>
+                    <SplitFieldItem>
+                      <FieldInputText
+                        placeholder="No. Telepon"
+                        disabled
+                        value={userProfile.phoneNumber}
+                        onChange={() => {}}
+                      >
+                        No. Telepon
+                      </FieldInputText>
+                    </SplitFieldItem>
                   </SplitFields>
 
                   <div className="mt-5 mb-0">
                     <h5>Data Peserta</h5>
+                    <p>Masukkan email peserta yang telah terdaftar</p>
                   </div>
+
+                  <SegmentByTeamCategory
+                    teamFilters={["mix_team"]}
+                    teamCategoryId={category?.teamCategoryId}
+                  >
+                    <NoticeBar>
+                      Pendaftaran untuk Mix Team minimal terdiri dari 1 peserta putra dan putri
+                    </NoticeBar>
+                  </SegmentByTeamCategory>
+
+                  <SegmentByTeamCategory
+                    teamFilters={["male_team", "female_team", "mix_team"]}
+                    teamCategoryId={category?.teamCategoryId}
+                  >
+                    <FieldInputText
+                      name="teamName"
+                      required
+                      placeholder="Masukkan Nama Tim"
+                      value={teamName}
+                      onChange={(inputValue) => updateFormData({ teamName: inputValue })}
+                      errors={formErrors.teamName}
+                    >
+                      Nama Tim
+                    </FieldInputText>
+                  </SegmentByTeamCategory>
 
                   <FieldSelectClub
                     required
                     value={club}
-                    onChange={(club) => updateFormData({ type: "FIELD", payload: { club } })}
+                    onChange={(clubValue) => updateFormData({ club: clubValue })}
+                    errors={formErrors.club}
                   >
                     Nama Klub
                   </FieldSelectClub>
 
-                  <FieldInputText
-                    placeholder="Nama Pendaftar"
-                    disabled
-                    value={userProfile.email}
-                    onChange={() => {}}
+                  <SegmentByTeamCategory
+                    teamFilters={["individu male", "individu female"]}
+                    teamCategoryId={category?.teamCategoryId}
                   >
-                    Peserta
-                  </FieldInputText>
+                    <FieldInputText
+                      key={participants[0].name}
+                      name={participants[0].name}
+                      placeholder="Nama Peserta"
+                      disabled
+                      value={participants[0].value}
+                      onChange={() => {}}
+                      errors={formErrors[participants[0].name]}
+                    >
+                      Peserta
+                    </FieldInputText>
+                  </SegmentByTeamCategory>
+
+                  <SegmentByTeamCategory
+                    teamFilters={["male_team", "female_team", "mix_team"]}
+                    teamCategoryId={category?.teamCategoryId}
+                  >
+                    {participants.map((participant, index) => (
+                      <FieldSelectEmailMember
+                        key={participant.name}
+                        name={participant.name}
+                        placeholder="Pilih peserta"
+                        required
+                        value={participant.data || null}
+                        formData={formData.data}
+                        onChange={(profile) =>
+                          updateFormData({
+                            type: "FIELD_MEMBER_EMAIL",
+                            name: participant.name,
+                            payload: profile,
+                          })
+                        }
+                        errors={formErrors[participant.name]}
+                      >
+                        Peserta {index + 1}
+                      </FieldSelectEmailMember>
+                    ))}
+                  </SegmentByTeamCategory>
                 </ContentCard>
               </WizardViewContent>
 
@@ -288,45 +444,64 @@ function PageEventRegistration() {
                 </ContentCard>
 
                 <ContentCard>
-                  <ClubDetailLabel>Nama Klub</ClubDetailLabel>
-                  <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
+                  <SplitFields>
+                    {participantCounts > 1 && (
+                      <SplitFieldItem>
+                        <ClubDetailLabel>Nama Tim</ClubDetailLabel>
+                        <ClubDetailValue>{teamName}</ClubDetailValue>
+                      </SplitFieldItem>
+                    )}
+
+                    <SplitFieldItem>
+                      <ClubDetailLabel>Nama Klub</ClubDetailLabel>
+                      <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
+                    </SplitFieldItem>
+                  </SplitFields>
                 </ContentCard>
 
-                <ParticipantCard>
-                  <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
+                {participants
+                  .filter((member) => Boolean(member.data))
+                  .map((participant) => (
+                    <ParticipantCard key={participant.name}>
+                      <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
 
-                  <ParticipantMediaObject>
-                    <MediaParticipantAvatar>
-                      <ParticipantAvatar>
-                        <AvatarDefault fullname={userProfile.name} />
-                      </ParticipantAvatar>
-                    </MediaParticipantAvatar>
+                      <ParticipantMediaObject>
+                        <MediaParticipantAvatar>
+                          <ParticipantAvatar>
+                            {participant.data.avatar ? (
+                              <img className="club-logo-img" src={participant.data.avatar} />
+                            ) : (
+                              <AvatarDefault fullname={participant.data.name} />
+                            )}
+                          </ParticipantAvatar>
+                        </MediaParticipantAvatar>
 
-                    <MediaParticipantContent>
-                      <ParticipantName>
-                        <span>{userProfile.name}</span>
-                        <span>
-                          <IconBadgeVerified />
-                        </span>
-                      </ParticipantName>
+                        <MediaParticipantContent>
+                          <ParticipantName>
+                            <span>{participant.data.name}</span>
+                            <span>
+                              <IconBadgeVerified />
+                            </span>
+                          </ParticipantName>
 
-                      <LabelWithIcon icon={<IconMail size="20" />}>
-                        {userProfile.email}
-                      </LabelWithIcon>
+                          <LabelWithIcon icon={<IconMail size="20" />}>
+                            {participant.data.email}
+                          </LabelWithIcon>
 
-                      <RowedLabel>
-                        <LabelWithIcon icon={<IconGender size="20" />}>
-                          {(userProfile.gender === "male" && "Laki-laki") ||
-                            (userProfile.gender === "female" && "Perempuan")}
-                        </LabelWithIcon>
+                          <RowedLabel>
+                            <LabelWithIcon icon={<IconGender size="20" />}>
+                              {(participant.data.gender === "male" && "Laki-laki") ||
+                                (participant.data.gender === "female" && "Perempuan")}
+                            </LabelWithIcon>
 
-                        <LabelWithIcon icon={<IconAge size="20" />}>
-                          {userProfile.age} Tahun
-                        </LabelWithIcon>
-                      </RowedLabel>
-                    </MediaParticipantContent>
-                  </ParticipantMediaObject>
-                </ParticipantCard>
+                            <LabelWithIcon icon={<IconAge size="20" />}>
+                              {participant.data.age} Tahun
+                            </LabelWithIcon>
+                          </RowedLabel>
+                        </MediaParticipantContent>
+                      </ParticipantMediaObject>
+                    </ParticipantCard>
+                  ))}
               </WizardViewContent>
             </WizardView>
           </div>
@@ -508,7 +683,34 @@ const WrappedIcon = styled.div`
 
 const SplitFields = styled.div`
   display: flex;
-  gap: 1.375rem;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.375rem;
+`;
+
+const SplitFieldItem = styled.div`
+  flex: 1 1 13.75rem;
+`;
+
+function NoticeBar({ children }) {
+  return (
+    <StyledNoticeBar>
+      <span>
+        <IconInfo />
+      </span>
+      <span>{children}</span>
+    </StyledNoticeBar>
+  );
+}
+
+const StyledNoticeBar = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--ma-blue-primary-50);
+  color: var(--ma-blue);
 `;
 
 const ParticipantCard = styled.div`
@@ -551,6 +753,7 @@ const ParticipantName = styled.h5`
   margin-bottom: 0.5rem;
   display: flex;
   justify-content: flex-start;
+  align-items: center;
   gap: 0.5rem;
 `;
 
@@ -638,6 +841,13 @@ const TotalWithCurrency = styled(CurrencyFormat)`
   font-size: 18px;
   font-weight: 600;
 `;
+
+function SegmentByTeamCategory({ children, teamFilters, teamCategoryId }) {
+  if (teamFilters.some((filter) => filter === teamCategoryId)) {
+    return children;
+  }
+  return null;
+}
 
 function ButtonConfirmPayment({ onConfirm, onCancel }) {
   const [isAlertOpen, setAlertOpen] = React.useState(false);
@@ -757,15 +967,70 @@ function eventCategoriesReducer(state, action) {
 }
 
 function formReducer(state, action) {
-  if (action.type === "FIELD") {
+  if (action.type === "CHANGE_CATEGORY") {
+    // Kasih default user profile hanya kalau kategorinya individual
+    // selain itu reset ke kosongan semua
+    const nextParticipantsState = state.data.participants.map((member, index) => {
+      const matchesTeamCategoryId = (id) => action.payload.teamCategoryId === id;
+      const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
+      if (isCategoryIndividu) {
+        return index > 0 ? { ...member, data: null } : { ...member, data: action.default };
+      }
+      return { ...member, data: null };
+    });
+
     return {
       ...state,
-      data: { ...state.data, ...action.payload },
+      data: {
+        ...state.data,
+        category: action.payload,
+        // reset field-field data peserta
+        teamName: "",
+        club: null,
+        participants: nextParticipantsState,
+      },
     };
   }
-  if (action) {
-    return { ...state, ...action };
+
+  if (action.type === "DEFAULT_FIELD_MEMBER_EMAIL") {
+    const { payload: userProfile } = action;
+    const nextParticipantsState = state.data.participants.map((member, index) => {
+      return index > 0 ? member : { ...member, value: userProfile.email, data: userProfile };
+    });
+    return {
+      ...state,
+      data: { ...state.data, participants: nextParticipantsState },
+    };
   }
+
+  if (action.type === "FIELD_MEMBER_EMAIL") {
+    const nextParticipantsState = state.data.participants.map((member) => {
+      if (member.name === action.name) {
+        return { ...member, data: action.payload };
+      }
+      return member;
+    });
+
+    return {
+      ...state,
+      data: { ...state.data, participants: nextParticipantsState },
+    };
+  }
+
+  if (action.type === "FORM_INVALID") {
+    return {
+      ...state,
+      errors: action.errors,
+    };
+  }
+
+  if (action) {
+    return {
+      ...state,
+      data: { ...state.data, ...action },
+    };
+  }
+
   return state;
 }
 

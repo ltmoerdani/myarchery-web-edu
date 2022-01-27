@@ -4,16 +4,21 @@ import classnames from "classnames";
 
 import { Modal, ModalBody } from "reactstrap";
 import { ButtonBlue } from "components/ma";
+import { FieldErrorMessage } from "./field-error-message";
 
 import IconChevronDown from "components/ma/icons/mono/chevron-down";
 
-function EventCategoryPicker({ placeholder = "Pilih kategori lomba", value, ...props }) {
+function EventCategoryPicker({ placeholder = "Pilih kategori lomba", value, errors, ...props }) {
   const [isPickerOpen, setPickerOpen] = React.useState(false);
   return (
     <div>
-      <PickerButton onClick={() => setPickerOpen(true)}>
+      <PickerButton
+        onClick={() => setPickerOpen(true)}
+        className={classnames({ "field-invalid": errors?.length })}
+      >
         {value?.categoryLabel || <CategoryPlaceholder>{placeholder}</CategoryPlaceholder>}
       </PickerButton>
+      <FieldErrorMessage errors={errors} />
 
       {isPickerOpen && (
         <PickerControl
@@ -27,9 +32,9 @@ function EventCategoryPicker({ placeholder = "Pilih kategori lomba", value, ...p
   );
 }
 
-function PickerButton({ children, onClick }) {
+function PickerButton({ children, onClick, className }) {
   return (
-    <StyledPickerButton onClick={onClick}>
+    <StyledPickerButton className={className} onClick={onClick}>
       <StyledPickerButtonBody>{children}</StyledPickerButtonBody>
       <StyledPickerIndicator>
         <IconChevronDown size="20" />
@@ -53,6 +58,10 @@ const StyledPickerButton = styled.div`
   &:focus {
     border-color: #2684ff;
     box-shadow: 0 0 0 1px #2684ff;
+  }
+
+  &.field-invalid {
+    border-color: var(--ma-red);
   }
 `;
 

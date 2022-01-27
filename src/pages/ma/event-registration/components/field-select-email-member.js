@@ -1,29 +1,38 @@
 import * as React from "react";
 import styled from "styled-components";
+import { OrderEventService } from "services";
 
+import AsyncSelect from "react-select/async";
 import { FieldErrorMessage } from "./field-error-message";
 
 import classnames from "classnames";
 
-function FieldInputText({
+function FieldSelectEmailMember({
   children,
   label,
   required,
   name,
   placeholder,
-  value = "",
+  formData,
+  value,
   onChange,
   disabled,
   errors,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
 
-  const handleChange = (ev) => {
-    onChange?.(ev.target.value);
+  const loadOptions = async (searchQuery) => {
+    const result = await OrderEventService.getMemberEmails({
+      category_id: formData.category.id,
+      club_id: formData.club?.detail.id,
+      email: searchQuery,
+    });
+
+    return result.success ? result.data : [];
   };
 
   return (
-    <FieldInputTextWrapper>
+    <FieldSelectEmailMemberWrapper>
       {(children || label) && (
         <label
           className={classnames("field-label", { "field-disabled": disabled })}
@@ -33,21 +42,27 @@ function FieldInputText({
           {required && <span className="field-required">*</span>}
         </label>
       )}
-      <input
-        className={classnames("field-input-text", { "field-invalid": errors?.length })}
-        id={fieldID}
+      <AsyncSelect
+        styles={computeCustomStylesWithValidation(errors)}
         name={name}
         placeholder={placeholder}
+        cacheOptions
+        loadOptions={loadOptions}
+        getOptionLabel={(option) => option.email}
+        noOptionsMessage={({ inputValue }) => {
+          return !inputValue ? "Cari berdasarkan nama email" : "Pengguna tidak ditemukan";
+        }}
         value={value}
-        onChange={handleChange}
-        disabled={disabled}
+        getOptionValue={(option) => option?.id}
+        isClearable
+        onChange={(option) => onChange?.(option)}
       />
       <FieldErrorMessage errors={errors} />
-    </FieldInputTextWrapper>
+    </FieldSelectEmailMemberWrapper>
   );
 }
 
-const FieldInputTextWrapper = styled.div`
+const FieldSelectEmailMemberWrapper = styled.div`
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
 
@@ -96,11 +111,43 @@ const FieldInputTextWrapper = styled.div`
       color: var(--ma-gray-400);
       opacity: 1;
     }
-
-    &.field-invalid {
-      border-color: var(--ma-red);
-    }
   }
 `;
 
-export { FieldInputText };
+const customSelectStyles = {
+  valueContainer: (provided) => ({
+    ...provided,
+    padding: "8px 12px",
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: "#6a7187",
+    padding: 0,
+    marginTop: 0,
+    marginBottom: 0,
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: "#6a7187",
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: "var(--ma-gray-400)",
+    opacity: 0.6,
+  }),
+};
+
+const computeCustomStylesWithValidation = (errors) => {
+  if (errors?.length) {
+    return {
+      ...customSelectStyles,
+      control: (provided) => ({
+        ...provided,
+        border: "solid 1px var(--ma-red)",
+      }),
+    };
+  }
+  return customSelectStyles;
+};
+
+export { FieldSelectEmailMember };
