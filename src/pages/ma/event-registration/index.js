@@ -88,7 +88,7 @@ function PageEventRegistration() {
   const isErrorSubmit = submitStatus.status === "error";
   const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
 
-  const handleClickNext = async () => {
+  const handleClickNext = () => {
     let validationErrors = {};
     if (!category?.id) {
       validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
@@ -97,36 +97,9 @@ function PageEventRegistration() {
       validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
     }
 
-    // Kategori beregu
     if (["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)) {
       if (!teamName) {
         validationErrors = { ...validationErrors, teamName: ["Nama tim harus diisi"] };
-      }
-
-      // check email user saat ini
-      const fieldNameCurrentUser = participants[0].name;
-      dispatchSubmitStatus({ status: "loading", errors: null });
-      const result = await OrderEventService.getMemberEmails({
-        category_id: category.id,
-        club_id: club?.detail.id,
-        email: participants[0].data.email,
-      });
-      if (result.success) {
-        dispatchSubmitStatus({ status: "success" });
-        if (!result.data?.length) {
-          validationErrors = {
-            ...validationErrors,
-            [fieldNameCurrentUser]: ["Pengguna belum terdaftar pada kategori individu sebelumnya"],
-          };
-        }
-      } else {
-        dispatchSubmitStatus({ status: "error", errors: result.errors });
-        validationErrors = {
-          ...validationErrors,
-          [fieldNameCurrentUser]: result.errors?.length
-            ? result.errors
-            : [result.message || "Kendala tidak diketahui. Silakan hubungi technical support."],
-        };
       }
     }
 
