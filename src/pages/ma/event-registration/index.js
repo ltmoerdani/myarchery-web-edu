@@ -157,7 +157,15 @@ function PageEventRegistration() {
       dispatchSubmitStatus({ status: "success" });
       history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
     } else {
-      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
+      const makeErrorData = () => {
+        // handle errors berupa [] / array kosongan
+        // dan ketika null
+        if (!result.errors?.length) {
+          return result.message;
+        }
+        return result.errors;
+      };
+      dispatchSubmitStatus({ status: "error", errors: makeErrorData() });
     }
   };
 
