@@ -145,13 +145,25 @@ function PageEventRegistration() {
 
   const handleSubmitOrder = async () => {
     dispatchSubmitStatus({ status: "loading", errors: null });
+
+    const nonEmptyParticipants = participants.filter((member) => Boolean(member.data));
+
+    const getParticipantIds = () => {
+      const userAsFirstParticipant = participants[0].data.id;
+      const remainingParticipants = nonEmptyParticipants
+        .map((member, index) => (index > 0 ? member.data.userId : undefined))
+        .filter((data) => Boolean(data));
+      return [userAsFirstParticipant, ...remainingParticipants];
+    };
+
     // payload kategory individual
     const payload = {
       event_category_id: category.id,
       club_id: club.detail.id,
       team_name: teamName,
-      user_id: participantCounts > 1 ? participants.map((member) => member.data.id) : undefined,
+      user_id: nonEmptyParticipants.length > 1 ? getParticipantIds() : undefined,
     };
+
     const result = await OrderEventService.register(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
