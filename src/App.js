@@ -55,7 +55,7 @@ const App = () => {
               layout={LayoutEventRegistration}
               component={route.component}
               key={idx}
-              isAuthProtected={false}
+              isAuthProtected={true}
               exact
             />
           ))}
