@@ -4,6 +4,7 @@ import PageClubCreate from "pages/ma/dashboard/club-create";
 import PageClubJoin from "pages/ma/dashboard/club-join";
 import PageClubManage from "pages/ma/dashboard/club-manage";
 import PageTransactionDetail from "pages/ma/dashboard/transaction/detail"
+import PageProfileHome from "pages/ma/dashboard/profile"
 
 const dashboardRoutes = [
   { path: "/dashboard", exact: true, component: PageDashboard },
@@ -12,6 +13,7 @@ const dashboardRoutes = [
   { path: "/dashboard/clubs/join", exact: true, component: PageClubJoin },
   { path: "/dashboard/clubs/detail/:clubId", exact: true, component: PageClubManage },
   { path: "/dashboard/transactions/:orderId", exact: true, component: PageTransactionDetail },
+  { path: "/dashboard/profile", exact: true, component: PageProfileHome}
 ];
 
 export default dashboardRoutes;
