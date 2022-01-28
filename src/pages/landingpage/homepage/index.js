@@ -5,9 +5,10 @@ import { eventCategories } from "../../../constants";
 import { EventsService } from "services";
 import { useParams, Link } from "react-router-dom";
 import Countdown from "react-countdown";
-import { Container, Row, Col } from "reactstrap";
-import { ButtonOutline, WizardView, WizardViewContent, ButtonBlue } from "components/ma";
+import { Container, Row, Col, Button } from "reactstrap";
+import { WizardView, WizardViewContent, ButtonBlue } from "components/ma";
 import classnames from "classnames";
+import { BreadcrumbDashboard } from "./components/breadcrumb";
 
 const { TEAM_CATEGORIES } = eventCategories;
 
@@ -111,16 +112,41 @@ function LandingPage() {
     return dateEvent;
   };
 
+  const breadcrumpCurrentPageLabel = () => {
+    return (
+      <>
+        <span style={{ color: "#0d47a1" }}>Beranda</span>
+        <span> / </span>
+        <span style={{ color: "#000" }}>{eventData?.publicInformation?.eventName}</span>
+      </>
+    );
+  };
+
   return (
     <PageWrapper>
       <Container fluid>
+        <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel()}</BreadcrumbDashboard>
+
         <div className="event-banner">
           <img className="event-banner-image" src={eventData?.publicInformation?.eventBanner} />
         </div>
 
         <Row className="mt-3">
           <Col md="8">
-            <h1 className="event-heading">{eventData?.publicInformation?.eventName}</h1>
+            <div className="d-flex align-items-center">
+              <h1 className="event-heading me-3">{eventData?.publicInformation?.eventName}</h1>
+              <span
+                style={{
+                  backgroundColor: "#FFCF70",
+                  padding: "4px 8px",
+                  alignItems: "center",
+                  borderRadius: "10px",
+                  fontWeight: "bold",
+                }}
+              >
+                {eventData?.eventType}
+              </span>
+            </div>
             <div>Oleh {`${eventData?.admins?.name}`} Club</div>
 
             <div className="content-section mt-5">
@@ -207,9 +233,11 @@ function LandingPage() {
             </div>
 
             <div className="mt-4">
-              <ButtonOutline disabled className="button-preview-outline button-leaderboard">
-                Leaderboard &amp; Hasil
-              </ButtonOutline>
+              <Button className="btn w-100" style={{backgroundColor: '#FFF', borderColor: '#0d47a1'}}>
+                <span style={{color: '#0d47a1', fontWeight: '600'}}>
+                Live Score
+                </span>
+              </Button>
             </div>
           </Col>
         </Row>
@@ -360,6 +388,7 @@ function EventCategoryGrid({ categories, slug }) {
 
 const PageWrapper = styled.div`
   margin: 40px 0;
+  background-color: #FFF;
   font-family: "Inter";
 
   .event-banner {

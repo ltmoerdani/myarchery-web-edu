@@ -23,7 +23,7 @@ function LayoutLandingPage({ children }) {
   return (
     <StyledLayoutWrapper id="layout-wrapper">
       <Header />
-      <div className="main-content">{children}</div>
+      <div className="main-content" style={{backgroundColor: '#FFF'}}>{children}</div>
       <Footer />
     </StyledLayoutWrapper>
   );

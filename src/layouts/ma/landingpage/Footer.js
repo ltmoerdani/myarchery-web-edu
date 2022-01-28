@@ -7,8 +7,8 @@ import logo_footer from "../../../assets/images/myachery/logo 4.svg"
 function Footer() {
   const copyRightYear = new Date().getFullYear();
   return (
-    <React.Fragment>
-      <div style={{backgroundColor: '#F6F6F6'}}>
+    <div>
+      <div style={{backgroundColor: '#FFF'}}>
       <Container fluid>
         <Row>
           <Col className="text-center">
@@ -27,7 +27,7 @@ function Footer() {
         </Row>
       </Container>
       </div>
-      </React.Fragment>
+      </div>
   );
 }
 
