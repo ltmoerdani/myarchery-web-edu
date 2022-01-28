@@ -15,7 +15,7 @@ import { BreadcrumbDashboard } from "./components/breadcrumb";
 import MetaTags from "react-meta-tags";
 import classNames from "classnames";
 import { OrderEventService } from "services";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import event_img from "assets/images/myachery/a-1.jpg";
@@ -28,6 +28,8 @@ function PageTransactionDetail() {
   const [dataDetail, setDataDetail] = useState({});
 
   const { orderId } = useParams();
+  // eslint-disable-next-line no-unused-vars
+  const { push } = useHistory();
 
   const breadcrumpCurrentPageLabel = "Kembali";
 
@@ -51,22 +53,26 @@ function PageTransactionDetail() {
       return "di-ikuti";
     }
   };
+  useEffect(() => {
+    const getOrderEventBySlug = async () => {
+      const { data, message, errors } = await OrderEventService.get({ id: orderId });
 
-  console.log(statusPayment(3));
+      if (data) {
+        setDataDetail(data);
+        if(data?.transactionInfo?.statusId == 4) {
+          handleClickPayment()
+        }
+        console.log(message);
+      }
+      console.log(errors);
+    };
 
-  const getOrderEventBySlug = async () => {
-    const { data, message, errors } = await OrderEventService.get({ id: orderId });
+    getOrderEventBySlug();
+  }, [dataDetail?.transactionInfo?.snapToken]);
 
-    if (data) {
-      setDataDetail(data);
-      console.log(message);
-    }
-    console.log(errors);
-  };
-
-  const paymentMidtrans = () => {
-    const snapSrcUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
-    const myMidtransClientKey = "SB-Mid-client-y_BGhv-exWF6m27x"; //change this according to your client-key
+  useEffect(() => {
+    const snapSrcUrl = `${dataDetail?.transactionInfo?.clientLibLink}`;
+    const myMidtransClientKey = `${dataDetail?.transactionInfo?.clientKey}`; //change this according to your client-key
 
     const script = document.createElement("script");
     script.src = snapSrcUrl;
@@ -78,15 +84,10 @@ function PageTransactionDetail() {
     return () => {
       document.body.removeChild(script);
     };
-  };
-
-  useEffect(() => {
-    getOrderEventBySlug();
-    paymentMidtrans();
-  }, []);
+  }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
   const handleClickPayment = () => {
-    window.snap.pay(dataDetail?.transactionInfo?.snapToken, {
+    window.snap?.pay(dataDetail?.transactionInfo?.snapToken, {
       onSuccess: function () {
         console.log("success");
       },
@@ -448,7 +449,7 @@ function PageTransactionDetail() {
                             <td>
                               <WrapperPaymentStatus>
                                 <span
-                                style={{borderRadius: '10px', padding: '8px'}}
+                                  style={{ borderRadius: "10px", padding: "8px" }}
                                   className={statusPayment(dataDetail?.transactionInfo?.statusId)}
                                 >
                                   {dataDetail?.transactionInfo?.status}
