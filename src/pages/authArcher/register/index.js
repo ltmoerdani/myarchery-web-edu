@@ -79,135 +79,140 @@ const RegisterArcher = (props) => {
           <Row>
             <Col className="d-md-block d-none" md={5} sm={12} xs={12}></Col>
             <Col md={7} sm={12} xs={12}>
-              <div className="w-50 mx-auto responsive-form">
-                <div className="text-center">
-                  <h2 style={{ color: "#0D47A1", fontSize: "32px", lineHeight: "38.4px" }}>
-                    Buat Akun MyArchery
-                  </h2>
-                  <span style={{ fontSize: "20px", lineHeight: "28px" }}>
-                    Satu akun. untuk daftar berbagai event
-                  </span>
-                </div>
-                <AvForm
-                  className="form-horizontal"
-                  onValidSubmit={(e, v) => {
-                    handleValidSubmit(e, v);
-                  }}
-                >
-                  <div className="mb-2">
-                    <AvField
-                      name="name"
-                      label="Nama Profile"
-                      className="form-control"
-                      placeholder="Masukkan nama profile"
-                      type="text"
-                      required
-                      errorMessage="nama belum diisi"
-                    />
+              <div className="position-relative">
+                <div className="w-50 mx-auto responsive-form">
+                  <div className="text-center">
+                    <h2 style={{ color: "#0D47A1", fontSize: "32px", lineHeight: "38.4px" }}>
+                      Buat Akun MyArchery
+                    </h2>
+                    <span style={{ fontSize: "20px", lineHeight: "28px" }}>
+                      Satu akun untuk daftar berbagai event
+                    </span>
                   </div>
-                  <div className="mb-2">
-                    <DateInput
-                      name="date_of_birth"
-                      label="Tanggal Lahir"
-                      onChange={(e) => getValueDateOfBirth(e)}
-                    />
-                  </div>
-                  <div className="mb-2">
-                    <div style={{ marginBottom: "0.5rem" }}>
-                      <span style={{ fontSize: "13px", fontWeight: "500" }}>Jenis kelamin</span>
+                  <AvForm
+                    className="form-horizontal"
+                    onValidSubmit={(e, v) => {
+                      handleValidSubmit(e, v);
+                    }}
+                  >
+                    <div className="mb-2">
+                      <AvField
+                        name="name"
+                        label="Nama Profile"
+                        className="form-control"
+                        placeholder="Masukkan nama profile"
+                        type="text"
+                        required
+                        errorMessage="nama belum diisi"
+                      />
                     </div>
-                    <div className="d-flex">
-                      <div className="form-check ms-2">
-                        <Input
-                          required
-                          onChange={(e) => getValueRadio(e)}
-                          style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
-                          value="male"
-                          className="form-check-input"
-                          type="radio"
-                          name="gender"
-                          id="flexRadioDefault1"
-                        />
-                        <label
-                          style={{ fontSize: "14px" }}
-                          className="form-check-label ms-2 pt-1"
-                          htmlFor="flexRadioDefault1"
-                        >
-                          Pria
-                        </label>
+                    <div className="mb-2">
+                      <DateInput
+                        name="date_of_birth"
+                        label="Tanggal Lahir"
+                        onChange={(e) => getValueDateOfBirth(e)}
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <div style={{ marginBottom: "0.5rem" }}>
+                        <span style={{ fontSize: "13px", fontWeight: "500" }}>Jenis kelamin</span>
                       </div>
-                      <div className="form-check ms-5">
-                        <Input
-                          required
-                          onChange={(e) => getValueRadio(e)}
-                          style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
-                          value="female"
-                          className="form-check-input"
-                          type="radio"
-                          name="gender"
-                          id="flexRadioDefault1"
-                        />
-                        <label
-                          style={{ fontSize: "14px" }}
-                          className="form-check-label ms-2 pt-1"
-                          htmlFor="flexRadioDefault1"
-                        >
-                          Wanita
-                        </label>
+                      <div className="d-flex">
+                        <div className="form-check ms-2">
+                          <Input
+                            required
+                            onChange={(e) => getValueRadio(e)}
+                            style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
+                            value="male"
+                            className="form-check-input"
+                            type="radio"
+                            name="gender"
+                            id="flexRadioDefault1"
+                          />
+                          <label
+                            style={{ fontSize: "14px" }}
+                            className="form-check-label ms-2 pt-1"
+                            htmlFor="flexRadioDefault1"
+                          >
+                            Pria
+                          </label>
+                        </div>
+                        <div className="form-check ms-5">
+                          <Input
+                            required
+                            onChange={(e) => getValueRadio(e)}
+                            style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
+                            value="female"
+                            className="form-check-input"
+                            type="radio"
+                            name="gender"
+                            id="flexRadioDefault1"
+                          />
+                          <label
+                            style={{ fontSize: "14px" }}
+                            className="form-check-label ms-2 pt-1"
+                            htmlFor="flexRadioDefault1"
+                          >
+                            Wanita
+                          </label>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="mb-2">
-                    <AvField
-                      name="email"
-                      label="Email"
-                      className="form-control"
-                      placeholder="Masukkan email"
-                      type="email"
-                      required
-                    />
-                  </div>
-                  <div className="mb-2">
-                    <AvField
-                      name="password"
-                      label="Kata Sandi"
-                      type="password"
-                      required
-                      placeholder="Masukkan kata sandi"
-                    />
-                  </div>
-                  <div className="mb-2">
-                    <AvField
-                      name="password_confirmation"
-                      label="Konfirmasi Kata Sandi"
-                      type="password"
-                      required
-                      placeholder="Masukkan kata sandi"
-                    />
-                  </div>
+                    <div className="mb-2">
+                      <AvField
+                        name="email"
+                        label="Email"
+                        className="form-control"
+                        placeholder="Masukkan email"
+                        type="email"
+                        required
+                        errorMessage="email belum diisi"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <AvField
+                        name="password"
+                        label="Kata Sandi"
+                        type="password"
+                        required
+                        placeholder="Masukkan kata sandi"
+                        errorMessage="kata sandi belum diisi"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <AvField
+                        name="password_confirmation"
+                        label="Konfirmasi Kata Sandi"
+                        type="password"
+                        required
+                        placeholder="Masukkan kata sandi"
+                        errorMessage="konfirmasi kata sandi belum diisi"
+                      />
+                    </div>
 
-                  <div className="mt-3 d-grid">
-                    <button
-                      className="btn"
-                      type="submit"
-                      style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
-                    >
-                      Daftar
-                    </button>
-                  </div>
-                  <div className="mt-5 text-center">
-                    <p>
-                      Sudah memiliki akun masuk ?{" "}
-                      <Link
-                        to={path != null ? "/archer/login?path=" + path : "/archer/login"}
-                        className="fw-medium text-primary"
+                    <div className="mt-3 d-grid">
+                      <button
+                        className="btn"
+                        type="submit"
+                        style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                       >
-                        {" "}
-                        Disini{" "}
-                      </Link>{" "}
-                    </p>
-                  </div>
-                </AvForm>
+                        Daftar
+                      </button>
+                    </div>
+                    <div className="mt-5 text-center">
+                      <p>
+                        Sudah memiliki akun masuk ?{" "}
+                        <Link
+                          to={path != null ? "/archer/login?path=" + path : "/archer/login"}
+                          className="fw-medium text-primary"
+                        >
+                          {" "}
+                          Disini{" "}
+                        </Link>{" "}
+                      </p>
+                    </div>
+                  </AvForm>
+                </div>
               </div>
             </Col>
           </Row>

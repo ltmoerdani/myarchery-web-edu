@@ -29,8 +29,12 @@ const ResetPasswordArcher = () => {
       setMessage(message);
       setConfirm(true);
     }
-    setMessage(message);
-    console.log(errors);
+    if (!data) {
+      setMessage(message);
+      console.log(errors);
+      setFaild(true)
+
+    }
   };
 
   const handleGoDone = () => push("/archer/reset-done");
@@ -100,16 +104,17 @@ const ResetPasswordArcher = () => {
                     </div>
                     <AvField
                       name="password"
-                      label="Password"
+                      label="Kata Sandi"
                       type={!showPassword ? "password" : "text"}
                       required
-                      placeholder="Enter Password"
+                      placeholder="Masukkan Kata sandi"
+                      errorMessage="kata sandi belum diisi"
                     />
                   </div>
 
                   <div className="mb-3 position-relative">
                     {/* TODO: Hapus nanti setelah semua ini beres */}
-                    <div style={{ position: "absolute", top: "-1%", left: "35%" }}>
+                    <div style={{ position: "absolute", top: "-1%", left: "40%" }}>
                       <span onClick={() => setShowPassword(!showPassword)}>
                         {!showPassword ? (
                           <svg
@@ -141,10 +146,11 @@ const ResetPasswordArcher = () => {
                     </div>
                     <AvField
                       name="confirm_password"
-                      label="Confirm Password"
+                      label="Konfirmasi Kata Sandi"
                       type={!showPassword ? "password" : "text"}
                       required
-                      placeholder="Enter Confirm Password"
+                      placeholder="Masukkan Kinfirmasi Kata Sandi"
+                      errorMessage="konfirmasi kata sandi belum diisi"
                     />
                   </div>
 

@@ -80,7 +80,7 @@ const LoginArcher = (props) => {
                     Selamat Datang
                   </h2>
                   <span style={{ fontSize: "20px", lineHeight: "28px" }}>
-                    Satu akun. untuk daftar berbagai event
+                    Satu akun untuk daftar berbagai event
                   </span>
                 </div>
                 <AvForm
@@ -94,9 +94,10 @@ const LoginArcher = (props) => {
                       name="email"
                       label="Email"
                       className="form-control"
-                      placeholder="Enter email"
+                      placeholder="Masukkan email"
                       type="email"
                       required
+                      errorMessage="email belum diisi"
                     />
                     {loginErrors?.email ? (
                       <div className="validated-response">{loginErrors?.email.join(", ")}</div>
@@ -137,10 +138,11 @@ const LoginArcher = (props) => {
                     </div>
                     <AvField
                       name="password"
-                      label="Password"
+                      label="Kata Sandi"
                       type={!showPassword ? "password" : "text"}
                       required
-                      placeholder="Enter Password"
+                      placeholder="Masukkan Kata Sandi"
+                      errorMessage="kata sandi belum diisi"
                     />
                   </div>
 
