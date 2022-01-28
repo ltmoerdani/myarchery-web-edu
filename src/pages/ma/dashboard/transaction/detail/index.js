@@ -59,8 +59,8 @@ function PageTransactionDetail() {
 
       if (data) {
         setDataDetail(data);
-        if(data?.transactionInfo?.statusId == 4) {
-          handleClickPayment()
+        if (dataDetail?.transactionInfo?.statusId == 4) {
+          handleClickPayment();
         }
         console.log(message);
       }
