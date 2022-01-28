@@ -24,13 +24,15 @@ function ForgotPassword() {
   const handleValidSubmit = async (event, values) => {
     setEmail(values.email);
     const { data, message, errors } = await ArcherService.forgotPassword(values);
-    if (data) {
+    if (!data) {
+      // setMessage(message);
       setMessage(message);
+      setFaild(true);
+    }
+    if (data) {
       console.log(errors);
       setConfirm(true);
     }
-    setMessage(message);
-    setFaild(true);
   };
   return (
     <React.Fragment>
@@ -70,9 +72,10 @@ function ForgotPassword() {
                       name="email"
                       label="Email"
                       className="form-control"
-                      placeholder="Enter email"
+                      placeholder="Masukkan email"
                       type="email"
                       required
+                      errorMessage="email belum diisi"
                     />
                   </div>
 
