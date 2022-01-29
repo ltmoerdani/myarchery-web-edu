@@ -91,13 +91,13 @@ const CardMenuProfileContainer = styled.div`
   }
 `;
 
-function UserProfileCard() {
+function UserProfileCard({to}) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
   return (
     <CardMenuProfileContainer>
       <div className="profile-body">
         <div className="profile-avatar">
-          <Avatar imageSrc="" />
+          <Avatar imageSrc={userProfile?.avatar} />
         </div>
 
         <div className="profile-detail">
@@ -111,7 +111,7 @@ function UserProfileCard() {
 
       <div className="profile-footer">
         <div className="float-end">
-          <ButtonOutlineBlue rounded as={Link} to="#">
+          <ButtonOutlineBlue rounded as={Link} to={to}>
             Edit Profil
           </ButtonOutlineBlue>
         </div>

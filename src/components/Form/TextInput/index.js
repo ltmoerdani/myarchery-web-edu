@@ -13,6 +13,7 @@ const TextInput = ({
   error,
   readOnly,
   disabled,
+  defaultValue,
 }) => {
   const handleChange = e => {
     if (onChange)
@@ -35,6 +36,7 @@ const TextInput = ({
           placeholder={label}
           readOnly={readOnly}
           disabled={disabled}
+          defaultValue={defaultValue}
         />
         {accessoryRight}
       </InputGroup>
