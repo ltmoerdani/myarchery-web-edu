@@ -107,6 +107,9 @@ function LandingPage() {
   const dateEventStart = new Date(eventData?.publicInformation?.eventStart);
   const dateEventEnd = new Date(eventData?.publicInformation?.eventEnd);
 
+  const registerEventStart = new Date(eventData?.publicInformation?.eventStartRegister);
+  const registerEventEnd = new Date(eventData?.publicInformation?.eventEndRegister);
+
   const handlerEvenDate = (date) => {
     const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
     return dateEvent;
@@ -194,20 +197,28 @@ function LandingPage() {
 
               <h5 className="content-info-heading">Biaya Registrasi</h5>
               <div>
-                <p>
-                  Early Bird:
-                  <br />
-                  <span>Tanggal Registrasi 01 Januari 2022 - 31 Januari 2022</span>
-                  <br />
-                  <span>Mulai dari Rp50.000</span>
-                </p>
-                <p>
-                  Normal:
-                  <br />
-                  <span>Tanggal Registrasi 01 Februari 2022 - 07 Februari 2022</span>
-                  <br />
-                  <span>Mulai dari Rp99.000</span>
-                </p>
+                {eventData?.eventCategories?.map((eventCategori) => {
+                  return (
+                    <>
+                      <p>
+                        {eventCategori?.teamCategoryId?.label}:
+                        <br />
+                        <span>
+                          {`${eventCategori?.ageCategoryId?.label} - ${eventCategori?.competitionCategoryId?.label} - ${eventCategori?.distanceId?.label}`}
+                        </span>
+                        <br />
+                        <span>
+                          Tanggal Registrasi{" "}
+                          {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
+                            registerEventEnd
+                          )}`}
+                        </span>
+                        <br />
+                        <span>Mulai dari Rp{eventCategori?.fee}</span>
+                      </p>
+                    </>
+                  );
+                })}
               </div>
             </div>
           </Col>
