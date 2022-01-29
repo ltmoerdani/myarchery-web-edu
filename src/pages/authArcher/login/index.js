@@ -6,9 +6,10 @@ useLocation;
 import { useHistory, Link, useLocation } from "react-router-dom";
 import { Col, Row, Container } from "reactstrap";
 import { ArcherService } from "services";
-import toastr from "toastr";
+// import toastr from "toastr";
 import * as AuthenticationStore from "store/slice/authentication";
 import { useDispatch, useSelector } from "react-redux";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 import "./components/sass/styles.scss";
 
@@ -17,6 +18,8 @@ const LoginArcher = (props) => {
   let history = useHistory();
   const [loginErrors, setLoginErrors] = useState();
   const [showPassword, setShowPassword] = useState(false);
+  const [faild, setFaild] = useState(false);
+  const [message, setMessage] = useState("");
   const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
   let path = new URLSearchParams(useLocation().search).get("path");
 
@@ -29,7 +32,9 @@ const LoginArcher = (props) => {
     } else {
       console.log(errors);
       setLoginErrors(errors);
-      toastr.error(message);
+      // toastr.error(message);
+      setMessage(message);
+      setFaild(true);
     }
   };
 
@@ -55,6 +60,8 @@ const LoginArcher = (props) => {
       }
     }
   }, [isLoggedIn]);
+
+  const onFaildClikOk = () => setFaild(false);
 
   return (
     <React.Fragment>
@@ -193,6 +200,21 @@ const LoginArcher = (props) => {
           </Row>
         </div>
       </Container>
+
+      <SweetAlert
+        title=""
+        show={faild}
+        custom
+        btnSize="md"
+        reverseButtons={true}
+        confirmBtnText="Ya"
+        confirmBtnBsStyle="outline-primary"
+        cancelBtnBsStyle="primary"
+        onConfirm={onFaildClikOk}
+        style={{ padding: "30px 40px" }}
+      >
+        <p className="text-muted">{message}</p>
+      </SweetAlert>
     </React.Fragment>
   );
 };
