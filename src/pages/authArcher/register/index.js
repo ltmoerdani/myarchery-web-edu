@@ -16,7 +16,6 @@ import { DateInput } from "components";
 
 const RegisterArcher = (props) => {
   const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
-  const [registerErrors, setRegisterErrors] = useState();
   const [gender, setGender] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const dispatch = useDispatch();
@@ -36,8 +35,15 @@ const RegisterArcher = (props) => {
       }
     } else {
       console.log(errors);
-      setRegisterErrors(errors);
-      toastr.error(message);
+      console.log(message);
+      const err = Object.keys(errors).map((err) => err);
+      console.log(err);
+      if (err[0] == "email") {
+        toastr.error(errors?.email[0]);
+      }
+      if (err[1] == "password") {
+        toastr.error(errors?.password[0]);
+      }
     }
   };
 
@@ -58,8 +64,6 @@ const RegisterArcher = (props) => {
 
   const getValueRadio = (e) => setGender(e.target.value);
   const getValueDateOfBirth = (e) => setDateOfBirth(e.value);
-
-  console.log(registerErrors);
 
   return (
     <React.Fragment>
