@@ -4,19 +4,25 @@ import MetaTags from "react-meta-tags";
 import { AvField, AvForm } from "availity-reactstrap-validation";
 import login_background from "assets/images/myachery/login-background.svg";
 import { Container, Row, Col } from "reactstrap";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import Countdown from "react-countdown";
 import { ArcherService } from "services";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 import "./components/sass/styles.scss";
 
 function Verification() {
   let countTime = 600000;
+  // let countTime = 6000;
+  const { push } = useHistory();
 
   const { email } = useParams();
-  console.log(email);
 
   const [active, setActive] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const [faild, setFaild] = useState(false);
+  const [message, setMessage] = useState("");
+
   // const [btnDisable, setBtnDisable] = useState(false)
   const [count, setCount] = useState(
     <Countdown
@@ -55,10 +61,33 @@ function Verification() {
     if (data) {
       console.log(message);
       console.log(errors);
+      setMessage(message)
+      setConfirm(true)
     }
-    console.log(message);
-    console.log(errors);
+    if (!data) {
+      setFaild(true)
+      setMessage(message)
+      console.log(message);
+      console.log(errors);
+    }
   };
+
+  const onResendCode = async () => {
+    const { data, message, errors } = await ArcherService.forgotPassword({email: email});
+    if (data) {
+      setFaild(true)
+      setMessage(message)
+      console.log(message)
+      console.log(errors)
+    }
+    if (!data) {
+      setFaild(true)
+      setMessage(message)
+      console.log(message)
+      console.log(errors)
+    }
+
+  }
 
   const getCountDown = () => {
     setCount(() => (
@@ -71,6 +100,11 @@ function Verification() {
       />
     ));
   };
+
+  const onConfrim = () => push(`/archer/reset-password/${email}`)
+  const onFailed = () => setFaild(false)
+
+
   return (
     <React.Fragment>
       <MetaTags>
@@ -95,7 +129,7 @@ function Verification() {
                     Masukkan Kode
                   </h2>
                   <span style={{ fontSize: "20px", lineHeight: "28px" }}>
-                    Kode telah dikirimkan ke email fauzi@gmail.com
+                    Kode telah dikirimkan ke email {email}
                   </span>
                 </div>
                 <AvForm
@@ -163,6 +197,7 @@ function Verification() {
                         onClick={() => {
                           setActive(false);
                           getCountDown();
+                          onResendCode();
                         }}
                         style={{ cursor: "pointer", color: "#0D47A1" }}
                       >
@@ -203,6 +238,35 @@ function Verification() {
           </Row>
         </div>
       </Container>
+      <SweetAlert
+        title=""
+        show={confirm}
+        custom
+        btnSize="md"
+        reverseButtons={true}
+        confirmBtnText="Ya"
+        confirmBtnBsStyle="outline-primary"
+        cancelBtnBsStyle="primary"
+        onConfirm={onConfrim}
+        style={{ padding: "30px 40px" }}
+      >
+        <p className="text-muted">{message}</p>
+      </SweetAlert>
+
+      <SweetAlert
+        title=""
+        show={faild}
+        custom
+        btnSize="md"
+        reverseButtons={true}
+        confirmBtnText="Ya"
+        confirmBtnBsStyle="outline-primary"
+        cancelBtnBsStyle="primary"
+        onConfirm={onFailed}
+        style={{ padding: "30px 40px" }}
+      >
+        <p className="text-muted">{message}</p>
+      </SweetAlert>
     </React.Fragment>
   );
 }
