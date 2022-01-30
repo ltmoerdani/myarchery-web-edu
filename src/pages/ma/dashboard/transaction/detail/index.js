@@ -153,14 +153,14 @@ function PageTransactionDetail() {
                 Peserta
               </NavLink>
             </NavItem>
-            <NavItem>
+            {/* <NavItem>
               <NavLink
                 className={classNames({ activate: activeTab === "3" })}
                 onClick={() => toggleTab("3")}
               >
                 Pertandingan
               </NavLink>
-            </NavItem>
+            </NavItem> */}
             <NavItem>
               <NavLink
                 className={classNames({ activate: activeTab === "4" })}
@@ -298,7 +298,7 @@ function PageTransactionDetail() {
                       <div>
                         <div>
                           <h5>Detail Pertandingan</h5>
-                          <div>
+                          {/* <div>
                             <span className="p-1 btn mt-2" style={{ backgroundColor: "#EEE" }}>
                               Selesai
                             </span>
@@ -321,8 +321,8 @@ function PageTransactionDetail() {
                                 </tr>
                               </table>
                             </div>
-                          </div>
-                          <div className="mt-4">
+                          </div> */}
+                          {/* <div className="mt-4">
                             <span
                               className="p-1 btn mt-2"
                               style={{ backgroundColor: "#E3DDF2", color: "#453473" }}
@@ -348,8 +348,8 @@ function PageTransactionDetail() {
                                 </tr>
                               </table>
                             </div>
-                          </div>
-                          <div className="mt-4">
+                          </div> */}
+                          {/* <div className="mt-4">
                             <span
                               className="p-1 btn mt-2"
                               style={{ backgroundColor: "#FFF8E9", color: "#FFB420" }}
@@ -379,8 +379,8 @@ function PageTransactionDetail() {
                               <span className="ps-2">Biaya Pendaftaran</span>
                               <span style={{ float: "right" }}>RP 205.000</span>
                             </div>
-                          </div>
-                          <div className="mt-4">
+                          </div> */}
+                          {/* <div className="mt-4">
                             <span className="p-1 btn mt-2" style={{ backgroundColor: "#EEE" }}>
                               Daftar
                             </span>
@@ -407,7 +407,7 @@ function PageTransactionDetail() {
                                 <span style={{ float: "right" }}>RP 205.000</span>
                               </div>
                             </div>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </div>
