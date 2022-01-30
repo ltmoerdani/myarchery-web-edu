@@ -9,6 +9,8 @@ import { Container, Row, Col, Button } from "reactstrap";
 import { WizardView, WizardViewContent, ButtonBlue } from "components/ma";
 import classnames from "classnames";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
+import { useSelector } from "react-redux";
+import { getAuthenticationStore } from "store/slice/authentication";
 
 const { TEAM_CATEGORIES } = eventCategories;
 
@@ -58,6 +60,8 @@ function LandingPage() {
   const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
   const [eventData, setEventData] = React.useState({});
   const [category, setCategory] = React.useState({});
+
+  let { isLoggedIn } = useSelector(getAuthenticationStore);
 
   const getDataEventDetail = async () => {
     const { message, errors, data } = await EventsService.getDetailEvent({ slug });
@@ -238,7 +242,15 @@ function LandingPage() {
                 date={`${eventData?.publicInformation?.eventEndRegister}`}
                 renderer={HandlerCountDown}
               />
-              <ButtonBlue as={Link} to={`/event-registration/${slug}`} style={{ width: "100%" }}>
+              <ButtonBlue
+                as={Link}
+                to={`${
+                  !isLoggedIn
+                    ? `/archer/login?path=/event-registration/${slug}`
+                    : `/event-registration/${slug}`
+                }`}
+                style={{ width: "100%" }}
+              >
                 Daftar
               </ButtonBlue>
             </div>
@@ -275,24 +287,28 @@ function LandingPage() {
           <WizardView currentStep={currentStep}>
             <WizardViewContent>
               <EventCategoryGrid
+                isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL]}
               />
             </WizardViewContent>
             <WizardViewContent>
               <EventCategoryGrid
+                isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]}
               />
             </WizardViewContent>
             <WizardViewContent>
               <EventCategoryGrid
+                isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]}
               />
             </WizardViewContent>
             <WizardViewContent>
               <EventCategoryGrid
+                isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]}
               />
@@ -370,7 +386,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
 //   );
 // }
 
-function EventCategoryGrid({ categories, slug }) {
+function EventCategoryGrid({ categories, slug, isLoggedIn }) {
   return (
     <div className="event-category-grid">
       {categories.map((category, index) => (
@@ -383,7 +399,11 @@ function EventCategoryGrid({ categories, slug }) {
             <div>
               <ButtonBlue
                 as={Link}
-                to={`/event-registration/${slug}?categoryId=${category?.id}`}
+                to={`${
+                  !isLoggedIn
+                    ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
+                    : `/event-registration/${slug}?categoryId=${category?.id}`
+                }`}
                 className="btn btn-primary"
                 corner="8"
                 style={{ width: 120 }}
