@@ -135,21 +135,14 @@ $secondaty-one: #FFB420;
 
 .look-event {
     background-color: $secondaty-one;
-    min-height: 42vh;
+    height: 399px;
     position: relative;
 
-    @media screen and (max-width: 1024px) {
-        min-height: 18.5vh;
-    }
-
-    @media screen and (max-width: 768px) {
-        min-height: 10vh;
-    }
-
     @media screen and (max-width: 600px) {
-        min-height: 37vh;
+        height: 250px;
     }
 
+    
     .text {
         text-align: right;
         font-size: 24px;
@@ -158,12 +151,32 @@ $secondaty-one: #FFB420;
         position: absolute;
         left: 0;
         right: 70px;
+        top: 50%;
         top: calc(50% - 86px/2 - 40px);
         color: #FFF2D9 !important;
+
         @media screen and (max-width: 768px) {
             left: 0;
             right: 70px;
             top: 10%;
+        }
+    }
+
+    .target-landing {
+        width: 60%;
+        position: absolute;
+        
+        @media screen and (max-width: 768px) {
+            width: 25%;
+            top: unset;
+        }
+
+        @media screen and (min-width: 1440px) {
+            width: 50%;
+        }
+
+        @media screen and (min-width: 1920px) {
+            width: 40%;
         }
     }
 
@@ -178,10 +191,11 @@ $secondaty-one: #FFB420;
 
     .ases-dua {
         position: absolute;
-        top: 75%;
+        top: 80%;
         left: 10px;
-        @media screen and (min-width: 768px) {
-            top: 50% ;
+
+        @media screen and (max-width: 768px) {
+            top: 70%;
         }
     }
 
@@ -392,5 +406,82 @@ $secondaty-one: #FFB420;
 
     &:hover {
         transform: translateY(-5px);
+    }
+}
+
+.line-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.img-responsive-event-one {
+    width: 100%;
+    height: 465px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.img-responsive-event-two {
+    width: 100%;
+    height: 165px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.card-responsive-event-one {
+    height: 392px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.card-responsive-event-two {
+    height: 265px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.card-list-event {
+    height: 399px;
+    @media screen and (max-width: 768px){
+        height: auto;
+    }
+}
+
+.btn-hero {
+    background-color: $secondaty-one !important;
+    border-color: $secondaty-one !important;
+    width: 17.813em;
+    height: 3.25em;
+
+    @media screen and (max-width: 600px) {
+        width: 10em;
+        height: 3.25em;
+    }
+
+    .btn-hero-text {
+        color: $primary-one !important;
+        line-height: 1.75em;
+        font-size: 1.25em;
+        
+        @media screen and (max-width: 600px) {
+            line-height: 1.75em;
+            font-size: 1em;
+        }
+    }
+
+}
+
+.btn-position {
+    position: absolute;
+    left: 40%;
+
+    @media screen and (max-width: 600px) {
+        position: unset;  
     }
 }
