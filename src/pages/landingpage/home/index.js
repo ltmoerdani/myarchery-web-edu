@@ -37,102 +37,43 @@ import "./components/sass/header.scss";
 function Home() {
   let { isLoggedIn } = useSelector(getAuthenticationStore);
 
-  return (
-    <React.Fragment>
-      <MetaTags>
-        <title>Home | MyArchery</title>
-      </MetaTags>
-      <Carousel
-        showArrows={false}
-        infiniteLoop
-        autoPlay
-        showThumbs={false}
-        swipeScrollTolerance={5}
-        interval={2000}
-        showStatus={false}
-      >
-        <div className="position-relative">
-          <img src={banner_satu} />
-          <div className="text-box">
-            <span className="title-sub">
-              selemat datang di
-              <br />
-            </span>
-            <span className="title-hero">myachery</span>
-            <div className="content">
-              <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-              <Button color="warning" style={{ backgroundColor: "#ffb420" }}>
-                Lihat Event
-              </Button>
-            </div>
-          </div>
-        </div>
-        <div className="position-relative">
-          <img src={banner_satu} />
-          <div className="text-box">
-            <span className="title-sub">
-              selamat datang di
-              <br />
-            </span>
-            <span className="title-hero">myachery</span>
-            <div className="content">
-              <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-              <Button color="warning" style={{ backgroundColor: "#ffb420" }}>
-                Lihat Event
-              </Button>
-            </div>
-          </div>
-        </div>
-        <div className="position-relative">
-          <img src={banner_satu} />
-          <div className="text-box">
-            <span className="title-sub">
-              selamat datang di
-              <br />
-            </span>
-            <span className="title-hero">myachery</span>
-            <div className="content">
-              <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
-              <Button color="warning" style={{ backgroundColor: "#ffb420" }}>
-                Lihat Event
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Carousel>
-      <div className="content-landing mt-0">
-        <Container fluid>
-          <div className="py-5 px-3">
-            <Row>
-              <Col md={8} sm={12}>
-                <Card>
-                  <div className="w-100">
-                    <img src={img_content} style={{ width: "100%" }} />
-                  </div>
-                  <CardBody>
-                    <div>
-                      <span className="tag px-3 py-1">Games</span>
-                      <h3 className="primary-color mt-2">The Hub Scoring - 2021</h3>
-                      <div className="mt-2">
-                        <span className="bx bx-map"></span>
-                        <span className="ms-1">Cibubur</span>
-                      </div>
-                      <div>
-                        <span className="bx bx-calendar"></span>
-                        <span className="ms-1">01 Februari 2021 - 28 Februari 2021</span>
-                      </div>
-                      <div className="mt-2">
-                        <p>
-                          Kegiatan scoring untuk kembali menumbuhkan semangat berlatih panahan serta
-                          ajang silaturahmi secara langsung sesuai dengan protocol Kesehatan saat
-                          ini.
-                        </p>
-                      </div>
-                      <Link to="/event/pro-archery/1631782893-the-hub-scoring-2021">
-                        <Button color="primary" outline>
-                          Lihat Detail
-                        </Button>
-                      </Link>
+    let { isLoggedIn } = useSelector(getAuthenticationStore);
+
+    return (
+        <React.Fragment>
+            <MetaTags>
+            <title>Home | MyArchery</title>
+            </MetaTags>
+            <Carousel
+                showArrows={false}
+                infiniteLoop
+                autoPlay
+                showThumbs={false}
+                swipeScrollTolerance={5}
+                interval={2000}
+                showStatus={false}
+                >
+                    <div className='position-relative'>
+                        <img src={banner_satu} />
+                        <div className='text-box'>
+                            <span className='title-sub'>selamat datang di<br/></span>
+                            <span className='title-hero'>myachery</span>
+                            <div className='content'>
+                                <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
+                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='position-relative'>
+                        <img src={banner_satu} />
+                        <div className='text-box'>
+                            <span className='title-sub'>selamat datang di<br/></span>
+                            <span className='title-hero'>myachery</span>
+                            <div className='content'>
+                                <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
+                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
+                            </div>
+                        </div>
                     </div>
                   </CardBody>
                 </Card>
