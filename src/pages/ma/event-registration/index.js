@@ -91,6 +91,18 @@ function PageEventRegistration() {
   const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
   const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
 
+  const getLandingPagePath = (url) => {
+    if (!url) {
+      return "#";
+    }
+    const segments = url.split("/");
+    const segmentLength = segments.length;
+    const path = `/${segments[segmentLength - 3]}/${segments[segmentLength - 2]}/${
+      segments[segmentLength - 1]
+    }`;
+    return path;
+  };
+
   const handleClickNext = () => {
     let validationErrors = {};
     if (!category?.id) {
@@ -259,7 +271,9 @@ function PageEventRegistration() {
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to="#">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
+        <BreadcrumbDashboard to={getLandingPagePath(eventDetailData?.publicInformation.eventUrl)}>
+          {breadcrumpCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <StepIndicator>
           <Step
