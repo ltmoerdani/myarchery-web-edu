@@ -88,6 +88,9 @@ function PageEventRegistration() {
   const isErrorSubmit = submitStatus.status === "error";
   const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
 
+  const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
+  const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
+
   const handleClickNext = () => {
     let validationErrors = {};
     if (!category?.id) {
@@ -358,13 +361,16 @@ function PageEventRegistration() {
                   </SegmentByTeamCategory>
 
                   <FieldSelectClub
-                    required
+                    required={!isCategoryIndividu}
                     value={club}
                     onChange={(clubValue) => updateFormData({ club: clubValue })}
                     errors={formErrors.club}
                   >
                     Nama Klub
                   </FieldSelectClub>
+                  {isCategoryIndividu && (
+                    <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
+                  )}
 
                   <SegmentByTeamCategory
                     teamFilters={["individu male", "individu female"]}
@@ -445,21 +451,23 @@ function PageEventRegistration() {
                   </BSTable>
                 </ContentCard>
 
-                <ContentCard>
-                  <SplitFields>
-                    {participantCounts > 1 && (
-                      <SplitFieldItem>
-                        <ClubDetailLabel>Nama Tim</ClubDetailLabel>
-                        <ClubDetailValue>{teamName}</ClubDetailValue>
-                      </SplitFieldItem>
-                    )}
+                {club && (
+                  <ContentCard>
+                    <SplitFields>
+                      {participantCounts > 1 && (
+                        <SplitFieldItem>
+                          <ClubDetailLabel>Nama Tim</ClubDetailLabel>
+                          <ClubDetailValue>{teamName}</ClubDetailValue>
+                        </SplitFieldItem>
+                      )}
 
-                    <SplitFieldItem>
-                      <ClubDetailLabel>Nama Klub</ClubDetailLabel>
-                      <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
-                    </SplitFieldItem>
-                  </SplitFields>
-                </ContentCard>
+                      <SplitFieldItem>
+                        <ClubDetailLabel>Nama Klub</ClubDetailLabel>
+                        <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
+                      </SplitFieldItem>
+                    </SplitFields>
+                  </ContentCard>
+                )}
 
                 {participants
                   .filter((member) => Boolean(member.data))
@@ -691,6 +699,10 @@ const SplitFields = styled.div`
 
 const SplitFieldItem = styled.div`
   flex: 1 1 13.75rem;
+`;
+
+const SubtleFieldNote = styled.div`
+  color: var(--ma-gray-400);
 `;
 
 function NoticeBar({ children }) {
