@@ -8,7 +8,7 @@ function Footer() {
   const copyRightYear = new Date().getFullYear();
   return (
     <React.Fragment>
-      <div style={{backgroundColor: '#F6F6F6'}}>
+      <div style={{backgroundColor: '#FFF'}}>
       <Container fluid>
         <Row>
           <Col className="text-center">
