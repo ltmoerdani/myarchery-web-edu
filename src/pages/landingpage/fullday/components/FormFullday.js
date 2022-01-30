@@ -204,7 +204,7 @@ const FormFullday = ({ onFormFieldChange, formData, eventDetail }) => {
                                   </tr>
                                 </tbody>
                               </table>
-                              <br />
+                              <br /><br />
                               <h4
                                 style={{ color: "green", textAlign: "center" }}
                                 >
