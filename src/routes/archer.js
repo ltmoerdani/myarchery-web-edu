@@ -3,7 +3,6 @@ import RegisterArcher from "../pages/authArcher/register";
 import Logout from "../pages/authArcher/logout";
 import ForgotPassword from "pages/authArcher/forgotPassword";
 import Verification from "pages/authArcher/verification";
-import PolicyArcher from "../pages/authArcher/policy"
 import ResetPasswordArcher from "pages/authArcher/resetPassword";
 import ResetSuccessArcher from "pages/authArcher/resetSuccess";
 import PolicyArcher from "pages/authArcher/policy";
