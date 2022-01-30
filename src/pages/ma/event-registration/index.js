@@ -369,6 +369,7 @@ function PageEventRegistration() {
 
                   <FieldSelectClub
                     required={category?.id && !isCategoryIndividu}
+                    disabled={!category?.id}
                     value={club}
                     onChange={(clubValue) => updateFormData({ club: clubValue })}
                     errors={formErrors.club}

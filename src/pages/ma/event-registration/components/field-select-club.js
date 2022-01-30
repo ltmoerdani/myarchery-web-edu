@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 import { ClubPicker } from "./club-picker";
 
+import classnames from "classnames";
+
 function FieldSelectClub({
   children,
   label,
@@ -12,14 +14,18 @@ function FieldSelectClub({
   value,
   onChange,
   errors,
+  disabled,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
-  const pickerProps = { groupedOptions, value, onChange, errors };
+  const pickerProps = { groupedOptions, value, onChange, errors, disabled };
 
   return (
     <StyledFieldWrapper>
       {(children || label) && (
-        <label className="field-label" htmlFor={fieldID}>
+        <label
+          className={classnames("field-label", { "field-disabled": disabled })}
+          htmlFor={fieldID}
+        >
           {children || label || "Nama Klub"}
           {required && <span className="field-required">*</span>}
         </label>

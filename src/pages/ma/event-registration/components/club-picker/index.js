@@ -8,13 +8,14 @@ import IconChevronDown from "components/ma/icons/mono/chevron-down";
 
 import classnames from "classnames";
 
-function ClubPicker({ placeholder = "Pilih klub", value, errors, ...props }) {
+function ClubPicker({ placeholder = "Pilih klub", value, errors, disabled, ...props }) {
   const [isPickerOpen, setPickerOpen] = React.useState(false);
   return (
     <div>
       <PickerButton
-        onClick={() => setPickerOpen(true)}
+        onClick={() => !disabled && setPickerOpen(true)}
         className={classnames({ "field-invalid": errors?.length })}
+        disabled={disabled}
       >
         {value?.detail.name || <PlaceholderText>{placeholder}</PlaceholderText>}
       </PickerButton>
@@ -32,11 +33,16 @@ function ClubPicker({ placeholder = "Pilih klub", value, errors, ...props }) {
   );
 }
 
-function PickerButton({ children, onClick, className }) {
+function PickerButton({ children, onClick, className, disabled }) {
   return (
-    <StyledPickerButton className={className} onClick={onClick}>
-      <StyledPickerButtonBody>{children}</StyledPickerButtonBody>
-      <StyledPickerIndicator>
+    <StyledPickerButton
+      className={classnames(className, { "field-disabled": disabled })}
+      onClick={onClick}
+    >
+      <StyledPickerButtonBody className={classnames({ "field-disabled": disabled })}>
+        {children}
+      </StyledPickerButtonBody>
+      <StyledPickerIndicator className={classnames({ "field-disabled": disabled })}>
         <IconChevronDown size="20" />
       </StyledPickerIndicator>
     </StyledPickerButton>
@@ -48,6 +54,7 @@ const StyledPickerButton = styled.div`
   border-radius: 0.25rem;
   border: 1px solid #ced4da;
   display: flex;
+  color: var(--ma-gray-400);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
   &:hover {
@@ -58,10 +65,19 @@ const StyledPickerButton = styled.div`
   &:focus {
     border-color: #2684ff;
     box-shadow: 0 0 0 1px #2684ff;
+
+    &.field-disabled {
+      border-color: var(--ma-gray-50);
+      box-shadow: none;
+    }
   }
 
   &.field-invalid {
     border-color: var(--ma-red);
+  }
+
+  &.field-disabled {
+    border-color: var(--ma-gray-50);
   }
 `;
 
@@ -75,6 +91,12 @@ const StyledPickerIndicator = styled.button`
   background-color: #ffffff;
   background-clip: padding-box;
   color: var(--ma-blue);
+
+  &.field-disabled {
+    background-color: var(--ma-gray-50);
+    color: var(--ma-gray-400);
+    cursor: default;
+  }
 `;
 
 const StyledPickerButtonBody = styled.button`
@@ -93,6 +115,11 @@ const StyledPickerButtonBody = styled.button`
   text-align: left;
 
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &.field-disabled {
+    background-color: var(--ma-gray-50);
+    cursor: default;
+  }
 `;
 
 const PlaceholderText = styled.span`
