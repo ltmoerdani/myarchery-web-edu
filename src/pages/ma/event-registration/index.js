@@ -88,23 +88,46 @@ function PageEventRegistration() {
   const isErrorSubmit = submitStatus.status === "error";
   const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
 
+  const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
+  const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
+
+  const getLandingPagePath = (url) => {
+    if (!url) {
+      return "#";
+    }
+    const segments = url.split("/");
+    const segmentLength = segments.length;
+    const path = `/${segments[segmentLength - 3]}/${segments[segmentLength - 2]}/${
+      segments[segmentLength - 1]
+    }`;
+    return path;
+  };
+
   const handleClickNext = () => {
     let validationErrors = {};
     if (!category?.id) {
       validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
     }
-    if (!club?.detail.id) {
-      validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
-    }
 
-    if (["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)) {
+    // Kategori tim secara umum
+    if (
+      category?.id &&
+      ["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)
+    ) {
       if (!teamName) {
         validationErrors = { ...validationErrors, teamName: ["Nama tim harus diisi"] };
+      }
+
+      if (!club?.detail.id) {
+        validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
       }
     }
 
     // required, untuk kategori tim putra/putri
-    if (["male_team", "female_team"].some((team) => team === category?.teamCategoryId)) {
+    if (
+      category?.id &&
+      ["male_team", "female_team"].some((team) => team === category?.teamCategoryId)
+    ) {
       if (participants.filter((member) => member.data).length <= 1) {
         participants
           .filter((member) => !member.data)
@@ -118,7 +141,7 @@ function PageEventRegistration() {
     }
 
     // required, untuk kategori tim campuran, min 1 cewek & 1 cowok
-    if (category?.teamCategoryId === "mix_team") {
+    if (category?.id && category?.teamCategoryId === "mix_team") {
       const maleMembers = participants.filter((member) => member.data?.gender === "male");
       const femaleMembers = participants.filter((member) => member.data?.gender === "female");
       const emptyFieldName = participants.find((member) => !member.data).name;
@@ -157,7 +180,7 @@ function PageEventRegistration() {
     // payload kategory individual
     const payload = {
       event_category_id: category.id,
-      club_id: club.detail.id,
+      club_id: club?.detail.id || 0,
       team_name: teamName || undefined,
       user_id: nonEmptyParticipants.length > 1 ? getUserIdsFromParticipants() : undefined,
     };
@@ -248,7 +271,9 @@ function PageEventRegistration() {
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to="#">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
+        <BreadcrumbDashboard to={getLandingPagePath(eventDetailData?.publicInformation.eventUrl)}>
+          {breadcrumpCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <StepIndicator>
           <Step
@@ -281,6 +306,7 @@ function PageEventRegistration() {
                     groupedOptions={eventCategories?.data}
                     value={category}
                     onChange={(category) => {
+                      updateFormData({ type: "FORM_INVALID", errors: {} });
                       updateFormData({
                         type: "CHANGE_CATEGORY",
                         default: userProfile,
@@ -356,13 +382,17 @@ function PageEventRegistration() {
                   </SegmentByTeamCategory>
 
                   <FieldSelectClub
-                    required
+                    required={category?.id && !isCategoryIndividu}
+                    disabled={!category?.id}
                     value={club}
                     onChange={(clubValue) => updateFormData({ club: clubValue })}
                     errors={formErrors.club}
                   >
                     Nama Klub
                   </FieldSelectClub>
+                  {isCategoryIndividu && (
+                    <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
+                  )}
 
                   <SegmentByTeamCategory
                     teamFilters={["individu male", "individu female"]}
@@ -389,7 +419,7 @@ function PageEventRegistration() {
                       <FieldSelectEmailMember
                         key={participant.name}
                         name={participant.name}
-                        placeholder="Pilih peserta"
+                        placeholder="Pilih email peserta"
                         required
                         value={participant.data || null}
                         formData={formData.data}
@@ -443,21 +473,23 @@ function PageEventRegistration() {
                   </BSTable>
                 </ContentCard>
 
-                <ContentCard>
-                  <SplitFields>
-                    {participantCounts > 1 && (
-                      <SplitFieldItem>
-                        <ClubDetailLabel>Nama Tim</ClubDetailLabel>
-                        <ClubDetailValue>{teamName}</ClubDetailValue>
-                      </SplitFieldItem>
-                    )}
+                {club && (
+                  <ContentCard>
+                    <SplitFields>
+                      {participantCounts > 1 && (
+                        <SplitFieldItem>
+                          <ClubDetailLabel>Nama Tim</ClubDetailLabel>
+                          <ClubDetailValue>{teamName}</ClubDetailValue>
+                        </SplitFieldItem>
+                      )}
 
-                    <SplitFieldItem>
-                      <ClubDetailLabel>Nama Klub</ClubDetailLabel>
-                      <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
-                    </SplitFieldItem>
-                  </SplitFields>
-                </ContentCard>
+                      <SplitFieldItem>
+                        <ClubDetailLabel>Nama Klub</ClubDetailLabel>
+                        <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
+                      </SplitFieldItem>
+                    </SplitFields>
+                  </ContentCard>
+                )}
 
                 {participants
                   .filter((member) => Boolean(member.data))
@@ -689,6 +721,10 @@ const SplitFields = styled.div`
 
 const SplitFieldItem = styled.div`
   flex: 1 1 13.75rem;
+`;
+
+const SubtleFieldNote = styled.div`
+  color: var(--ma-gray-400);
 `;
 
 function NoticeBar({ children }) {
