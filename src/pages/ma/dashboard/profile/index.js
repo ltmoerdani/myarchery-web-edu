@@ -1,21 +1,15 @@
-import React, {useState} from 'react'
+import React, { useState } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import styled from "styled-components";
 import IconCamera from "components/ma/icons/mono/camera";
-import { DateInput, TextInput, NumberInput } from 'components';
+import { DateInput, TextInput, NumberInput } from "components";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
-import { ArcherService } from "services"
-import { useHistory } from "react-router-dom"
+import { ArcherService } from "services";
+import { useHistory } from "react-router-dom";
 
-import {
-    Container,
-    Row, Col,
-    Label,
-    Input,
-    Button
-} from 'reactstrap'
+import { Container, Row, Col, Label, Input, Button } from "reactstrap";
 
 async function imageToBase64(imageFileRaw) {
   return new Promise((resolve) => {
@@ -28,188 +22,240 @@ async function imageToBase64(imageFileRaw) {
   });
 }
 
-
 function PageProfileHome() {
-    const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
-    const history = useHistory()
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const history = useHistory();
 
-    const [profileData, setProfileData] = useState({})
-    const [dataUpdate, setUpdateData] = useState({})
-    // const [base64String, setBase64String] = useState("")
+  const [profileData, setProfileData] = useState({});
+  const [dataUpdate, setUpdateData] = useState({});
+  const [toggle, setToggle] = useState(userProfile?.gender);
+  const [imgAvatar, setImgAvatar] = useState(userProfile?.avatar);
+  // const [base64String, setBase64String] = useState("")
 
-    const handleChooseImage = async(field, ev) => {
-        if (!ev.target.files?.[0]) {
-          return;
-        }
-        const imageRawData = ev.target.files[0];
-        const stringAv = await imageToBase64(imageRawData)
-        const imagePreviewUrl = URL.createObjectURL(imageRawData);
-        setProfileData({
-          [field]: { preview: imagePreviewUrl, raw: imageRawData, base64: stringAv },
-        });
-      };
-
-      const updateAvatar = async() => {
-        const {message, data, errors} = await ArcherService.updateAvatar({
-          avatar: profileData?.avatar?.base64,
-        },  {user_id: userProfile?.id})
-        if(!data) {
-          console.log(message)
-          console.log(errors)
-        }
-      }
-
-    const hanleSubmitData = async () => {
-        const {message, errors, data } = await ArcherService.updateProfile({
-            name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
-            date_of_birth: dataUpdate?.date_of_birth ? dataUpdate?.date_of_birth : userProfile?.dateOfBirth,
-            gender: dataUpdate?.gender ? dataUpdate?.gender : userProfile?.gender,
-            phone_number: dataUpdate?.phone_number ? dataUpdate?.phone_number : userProfile?.phoneNumber,
-            club: dataUpdate?.club ? dataUpdate?.club : null,
-        }, {user_id: userProfile?.id})
-        if (!data) {
-            console.log(message)
-            console.log(errors)
-        }
-        history.push("/dashboard")
+  const handleChooseImage = async (field, ev) => {
+    if (!ev.target.files?.[0]) {
+      return;
     }
+    const imageRawData = ev.target.files[0];
+    const stringAv = await imageToBase64(imageRawData);
+    const imagePreviewUrl = URL.createObjectURL(imageRawData);
+    setImgAvatar(imagePreviewUrl)
+    setProfileData({
+      [field]: { preview: imagePreviewUrl, raw: imageRawData, base64: stringAv },
+    });
+  };
 
-    console.log(profileData)
-    // console.log(dataUpdate)
-    // console.log(userProfile)
+  const updateAvatar = async () => {
+    const { message, data, errors } = await ArcherService.updateAvatar(
+      {
+        avatar: profileData?.avatar?.base64,
+      },
+      { user_id: userProfile?.id }
+    );
+    if (!data) {
+      console.log(message);
+      console.log(errors);
+    }
+  };
 
-    const handleInputName = (e) =>{
-        const payload = {...dataUpdate}
-        payload[e.key] = e.value
-        setUpdateData(payload)
+  const hanleSubmitData = async () => {
+    const { message, errors, data } = await ArcherService.updateProfile(
+      {
+        name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
+        date_of_birth: dataUpdate?.date_of_birth
+          ? dataUpdate?.date_of_birth
+          : userProfile?.dateOfBirth,
+        gender: dataUpdate?.gender ? dataUpdate?.gender : userProfile?.gender,
+        phone_number: dataUpdate?.phone_number
+          ? dataUpdate?.phone_number
+          : userProfile?.phoneNumber,
+        club: dataUpdate?.club ? dataUpdate?.club : null,
+      },
+      { user_id: userProfile?.id }
+    );
+    if (!data) {
+      console.log(message);
+      console.log(errors);
     }
-    const handleInputDate = (e) =>{
-        const payload = {...dataUpdate}
-        payload[e.key] = e.value
-        setUpdateData(payload)
-    }
-    const handlePhoneNumber = (e) => {
-        const payload = {...dataUpdate}
-        payload[e.key] = e.value
-        setUpdateData(payload)
-    }
-    const handleClub = (e) => {
-        const payload = {...dataUpdate}
-        payload[e.key] = e.value
-        setUpdateData(payload)
-    }
+    history.push("/dashboard");
+  };
 
-    const handleRadio = (e) => {
-        setUpdateData({...dataUpdate, "gender": e.target.value})
-    }
+  console.log(profileData);
+  // console.log(dataUpdate)
+  // console.log(userProfile)
 
-    const breadcrumpCurrentPageLabel = "Profil";
-    return (
-        <ProfileWrapper>
-        <React.Fragment>
-            <MetaTags>
-                <title>Profil Archer | MyArchery.id</title>
-            </MetaTags>
-            <Container fluid>
-                <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
-                
-                <div className='card-club-form'>
-                    <div>
-                        <h3>Data Pribadi</h3>
-                        <Row>
-                            <Col md={2}>
-                                <ClubImagesWrapper>
-                                <div className='mt-4' style={{height: '200px'}}>
-                                <div className="club-image-bottom">
-                                    <label htmlFor="field-image-logoImage" className="club-logo picker-input-control">
-                                        <input
-                                        className="picker-file-input"
-                                        id="field-image-logoImage"
-                                        name="avatar"
-                                        type="file"
-                                        accept="image/jpg,image/jpeg,image/png"
-                                        onChange={(ev) => handleChooseImage("avatar", ev)}
-                                        />
-                                        {profileData?.avatar?.preview ? (
-                                        <img className="club-logo-image" src={profileData?.avatar?.preview} />
-                                        ) : (
-                                        <div className="picker-empty-placeholder">
-                                            <div className="picker-empty-placeholder-icon">
-                                            <IconCamera size="40" />
-                                            </div>
-                                            <div>Foto Profil</div>
-                                        </div>
-                                        )}
-                                    </label>
-                                    </div>
-                                    </div>
-                                </ClubImagesWrapper>
-                            </Col>
-                            <Col md={10}>
-                            <TextInput label="Nama Lengkap" value={dataUpdate?.name} defaultValue={userProfile?.name} name="name" onChange={(e) => handleInputName(e)} />
-                            <div className='d-flex mt-4'>
-                                <div className='w-50'>
-                                    <DateInput value={userProfile?.dateOfBirth ? userProfile?.dateOfBirth : dataUpdate?.date_of_birth} name="date_of_birth" onChange={(e) => handleInputDate(e)} label="Tanggal Lahir" />
-                                </div>
-                                <div className='w-50 ms-4'>
-                                    <div>
-                                    <Label>Gender</Label>
-                                    </div>
-                                    <div
-                                        className={`form-check form-radio-primary`}
-                                        style={{ display: "inline-block", marginRight: 10 }}>
-                                        <Input
-                                        type="radio"
-                                        name="gender"
-                                        value="male"
-                                        onChange={(e) => handleRadio(e)}
-                                        // eslint-disable-next-line no-constant-condition
-                                        // checked={userProfile?.gender == "male" ? true:false}
-                                        className="form-check-Input"
-                                        />
-                                        <Label className="form-check-label" htmlFor="male">
-                                        Pria
-                                        </Label>
-                                    </div>
-                                    <div
-                                    className={`form-check form-radio-primary`}
-                                    style={{ display: "inline-block", marginRight: 10 }}>
-                                    <Input
-                                        type="radio"
-                                        name="gender"
-                                        value="female"
-                                        className="form-check-Input"
-                                        onChange={(e) => handleRadio(e)}
-                                        // checked={userProfile?.gender == "female" ? true:false}
-                                        />
-                                        <Label className="form-check-label" htmlFor="female">
-                                        Wanita
-                                        </Label>
-                                    </div>
-                                </div>
+  const handleInputName = (e) => {
+    const payload = { ...dataUpdate };
+    payload[e.key] = e.value;
+    setUpdateData(payload);
+  };
+  const handleInputDate = (e) => {
+    const payload = { ...dataUpdate };
+    payload[e.key] = e.value;
+    setUpdateData(payload);
+  };
+  const handlePhoneNumber = (e) => {
+    const payload = { ...dataUpdate };
+    payload[e.key] = e.value;
+    setUpdateData(payload);
+  };
+  // const handleClub = (e) => {
+  //     const payload = {...dataUpdate}
+  //     payload[e.key] = e.value
+  //     setUpdateData(payload)
+  // }
+
+  const handleRadio = (e) => {
+    setUpdateData({ ...dataUpdate, gender: e.target.value });
+  };
+
+  const toggleChange = (e) => {
+    setToggle(e.target.value ? e.target.value : userProfile?.gender);
+  };
+
+  const breadcrumpCurrentPageLabel = "Profil";
+  return (
+    <ProfileWrapper>
+      <React.Fragment>
+        <MetaTags>
+          <title>Profil Archer | MyArchery.id</title>
+        </MetaTags>
+        <Container fluid>
+          <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
+
+          <div className="card-club-form">
+            <div>
+              <Row>
+                <Col md={3}>
+                  <h3 className="ps-4">Data Pribadi</h3>
+                  <ClubImagesWrapper>
+                    <div className="mt-4" style={{ height: "200px" }}>
+                      <div className="club-image-bottom">
+                        <label
+                          htmlFor="field-image-logoImage"
+                          className="club-logo picker-input-control"
+                        >
+                          <input
+                            className="picker-file-input"
+                            id="field-image-logoImage"
+                            name="avatar"
+                            type="file"
+                            accept="image/jpg,image/jpeg,image/png"
+                            onChange={(ev) => handleChooseImage("avatar", ev)}
+                          />
+                          {profileData?.avatar?.preview || imgAvatar ? (
+                            <img className="club-logo-image" src={imgAvatar} />
+                          ) : (
+                            <div className="picker-empty-placeholder">
+                              <div className="picker-empty-placeholder-icon">
+                                <IconCamera size="40" />
+                              </div>
+                              <div>Foto Profil</div>
                             </div>
-                            <div className='mt-4'>
-                                <NumberInput name="phone_number" defaultValue={userProfile?.phoneNumber} value={dataUpdate?.phone_number} onChange={(e) => handlePhoneNumber(e)} label="No. Handphone" />
-                            </div>
-                            <div className='mt-4'>
-                                <TextInput name="club" onChange={(e) => handleClub(e)} label="Nama Klub (Opsional)" />
-                            </div>
-                            <div className='mt-4'>
-                                <Button onClick={ () => {
-                                    updateAvatar()
-                                    hanleSubmitData()
-                                  }} className='btn float-end' style={{backgroundColor: '#0D47A1', color: '#FFF'}}>Ajukan</Button>
-                            </div>
-                            </Col>
-                        </Row>
+                          )}
+                        </label>
+                      </div>
                     </div>
-                </div>
-            </Container>
-        </React.Fragment>
-        </ProfileWrapper>
-    )
+                  </ClubImagesWrapper>
+                </Col>
+                <Col md={9}>
+                  <TextInput
+                    label="Nama Lengkap"
+                    value={dataUpdate?.name}
+                    defaultValue={userProfile?.name}
+                    name="name"
+                    onChange={(e) => handleInputName(e)}
+                  />
+                  <div className="d-flex mt-4">
+                    <div className="w-50">
+                      <DateInput
+                        value={
+                          userProfile?.dateOfBirth
+                            ? userProfile?.dateOfBirth
+                            : dataUpdate?.date_of_birth
+                        }
+                        name="date_of_birth"
+                        onChange={(e) => handleInputDate(e)}
+                        label="Tanggal Lahir"
+                      />
+                    </div>
+                    <div className="w-50 ms-4">
+                      <div>
+                        <Label>Gender</Label>
+                      </div>
+                      <div
+                        className={`form-check form-radio-primary`}
+                        style={{ display: "inline-block", marginRight: 10 }}
+                      >
+                        <Input
+                          type="radio"
+                          name="gender"
+                          value="male"
+                          onChange={(e) => {
+                            handleRadio(e);
+                            toggleChange(e);
+                          }}
+                          checked={toggle == "male" ? true : false}
+                          className="form-check-Input"
+                        />
+                        <Label className="form-check-label" htmlFor="male">
+                          Pria
+                        </Label>
+                      </div>
+                      <div
+                        className={`form-check form-radio-primary`}
+                        style={{ display: "inline-block", marginRight: 10 }}
+                      >
+                        <Input
+                          type="radio"
+                          name="gender"
+                          value="female"
+                          className="form-check-Input"
+                          checked={toggle == "female" ? true : false}
+                          onChange={(e) => {
+                            handleRadio(e);
+                            toggleChange(e);
+                          }}
+                        />
+                        <Label className="form-check-label" htmlFor="female">
+                          Wanita
+                        </Label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <NumberInput
+                      name="phone_number"
+                      defaultValue={userProfile?.phoneNumber}
+                      value={dataUpdate?.phone_number}
+                      onChange={(e) => handlePhoneNumber(e)}
+                      label="No. Handphone"
+                    />
+                  </div>
+                  {/* <div className='mt-4'>
+                                <TextInput name="club" onChange={(e) => handleClub(e)} label="Nama Klub (Opsional)" />
+                            </div> */}
+                  <div className="mt-4">
+                    <Button
+                      onClick={() => {
+                        updateAvatar();
+                        hanleSubmitData();
+                      }}
+                      className="btn float-end"
+                      style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                    >
+                      Ajukan
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </Container>
+      </React.Fragment>
+    </ProfileWrapper>
+  );
 }
-
 
 const ProfileWrapper = styled.div`
   margin: 40px 0;
@@ -302,7 +348,7 @@ const ClubImagesWrapper = styled.div`
 
   .club-logo {
     position: absolute;
-    left: -24px;
+    left: 0;
     top: -10%;
 
     width: 180px;
@@ -320,4 +366,4 @@ const ClubImagesWrapper = styled.div`
   }
 `;
 
-export default PageProfileHome
+export default PageProfileHome;
