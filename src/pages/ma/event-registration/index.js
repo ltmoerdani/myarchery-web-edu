@@ -93,13 +93,15 @@ function PageEventRegistration() {
     if (!category?.id) {
       validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
     }
-    if (!club?.detail.id) {
-      validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
-    }
 
+    // Kategori tim secara umum
     if (["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)) {
       if (!teamName) {
         validationErrors = { ...validationErrors, teamName: ["Nama tim harus diisi"] };
+      }
+
+      if (!club?.detail.id) {
+        validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
       }
     }
 
@@ -157,7 +159,7 @@ function PageEventRegistration() {
     // payload kategory individual
     const payload = {
       event_category_id: category.id,
-      club_id: club.detail.id,
+      club_id: club?.detail.id || 0,
       team_name: teamName || undefined,
       user_id: nonEmptyParticipants.length > 1 ? getUserIdsFromParticipants() : undefined,
     };
