@@ -292,6 +292,7 @@ function PageEventRegistration() {
                     groupedOptions={eventCategories?.data}
                     value={category}
                     onChange={(category) => {
+                      updateFormData({ type: "FORM_INVALID", errors: {} });
                       updateFormData({
                         type: "CHANGE_CATEGORY",
                         default: userProfile,
@@ -367,7 +368,7 @@ function PageEventRegistration() {
                   </SegmentByTeamCategory>
 
                   <FieldSelectClub
-                    required={!isCategoryIndividu}
+                    required={category?.id && !isCategoryIndividu}
                     value={club}
                     onChange={(clubValue) => updateFormData({ club: clubValue })}
                     errors={formErrors.club}
