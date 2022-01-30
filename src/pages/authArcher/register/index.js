@@ -41,8 +41,10 @@ const RegisterArcher = (props) => {
       if (err[0] == "email") {
         toastr.error(errors?.email[0]);
       }
-      if (err[1] == "password") {
+      if (err[1] == "password" || err[0] == "password" || err[2] == "password") {
         toastr.error(errors?.password[0]);
+      }if (err[1] == "gender" || err[0] == "gender") {
+        toastr.error(errors?.gender[0])
       }
     }
   };
