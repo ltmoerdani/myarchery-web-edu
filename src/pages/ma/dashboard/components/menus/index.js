@@ -7,6 +7,7 @@ import UserProfileCard from "./UserProfileCard";
 import fileText from "assets/icons/event-menu-file-text.svg";
 import panah from "assets/icons/event-menu-panah.svg";
 import target from "assets/icons/target-club.svg";
+import shoppingBag from "assets/icons/shopping-bag.svg";
 
 const menuItems = [
   {
@@ -30,7 +31,21 @@ const menuItems = [
     description: "Event-event yang Anda ikuti. Temukan berbagai event panahan di myarchery.id",
     computeLink: () => "",
   },
+  {
+    id: 4,
+    icon: shoppingBag,
+    title: "Transaksi",
+    description: "Daftar klub yang Anda ikuti. Temukan berbagai klub panahan di myarchery.id",
+    computeLink: () => "/dashboard/list-transaction",
+  },
 ];
+
+const MenuGridWrapperTop = styled.div`
+  margin-bottom: 1.5rem;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+`;
 
 const MenuGridWrapper = styled.div`
   display: grid;
@@ -40,12 +55,18 @@ const MenuGridWrapper = styled.div`
 
 function DashboardMenus() {
   return (
-    <MenuGridWrapper>
-      <UserProfileCard to="/dashboard/profile" />
-      {menuItems.map((menu) => (
-        <MenuItemCard key={menu.id} menu={menu} href={menu.computeLink?.()} />
-      ))}
-    </MenuGridWrapper>
+    <React.Fragment>
+      <MenuGridWrapperTop>
+        <UserProfileCard to="/dashboard/profile" />
+        <MenuItemCard menu={menuItems[0]} href={menuItems[0].computeLink?.()} />
+        <MenuItemCard menu={menuItems[1]} href={menuItems[1].computeLink?.()} />
+      </MenuGridWrapperTop>
+
+      <MenuGridWrapper>
+        <MenuItemCard menu={menuItems[2]} href={menuItems[2].computeLink?.()} />
+        <MenuItemCard menu={menuItems[3]} href={menuItems[3].computeLink?.()} />
+      </MenuGridWrapper>
+    </React.Fragment>
   );
 }
 
