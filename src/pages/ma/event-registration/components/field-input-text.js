@@ -38,7 +38,7 @@ function FieldInputText({
         id={fieldID}
         name={name}
         placeholder={placeholder}
-        value={value}
+        value={value || ""}
         onChange={handleChange}
         disabled={disabled}
       />
