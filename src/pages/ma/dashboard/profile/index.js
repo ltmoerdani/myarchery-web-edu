@@ -29,6 +29,7 @@ function PageProfileHome() {
   const [profileData, setProfileData] = useState({});
   const [dataUpdate, setUpdateData] = useState({});
   const [toggle, setToggle] = useState(userProfile?.gender);
+  const [imgAvatar, setImgAvatar] = useState(userProfile?.avatar);
   // const [base64String, setBase64String] = useState("")
 
   const handleChooseImage = async (field, ev) => {
@@ -38,6 +39,7 @@ function PageProfileHome() {
     const imageRawData = ev.target.files[0];
     const stringAv = await imageToBase64(imageRawData);
     const imagePreviewUrl = URL.createObjectURL(imageRawData);
+    setImgAvatar(imagePreviewUrl)
     setProfileData({
       [field]: { preview: imagePreviewUrl, raw: imageRawData, base64: stringAv },
     });
@@ -111,9 +113,6 @@ function PageProfileHome() {
     setToggle(e.target.value ? e.target.value : userProfile?.gender);
   };
 
-  console.log(userProfile);
-  console.log(toggle)
-
   const breadcrumpCurrentPageLabel = "Profil";
   return (
     <ProfileWrapper>
@@ -144,8 +143,8 @@ function PageProfileHome() {
                             accept="image/jpg,image/jpeg,image/png"
                             onChange={(ev) => handleChooseImage("avatar", ev)}
                           />
-                          {profileData?.avatar?.preview ? (
-                            <img className="club-logo-image" src={profileData?.avatar?.preview} />
+                          {profileData?.avatar?.preview || imgAvatar ? (
+                            <img className="club-logo-image" src={imgAvatar} />
                           ) : (
                             <div className="picker-empty-placeholder">
                               <div className="picker-empty-placeholder-icon">
