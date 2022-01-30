@@ -153,14 +153,14 @@ function PageTransactionDetail() {
                 Peserta
               </NavLink>
             </NavItem>
-            <NavItem>
+            {/* <NavItem>
               <NavLink
                 className={classNames({ activate: activeTab === "3" })}
                 onClick={() => toggleTab("3")}
               >
                 Pertandingan
               </NavLink>
-            </NavItem>
+            </NavItem> */}
             <NavItem>
               <NavLink
                 className={classNames({ activate: activeTab === "4" })}
