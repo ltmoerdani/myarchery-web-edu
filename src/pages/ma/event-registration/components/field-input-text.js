@@ -38,7 +38,7 @@ function FieldInputText({
         id={fieldID}
         name={name}
         placeholder={placeholder}
-        value={value}
+        value={value || ""}
         onChange={handleChange}
         disabled={disabled}
       />
@@ -81,7 +81,6 @@ const FieldInputTextWrapper = styled.div`
 
     &::placeholder {
       color: var(--ma-gray-400);
-      opacity: 0.6;
     }
 
     &:focus {
