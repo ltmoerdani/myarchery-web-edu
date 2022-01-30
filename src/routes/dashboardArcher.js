@@ -24,7 +24,7 @@ const routerDasboardArcher = [
   { path: "/checkout-event/:id", component: CheckoutEvent, exact: true },
   // TODO: Hapus nanti ketika sudah waktunya khusus benerin routing.
   // Sementara redirect dari url aslinya ke url dashboard baru
-  { path: "/archer/dashboard", component: () => <Redirect to="/dashboard" />, exact: true },
+  { path: "/archer/dashboard", component: () => <Redirect to="/home" />, exact: true },
   { path: "/archer/logout", component: ArcherLogout },
 
   { path: "/archer/dashboard/profile", component: ProfileArcher },
