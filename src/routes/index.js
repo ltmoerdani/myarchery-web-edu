@@ -1,5 +1,6 @@
 export { default as workingRoutes } from "./working";
 export { default as eventRouters } from "./event";
+export { default as eventRegistrationRoutes } from "./event-registration";
 export { default as certificateRoutes } from "./certificate";
 export { default as landingpageRouters } from "./landingpage";
 export { default as archerRouters } from "./archer";

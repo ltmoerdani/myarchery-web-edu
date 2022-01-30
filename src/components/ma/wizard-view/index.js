@@ -7,7 +7,10 @@ function WizardView({ children, currentStep = 1 }) {
   return CurrentView || null;
 }
 
-function WizardViewContent({ children }) {
+function WizardViewContent({ children, noContainer }) {
+  if (noContainer) {
+    return children;
+  }
   return <div className="wizard-view">{children}</div>;
 }
 
