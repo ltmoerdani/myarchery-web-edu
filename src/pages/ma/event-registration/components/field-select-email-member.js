@@ -50,7 +50,7 @@ function FieldSelectEmailMember({
         loadOptions={loadOptions}
         getOptionLabel={(option) => option.email}
         noOptionsMessage={({ inputValue }) => {
-          return !inputValue ? "Cari berdasarkan nama email" : "Pengguna tidak ditemukan";
+          return !inputValue ? "Cari email" : "Pengguna tidak ditemukan";
         }}
         value={value}
         getOptionValue={(option) => option?.id}
@@ -79,39 +79,6 @@ const FieldSelectEmailMemberWrapper = styled.div`
       color: var(--ma-gray-400);
     }
   }
-
-  .field-input-text {
-    display: block;
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #6a7187;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-
-    border-radius: 0.25rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-
-    &::placeholder {
-      color: var(--ma-gray-400);
-      opacity: 0.6;
-    }
-
-    &:focus {
-      border-color: #2684ff;
-      box-shadow: 0 0 0 1px #2684ff;
-    }
-
-    &:disabled,
-    &[readonly] {
-      background-color: var(--ma-gray-50);
-      border-color: var(--ma-gray-50);
-      color: var(--ma-gray-400);
-      opacity: 1;
-    }
-  }
 `;
 
 const customSelectStyles = {
@@ -133,7 +100,6 @@ const customSelectStyles = {
   placeholder: (provided) => ({
     ...provided,
     color: "var(--ma-gray-400)",
-    opacity: 0.6,
   }),
 };
 

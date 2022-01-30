@@ -404,7 +404,7 @@ function PageEventRegistration() {
                       <FieldSelectEmailMember
                         key={participant.name}
                         name={participant.name}
-                        placeholder="Pilih peserta"
+                        placeholder="Pilih email peserta"
                         required
                         value={participant.data || null}
                         formData={formData.data}
