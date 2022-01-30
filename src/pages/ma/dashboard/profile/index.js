@@ -28,6 +28,7 @@ function PageProfileHome() {
 
   const [profileData, setProfileData] = useState({});
   const [dataUpdate, setUpdateData] = useState({});
+  const [toggle, setToggle] = useState(userProfile?.gender);
   // const [base64String, setBase64String] = useState("")
 
   const handleChooseImage = async (field, ev) => {
@@ -106,7 +107,12 @@ function PageProfileHome() {
     setUpdateData({ ...dataUpdate, gender: e.target.value });
   };
 
-  console.log(userProfile)
+  const toggleChange = (e) => {
+    setToggle(e.target.value ? e.target.value : userProfile?.gender);
+  };
+
+  console.log(userProfile);
+  console.log(toggle)
 
   const breadcrumpCurrentPageLabel = "Profil";
   return (
@@ -186,8 +192,11 @@ function PageProfileHome() {
                           type="radio"
                           name="gender"
                           value="male"
-                          onChange={(e) => handleRadio(e)}
-                          checked={userProfile?.gender == "male" ? true : false}
+                          onChange={(e) => {
+                            handleRadio(e);
+                            toggleChange(e);
+                          }}
+                          checked={toggle == "male" ? true : false}
                           className="form-check-Input"
                         />
                         <Label className="form-check-label" htmlFor="male">
@@ -203,8 +212,11 @@ function PageProfileHome() {
                           name="gender"
                           value="female"
                           className="form-check-Input"
-                          checked={userProfile?.gender == "female" ? true : false}
-                          onChange={(e) => handleRadio(e)}
+                          checked={toggle == "female" ? true : false}
+                          onChange={(e) => {
+                            handleRadio(e);
+                            toggleChange(e);
+                          }}
                         />
                         <Label className="form-check-label" htmlFor="female">
                           Wanita
