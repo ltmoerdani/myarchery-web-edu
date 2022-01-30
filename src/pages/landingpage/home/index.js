@@ -113,6 +113,17 @@ function Home() {
                             </div>
                         </div>
                     </div>
+                    <div className='position-relative'>
+                        <img src={banner_satu} />
+                        <div className='text-box'>
+                            <span className='title-sub'>selamat datang di<br/></span>
+                            <span className='title-hero'>myachery</span>
+                            <div className='content'>
+                                <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
+                                <Button color='warning' style={{backgroundColor: "#ffb420"}}>Lihat Event</Button>
+                            </div>
+                        </div>
+                    </div>
                   </CardBody>
                 </Card>
               </Col>

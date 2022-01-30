@@ -293,31 +293,6 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
 //     return lowestFee;
 //   };
 
-//   if (!eventData.registrationFee && !eventData.registrationFees?.length) {
-//     return (
-//       <React.Fragment>
-//         Mulai dari Rp <span>&laquo;data harga tidak tersedia&raquo;</span>
-//       </React.Fragment>
-//     );
-//   }
-
-//   return (
-//     <React.Fragment>
-//       Mulai dari{" "}
-//       <CurrencyFormat
-//         displayType={"text"}
-//         value={computeDisplayFee()}
-//         prefix="Rp&nbsp;"
-//         thousandSeparator={"."}
-//         decimalSeparator={","}
-//         decimalScale={2}
-//         fixedDecimalScale
-//       />
-//     </React.Fragment>
-//   );
-// }
-
-function EventCategoryGrid({ categories }) {
   return (
     <div className="event-category-grid">
       {categories.map((category, index) => (
