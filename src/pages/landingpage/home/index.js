@@ -276,11 +276,13 @@ function Home() {
                   <span>skoring, pemeringkatan, dan pengaturan dari MyArchery</span>
                 </div>
                 <div className="btn-position">
+                  <a href="https://admin.myarchery.id/" target="_blank" rel="noreferrer">
                   <Button className="btn btn-hero">
                     <span className="btn-hero-text" style={{ fontWeight: "bold" }}>
-                      Buat Event
+                      Ke Organizer
                     </span>
                   </Button>
+                  </a>
                 </div>
               </div>
             </div>
