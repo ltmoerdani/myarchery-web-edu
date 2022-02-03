@@ -212,9 +212,6 @@ function LandingPage() {
 
               <h5 className="content-info-heading">Biaya Registrasi</h5>
               <div>
-                <p>
-                  Early Bird:
-                  <br />
                   <span>
                     Tanggal Registrasi{" "}
                     {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
@@ -223,7 +220,6 @@ function LandingPage() {
                   </span>
                   <br />
                   <span>Mulai dari Rp{feeArray?.[0]}</span>
-                </p>
               </div>
             </div>
           </Col>
