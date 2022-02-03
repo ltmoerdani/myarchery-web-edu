@@ -33,7 +33,6 @@ function computeCategoriesByTeam(categoriesData) {
     if (categoriesData.hasOwnProperty.call(categoriesData, key)) {
       const element = categoriesData[key];
       element.forEach((competition) => {
-        console.log(competition);
         if (
           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE ||
           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE ||
@@ -129,6 +128,18 @@ function LandingPage() {
     );
   };
 
+  let feeArray = [];
+
+  const getFee = () => {
+    return eventData?.eventCategories?.map((categorie) => {
+      return categorie?.fee;
+    });
+  };
+  feeArray = getFee();
+  feeArray?.sort((a, b) => a - b);
+
+  console.log(feeArray);
+
   return (
     <PageWrapper>
       <Container fluid>
@@ -201,28 +212,18 @@ function LandingPage() {
 
               <h5 className="content-info-heading">Biaya Registrasi</h5>
               <div>
-                {eventData?.eventCategories?.map((eventCategori) => {
-                  return (
-                    <>
-                      <p>
-                        {eventCategori?.teamCategoryId?.label}:
-                        <br />
-                        <span>
-                          {`${eventCategori?.ageCategoryId?.label} - ${eventCategori?.competitionCategoryId?.label} - ${eventCategori?.distanceId?.label}`}
-                        </span>
-                        <br />
-                        <span>
-                          Tanggal Registrasi{" "}
-                          {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
-                            registerEventEnd
-                          )}`}
-                        </span>
-                        <br />
-                        <span>Mulai dari Rp{eventCategori?.fee}</span>
-                      </p>
-                    </>
-                  );
-                })}
+                <p>
+                  Early Bird:
+                  <br />
+                  <span>
+                    Tanggal Registrasi{" "}
+                    {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
+                      registerEventEnd
+                    )}`}
+                  </span>
+                  <br />
+                  <span>Mulai dari Rp{feeArray?.[0]}</span>
+                </p>
               </div>
             </div>
           </Col>
@@ -387,6 +388,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
 // }
 
 function EventCategoryGrid({ categories, slug, isLoggedIn }) {
+  console.log(categories);
   return (
     <div className="event-category-grid">
       {categories.map((category, index) => (
@@ -394,22 +396,29 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
           <h5 className="heading-category-name">{category.categoryLabel}</h5>
           <div className="mt-4 body-category-detail">
             <div>
-              <span className="category-quota-label">0&#47;{category.quota}</span>
+              <span className="category-quota-label">
+                {category.totalParticipant}&#47;{category.quota}
+              </span>
             </div>
             <div>
-              <ButtonBlue
-                as={Link}
-                to={`${
-                  !isLoggedIn
-                    ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
-                    : `/event-registration/${slug}?categoryId=${category?.id}`
-                }`}
-                className="btn btn-primary"
-                corner="8"
-                style={{ width: 120 }}
-              >
-                Daftar
-              </ButtonBlue>
+              {category?.isOpen ? (
+                <ButtonBlue
+                  as={Link}
+                  to={`${
+                    !isLoggedIn
+                      ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
+                      : `/event-registration/${slug}?categoryId=${category?.id}`
+                  }`}
+                  corner="8"
+                  style={{ width: 120 }}
+                >
+                  Daftar
+                </ButtonBlue>
+              ) : (
+                <Button disabled style={{ width: 120}}>
+                  Daftar
+                </Button>
+              )}
             </div>
           </div>
         </div>
