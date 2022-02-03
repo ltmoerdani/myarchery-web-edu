@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { url } from "utils";
 import { Dropdown, DropdownMenu, DropdownItem, DropdownToggle } from "reactstrap";
+import { Button } from "components/ma";
+import IconChevronRight from "components/ma/icons/mono/chevron-right";
+
+const { getWebAdminURL } = url;
 
 const ButtonShadow = styled.button`
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
@@ -21,6 +26,22 @@ const ButtonOne = styled.button`
   }
 `;
 
+const ButtonToOrganizer = styled(Button)`
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  color: var(--ma-blue);
+  font-weight: 600;
+
+  &:hover {
+    background-color: var(--ma-blue);
+    color: #ffffff;
+    text-decoration: underline;
+  }
+`;
+
 function TopNavBarLanding() {
   const [menu, setMenu] = useState(false);
 
@@ -32,16 +53,19 @@ function TopNavBarLanding() {
             <ButtonOne className="me-2 btn">Buat Akun</ButtonOne>
           </a>
         </div>
-          <div className="me-4">
-            <a href="/archer/login">
-              <ButtonShadow className="btn">Masuk</ButtonShadow>
-            </a>
-          </div>
-          <div>
-            <a href="https://admin.myarchery.id/" target="_blank" rel="noreferrer" >
-              <span style={{fontWeight: '600', fontSize: '14px'}}>Ke Organizer {">"}</span>
-            </a>
-          </div>
+        <div className="me-4">
+          <a href="/archer/login">
+            <ButtonShadow className="btn">Masuk</ButtonShadow>
+          </a>
+        </div>
+        <div>
+          <ButtonToOrganizer as="a" href={getWebAdminURL()} target="_blank" rel="noreferrer">
+            <span>Ke Organizer</span>
+            <span>
+              <IconChevronRight size="16" />
+            </span>
+          </ButtonToOrganizer>
+        </div>
       </div>
 
       <Dropdown isOpen={menu} toggle={() => setMenu(!menu)} className="d-inline-block d-lg-none">

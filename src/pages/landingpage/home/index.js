@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { url } from "utils";
 import { Button, Container, Row, Col, Card, CardBody } from "reactstrap";
 import MetaTags from "react-meta-tags";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
@@ -32,6 +33,8 @@ import img_usedby_tiga from "../../../assets/images/myachery/image 18.svg";
 
 import "./components/sass/header.scss";
 //TODO: Clrea all the comment before commit please
+
+const { getWebAdminURL } = url;
 
 function Home() {
   const [dataEvent, setDataEventList] = useState([]);
@@ -239,7 +242,7 @@ function Home() {
                 </Card>
                 <div className="look-event card-effect">
                   <div className="w-100">
-                    <img src={img_target} className="target-landing"/>
+                    <img src={img_target} className="target-landing" />
                   </div>
                   <div className="ases-satu">
                     <img style={{ width: "65%" }} src={ases_satu} />
@@ -276,13 +279,17 @@ function Home() {
                   <span>skoring, pemeringkatan, dan pengaturan dari MyArchery</span>
                 </div>
                 <div className="btn-position">
-                  <a href="https://admin.myarchery.id/" target="_blank" rel="noreferrer">
-                  <Button className="btn btn-hero">
+                  <Button
+                    as="a"
+                    href={getWebAdminURL()}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-hero"
+                  >
                     <span className="btn-hero-text" style={{ fontWeight: "bold" }}>
                       Ke Organizer
                     </span>
                   </Button>
-                  </a>
                 </div>
               </div>
             </div>
