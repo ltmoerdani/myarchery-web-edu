@@ -318,38 +318,44 @@ function PageEventRegistration() {
                     Kategori Lomba
                   </FieldSelectCategory>
 
-                  <FieldInputText
-                    placeholder="Nama Pendaftar"
-                    disabled
-                    value={userProfile.name}
-                    onChange={() => {}}
-                  >
-                    Nama Pendaftar
-                  </FieldInputText>
-
-                  <SplitFields>
-                    <SplitFieldItem>
+                  {userProfile ? (
+                    <React.Fragment>
                       <FieldInputText
-                        placeholder="Email"
+                        placeholder="Nama Pendaftar"
                         disabled
-                        value={userProfile.email}
+                        value={userProfile.name}
                         onChange={() => {}}
                       >
-                        Email
+                        Nama Pendaftar
                       </FieldInputText>
-                    </SplitFieldItem>
 
-                    <SplitFieldItem>
-                      <FieldInputText
-                        placeholder="No. Telepon"
-                        disabled
-                        value={userProfile.phoneNumber}
-                        onChange={() => {}}
-                      >
-                        No. Telepon
-                      </FieldInputText>
-                    </SplitFieldItem>
-                  </SplitFields>
+                      <SplitFields>
+                        <SplitFieldItem>
+                          <FieldInputText
+                            placeholder="Email"
+                            disabled
+                            value={userProfile.email}
+                            onChange={() => {}}
+                          >
+                            Email
+                          </FieldInputText>
+                        </SplitFieldItem>
+
+                        <SplitFieldItem>
+                          <FieldInputText
+                            placeholder="No. Telepon"
+                            disabled
+                            value={userProfile.phoneNumber}
+                            onChange={() => {}}
+                          >
+                            No. Telepon
+                          </FieldInputText>
+                        </SplitFieldItem>
+                      </SplitFields>
+                    </React.Fragment>
+                  ) : (
+                    <div>Sedang memuat data pengguna...</div>
+                  )}
 
                   <div className="mt-5 mb-0">
                     <h5>Data Peserta</h5>
@@ -448,29 +454,33 @@ function PageEventRegistration() {
                     <MainCardHeaderText>Detail Pendaftar</MainCardHeaderText>
                   </MainCardHeader>
 
-                  <BSTable responsive className="mt-3">
-                    <tbody>
-                      <tr>
-                        <td>Nama Pendaftar</td>
-                        <td width="16">:</td>
-                        <td>
-                          <div>{userProfile.name}</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Email</td>
-                        <td width="16">:</td>
-                        <td>
-                          <div>{userProfile.email}</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>No. Telepon</td>
-                        <td width="16">:</td>
-                        <td>{userProfile.phoneNumber || <span>&ndash;</span>}</td>
-                      </tr>
-                    </tbody>
-                  </BSTable>
+                  {userProfile ? (
+                    <BSTable responsive className="mt-3">
+                      <tbody>
+                        <tr>
+                          <td>Nama Pendaftar</td>
+                          <td width="16">:</td>
+                          <td>
+                            <div>{userProfile.name}</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Email</td>
+                          <td width="16">:</td>
+                          <td>
+                            <div>{userProfile.email}</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>No. Telepon</td>
+                          <td width="16">:</td>
+                          <td>{userProfile.phoneNumber || <span>&ndash;</span>}</td>
+                        </tr>
+                      </tbody>
+                    </BSTable>
+                  ) : (
+                    <div>Sedang memuat data pengguna...</div>
+                  )}
                 </ContentCard>
 
                 {club && (
