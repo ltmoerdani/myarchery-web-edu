@@ -43,7 +43,7 @@ const initialFormState = {
     teamName: "",
     club: null,
     participants: [
-      { name: `member-email-${stringUtil.createRandom()}`, value: "", data: null },
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -252,13 +252,6 @@ function PageEventRegistration() {
   }, [eventCategories]);
 
   React.useEffect(() => {
-    if (!userProfile) {
-      return;
-    }
-    updateFormData({ type: "DEFAULT_FIELD_MEMBER_EMAIL", payload: userProfile });
-  }, [userProfile]);
-
-  React.useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentStep]);
 
@@ -405,13 +398,10 @@ function PageEventRegistration() {
                     teamCategoryId={category?.teamCategoryId}
                   >
                     <FieldInputText
-                      key={participants[0].name}
-                      name={participants[0].name}
+                      name={"member-individual"}
                       placeholder="Nama Peserta"
                       disabled
-                      value={participants[0].value}
-                      onChange={() => {}}
-                      errors={formErrors[participants[0].name]}
+                      value={userProfile?.email}
                     >
                       Peserta
                     </FieldInputText>
@@ -499,6 +489,48 @@ function PageEventRegistration() {
                       </SplitFieldItem>
                     </SplitFields>
                   </ContentCard>
+                )}
+
+                {isCategoryIndividu && (
+                  <ParticipantCard>
+                    <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
+
+                    <ParticipantMediaObject>
+                      <MediaParticipantAvatar>
+                        <ParticipantAvatar>
+                          {userProfile?.avatar ? (
+                            <img className="club-logo-img" src={userProfile?.avatar} />
+                          ) : (
+                            <AvatarDefault fullname={userProfile?.name} />
+                          )}
+                        </ParticipantAvatar>
+                      </MediaParticipantAvatar>
+
+                      <MediaParticipantContent>
+                        <ParticipantName>
+                          <span>{userProfile?.name}</span>
+                          <span>
+                            <IconBadgeVerified />
+                          </span>
+                        </ParticipantName>
+
+                        <LabelWithIcon icon={<IconMail size="20" />}>
+                          {userProfile?.email}
+                        </LabelWithIcon>
+
+                        <RowedLabel>
+                          <LabelWithIcon icon={<IconGender size="20" />}>
+                            {(userProfile?.gender === "male" && "Laki-laki") ||
+                              (userProfile?.gender === "female" && "Perempuan")}
+                          </LabelWithIcon>
+
+                          <LabelWithIcon icon={<IconAge size="20" />}>
+                            {userProfile?.age} Tahun
+                          </LabelWithIcon>
+                        </RowedLabel>
+                      </MediaParticipantContent>
+                    </ParticipantMediaObject>
+                  </ParticipantCard>
                 )}
 
                 {participants
@@ -600,7 +632,11 @@ function PageEventRegistration() {
 
                   <div>
                     <DetailLabel>Jumlah Peserta</DetailLabel>
-                    <DetailValue>{participantCounts} Orang</DetailValue>
+                    {isCategoryIndividu ? (
+                      <DetailValue>1 Orang</DetailValue>
+                    ) : (
+                      <DetailValue>{participantCounts} Orang</DetailValue>
+                    )}
                   </div>
                 </TicketSectionDetail>
 
@@ -1016,14 +1052,10 @@ function formReducer(state, action) {
   if (action.type === "CHANGE_CATEGORY") {
     // Kasih default user profile hanya kalau kategorinya individual
     // selain itu reset ke kosongan semua
-    const nextParticipantsState = state.data.participants.map((member, index) => {
-      const matchesTeamCategoryId = (id) => action.payload.teamCategoryId === id;
-      const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
-      if (isCategoryIndividu) {
-        return index > 0 ? { ...member, data: null } : { ...member, data: action.default };
-      }
-      return { ...member, data: null };
-    });
+    const nextParticipantsState = state.data.participants.map((member) => ({
+      ...member,
+      data: null,
+    }));
 
     return {
       ...state,
@@ -1035,17 +1067,6 @@ function formReducer(state, action) {
         club: null,
         participants: nextParticipantsState,
       },
-    };
-  }
-
-  if (action.type === "DEFAULT_FIELD_MEMBER_EMAIL") {
-    const { payload: userProfile } = action;
-    const nextParticipantsState = state.data.participants.map((member, index) => {
-      return index > 0 ? member : { ...member, value: userProfile.email, data: userProfile };
-    });
-    return {
-      ...state,
-      data: { ...state.data, participants: nextParticipantsState },
     };
   }
 
