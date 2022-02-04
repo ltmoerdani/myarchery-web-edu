@@ -1006,14 +1006,10 @@ function formReducer(state, action) {
   if (action.type === "CHANGE_CATEGORY") {
     // Kasih default user profile hanya kalau kategorinya individual
     // selain itu reset ke kosongan semua
-    const nextParticipantsState = state.data.participants.map((member, index) => {
-      const matchesTeamCategoryId = (id) => action.payload.teamCategoryId === id;
-      const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
-      if (isCategoryIndividu) {
-        return index > 0 ? { ...member, data: null } : { ...member, data: action.default };
-      }
-      return { ...member, data: null };
-    });
+    const nextParticipantsState = state.data.participants.map((member) => ({
+      ...member,
+      data: null,
+    }));
 
     return {
       ...state,
