@@ -43,7 +43,7 @@ const initialFormState = {
     teamName: "",
     club: null,
     participants: [
-      { name: `member-email-${stringUtil.createRandom()}`, value: "", data: null },
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -252,13 +252,6 @@ function PageEventRegistration() {
   }, [eventCategories]);
 
   React.useEffect(() => {
-    if (!userProfile) {
-      return;
-    }
-    updateFormData({ type: "DEFAULT_FIELD_MEMBER_EMAIL", payload: userProfile });
-  }, [userProfile]);
-
-  React.useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentStep]);
 
@@ -405,13 +398,10 @@ function PageEventRegistration() {
                     teamCategoryId={category?.teamCategoryId}
                   >
                     <FieldInputText
-                      key={participants[0].name}
-                      name={participants[0].name}
+                      name={"member-individual"}
                       placeholder="Nama Peserta"
                       disabled
-                      value={participants[0].value}
-                      onChange={() => {}}
-                      errors={formErrors[participants[0].name]}
+                      value={userProfile?.email}
                     >
                       Peserta
                     </FieldInputText>
@@ -1035,17 +1025,6 @@ function formReducer(state, action) {
         club: null,
         participants: nextParticipantsState,
       },
-    };
-  }
-
-  if (action.type === "DEFAULT_FIELD_MEMBER_EMAIL") {
-    const { payload: userProfile } = action;
-    const nextParticipantsState = state.data.participants.map((member, index) => {
-      return index > 0 ? member : { ...member, value: userProfile.email, data: userProfile };
-    });
-    return {
-      ...state,
-      data: { ...state.data, participants: nextParticipantsState },
     };
   }
 
