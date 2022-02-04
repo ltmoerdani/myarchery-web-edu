@@ -491,6 +491,48 @@ function PageEventRegistration() {
                   </ContentCard>
                 )}
 
+                {isCategoryIndividu && (
+                  <ParticipantCard>
+                    <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
+
+                    <ParticipantMediaObject>
+                      <MediaParticipantAvatar>
+                        <ParticipantAvatar>
+                          {userProfile?.avatar ? (
+                            <img className="club-logo-img" src={userProfile?.avatar} />
+                          ) : (
+                            <AvatarDefault fullname={userProfile?.name} />
+                          )}
+                        </ParticipantAvatar>
+                      </MediaParticipantAvatar>
+
+                      <MediaParticipantContent>
+                        <ParticipantName>
+                          <span>{userProfile?.name}</span>
+                          <span>
+                            <IconBadgeVerified />
+                          </span>
+                        </ParticipantName>
+
+                        <LabelWithIcon icon={<IconMail size="20" />}>
+                          {userProfile?.email}
+                        </LabelWithIcon>
+
+                        <RowedLabel>
+                          <LabelWithIcon icon={<IconGender size="20" />}>
+                            {(userProfile?.gender === "male" && "Laki-laki") ||
+                              (userProfile?.gender === "female" && "Perempuan")}
+                          </LabelWithIcon>
+
+                          <LabelWithIcon icon={<IconAge size="20" />}>
+                            {userProfile?.age} Tahun
+                          </LabelWithIcon>
+                        </RowedLabel>
+                      </MediaParticipantContent>
+                    </ParticipantMediaObject>
+                  </ParticipantCard>
+                )}
+
                 {participants
                   .filter((member) => Boolean(member.data))
                   .map((participant) => (
@@ -590,7 +632,11 @@ function PageEventRegistration() {
 
                   <div>
                     <DetailLabel>Jumlah Peserta</DetailLabel>
-                    <DetailValue>{participantCounts} Orang</DetailValue>
+                    {isCategoryIndividu ? (
+                      <DetailValue>1 Orang</DetailValue>
+                    ) : (
+                      <DetailValue>{participantCounts} Orang</DetailValue>
+                    )}
                   </div>
                 </TicketSectionDetail>
 
