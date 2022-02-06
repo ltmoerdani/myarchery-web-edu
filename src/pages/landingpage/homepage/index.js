@@ -15,15 +15,18 @@ import { getAuthenticationStore } from "store/slice/authentication";
 const { TEAM_CATEGORIES } = eventCategories;
 
 const categoryTabsList = [
-  { step: 1, label: "Individu", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL },
-  { step: 2, label: "Male Team", teamCategory: TEAM_CATEGORIES.TEAM_MALE },
-  { step: 3, label: "Female Team", teamCategory: TEAM_CATEGORIES.TEAM_FEMALE },
-  { step: 4, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
+  { step: 1, label: "Individu Putra", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE },
+  { step: 2, label: "Individu Putri", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE },
+  { step: 3, label: "Beregu Putra", teamCategory: TEAM_CATEGORIES.TEAM_MALE },
+  { step: 4, label: "Beregu Putri", teamCategory: TEAM_CATEGORIES.TEAM_FEMALE },
+  { step: 5, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
 ];
 
 function computeCategoriesByTeam(categoriesData) {
   const categoriesByTeam = {
     [TEAM_CATEGORIES.TEAM_INDIVIDUAL]: [],
+    [TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]: [],
+    [TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]: [],
     [TEAM_CATEGORIES.TEAM_MALE]: [],
     [TEAM_CATEGORIES.TEAM_FEMALE]: [],
     [TEAM_CATEGORIES.TEAM_MIXED]: [],
@@ -34,12 +37,14 @@ function computeCategoriesByTeam(categoriesData) {
       const element = categoriesData[key];
       element.forEach((competition) => {
         if (
-          competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE ||
-          competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE ||
           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL ||
           competition?.teamCategoryId === "Individu"
         ) {
           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL].push(competition);
+        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE].push(competition);
+        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE].push(competition);
         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MALE) {
           categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE].push(competition);
         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_FEMALE) {
@@ -297,7 +302,14 @@ function LandingPage() {
               <EventCategoryGrid
                 isLoggedIn={isLoggedIn}
                 slug={slug}
-                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL]}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]}
+              />
+            </WizardViewContent>
+            <WizardViewContent>
+              <EventCategoryGrid
+                isLoggedIn={isLoggedIn}
+                slug={slug}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]}
               />
             </WizardViewContent>
             <WizardViewContent>
