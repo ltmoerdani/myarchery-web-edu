@@ -414,11 +414,23 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
           <h5 className="heading-category-name">{category.categoryLabel}</h5>
           <div className="mt-4 body-category-detail">
             <div>
-              <span className="category-quota-label">0&#47;{category.quota}</span>
+              <span className="category-quota-label">{category.totalParticipant}&#47;{category.quota}</span>
             </div>
             <div>
+            {category.totalParticipant >= category.quota ?
+            <Button
+                as={Link}
+                disabled={true}
+                className="btn btn-primary"
+                corner="8"
+                style={{ width: 120 }}
+              >
+                Penuh
+              </Button>
+            :
               <ButtonBlue
                 as={Link}
+                disabled={true}
                 to={`${
                   !isLoggedIn
                     ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
@@ -430,6 +442,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
               >
                 Daftar
               </ButtonBlue>
+            }
             </div>
           </div>
         </div>
