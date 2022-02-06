@@ -15,12 +15,18 @@ import IconMail from "components/ma/icons/mono/mail";
 import IconInfo from "components/ma/icons/mono/info";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
-function TabPeserta({ participantMembersState }) {
+import { parseISO, isBefore, subDays } from "date-fns";
+
+function TabPeserta({ eventState, participantMembersState }) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
   const { data: participantMembers, refetchParticipantMembers } = participantMembersState;
+  const { data: event } = eventState;
 
   const isLoadingOrder = participantMembersState.status === "loading";
   const isUserParticipant = participantMembers.participant.userId === userProfile.id;
+
+  const dayBefore = subDays(parseISO(event.publicInformation.eventStart), 1);
+  const shouldAllowEdit = isBefore(new Date(), dayBefore);
 
   return (
     <PanelContainer>
@@ -57,6 +63,7 @@ function TabPeserta({ participantMembersState }) {
 
             {participantMembers.participant.type === "team" ? (
               <ParticipantEditorTeam
+                shouldAllowEdit={shouldAllowEdit}
                 participantMembers={participantMembers}
                 isUserParticipant={isUserParticipant}
                 refetch={refetchParticipantMembers}
@@ -99,7 +106,12 @@ function ParticipantEditorIndividual({ participantMembers }) {
   );
 }
 
-function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch }) {
+function ParticipantEditorTeam({
+  participantMembers,
+  isUserParticipant,
+  refetch,
+  shouldAllowEdit,
+}) {
   const [editMode, setEditMode] = React.useState({ isOpen: false, previousData: null });
   const [form, dispatchForm] = React.useReducer(
     emailFormReducer,
@@ -135,26 +147,29 @@ function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch 
             Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
           </NoticeBar>
 
-          {editMode.isOpen ? (
-            <ToolbarActionButtons>
-              <Button
-                onClick={() => {
-                  dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
-                  setEditMode({ isOpen: false, previousData: null });
-                }}
-              >
-                Batal
-              </Button>
+          {shouldAllowEdit &&
+            (editMode.isOpen ? (
+              <ToolbarActionButtons>
+                <Button
+                  onClick={() => {
+                    dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
+                    setEditMode({ isOpen: false, previousData: null });
+                  }}
+                >
+                  Batal
+                </Button>
 
-              <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
-            </ToolbarActionButtons>
-          ) : (
-            <ToolbarActionButtons>
-              <ButtonOutlineBlue onClick={() => setEditMode({ isOpen: true, previousData: form })}>
-                Ubah Peserta
-              </ButtonOutlineBlue>
-            </ToolbarActionButtons>
-          )}
+                <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
+              </ToolbarActionButtons>
+            ) : (
+              <ToolbarActionButtons>
+                <ButtonOutlineBlue
+                  onClick={() => setEditMode({ isOpen: true, previousData: form })}
+                >
+                  Ubah Peserta
+                </ButtonOutlineBlue>
+              </ToolbarActionButtons>
+            ))}
         </EditToolbar>
       )}
 

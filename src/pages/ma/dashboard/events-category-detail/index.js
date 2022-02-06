@@ -91,7 +91,10 @@ function PageEventCategoryDetail() {
               </WizardViewContent>
 
               <WizardViewContent noContainer>
-                <TabPeserta participantMembersState={participantMembersState} />
+                <TabPeserta
+                  eventState={eventState}
+                  participantMembersState={participantMembersState}
+                />
               </WizardViewContent>
             </WizardView>
           </PanelWrapper>
