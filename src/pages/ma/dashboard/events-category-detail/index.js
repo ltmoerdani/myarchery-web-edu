@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useWizardView } from "hooks/wizard-view";
 import { useEventDetail } from "../hooks/event-detail";
+import { useParticipantMembers } from "../hooks/participant-members";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
@@ -22,10 +23,14 @@ const tabsList = [
 ];
 
 function PageEventCategoryDetail() {
-  const { event_id } = useParams();
+  const { event_id, order_id } = useParams();
   const eventId = parseInt(event_id);
+  const orderId = parseInt(order_id);
   const { currentStep, goToStep } = useWizardView(tabsList);
   const { eventState, data: event } = useEventDetail(eventId);
+  const participantMembersState = useParticipantMembers(orderId);
+
+  const { data: participantMembers } = participantMembersState;
 
   return (
     <PageWrapper>
@@ -35,7 +40,10 @@ function PageEventCategoryDetail() {
 
       <Container fluid>
         <BreadcrumbDashboard to={`/dashboard/events/${eventId}`}>
-          {event?.participant?.categoryLabel || "Kategori Event"}
+          {/* TODO: label kategori yang didaftar */}
+          {participantMembers?.participant?.categoryLabel ||
+            event?.publicInformation?.eventName ||
+            "Kategori Event"}
         </BreadcrumbDashboard>
 
         <div>
@@ -82,7 +90,7 @@ function PageEventCategoryDetail() {
               </WizardViewContent>
 
               <WizardViewContent noContainer>
-                <TabPeserta />
+                <TabPeserta participantMembersState={participantMembersState} />
               </WizardViewContent>
             </WizardView>
           </PanelWrapper>

@@ -1,14 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
-import { useParticipantMembers } from "../../hooks/participant-members";
 
 import { Table } from "reactstrap";
 
-function TabPeserta() {
-  const { order_id } = useParams();
-  const orderId = parseInt(order_id);
-  const { data: participantMembers, participantMembersState } = useParticipantMembers(orderId);
+function TabPeserta({ participantMembersState }) {
+  const { data: participantMembers } = participantMembersState;
   const isLoadingOrder = participantMembersState.status === "loading";
 
   return (
