@@ -63,7 +63,16 @@ function DashboardMenus() {
       </MenuGridWrapperTop>
 
       <MenuGridWrapper>
-        <MenuItemCard menu={menuItems[2]} href={menuItems[2].computeLink?.()} />
+        <MenuItemCard
+          menu={{
+            id: 3,
+            icon: panah,
+            title: "Event Saya",
+            description:
+              "Event-event yang Anda ikuti. Temukan berbagai event panahan di myarchery.id",
+          }}
+          href="/dashboard/events"
+        />
         <MenuItemCard menu={menuItems[3]} href={menuItems[3].computeLink?.()} />
       </MenuGridWrapper>
     </React.Fragment>
