@@ -31,6 +31,9 @@ export default {
     getEventMembersByParticipantId({ participant_id }) {
         return API.get("/app/v1/archery-event/my-category-event-member", { participant_id })
     },
+    updateEventParticipantMembers(data){
+        return API.post("/app/v1/archery-event/update-category-event-member", data, null, true);
+    },
     getDetailEvent(qs = null) {
       return API.get("/web/v1/archery/events/detail-by-slug", qs);
     },

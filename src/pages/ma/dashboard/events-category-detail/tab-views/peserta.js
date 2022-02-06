@@ -2,8 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
+import { EventsService } from "services";
 
 import { Table } from "reactstrap";
+import { LoadingScreen } from "components";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
 import { FieldSelectEmailMember } from "pages/ma/event-registration/components";
 
@@ -89,27 +91,12 @@ function ParticipantEditorIndividual({ participantMembers }) {
       </TeamInfoEditor>
 
       <div>
-        {participantMembers.member.length && (
+        {Boolean(participantMembers.member.length) && (
           <ParticipantMemberInfo participant={participantMembers.member[0]} />
         )}
       </div>
     </React.Fragment>
   );
-}
-
-function emailFormReducer(state, action) {
-  if (action.type === "RESET_FORM") {
-    return { ...action.payload };
-  }
-  return { ...state, [action.name]: action.payload };
-}
-
-function mapMembersToState(participantMembers) {
-  const state = {};
-  for (let index = 0; index < 5; index++) {
-    state[`member-email-${index + 1}`] = participantMembers[index];
-  }
-  return state;
 }
 
 function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch }) {
@@ -118,10 +105,27 @@ function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch 
     emailFormReducer,
     mapMembersToState(participantMembers.member)
   );
+  const [submitStatus, dispatchSubmitStatus] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    { status: "idle", errors: null }
+  );
 
   React.useEffect(() => {
     dispatchForm({ type: "RESET_FORM", payload: mapMembersToState(participantMembers.member) });
   }, [participantMembers]);
+
+  const handleClickSave = async () => {
+    setEditMode({ isOpen: false, previousData: null });
+    dispatchSubmitStatus({ status: "loading", errors: null });
+    const payload = makeSavePayoad(participantMembers.participant.participantId, form);
+    const result = await EventsService.updateEventParticipantMembers(payload);
+    if (result.success) {
+      dispatchSubmitStatus({ status: "success" });
+      refetch();
+    } else {
+      dispatchSubmitStatus({ status: "error", errors: result.errors });
+    }
+  };
 
   return (
     <React.Fragment>
@@ -142,14 +146,7 @@ function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch 
                 Batal
               </Button>
 
-              <ButtonBlue
-                onClick={() => {
-                  setEditMode({ isOpen: false, previousData: null });
-                  refetch();
-                }}
-              >
-                Simpan
-              </ButtonBlue>
+              <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
             </ToolbarActionButtons>
           ) : (
             <ToolbarActionButtons>
@@ -191,7 +188,7 @@ function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch 
         />
       ) : (
         <div>
-          {participantMembers.member.length &&
+          {Boolean(participantMembers.member.length) &&
             participantMembers.member.map((participant, index) => (
               <ParticipantMemberInfo
                 key={participant.id}
@@ -201,6 +198,8 @@ function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch 
             ))}
         </div>
       )}
+
+      <LoadingScreen loading={submitStatus.status === "loading"} />
     </React.Fragment>
   );
 }
@@ -398,5 +397,31 @@ const StyledLabelWithIcon = styled.p`
     margin-right: 0.5rem;
   }
 `;
+
+function emailFormReducer(state, action) {
+  if (action.type === "RESET_FORM") {
+    return { ...action.payload };
+  }
+  return { ...state, [action.name]: action.payload };
+}
+
+function mapMembersToState(participantMembers) {
+  const state = {};
+  for (let index = 0; index < 5; index++) {
+    state[`member-email-${index + 1}`] = participantMembers[index];
+  }
+  return state;
+}
+
+function makeSavePayoad(participantId, membersForm) {
+  const userIds = Object.keys(membersForm)
+    .map((name) => membersForm[name]?.userId || membersForm[name]?.id) // nama key gak konsisten cok, cok
+    .filter((id) => Boolean(id));
+
+  return {
+    participant_id: participantId,
+    user_id: userIds,
+  };
+}
 
 export { TabPeserta };
