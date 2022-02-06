@@ -15,13 +15,14 @@ import { BreadcrumbDashboard } from "./components/breadcrumb";
 import MetaTags from "react-meta-tags";
 import classNames from "classnames";
 import { OrderEventService } from "services";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, Link } from "react-router-dom";
 import styled from "styled-components";
 
 import event_img from "assets/images/myachery/a-1.jpg";
 
 import "./components/sass/sytles.scss";
 import Avatar from "./components/Avatar";
+import { ButtonBlue } from "components/ma";
 
 function PageTransactionDetail() {
   const [activeTab, setActiveTab] = useState("1");
@@ -133,7 +134,9 @@ function PageTransactionDetail() {
       </MetaTags>
 
       <Container>
-        <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
+        <BreadcrumbDashboard to="/dashboard/list-transaction">
+          {breadcrumpCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <div className="mt-5">
           <Nav style={{ backgroundColor: "#EEE" }}>
@@ -490,15 +493,32 @@ function PageTransactionDetail() {
                           <div>
                             <h5>Rp.{dataDetail?.transactionInfo?.total}</h5>
                           </div>
-                          <div>
-                            <button
-                              onClick={handleClickPayment}
-                              className="btn"
-                              style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
-                            >
-                              Bayar Sekarang
-                            </button>
-                          </div>
+                          {dataDetail?.transactionInfo?.statusId != 1 ? (
+                            <div>
+                              {dataDetail?.transactionInfo?.statusId == 4 ? (
+                                <>
+                                  <button
+                                    onClick={handleClickPayment}
+                                    className="btn"
+                                    style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                                  >
+                                    Bayar Sekarang
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <ButtonBlue
+                                    as={Link}
+                                    to={`/event-registration/${dataDetail?.archeryEvent?.eventSlug}?categoryId=${dataDetail?.participant?.eventCategoryId}`}
+                                    className="btn"
+                                    style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                                  >
+                                    Daftar Lagi
+                                  </ButtonBlue>
+                                </>
+                              )}
+                            </div>
+                          ) : null}
                         </div>
                       </Col>
                     </Row>
