@@ -9,7 +9,7 @@ const ButtonWrapper = styled.button`
     border: solid 1px var(--button-outline-color, var(--ma-gray-100));
     border-radius: var(--button-corner, 0.25rem);
     background-color: var(--button-bg-color, var(--ma-gray-100));
-    color: var(--button-font-color, var(--ma-txt-black));
+    color: var(--button-font-color, var(--ma-blue));
 
     display: inline-block;
     padding: 0.47rem 0.75rem;
@@ -30,7 +30,7 @@ const ButtonWrapper = styled.button`
   &:hover {
     background-color: var(--button-bg-color-hover, var(--ma-gray-50));
     border: solid 1px var(--button-outline-color, var(--ma-gray-100));
-    color: var(--button-font-color-hover, var(--ma-txt-black));
+    color: var(--button-font-color-hover, var(--ma-blue));
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
   }
 `;
