@@ -58,10 +58,7 @@ function TabPeserta({ participantMembersState }) {
                 isUserParticipant={isUserParticipant}
               />
             ) : (
-              <ParticipantEditorIndividual
-                participantMembers={participantMembers}
-                isUserParticipant={isUserParticipant}
-              />
+              <ParticipantEditorIndividual participantMembers={participantMembers} />
             )}
           </React.Fragment>
         )
@@ -77,21 +74,16 @@ const PanelContainer = styled.div`
   }
 `;
 
-function ParticipantEditorIndividual({ participantMembers, isUserParticipant }) {
+function ParticipantEditorIndividual({ participantMembers }) {
   return (
     <React.Fragment>
-      <EditToolbar>
-        <NoticeBar>
-          Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
-        </NoticeBar>
-        <div>{isUserParticipant && <ButtonOutlineBlue>Ubah Peserta</ButtonOutlineBlue>}</div>
-      </EditToolbar>
-
       <TeamInfoEditor>
-        <div>
-          <label>Nama Klub</label>
-          <input placeholder="Nama Tim" />
-        </div>
+        {participantMembers.club?.name && (
+          <DisplayJumlahPeserta>
+            <div>Nama Klub</div>
+            <div className="display-value">{participantMembers.club.name}</div>
+          </DisplayJumlahPeserta>
+        )}
       </TeamInfoEditor>
 
       <div>
