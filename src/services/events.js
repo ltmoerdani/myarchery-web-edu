@@ -25,6 +25,12 @@ export default {
     getEventMemberScoring(qs) {
         return API.get("/api/v1/archery/scorer/participant", qs)
     },
+    getEventDetailById(qs = null){
+        return API.get("/app/v1/archery-event", qs);
+    },
+    getEventMembersByParticipantId({ participant_id }) {
+        return API.get("/app/v1/archery-event/my-category-event-member", { participant_id })
+    },
     getDetailEvent(qs = null) {
       return API.get("/web/v1/archery/events/detail-by-slug", qs);
     },
