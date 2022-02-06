@@ -33,7 +33,6 @@ function computeCategoriesByTeam(categoriesData) {
     if (categoriesData.hasOwnProperty.call(categoriesData, key)) {
       const element = categoriesData[key];
       element.forEach((competition) => {
-        console.log(competition);
         if (
           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE ||
           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE ||
@@ -59,6 +58,7 @@ function LandingPage() {
   const { slug } = useParams();
   const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
   const [eventData, setEventData] = React.useState({});
+  const [eventPerCategoryTeamPriceData, setEventPerCategoryTeamPriceData] = React.useState([]);
   const [category, setCategory] = React.useState({});
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
@@ -67,9 +67,17 @@ function LandingPage() {
     const { message, errors, data } = await EventsService.getDetailEvent({ slug });
     if (data) {
       setEventData(data);
-      console.log(data);
-      console.log(message);
-      console.log(errors);
+      let fees = []
+      let checkFees = []
+      if(data.eventCategories && data.eventCategories.length > 0){
+        data.eventCategories.map((eventCategori) => {
+          if(checkFees[eventCategori.teamCategoryId.id] == undefined)
+            fees.push({label : eventCategori?.teamCategoryId?.label, fee : eventCategori?.fee });
+          
+          checkFees[eventCategori.teamCategoryId.id] = 1;
+        })
+      }
+      setEventPerCategoryTeamPriceData(fees);
     }
     console.log(message);
     console.log(errors);
@@ -201,16 +209,16 @@ function LandingPage() {
 
               <h5 className="content-info-heading">Biaya Registrasi</h5>
               <div>
-                {eventData?.eventCategories?.map((eventCategori) => {
+                {eventPerCategoryTeamPriceData.map((eventCategori) => {
                   return (
                     <>
                       <p>
-                        {eventCategori?.teamCategoryId?.label}:
+                        <strong>{eventCategori.label}:</strong>
                         <br />
-                        <span>
+                        {/* <span>
                           {`${eventCategori?.ageCategoryId?.label} - ${eventCategori?.competitionCategoryId?.label} - ${eventCategori?.distanceId?.label}`}
                         </span>
-                        <br />
+                        <br /> */}
                         <span>
                           Tanggal Registrasi{" "}
                           {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
@@ -218,7 +226,7 @@ function LandingPage() {
                           )}`}
                         </span>
                         <br />
-                        <span>Mulai dari Rp{eventCategori?.fee}</span>
+                        <span>Mulai dari Rp {Number(eventCategori?.fee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</span>
                       </p>
                     </>
                   );
