@@ -40,10 +40,11 @@ function PageEventCategoryDetail() {
 
       <Container fluid>
         <BreadcrumbDashboard to={`/dashboard/events/${eventId}`}>
-          {/* TODO: label kategori yang didaftar */}
-          {participantMembers?.participant?.categoryLabel ||
-            event?.publicInformation?.eventName ||
-            "Kategori Event"}
+          <CapitalizedText>
+            {participantMembers?.eventCategoryDetail.categoryLabel ||
+              event?.publicInformation?.eventName ||
+              "Kategori Event"}
+          </CapitalizedText>
         </BreadcrumbDashboard>
 
         <div>
@@ -103,6 +104,10 @@ function PageEventCategoryDetail() {
 const PageWrapper = styled.div`
   margin: 40px 0;
   font-family: "Inter";
+`;
+
+const CapitalizedText = styled.span`
+  text-transform: capitalize;
 `;
 
 const TabsList = styled.div`
