@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
 
 import { Table } from "reactstrap";
-import { ButtonOutlineBlue, AvatarDefault } from "components/ma";
+import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
+import { FieldSelectEmailMember } from "pages/ma/event-registration/components";
 
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
@@ -14,7 +15,7 @@ import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 function TabPeserta({ participantMembersState }) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
-  const { data: participantMembers } = participantMembersState;
+  const { data: participantMembers, refetchParticipantMembers } = participantMembersState;
 
   const isLoadingOrder = participantMembersState.status === "loading";
   const isUserParticipant = participantMembers.participant.userId === userProfile.id;
@@ -56,6 +57,7 @@ function TabPeserta({ participantMembersState }) {
               <ParticipantEditorTeam
                 participantMembers={participantMembers}
                 isUserParticipant={isUserParticipant}
+                refetch={refetchParticipantMembers}
               />
             ) : (
               <ParticipantEditorIndividual participantMembers={participantMembers} />
@@ -79,10 +81,10 @@ function ParticipantEditorIndividual({ participantMembers }) {
     <React.Fragment>
       <TeamInfoEditor>
         {participantMembers.club?.name && (
-          <DisplayJumlahPeserta>
+          <DisplayTeamClub>
             <div>Nama Klub</div>
             <div className="display-value">{participantMembers.club.name}</div>
-          </DisplayJumlahPeserta>
+          </DisplayTeamClub>
         )}
       </TeamInfoEditor>
 
@@ -95,26 +97,80 @@ function ParticipantEditorIndividual({ participantMembers }) {
   );
 }
 
-function ParticipantEditorTeam({ participantMembers, isUserParticipant }) {
+function emailFormReducer(state, action) {
+  if (action.type === "RESET_FORM") {
+    return { ...action.payload };
+  }
+  return { ...state, [action.name]: action.payload };
+}
+
+function mapMembersToState(participantMembers) {
+  const state = {};
+  for (let index = 0; index < 5; index++) {
+    state[`member-email-${index + 1}`] = participantMembers[index];
+  }
+  return state;
+}
+
+function ParticipantEditorTeam({ participantMembers, isUserParticipant, refetch }) {
+  const [editMode, setEditMode] = React.useState({ isOpen: false, previousData: null });
+  const [form, dispatchForm] = React.useReducer(
+    emailFormReducer,
+    mapMembersToState(participantMembers.member)
+  );
+
+  React.useEffect(() => {
+    dispatchForm({ type: "RESET_FORM", payload: mapMembersToState(participantMembers.member) });
+  }, [participantMembers]);
+
   return (
     <React.Fragment>
-      <EditToolbar>
-        <NoticeBar>
-          Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
-        </NoticeBar>
-        <div>{isUserParticipant && <ButtonOutlineBlue>Ubah Peserta</ButtonOutlineBlue>}</div>
-      </EditToolbar>
+      {isUserParticipant && (
+        <EditToolbar>
+          <NoticeBar>
+            Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
+          </NoticeBar>
+
+          {editMode.isOpen ? (
+            <ToolbarActionButtons>
+              <Button
+                onClick={() => {
+                  dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
+                  setEditMode({ isOpen: false, previousData: null });
+                }}
+              >
+                Batal
+              </Button>
+
+              <ButtonBlue
+                onClick={() => {
+                  setEditMode({ isOpen: false, previousData: null });
+                  refetch();
+                }}
+              >
+                Simpan
+              </ButtonBlue>
+            </ToolbarActionButtons>
+          ) : (
+            <ToolbarActionButtons>
+              <ButtonOutlineBlue onClick={() => setEditMode({ isOpen: true, previousData: form })}>
+                Ubah Peserta
+              </ButtonOutlineBlue>
+            </ToolbarActionButtons>
+          )}
+        </EditToolbar>
+      )}
 
       <TeamInfoEditor>
-        <div>
-          <label>Nama Tim</label>
-          <input placeholder="Nama Tim" />
-        </div>
+        <DisplayTeamClub>
+          <div>Nama Tim</div>
+          <div className="display-value">{participantMembers.participant.teamName}</div>
+        </DisplayTeamClub>
 
-        <div>
-          <label>Nama Klub</label>
-          <input placeholder="Nama Tim" />
-        </div>
+        <DisplayTeamClub>
+          <div>Nama Klub</div>
+          <div className="display-value">{participantMembers.club.name}</div>
+        </DisplayTeamClub>
 
         <DisplayJumlahPeserta>
           <div>Jumlah Peserta</div>
@@ -124,16 +180,27 @@ function ParticipantEditorTeam({ participantMembers, isUserParticipant }) {
         </DisplayJumlahPeserta>
       </TeamInfoEditor>
 
-      <div>
-        {participantMembers.member.length &&
-          participantMembers.member.map((participant, index) => (
-            <ParticipantMemberInfo
-              key={participant.id}
-              participant={participant}
-              title={`Peserta ${index + 1}`}
-            />
-          ))}
-      </div>
+      {editMode.isOpen ? (
+        <EmailFieldsList
+          form={form}
+          dispatchForm={dispatchForm}
+          formData={{
+            category: { id: participantMembers.eventCategoryDetail.id },
+            club: { detail: { id: participantMembers.club.id } },
+          }}
+        />
+      ) : (
+        <div>
+          {participantMembers.member.length &&
+            participantMembers.member.map((participant, index) => (
+              <ParticipantMemberInfo
+                key={participant.id}
+                participant={participant}
+                title={`Peserta ${index + 1}`}
+              />
+            ))}
+        </div>
+      )}
     </React.Fragment>
   );
 }
@@ -144,9 +211,51 @@ const EditToolbar = styled.div`
   gap: 1.5rem;
 `;
 
+const ToolbarActionButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
 const TeamInfoEditor = styled.div`
   display: flex;
   gap: 1.75rem;
+`;
+
+function EmailFieldsList({ form, dispatchForm, formData }) {
+  const names = Object.keys(form);
+  return (
+    <GridInputEmailMember>
+      {names.map((name, index) => (
+        <FieldSelectEmailMember
+          key={name}
+          name={name}
+          placeholder="Pilih email peserta"
+          value={form[name] || null}
+          formData={formData}
+          onChange={(profile) => dispatchForm({ name: name, payload: profile })}
+          // errors={formErrors[participant.name]}
+        >
+          Peserta {index + 1}
+        </FieldSelectEmailMember>
+      ))}
+    </GridInputEmailMember>
+  );
+}
+
+const GridInputEmailMember = styled.div`
+  display: grid;
+  gap: 0 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+`;
+
+const DisplayTeamClub = styled.div`
+  flex-grow: 1;
+
+  > .display-value {
+    font-weight: 600;
+  }
 `;
 
 const DisplayJumlahPeserta = styled.div`
