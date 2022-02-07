@@ -50,7 +50,7 @@ const ProfileMenu = (props) => {
       {/* Menu ketika layar large ke atas */}
       <List className="d-none d-lg-flex my-auto">
         <ListInlineItem className="d-flex justify-content-center align-items-center">
-          <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
+          <img className="rounded-circle header-profile-user" src={userProfile?.avatar || user1} alt="Header Avatar" />
           <span className="d-none d-lg-inline-block ms-2 me-1">{username}</span>
         </ListInlineItem>
 
@@ -65,11 +65,16 @@ const ProfileMenu = (props) => {
       {/* Menu ketika layar medium ke bawah */}
       <Dropdown isOpen={menu} toggle={() => setMenu(!menu)} className="d-inline-block d-lg-none">
         <DropdownToggle className="btn header-item " id="page-header-user-dropdown" tag="button">
-          <img className="rounded-circle header-profile-user" src={user1} alt="Header Avatar" />
+          <img className="rounded-circle header-profile-user" src={userProfile?.avatar || user1} alt="Header Avatar" />
           <span className="d-none d-xl-inline-block ms-2 me-1">{username}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
+          <DropdownItem tag="a" href="/dashboard" className="dropdown-item">
+            <i className="bx bxs-dashboard font-size-16 align-middle me-1 text-muted" />
+            <span>Dashboard</span>
+          </DropdownItem>
+          <DropdownItem divider />
           <DropdownItem tag="a" href="/archer/logout" className="dropdown-item">
             <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />
             <span>{props.t("Logout")}</span>
