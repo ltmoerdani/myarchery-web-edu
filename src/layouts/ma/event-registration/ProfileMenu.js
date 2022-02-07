@@ -73,7 +73,7 @@ const ProfileMenu = (props) => {
             <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
           </DropdownToggle>
           <DropdownMenu className="dropdown-menu-end">
-            <DropdownItem tag="a" href="/logout" className="dropdown-item">
+            <DropdownItem tag="a" href="/archer/logout" className="dropdown-item">
               <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />
               <span>{props.t("Logout")}</span>
             </DropdownItem>
