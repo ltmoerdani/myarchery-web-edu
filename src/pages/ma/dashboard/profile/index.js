@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
+import { FieldSelect } from "./components";
 import styled from "styled-components";
 import IconCamera from "components/ma/icons/mono/camera";
-import { DateInput, TextInput, NumberInput } from "components";
+import { DateInput, TextInput, NumberInput, TextareaInput } from "components";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
-import { ArcherService } from "services";
-import { useHistory } from "react-router-dom";
+import { ArcherService, ArcheryClubService } from "services";
+import { useHistory, Link } from "react-router-dom";
+import icon_white from "assets/images/myachery/icon-white.svg";
+import icon_green from "assets/images/myachery/success-icon.svg";
+// import icon from "assets/images/myachery/icon.svg";
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
 
@@ -30,6 +34,8 @@ function PageProfileHome() {
   const [dataUpdate, setUpdateData] = useState({});
   const [toggle, setToggle] = useState(userProfile?.gender);
   const [imgAvatar, setImgAvatar] = useState(userProfile?.avatar);
+  const [provinceOptions, setProvinceOptions] = React.useState([]);
+  const [cityOptions, setCityOptions] = React.useState([]);
   // const [base64String, setBase64String] = useState("")
 
   const handleChooseImage = async (field, ev) => {
@@ -39,7 +45,7 @@ function PageProfileHome() {
     const imageRawData = ev.target.files[0];
     const stringAv = await imageToBase64(imageRawData);
     const imagePreviewUrl = URL.createObjectURL(imageRawData);
-    setImgAvatar(imagePreviewUrl)
+    setImgAvatar(imagePreviewUrl);
     setProfileData({
       [field]: { preview: imagePreviewUrl, raw: imageRawData, base64: stringAv },
     });
@@ -70,6 +76,16 @@ function PageProfileHome() {
           ? dataUpdate?.phone_number
           : userProfile?.phoneNumber,
         club: dataUpdate?.club ? dataUpdate?.club : null,
+        address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
+        placeOfBirth: dataUpdate?.placeOfBirth
+          ? dataUpdate?.placeOfBirth
+          : userProfile?.placeOfBirth,
+        address_province_id: dataUpdate?.addressProvince
+          ? dataUpdate?.addressProvince?.value
+          : userProfile?.addressProvince,
+        address_city_id: dataUpdate?.addressCity
+          ? dataUpdate?.addressCity?.value
+          : userProfile?.addressCity,
       },
       { user_id: userProfile?.id }
     );
@@ -80,11 +96,69 @@ function PageProfileHome() {
     history.push("/dashboard");
   };
 
-  console.log(profileData);
-  // console.log(dataUpdate)
+  React.useEffect(() => {
+    const fetchProvinceOptions = async () => {
+      const result = await ArcheryClubService.getProvinces({ limit: 50, page: 1 });
+      if (result.success) {
+        const provinceOptions = result.data.map((province) => ({
+          label: province.name,
+          value: parseInt(province.id),
+        }));
+        setProvinceOptions(provinceOptions);
+      } else {
+        console.log(result.errors || "error getting provinces list");
+      }
+    };
+
+    fetchProvinceOptions();
+  }, []);
+
+  React.useEffect(() => {
+    if (!dataUpdate?.addressProvince?.value) {
+      setCityOptions([]);
+      return;
+    }
+
+    const fetchCityOptions = async () => {
+      const result = await ArcheryClubService.getCities({
+        province_id: dataUpdate?.addressProvince.value,
+      });
+      if (result.success) {
+        const cityOptions = result.data.map((city) => ({
+          label: city.name,
+          value: parseInt(city.id),
+        }));
+        setCityOptions(cityOptions);
+      } else {
+        console.log(result.errors || "error getting cities list");
+      }
+    };
+
+    fetchCityOptions();
+  }, [dataUpdate?.addressProvince]);
+
+  // console.log(profileData);
+  // console.log(dataUpdate);
   // console.log(userProfile)
 
+  const valueProvincie = () => {
+    return userProfile?.addressProvince
+      ? { label: userProfile?.addressProvince?.name, value: userProfile?.addressProvince?.id }
+      : null;
+  };
+  const valueCity = () => {
+    return userProfile?.addressCity
+      ? { label: userProfile?.addressCity?.name, value: userProfile?.addressCity?.id }
+      : null;
+  };
+
   const handleInputName = (e) => {
+    const payload = { ...dataUpdate };
+    payload[e.key] = e.value;
+    setUpdateData(payload);
+  };
+
+  const handleInputPlaceOfBirth = (e) => {
     const payload = { ...dataUpdate };
     payload[e.key] = e.value;
     setUpdateData(payload);
@@ -99,18 +173,93 @@ function PageProfileHome() {
     payload[e.key] = e.value;
     setUpdateData(payload);
   };
-  // const handleClub = (e) => {
-  //     const payload = {...dataUpdate}
-  //     payload[e.key] = e.value
-  //     setUpdateData(payload)
-  // }
 
+  const handleInputProvince = (key, e) => {
+    const payload = { ...dataUpdate };
+    payload[key] = e;
+    setUpdateData(payload);
+  };
+
+  const handleInputCity = (key, e) => {
+    const payload = { ...dataUpdate };
+    payload[key] = e;
+    setUpdateData(payload);
+  };
+
+  const hanleAddress = (e) => {
+    const payload = { ...dataUpdate };
+    payload[e.key] = e.value;
+    setUpdateData(payload);
+  };
   const handleRadio = (e) => {
     setUpdateData({ ...dataUpdate, gender: e.target.value });
   };
 
   const toggleChange = (e) => {
     setToggle(e.target.value ? e.target.value : userProfile?.gender);
+  };
+
+  const statusVerifikasi = () => {
+    if (userProfile?.verifyStatus == 4) {
+      return (
+        <div
+          className="d-flex w-75 align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#EEE" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    if (userProfile?.verifyStatus == 3) {
+      return (
+        <div
+          className="d-flex w-75 align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#EEE" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    if (userProfile?.verifyStatus == 2) {
+      return (
+        <div
+          className="d-flex w-75 align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#FFDD98" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (userProfile?.verifyStatus == 1) {
+      return (
+        <Link style={{ color: "#000" }} to="/dashboard/profile/verifikasi">
+          <div className="d-flex w-75 align-items-center px-2 py-1 rounded-pill">
+            <div>
+              <img src={icon_green} className="me-2" />
+            </div>
+            <div>
+              <span>{userProfile?.statusVerify}</span>
+            </div>
+          </div>
+        </Link>
+      );
+    }
   };
 
   const breadcrumpCurrentPageLabel = "Profil";
@@ -124,10 +273,11 @@ function PageProfileHome() {
           <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
 
           <div className="card-club-form">
-            <div>
+            <div className="mt-4">
               <Row>
                 <Col md={3}>
                   <h3 className="ps-4">Data Pribadi</h3>
+                  <div className="my-2">{statusVerifikasi()}</div>
                   <ClubImagesWrapper>
                     <div className="mt-4" style={{ height: "200px" }}>
                       <div className="club-image-bottom">
@@ -224,6 +374,53 @@ function PageProfileHome() {
                     </div>
                   </div>
                   <div className="mt-4">
+                    <TextInput
+                      label="Tempat Lahir"
+                      value={dataUpdate?.placeOfBirth}
+                      defaultValue={userProfile?.placeOfBirth}
+                      name="placeOfBirth"
+                      onChange={(e) => handleInputPlaceOfBirth(e)}
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <FieldSelect
+                      name="addressProvince"
+                      placeholder="Pilih provinsi &#47; wilayah"
+                      required
+                      options={provinceOptions}
+                      value={
+                        dataUpdate?.addressProvince ? dataUpdate?.addressProvince : valueProvincie()
+                      }
+                      onChange={(value) => handleInputProvince("addressProvince", value)}
+                    >
+                      Provinsi&#47;Wilayah
+                    </FieldSelect>
+                  </div>
+                  <div className="mt4">
+                    <FieldSelect
+                      name="addressCity"
+                      placeholder={
+                        dataUpdate.addressProvince ? "Pilih kota" : "Pilih provinsi terlebih dulu"
+                      }
+                      required
+                      options={cityOptions}
+                      disabled={!dataUpdate.addressProvince}
+                      value={dataUpdate?.addressCity ? dataUpdate?.addressCity : valueCity()}
+                      onChange={(value) => handleInputCity("addressCity", value)}
+                    >
+                      Kota
+                    </FieldSelect>
+                  </div>
+                  <div className="mt-4">
+                    <TextareaInput
+                      onChange={(e) => hanleAddress(e)}
+                      label="Alamat"
+                      name="address"
+                      defaultValue={userProfile?.address}
+                      value={dataUpdate?.address}
+                    />
+                  </div>
+                  <div className="mt-4">
                     <NumberInput
                       name="phone_number"
                       defaultValue={userProfile?.phoneNumber}
@@ -232,9 +429,6 @@ function PageProfileHome() {
                       label="No. Handphone"
                     />
                   </div>
-                  {/* <div className='mt-4'>
-                                <TextInput name="club" onChange={(e) => handleClub(e)} label="Nama Klub (Opsional)" />
-                            </div> */}
                   <div className="mt-4">
                     <Button
                       onClick={() => {
@@ -244,7 +438,7 @@ function PageProfileHome() {
                       className="btn float-end"
                       style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                     >
-                      Ajukan
+                      Simpan
                     </Button>
                   </div>
                 </Col>
