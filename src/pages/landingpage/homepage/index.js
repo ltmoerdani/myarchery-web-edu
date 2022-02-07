@@ -15,15 +15,18 @@ import { getAuthenticationStore } from "store/slice/authentication";
 const { TEAM_CATEGORIES } = eventCategories;
 
 const categoryTabsList = [
-  { step: 1, label: "Individu", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL },
-  { step: 2, label: "Male Team", teamCategory: TEAM_CATEGORIES.TEAM_MALE },
-  { step: 3, label: "Female Team", teamCategory: TEAM_CATEGORIES.TEAM_FEMALE },
-  { step: 4, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
+  { step: 1, label: "Individu Putra", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE },
+  { step: 2, label: "Individu Putri", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE },
+  { step: 3, label: "Beregu Putra", teamCategory: TEAM_CATEGORIES.TEAM_MALE },
+  { step: 4, label: "Beregu Putri", teamCategory: TEAM_CATEGORIES.TEAM_FEMALE },
+  { step: 5, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
 ];
 
 function computeCategoriesByTeam(categoriesData) {
   const categoriesByTeam = {
     [TEAM_CATEGORIES.TEAM_INDIVIDUAL]: [],
+    [TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]: [],
+    [TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]: [],
     [TEAM_CATEGORIES.TEAM_MALE]: [],
     [TEAM_CATEGORIES.TEAM_FEMALE]: [],
     [TEAM_CATEGORIES.TEAM_MIXED]: [],
@@ -33,14 +36,15 @@ function computeCategoriesByTeam(categoriesData) {
     if (categoriesData.hasOwnProperty.call(categoriesData, key)) {
       const element = categoriesData[key];
       element.forEach((competition) => {
-        console.log(competition);
         if (
-          competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE ||
-          competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE ||
           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL ||
           competition?.teamCategoryId === "Individu"
         ) {
           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL].push(competition);
+        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE].push(competition);
+        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE) {
+          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE].push(competition);
         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MALE) {
           categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE].push(competition);
         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_FEMALE) {
@@ -59,6 +63,7 @@ function LandingPage() {
   const { slug } = useParams();
   const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
   const [eventData, setEventData] = React.useState({});
+  const [eventPerCategoryTeamPriceData, setEventPerCategoryTeamPriceData] = React.useState([]);
   const [category, setCategory] = React.useState({});
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
@@ -67,9 +72,17 @@ function LandingPage() {
     const { message, errors, data } = await EventsService.getDetailEvent({ slug });
     if (data) {
       setEventData(data);
-      console.log(data);
-      console.log(message);
-      console.log(errors);
+      let fees = []
+      let checkFees = []
+      if(data.eventCategories && data.eventCategories.length > 0){
+        data.eventCategories.map((eventCategori) => {
+          if(checkFees[eventCategori.teamCategoryId.id] == undefined)
+            fees.push({label : eventCategori?.teamCategoryId?.label, fee : eventCategori?.fee });
+          
+          checkFees[eventCategori.teamCategoryId.id] = 1;
+        })
+      }
+      setEventPerCategoryTeamPriceData(fees);
     }
     console.log(message);
     console.log(errors);
@@ -201,16 +214,16 @@ function LandingPage() {
 
               <h5 className="content-info-heading">Biaya Registrasi</h5>
               <div>
-                {eventData?.eventCategories?.map((eventCategori) => {
+                {eventPerCategoryTeamPriceData.map((eventCategori) => {
                   return (
                     <>
                       <p>
-                        {eventCategori?.teamCategoryId?.label}:
+                        <strong>{eventCategori.label}:</strong>
                         <br />
-                        <span>
+                        {/* <span>
                           {`${eventCategori?.ageCategoryId?.label} - ${eventCategori?.competitionCategoryId?.label} - ${eventCategori?.distanceId?.label}`}
                         </span>
-                        <br />
+                        <br /> */}
                         <span>
                           Tanggal Registrasi{" "}
                           {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
@@ -218,7 +231,7 @@ function LandingPage() {
                           )}`}
                         </span>
                         <br />
-                        <span>Mulai dari Rp{eventCategori?.fee}</span>
+                        <span>Mulai dari Rp {Number(eventCategori?.fee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</span>
                       </p>
                     </>
                   );
@@ -289,7 +302,14 @@ function LandingPage() {
               <EventCategoryGrid
                 isLoggedIn={isLoggedIn}
                 slug={slug}
-                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL]}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]}
+              />
+            </WizardViewContent>
+            <WizardViewContent>
+              <EventCategoryGrid
+                isLoggedIn={isLoggedIn}
+                slug={slug}
+                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]}
               />
             </WizardViewContent>
             <WizardViewContent>
@@ -394,11 +414,23 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
           <h5 className="heading-category-name">{category.categoryLabel}</h5>
           <div className="mt-4 body-category-detail">
             <div>
-              <span className="category-quota-label">0&#47;{category.quota}</span>
+              <span className="category-quota-label">{category.totalParticipant}&#47;{category.quota}</span>
             </div>
             <div>
+            {category.totalParticipant >= category.quota ?
+            <Button
+                as={Link}
+                disabled={true}
+                className="btn btn-primary"
+                corner="8"
+                style={{ width: 120 }}
+              >
+                Penuh
+              </Button>
+            :
               <ButtonBlue
                 as={Link}
+                disabled={true}
                 to={`${
                   !isLoggedIn
                     ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
@@ -410,6 +442,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
               >
                 Daftar
               </ButtonBlue>
+            }
             </div>
           </div>
         </div>

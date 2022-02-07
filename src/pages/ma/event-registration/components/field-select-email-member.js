@@ -46,7 +46,6 @@ function FieldSelectEmailMember({
         styles={computeCustomStylesWithValidation(errors)}
         name={name}
         placeholder={placeholder}
-        cacheOptions
         loadOptions={loadOptions}
         getOptionLabel={(option) => option.email}
         noOptionsMessage={({ inputValue }) => {
