@@ -12,6 +12,7 @@ const TextareaInput = ({
   error,
   disabled,
   readOnly,
+  defaultValue,
 }) => {
   const handleChange = e => {
     if (onChange)
@@ -35,6 +36,7 @@ const TextareaInput = ({
         className={`${_.get(error, name) ? "is-invalid" : ""}`}
         disabled={disabled}
         readOnly={readOnly}
+        defaultValue={defaultValue}
       />
       {_.get(error, name)?.map(message => (
         <div className="invalid-feedback" key={message}>

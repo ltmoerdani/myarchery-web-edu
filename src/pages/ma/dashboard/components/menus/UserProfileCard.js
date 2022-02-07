@@ -8,6 +8,9 @@ import { Link } from "react-router-dom";
 import { ButtonOutlineBlue } from "components/ma";
 import Avatar from "./Avatar";
 
+import icon_white from "assets/images/myachery/icon-white.svg";
+import icon_green from "assets/images/myachery/success-icon.svg";
+
 const CardMenuProfileContainer = styled.div`
   position: relative;
   display: flex;
@@ -91,8 +94,73 @@ const CardMenuProfileContainer = styled.div`
   }
 `;
 
-function UserProfileCard({to}) {
+function UserProfileCard({ to }) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+
+  const statusVerifikasi = () => {
+    if (userProfile?.verifyStatus == 4) {
+      return (
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#EEE" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    if (userProfile?.verifyStatus == 3) {
+      return (
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#EEE" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    if (userProfile?.verifyStatus == 2) {
+      return (
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#FFDD98" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    
+    if (userProfile?.verifyStatus == 1) {
+      return (
+        <Link style={{color: '#000'}} to="/dashboard/profile/verifikasi">
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          >
+          <div>
+            <img src={icon_green} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+          </Link>
+      );
+    }
+  };
   return (
     <CardMenuProfileContainer>
       <div className="profile-body">
@@ -109,7 +177,8 @@ function UserProfileCard({to}) {
         </div>
       </div>
 
-      <div className="profile-footer">
+      <div className="profile-footer d-flex align-items-center justify-content-between">
+        <div>{statusVerifikasi()}</div>
         <div className="float-end">
           <ButtonOutlineBlue rounded as={Link} to={to}>
             Edit Profil
