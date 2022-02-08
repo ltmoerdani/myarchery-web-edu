@@ -314,7 +314,6 @@ function PageProfileHome() {
                   </div>
                   <div className="mt-4">
                     <TextInput
-                      disabled={userProfile?.verifyStatus != 1 ? false : true}
                       label="Tempat Lahir"
                       value={dataUpdate?.placeOfBirth}
                       defaultValue={userProfile?.placeOfBirth}

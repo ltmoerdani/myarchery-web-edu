@@ -42,7 +42,7 @@ function PageProfileVerifikasiHome() {
     if (dataUpdate?.ktp && dataUpdate?.kk) {
       if (dataUpdate?.ktp) {
         if (dataUpdate?.kk) {
-          const { message, errors, data } = await ArcherService.updateVerifikasi(
+          const { message, errors } = await ArcherService.updateVerifikasi(
             {
               nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
               selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
@@ -56,9 +56,19 @@ function PageProfileVerifikasiHome() {
             },
             { user_id: userProfile?.id }
           );
-          if (!data) {
+          if (message == 'Failed') {
             console.log(message);
             console.log(errors);
+            const err = Object.keys(errors).map((err) => err);
+            if(err[0] == 'cityId' || err[1] == 'cityId' || err[2] == 'cityId'){
+              toastr.error("Kota belum diisi")
+            }
+            if(err[1] == 'nik' || err[0] == 'nik' || err[2] == 'nik'){
+              toastr.error("NIK belum diisi")
+            }
+            if(err[2] == 'provinceId' || err[1] == 'provinceId' || err[0] == 'provinceId') {
+              toastr.error("Provinsi/Wilayah belum diisi")
+            }
           } else {
             history.push("/dashboard");
           }
