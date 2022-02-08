@@ -504,6 +504,7 @@ function PageTransactionDetail() {
                                   >
                                     Bayar Sekarang
                                   </button>
+                                  <p style={{textAlign:"center"}}>code : {dataDetail?.transactionInfo?.orderId}</p>
                                 </>
                               ) : (
                                 <>
