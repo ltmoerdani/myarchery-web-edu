@@ -349,7 +349,7 @@ function PageProfileVerifikasiHome() {
                       }
                       onChange={(value) => handleInputProvince("addressProvince", value)}
                     >
-                      Provinsi&#47;Wilayah
+                      Provinsi&#47;Wilayah(Sesuai dengan KTP)
                     </FieldSelect>
                   </div>
 
