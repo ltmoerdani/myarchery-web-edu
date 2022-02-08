@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
-import { FieldSelect } from "./components";
 import styled from "styled-components";
 import IconCamera from "components/ma/icons/mono/camera";
 import { DateInput, TextInput, NumberInput, TextareaInput } from "components";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
-import { ArcherService, ArcheryClubService } from "services";
+import { ArcherService } from "services";
 import { useHistory, Link } from "react-router-dom";
 import icon_white from "assets/images/myachery/icon-white.svg";
 import icon_green from "assets/images/myachery/success-icon.svg";
+import toastr from "toastr";
 // import icon from "assets/images/myachery/icon.svg";
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
@@ -34,9 +34,6 @@ function PageProfileHome() {
   const [dataUpdate, setUpdateData] = useState({});
   const [toggle, setToggle] = useState(userProfile?.gender);
   const [imgAvatar, setImgAvatar] = useState(userProfile?.avatar);
-  const [provinceOptions, setProvinceOptions] = React.useState([]);
-  const [cityOptions, setCityOptions] = React.useState([]);
-  // const [base64String, setBase64String] = useState("")
 
   const handleChooseImage = async (field, ev) => {
     if (!ev.target.files?.[0]) {
@@ -65,7 +62,7 @@ function PageProfileHome() {
   };
 
   const hanleSubmitData = async () => {
-    const { message, errors, data } = await ArcherService.updateProfile(
+    const { message, errors } = await ArcherService.updateProfile(
       {
         name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
         date_of_birth: dataUpdate?.date_of_birth
@@ -80,77 +77,27 @@ function PageProfileHome() {
         placeOfBirth: dataUpdate?.placeOfBirth
           ? dataUpdate?.placeOfBirth
           : userProfile?.placeOfBirth,
-        address_province_id: dataUpdate?.addressProvince
-          ? dataUpdate?.addressProvince?.value
-          : userProfile?.addressProvince,
-        address_city_id: dataUpdate?.addressCity
-          ? dataUpdate?.addressCity?.value
-          : userProfile?.addressCity,
       },
       { user_id: userProfile?.id }
     );
-    if (!data) {
+    if (message === 'Success') {
       console.log(message);
       console.log(errors);
+      history.push("/dashboard");
+    }else{
+      const err = Object.keys(errors).map((err) => err);
+      if(err[0] == "address"){
+        toastr.error("Alamat belum diisi")
+      }
+      if(err[0] == 'placeOfBirth' || err[1] == 'placeOfBirth')
+      toastr.error("Tempat lahir belum diisi")
+
     }
-    history.push("/dashboard");
   };
-
-  React.useEffect(() => {
-    const fetchProvinceOptions = async () => {
-      const result = await ArcheryClubService.getProvinces({ limit: 50, page: 1 });
-      if (result.success) {
-        const provinceOptions = result.data.map((province) => ({
-          label: province.name,
-          value: parseInt(province.id),
-        }));
-        setProvinceOptions(provinceOptions);
-      } else {
-        console.log(result.errors || "error getting provinces list");
-      }
-    };
-
-    fetchProvinceOptions();
-  }, []);
-
-  React.useEffect(() => {
-    if (!dataUpdate?.addressProvince?.value) {
-      setCityOptions([]);
-      return;
-    }
-
-    const fetchCityOptions = async () => {
-      const result = await ArcheryClubService.getCities({
-        province_id: dataUpdate?.addressProvince.value,
-      });
-      if (result.success) {
-        const cityOptions = result.data.map((city) => ({
-          label: city.name,
-          value: parseInt(city.id),
-        }));
-        setCityOptions(cityOptions);
-      } else {
-        console.log(result.errors || "error getting cities list");
-      }
-    };
-
-    fetchCityOptions();
-  }, [dataUpdate?.addressProvince]);
 
   // console.log(profileData);
   // console.log(dataUpdate);
   // console.log(userProfile)
-
-  const valueProvincie = () => {
-    return userProfile?.addressProvince
-      ? { label: userProfile?.addressProvince?.name, value: userProfile?.addressProvince?.id }
-      : null;
-  };
-  const valueCity = () => {
-    return userProfile?.addressCity
-      ? { label: userProfile?.addressCity?.name, value: userProfile?.addressCity?.id }
-      : null;
-  };
 
   const handleInputName = (e) => {
     const payload = { ...dataUpdate };
@@ -171,18 +118,6 @@ function PageProfileHome() {
   const handlePhoneNumber = (e) => {
     const payload = { ...dataUpdate };
     payload[e.key] = e.value;
-    setUpdateData(payload);
-  };
-
-  const handleInputProvince = (key, e) => {
-    const payload = { ...dataUpdate };
-    payload[key] = e;
-    setUpdateData(payload);
-  };
-
-  const handleInputCity = (key, e) => {
-    const payload = { ...dataUpdate };
-    payload[key] = e;
     setUpdateData(payload);
   };
 
@@ -310,6 +245,7 @@ function PageProfileHome() {
                 </Col>
                 <Col md={9}>
                   <TextInput
+                    disabled={userProfile?.verifyStatus != 1 ? false : true}
                     label="Nama Lengkap"
                     value={dataUpdate?.name}
                     defaultValue={userProfile?.name}
@@ -319,6 +255,7 @@ function PageProfileHome() {
                   <div className="d-flex mt-4">
                     <div className="w-50">
                       <DateInput
+                        disabled={userProfile?.verifyStatus != 1 ? false : true}
                         value={
                           userProfile?.dateOfBirth
                             ? userProfile?.dateOfBirth
@@ -338,6 +275,7 @@ function PageProfileHome() {
                         style={{ display: "inline-block", marginRight: 10 }}
                       >
                         <Input
+                          disabled={userProfile?.verifyStatus != 1 ? false : true}
                           type="radio"
                           name="gender"
                           value="male"
@@ -357,6 +295,7 @@ function PageProfileHome() {
                         style={{ display: "inline-block", marginRight: 10 }}
                       >
                         <Input
+                          disabled={userProfile?.verifyStatus != 1 ? false : true}
                           type="radio"
                           name="gender"
                           value="female"
@@ -375,6 +314,7 @@ function PageProfileHome() {
                   </div>
                   <div className="mt-4">
                     <TextInput
+                      disabled={userProfile?.verifyStatus != 1 ? false : true}
                       label="Tempat Lahir"
                       value={dataUpdate?.placeOfBirth}
                       defaultValue={userProfile?.placeOfBirth}
@@ -382,35 +322,7 @@ function PageProfileHome() {
                       onChange={(e) => handleInputPlaceOfBirth(e)}
                     />
                   </div>
-                  <div className="mt-4">
-                    <FieldSelect
-                      name="addressProvince"
-                      placeholder="Pilih provinsi &#47; wilayah"
-                      required
-                      options={provinceOptions}
-                      value={
-                        dataUpdate?.addressProvince ? dataUpdate?.addressProvince : valueProvincie()
-                      }
-                      onChange={(value) => handleInputProvince("addressProvince", value)}
-                    >
-                      Provinsi&#47;Wilayah
-                    </FieldSelect>
-                  </div>
-                  <div className="mt4">
-                    <FieldSelect
-                      name="addressCity"
-                      placeholder={
-                        dataUpdate.addressProvince ? "Pilih kota" : "Pilih provinsi terlebih dulu"
-                      }
-                      required
-                      options={cityOptions}
-                      disabled={!dataUpdate.addressProvince}
-                      value={dataUpdate?.addressCity ? dataUpdate?.addressCity : valueCity()}
-                      onChange={(value) => handleInputCity("addressCity", value)}
-                    >
-                      Kota
-                    </FieldSelect>
-                  </div>
+                  
                   <div className="mt-4">
                     <TextareaInput
                       onChange={(e) => hanleAddress(e)}

@@ -53,6 +53,24 @@ const Header = () => {
         </div>
       );
     }
+
+    if (userProfile?.verifyStatus == 2) {
+      return (
+        <div className="d-flex align-items-center p-2" style={{ backgroundColor: "#F2F8FF" }}>
+          <div style={{ width: "24px", height: "24px" }}>
+            <img width="100%" height="100%" src={icon} />
+          </div>
+          <div className="ms-2">
+            <span style={{ fontWeight: "600" }}>Proses verifikasi ditolak silahkan ajukan lagi.</span>
+          </div>
+          <div style={{ width: "70%" }}>
+            <Link className="float-end" to="/dashboard/profile/verifikasi">
+              <span>Halam Verifikasi</span>
+            </Link>
+          </div>
+        </div>
+      );
+    }
   };
   return (
     <React.Fragment>
