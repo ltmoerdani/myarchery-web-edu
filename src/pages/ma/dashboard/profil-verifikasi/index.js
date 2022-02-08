@@ -4,9 +4,11 @@ import { BreadcrumbDashboard } from "../components/breadcrumb";
 import styled from "styled-components";
 import { DateInput, TextInput } from "components";
 import { useSelector } from "react-redux";
+import toastr from "toastr";
 import * as AuthStore from "store/slice/authentication";
-import { ArcherService } from "services";
+import { ArcherService, ArcheryClubService } from "services";
 import { useHistory } from "react-router-dom";
+import { FieldSelect } from "./components";
 import "./components/sass/styles.scss";
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
@@ -33,21 +35,52 @@ function PageProfileVerifikasiHome() {
   const [isOpenKTP, setIsOpenKTP] = useState(false);
   const [isOpenKK, setIsOpenKK] = useState(false);
   const [detailData, setDetailData] = useState({});
+  const [provinceOptions, setProvinceOptions] = React.useState([]);
+  const [cityOptions, setCityOptions] = React.useState([]);
 
   const hanleSubmitData = async () => {
-    const { message, errors, data } = await ArcherService.updateVerifikasi(
-      {
-        nik: dataUpdate?.nik ? dataUpdate?.nik : userProfile?.nik,
-        selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
-        ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : null,
-      },
-      { user_id: userProfile?.id }
-    );
-    if (!data) {
-      console.log(message);
-      console.log(errors);
+    if (dataUpdate?.ktp && dataUpdate?.kk) {
+      if (dataUpdate?.ktp) {
+        if (dataUpdate?.kk) {
+          const { message, errors } = await ArcherService.updateVerifikasi(
+            {
+              nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
+              selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
+              ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : null,
+              provinceId: dataUpdate?.addressProvince
+                ? dataUpdate?.addressProvince?.value
+                : userProfile?.addressProvince?.id,
+              cityId: dataUpdate?.addressCity
+                ? dataUpdate?.addressCity?.value
+                : userProfile?.addressCity?.id,
+            },
+            { user_id: userProfile?.id }
+          );
+          if (message == 'Failed') {
+            console.log(message);
+            console.log(errors);
+            const err = Object.keys(errors).map((err) => err);
+            if(err[0] == 'cityId' || err[1] == 'cityId' || err[2] == 'cityId'){
+              toastr.error("Kota belum diisi")
+            }
+            if(err[1] == 'nik' || err[0] == 'nik' || err[2] == 'nik'){
+              toastr.error("NIK belum diisi")
+            }
+            if(err[2] == 'provinceId' || err[1] == 'provinceId' || err[0] == 'provinceId') {
+              toastr.error("Provinsi/Wilayah belum diisi")
+            }
+          } else {
+            history.push("/dashboard");
+          }
+        }else {
+          toastr.error("Foto Selfie dengan KTP/KK belum diisi")
+        }
+      }else{
+        toastr.error("Foto KTP/KK belum diisi")
+      }
+    }else {
+      toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi")
     }
-    history.push("/dashboard");
   };
 
   const getDetailVerifikasi = async () => {
@@ -99,6 +132,18 @@ function PageProfileVerifikasiHome() {
     setUpdateData({ ...dataUpdate, kk: base64String });
   };
 
+  const handleInputProvince = (key, e) => {
+    const payload = { ...dataUpdate };
+    payload[key] = e;
+    setUpdateData(payload);
+  };
+
+  const handleInputCity = (key, e) => {
+    const payload = { ...dataUpdate };
+    payload[key] = e;
+    setUpdateData(payload);
+  };
+
   const handleRadio = (e) => {
     setUpdateData({ ...dataUpdate, gender: e.target.value });
   };
@@ -114,10 +159,63 @@ function PageProfileVerifikasiHome() {
     setIsOpenKK(!isOpenKK);
   };
 
+  const valueProvincie = () => {
+    return userProfile?.addressProvince
+      ? { label: userProfile?.addressProvince?.name, value: userProfile?.addressProvince?.id }
+      : null;
+  };
+  const valueCity = () => {
+    return userProfile?.addressCity
+      ? { label: userProfile?.addressCity?.name, value: userProfile?.addressCity?.id }
+      : null;
+  };
+
+  React.useEffect(() => {
+    const fetchProvinceOptions = async () => {
+      const result = await ArcheryClubService.getProvinces({ limit: 50, page: 1 });
+      if (result.success) {
+        const provinceOptions = result.data.map((province) => ({
+          label: province.name,
+          value: parseInt(province.id),
+        }));
+        setProvinceOptions(provinceOptions);
+      } else {
+        console.log(result.errors || "error getting provinces list");
+      }
+    };
+
+    fetchProvinceOptions();
+  }, []);
+
+  React.useEffect(() => {
+    if (!dataUpdate?.addressProvince?.value) {
+      setCityOptions([]);
+      return;
+    }
+
+    const fetchCityOptions = async () => {
+      const result = await ArcheryClubService.getCities({
+        province_id: dataUpdate?.addressProvince.value,
+      });
+      if (result.success) {
+        const cityOptions = result.data.map((city) => ({
+          label: city.name,
+          value: parseInt(city.id),
+        }));
+        setCityOptions(cityOptions);
+      } else {
+        console.log(result.errors || "error getting cities list");
+      }
+    };
+
+    fetchCityOptions();
+  }, [dataUpdate?.addressProvince]);
+
   const breadcrumpCurrentPageLabel = "Ajukan Data";
 
-  console.log(display);
-  console.log(dataUpdate);
+  // console.log(display);
+  // console.log(dataUpdate);
+  console.log(userProfile);
 
   if (userProfile?.verifyStatus == 1) {
     return (
@@ -139,7 +237,9 @@ function PageProfileVerifikasiHome() {
           <title>Profil Archer Verifikasi | MyArchery.id</title>
         </MetaTags>
         <Container fluid>
-          <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
+          <BreadcrumbDashboard to="/dashboard/profile">
+            {breadcrumpCurrentPageLabel}
+          </BreadcrumbDashboard>
 
           <div className="card-club-form">
             <div>
@@ -236,6 +336,37 @@ function PageProfileVerifikasiHome() {
                         }}
                       />
                     </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <FieldSelect
+                      name="addressProvince"
+                      placeholder="Pilih provinsi &#47; wilayah"
+                      required
+                      options={provinceOptions}
+                      value={
+                        dataUpdate?.addressProvince ? dataUpdate?.addressProvince : valueProvincie()
+                      }
+                      onChange={(value) => handleInputProvince("addressProvince", value)}
+                    >
+                      Provinsi&#47;Wilayah
+                    </FieldSelect>
+                  </div>
+
+                  <div className="mt4">
+                    <FieldSelect
+                      name="addressCity"
+                      placeholder={
+                        dataUpdate.addressProvince ? "Pilih kota" : "Pilih provinsi terlebih dulu"
+                      }
+                      required
+                      options={cityOptions}
+                      disabled={!dataUpdate.addressProvince}
+                      value={dataUpdate?.addressCity ? dataUpdate?.addressCity : valueCity()}
+                      onChange={(value) => handleInputCity("addressCity", value)}
+                    >
+                      Kota
+                    </FieldSelect>
                   </div>
 
                   <div className="mt-3">
