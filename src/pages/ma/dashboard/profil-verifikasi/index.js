@@ -341,7 +341,7 @@ function PageProfileVerifikasiHome() {
                   <div className="mt-4">
                     <FieldSelect
                       name="addressProvince"
-                      placeholder="Pilih provinsi &#47; wilayah"
+                      placeholder="Pilih provinsi &#47; wilayah(Sesuai dengan KTP)"
                       required
                       options={provinceOptions}
                       value={
@@ -349,7 +349,7 @@ function PageProfileVerifikasiHome() {
                       }
                       onChange={(value) => handleInputProvince("addressProvince", value)}
                     >
-                      Provinsi&#47;Wilayah
+                      Provinsi&#47;Wilayah(Sesuai dengan KTP)
                     </FieldSelect>
                   </div>
 
