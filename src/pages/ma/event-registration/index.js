@@ -46,7 +46,6 @@ const initialFormState = {
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
-      { name: `member-email-${stringUtil.createRandom()}`, data: null },
     ],
   },
   errors: {},
@@ -412,6 +411,7 @@ function PageEventRegistration() {
                     teamCategoryId={category?.teamCategoryId}
                   >
                     {participants.map((participant, index) => (
+                      category?.teamCategoryId == "mix_team" && index > 1 ? <></> :
                       <FieldSelectEmailMember
                         key={participant.name}
                         name={participant.name}
