@@ -433,14 +433,14 @@ function PageProfileVerifikasiHome() {
                                 Lihat
                               </Button>
                               <label className="custom-file-upload">
-                                <input onChange={(e) => handleKTP(e)} name="ktp" type="file" />
+                                <input accept="image/*" onChange={(e) => handleKTP(e)} name="ktp" type="file" />
                                 <span>Ubah</span>
                               </label>
                             </div>
                           ) : (
                             <div>
                               <label className="custom-file-upload">
-                                <input onChange={(e) => handleKTP(e)} name="ktp" type="file" />
+                                <input accept="image/*" onChange={(e) => handleKTP(e)} name="ktp" type="file" />
                                 <span>Unggah</span>
                               </label>
                             </div>
@@ -480,14 +480,14 @@ function PageProfileVerifikasiHome() {
                                 Lihat
                               </Button>
                               <label className="custom-file-upload">
-                                <input onChange={(e) => handleKK(e)} name="kk" type="file" />
+                                <input accept="image/*" onChange={(e) => handleKK(e)} name="kk" type="file" />
                                 <span>Ubah</span>
                               </label>
                             </div>
                           ) : (
                             <div>
                               <label className="custom-file-upload">
-                                <input name="kk" onChange={(e) => handleKK(e)} type="file" />
+                                <input accept="image/*" name="kk" onChange={(e) => handleKK(e)} type="file" />
                                 <span>Unggah</span>
                               </label>
                             </div>
@@ -500,7 +500,7 @@ function PageProfileVerifikasiHome() {
                   <div className="mt-4">
                     <Button
                       onClick={() => {
-                          if(userProfile?.verifyStatus == 3){
+                          if(userProfile?.verifyStatus == 3 || userProfile?.verifyStatus == 2){
                             hanleSubmitDataUpdate();
                           } else {
                             hanleSubmitData();
