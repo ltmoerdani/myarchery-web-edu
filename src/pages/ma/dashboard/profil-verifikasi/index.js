@@ -83,6 +83,40 @@ function PageProfileVerifikasiHome() {
     }
   };
 
+  const hanleSubmitDataUpdate = async () => {
+          const { message, errors } = await ArcherService.updateVerifikasi(
+            {
+              nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
+              selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
+              ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
+              provinceId: dataUpdate?.addressProvince
+                ? dataUpdate?.addressProvince?.value
+                : userProfile?.addressProvince?.id,
+              cityId: dataUpdate?.addressCity
+                ? dataUpdate?.addressCity?.value
+                : userProfile?.addressCity?.id,
+            },
+            { user_id: userProfile?.id }
+          );
+          if (message == 'Failed') {
+            console.log(message);
+            console.log(errors);
+            const err = Object.keys(errors).map((err) => err);
+            if(err[0] == 'cityId' || err[1] == 'cityId' || err[2] == 'cityId'){
+              toastr.error("Kota belum diisi")
+            }
+            if(err[1] == 'nik' || err[0] == 'nik' || err[2] == 'nik'){
+              toastr.error("NIK belum diisi")
+            }
+            if(err[2] == 'provinceId' || err[1] == 'provinceId' || err[0] == 'provinceId') {
+              toastr.error("Provinsi/Wilayah belum diisi")
+            }
+          } else {
+            history.push("/dashboard");
+          }
+     
+  };
+
   const getDetailVerifikasi = async () => {
     const { message, errors, data } = await ArcherService.getDetailVerifikasi({
       user_id: userProfile?.id,
@@ -217,7 +251,7 @@ function PageProfileVerifikasiHome() {
   // console.log(dataUpdate);
   console.log(userProfile);
 
-  if (userProfile?.verifyStatus != 1) {
+  if (userProfile?.verifyStatus == 1) {
     return (
       <React.Fragment>
         <VerifikasiResume
@@ -466,7 +500,11 @@ function PageProfileVerifikasiHome() {
                   <div className="mt-4">
                     <Button
                       onClick={() => {
-                        hanleSubmitData();
+                          if(userProfile?.verifyStatus == 3){
+                            hanleSubmitDataUpdate();
+                          } else {
+                            hanleSubmitData();
+                          }
                       }}
                       className="btn float-end"
                       style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
