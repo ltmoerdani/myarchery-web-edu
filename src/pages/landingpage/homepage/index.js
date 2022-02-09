@@ -142,6 +142,18 @@ function LandingPage() {
     );
   };
 
+  let feeArray = [];
+
+  const getFee = () => {
+    return eventData?.eventCategories?.map((categorie) => {
+      return categorie?.fee;
+    });
+  };
+  feeArray = getFee();
+  feeArray?.sort((a, b) => a - b);
+
+  console.log(feeArray);
+
   return (
     <PageWrapper>
       <Container fluid>
@@ -407,6 +419,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
 // }
 
 function EventCategoryGrid({ categories, slug, isLoggedIn }) {
+  console.log(categories);
   return (
     <div className="event-category-grid">
       {categories.map((category, index) => (
@@ -414,35 +427,30 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
           <h5 className="heading-category-name">{category.categoryLabel}</h5>
           <div className="mt-4 body-category-detail">
             <div>
-              <span className="category-quota-label">{category.totalParticipant}&#47;{category.quota}</span>
+              <span className="category-quota-label">
+                Sisa kuota {category.quota - category.totalParticipant} dari {category.quota}
+                {/* {category.totalParticipant}&#47;{category.quota} */}
+              </span>
             </div>
             <div>
-            {category.totalParticipant >= category.quota ?
-            <Button
-                as={Link}
-                disabled={true}
-                className="btn btn-primary"
-                corner="8"
-                style={{ width: 120 }}
-              >
-                Penuh
-              </Button>
-            :
-              <ButtonBlue
-                as={Link}
-                disabled={true}
-                to={`${
-                  !isLoggedIn
-                    ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
-                    : `/event-registration/${slug}?categoryId=${category?.id}`
-                }`}
-                className="btn btn-primary"
-                corner="8"
-                style={{ width: 120 }}
-              >
-                Daftar
-              </ButtonBlue>
-            }
+              {(category.quota - category.totalParticipant) > 0 && category?.isOpen ? (
+                <ButtonBlue
+                  as={Link}
+                  to={`${
+                    !isLoggedIn
+                      ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
+                      : `/event-registration/${slug}?categoryId=${category?.id}`
+                  }`}
+                  corner="8"
+                  style={{ width: 120 }}
+                >
+                  Daftar
+                </ButtonBlue>
+              ) : (
+                <Button disabled style={{ width: 120}}>
+                  {!category.isOpen ? "Daftar" : "Full"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
