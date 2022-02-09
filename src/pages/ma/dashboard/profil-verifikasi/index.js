@@ -39,7 +39,7 @@ function PageProfileVerifikasiHome() {
   const [cityOptions, setCityOptions] = React.useState([]);
 
   const hanleSubmitData = async () => {
-    if (dataUpdate?.ktp && dataUpdate?.kk) {
+    if (dataUpdate?.ktp || dataUpdate?.kk) {
       if (dataUpdate?.ktp) {
         if (dataUpdate?.kk) {
           const { message, errors } = await ArcherService.updateVerifikasi(
@@ -217,7 +217,7 @@ function PageProfileVerifikasiHome() {
   // console.log(dataUpdate);
   console.log(userProfile);
 
-  if (userProfile?.verifyStatus == 1) {
+  if (userProfile?.verifyStatus != 1) {
     return (
       <React.Fragment>
         <VerifikasiResume
