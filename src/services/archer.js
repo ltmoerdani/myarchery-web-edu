@@ -24,5 +24,11 @@ export default {
     },
     resetPassword(data = null, qs = null) {
         return API.post("/app/v1/auth/reset-password", data, qs)
+    },
+    updateVerifikasi(data = null, qs = null) {
+        return API.put("//app/v1/user/update-verifikasi", data, qs, true)
+    },
+    getDetailVerifikasi(qs = null) {
+        return API.get("/app/v1/user/data-verifikasi", qs)
     }
 }

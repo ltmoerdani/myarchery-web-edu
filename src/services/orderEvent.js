@@ -13,4 +13,10 @@ export default {
   getMemberEmails(qs = null) {
     return API.get("/app/v1/archery/event-order/check-email", qs);
   },
+  getEventsByAuthUser(qs = null) {
+    return API.get("/app/v1/archery-event/my-event", qs);
+  },
+  getEventCategoriesByAuthUser(qs = null) {
+    return API.get("/app/v1/archery-event/my-category-event", qs);
+  },
 };

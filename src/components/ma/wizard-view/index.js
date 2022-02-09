@@ -7,7 +7,7 @@ function WizardView({ children, currentStep = 1 }) {
   return CurrentView || null;
 }
 
-function WizardViewContent({ children, noContainer }) {
+function WizardViewContent({ children = null, noContainer }) {
   if (noContainer) {
     return children;
   }

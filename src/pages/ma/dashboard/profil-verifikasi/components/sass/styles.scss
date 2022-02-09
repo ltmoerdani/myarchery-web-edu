@@ -1,0 +1,19 @@
+.box-upload {
+    height: 136px;
+    background-color: #f6f6f6;
+    border: 2px #e2e2e2 dashed;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    border: #0d47A1 1px solid;
+    display: inline-block;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #0d47A1;
+    color: #FFF;
+}
