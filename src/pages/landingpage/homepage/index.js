@@ -433,7 +433,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
               </span>
             </div>
             <div>
-              {category?.isOpen ? (
+              {(category.quota - category.totalParticipant) > 0 && category?.isOpen ? (
                 <ButtonBlue
                   as={Link}
                   to={`${
@@ -447,8 +447,8 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
                   Daftar
                 </ButtonBlue>
               ) : (
-                <Button disabled style={{ width: 120 }}>
-                  Daftar
+                <Button disabled style={{ width: 120}}>
+                  {!category.isOpen ? "Daftar" : "Full"}
                 </Button>
               )}
             </div>

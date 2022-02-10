@@ -39,7 +39,7 @@ function PageProfileVerifikasiHome() {
   const [cityOptions, setCityOptions] = React.useState([]);
 
   const hanleSubmitData = async () => {
-    if (dataUpdate?.ktp && dataUpdate?.kk) {
+    if (dataUpdate?.ktp || dataUpdate?.kk) {
       if (dataUpdate?.ktp) {
         if (dataUpdate?.kk) {
           const { message, errors } = await ArcherService.updateVerifikasi(
@@ -81,6 +81,40 @@ function PageProfileVerifikasiHome() {
     }else {
       toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi")
     }
+  };
+
+  const hanleSubmitDataUpdate = async () => {
+          const { message, errors } = await ArcherService.updateVerifikasi(
+            {
+              nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
+              selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
+              ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
+              provinceId: dataUpdate?.addressProvince
+                ? dataUpdate?.addressProvince?.value
+                : userProfile?.addressProvince?.id,
+              cityId: dataUpdate?.addressCity
+                ? dataUpdate?.addressCity?.value
+                : userProfile?.addressCity?.id,
+            },
+            { user_id: userProfile?.id }
+          );
+          if (message == 'Failed') {
+            console.log(message);
+            console.log(errors);
+            const err = Object.keys(errors).map((err) => err);
+            if(err[0] == 'cityId' || err[1] == 'cityId' || err[2] == 'cityId'){
+              toastr.error("Kota belum diisi")
+            }
+            if(err[1] == 'nik' || err[0] == 'nik' || err[2] == 'nik'){
+              toastr.error("NIK belum diisi")
+            }
+            if(err[2] == 'provinceId' || err[1] == 'provinceId' || err[0] == 'provinceId') {
+              toastr.error("Provinsi/Wilayah belum diisi")
+            }
+          } else {
+            history.push("/dashboard");
+          }
+     
   };
 
   const getDetailVerifikasi = async () => {
@@ -399,14 +433,14 @@ function PageProfileVerifikasiHome() {
                                 Lihat
                               </Button>
                               <label className="custom-file-upload">
-                                <input onChange={(e) => handleKTP(e)} name="ktp" type="file" />
+                                <input accept="image/*" onChange={(e) => handleKTP(e)} name="ktp" type="file" />
                                 <span>Ubah</span>
                               </label>
                             </div>
                           ) : (
                             <div>
                               <label className="custom-file-upload">
-                                <input onChange={(e) => handleKTP(e)} name="ktp" type="file" />
+                                <input accept="image/*" onChange={(e) => handleKTP(e)} name="ktp" type="file" />
                                 <span>Unggah</span>
                               </label>
                             </div>
@@ -446,14 +480,14 @@ function PageProfileVerifikasiHome() {
                                 Lihat
                               </Button>
                               <label className="custom-file-upload">
-                                <input onChange={(e) => handleKK(e)} name="kk" type="file" />
+                                <input accept="image/*" onChange={(e) => handleKK(e)} name="kk" type="file" />
                                 <span>Ubah</span>
                               </label>
                             </div>
                           ) : (
                             <div>
                               <label className="custom-file-upload">
-                                <input name="kk" onChange={(e) => handleKK(e)} type="file" />
+                                <input accept="image/*" name="kk" onChange={(e) => handleKK(e)} type="file" />
                                 <span>Unggah</span>
                               </label>
                             </div>
@@ -466,7 +500,11 @@ function PageProfileVerifikasiHome() {
                   <div className="mt-4">
                     <Button
                       onClick={() => {
-                        hanleSubmitData();
+                          if(userProfile?.verifyStatus == 3 || userProfile?.verifyStatus == 2){
+                            hanleSubmitDataUpdate();
+                          } else {
+                            hanleSubmitData();
+                          }
                       }}
                       className="btn float-end"
                       style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
