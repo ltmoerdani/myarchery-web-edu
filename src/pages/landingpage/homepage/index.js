@@ -428,7 +428,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
           <div className="mt-4 body-category-detail">
             <div>
               <span className="category-quota-label">
-                Tersedia: {category.totalParticipant} / {category.quota}
+                Tersedia: {category.totalParticipant}/{category.quota}
                 {/* {category.totalParticipant}&#47;{category.quota} */}
               </span>
             </div>
