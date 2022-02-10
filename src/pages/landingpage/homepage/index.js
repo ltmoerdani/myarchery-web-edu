@@ -294,7 +294,7 @@ function LandingPage() {
         <div className="mt-4" id="kategori-lomba">
           <h5 className="text-black">Kategori Lomba</h5>
 
-          <div className="event-team-tabs mt-3 mb-4">
+          <div className="event-team-tabs mt-3 mb-4" style={{overflowX: 'auto'}}>
             {steps.map((tabItem) => (
               <div key={tabItem.step}>
                 <button
@@ -447,7 +447,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
                   Daftar
                 </ButtonBlue>
               ) : (
-                <Button disabled style={{ width: 120}}>
+                <Button disabled style={{ width: 120 }}>
                   Daftar
                 </Button>
               )}
@@ -605,6 +605,12 @@ const PageWrapper = styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+
+    @media screen and (max-width: 600px) {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      height: 245px;
+      overflow-y: auto;
+    }
 
     .event-category-card {
       padding: 12px 1rem;
