@@ -7,7 +7,8 @@ import { EventsService } from "services";
 import { Table } from "reactstrap";
 import { LoadingScreen } from "components";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
-import { AlertSubmitError, AlertSubmitSuccess } from "../../components/alert-submit-error";
+import { AlertSubmitError } from "../../components/alert-submit-error";
+import { AlertSubmitSuccess } from "../../components/alert-submit-success";
 import {
   FieldSelectEmailMember,
   FieldSelectClub,

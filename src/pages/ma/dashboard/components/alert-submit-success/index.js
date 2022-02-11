@@ -3,7 +3,7 @@ import * as React from "react";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { ButtonBlue } from "components/ma";
 
-function AlertSubmitSuccess({ isSuccess, onConfirm }) {
+function AlertSubmitSuccess({ children, isSuccess, onConfirm }) {
   const [isAlertOpen, setAlertOpen] = React.useState(false);
 
   const handleConfirm = () => {
