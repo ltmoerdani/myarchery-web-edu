@@ -5,6 +5,7 @@ import { PickerControl } from "./picker-control";
 import { FieldErrorMessage } from "../field-error-message";
 
 import IconChevronDown from "components/ma/icons/mono/chevron-down";
+import IconClear from "components/ma/icons/mono/x-circle";
 
 import classnames from "classnames";
 
@@ -14,11 +15,14 @@ function ClubPicker({ placeholder = "Pilih klub", value, errors, disabled, ...pr
     <div>
       <PickerButton
         onClick={() => !disabled && setPickerOpen(true)}
+        shouldShowClearButton={Boolean(value)}
+        onClearValue={() => props.onChange?.(null)}
         className={classnames({ "field-invalid": errors?.length })}
         disabled={disabled}
       >
         {value?.detail.name || <PlaceholderText>{placeholder}</PlaceholderText>}
       </PickerButton>
+
       <FieldErrorMessage errors={errors} />
 
       {isPickerOpen && (
@@ -33,16 +37,48 @@ function ClubPicker({ placeholder = "Pilih klub", value, errors, disabled, ...pr
   );
 }
 
-function PickerButton({ children, onClick, className, disabled }) {
+const PickerClearValueContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  > button {
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background-color: transparent;
+    color: var(--ma-blue);
+  }
+`;
+
+function PickerButton({
+  children,
+  onClick,
+  onClearValue,
+  className,
+  disabled,
+  shouldShowClearButton,
+}) {
   return (
-    <StyledPickerButton
-      className={classnames(className, { "field-disabled": disabled })}
-      onClick={onClick}
-    >
-      <StyledPickerButtonBody className={classnames({ "field-disabled": disabled })}>
+    <StyledPickerButton className={classnames(className, { "field-disabled": disabled })}>
+      <StyledPickerButtonBody
+        className={classnames({ "field-disabled": disabled })}
+        onClick={onClick}
+      >
         {children}
       </StyledPickerButtonBody>
-      <StyledPickerIndicator className={classnames({ "field-disabled": disabled })}>
+
+      {shouldShowClearButton && (
+        <PickerClearValueContainer>
+          <button onClick={() => onClearValue?.()}>
+            <IconClear size="16" />
+          </button>
+        </PickerClearValueContainer>
+      )}
+
+      <StyledPickerIndicator
+        className={classnames({ "field-disabled": disabled })}
+        onClick={onClick}
+      >
         <IconChevronDown size="20" />
       </StyledPickerIndicator>
     </StyledPickerButton>
