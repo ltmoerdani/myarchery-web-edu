@@ -7,6 +7,7 @@ import { EventsService } from "services";
 import { Table } from "reactstrap";
 import { LoadingScreen } from "components";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
+import { AlertSubmitError } from "../../components/alert-submit-error";
 import {
   FieldSelectEmailMember,
   FieldSelectClub,
@@ -119,7 +120,7 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
       setEditMode({ isOpen: false, previousData: null });
       refetch();
     } else {
-      dispatchSubmitStatus({ status: "error", errors: result.message || result.errors });
+      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
     }
   };
 
@@ -181,6 +182,7 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
       </div>
 
       <LoadingScreen loading={submitStatus.status === "loading"} />
+      <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
     </React.Fragment>
   );
 }
@@ -231,7 +233,7 @@ function ParticipantEditorTeam({
       setEditMode({ isOpen: false, previousData: null });
       refetch();
     } else {
-      dispatchSubmitStatus({ status: "error", errors: result.message || result.errors });
+      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
     }
   };
 
@@ -344,6 +346,7 @@ function ParticipantEditorTeam({
       )}
 
       <LoadingScreen loading={submitStatus.status === "loading"} />
+      <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
     </React.Fragment>
   );
 }
