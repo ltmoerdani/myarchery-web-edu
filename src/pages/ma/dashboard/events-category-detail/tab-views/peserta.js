@@ -7,7 +7,7 @@ import { EventsService } from "services";
 import { Table } from "reactstrap";
 import { LoadingScreen } from "components";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
-import { FieldSelectEmailMember } from "pages/ma/event-registration/components";
+import { FieldSelectEmailMember, FieldSelectClub } from "pages/ma/event-registration/components";
 
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
@@ -69,7 +69,11 @@ function TabPeserta({ eventState, participantMembersState }) {
                 refetch={refetchParticipantMembers}
               />
             ) : (
-              <ParticipantEditorIndividual participantMembers={participantMembers} />
+              <ParticipantEditorIndividual
+                shouldAllowEdit={shouldAllowEdit}
+                participantMembers={participantMembers}
+                refetch={refetchParticipantMembers}
+              />
             )}
           </React.Fragment>
         )
@@ -85,23 +89,92 @@ const PanelContainer = styled.div`
   }
 `;
 
-function ParticipantEditorIndividual({ participantMembers }) {
+function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refetch }) {
+  const [editMode, setEditMode] = React.useState({ isOpen: false, previousData: null });
+  const [{ club }, dispatchForm] = React.useReducer(individualFormReducer, {
+    club: transformClubDataForPicker(participantMembers.club),
+  });
+  const [submitStatus, dispatchSubmitStatus] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    { status: "idle", errors: null }
+  );
+
+  React.useEffect(() => {
+    dispatchForm({ type: "RESET_FORM", payload: { club } });
+  }, [participantMembers, club]);
+
+  const handleClickSave = async () => {
+    dispatchSubmitStatus({ status: "loading", errors: null });
+    const payload = {
+      participant_id: participantMembers.participant.participantId,
+      club_id: club?.detail?.id || 0,
+    };
+    const result = await EventsService.updateEventParticipantMembers(payload);
+    if (result.success) {
+      dispatchSubmitStatus({ status: "success" });
+      setEditMode({ isOpen: false, previousData: null });
+      refetch();
+    } else {
+      dispatchSubmitStatus({ status: "error", errors: result.message || result.errors });
+    }
+  };
+
   return (
     <React.Fragment>
-      <TeamInfoEditor>
-        {participantMembers.club?.name && (
-          <DisplayTeamClub>
-            <div>Nama Klub</div>
-            <div className="display-value">{participantMembers.club.name}</div>
-          </DisplayTeamClub>
+      <EditToolbar>
+        <NoticeBar>
+          Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
+        </NoticeBar>
+
+        {shouldAllowEdit && editMode.isOpen ? (
+          <ToolbarActionButtons>
+            <Button
+              onClick={() => {
+                dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
+                setEditMode({ isOpen: false, previousData: null });
+              }}
+            >
+              Batal
+            </Button>
+
+            <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
+          </ToolbarActionButtons>
+        ) : (
+          <ToolbarActionButtons>
+            <ButtonOutlineBlue
+              onClick={() => setEditMode({ isOpen: true, previousData: { club } })}
+            >
+              Ubah Peserta
+            </ButtonOutlineBlue>
+          </ToolbarActionButtons>
         )}
-      </TeamInfoEditor>
+      </EditToolbar>
+
+      {shouldAllowEdit && editMode.isOpen ? (
+        <FieldSelectClub
+          value={club || null}
+          onChange={(clubValue) => dispatchForm({ name: "club", payload: clubValue })}
+        >
+          Nama Klub
+        </FieldSelectClub>
+      ) : (
+        <TeamInfoEditor>
+          {participantMembers.club?.name && (
+            <DisplayTeamClub>
+              <div>Nama Klub</div>
+              <div className="display-value">{participantMembers.club.name}</div>
+            </DisplayTeamClub>
+          )}
+        </TeamInfoEditor>
+      )}
 
       <div>
         {Boolean(participantMembers.member.length) && (
           <ParticipantMemberInfo participant={participantMembers.member[0]} />
         )}
       </div>
+
+      <LoadingScreen loading={submitStatus.status === "loading"} />
     </React.Fragment>
   );
 }
@@ -412,6 +485,17 @@ const StyledLabelWithIcon = styled.p`
     margin-right: 0.5rem;
   }
 `;
+
+function transformClubDataForPicker(initialClubData) {
+  return { detail: { name: initialClubData.name, id: initialClubData.id } };
+}
+
+function individualFormReducer(state, action) {
+  if (action.type === "RESET_FORM") {
+    return { ...action.payload };
+  }
+  return { ...state, [action.name]: action.payload };
+}
 
 function emailFormReducer(state, action) {
   if (action.type === "RESET_FORM") {
