@@ -132,28 +132,29 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
           Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
         </NoticeBar>
 
-        {shouldAllowEdit && editMode.isOpen ? (
-          <ToolbarActionButtons>
-            <Button
-              onClick={() => {
-                dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
-                setEditMode({ isOpen: false, previousData: null });
-              }}
-            >
-              Batal
-            </Button>
+        {shouldAllowEdit &&
+          (editMode.isOpen ? (
+            <ToolbarActionButtons>
+              <Button
+                onClick={() => {
+                  dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
+                  setEditMode({ isOpen: false, previousData: null });
+                }}
+              >
+                Batal
+              </Button>
 
-            <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
-          </ToolbarActionButtons>
-        ) : (
-          <ToolbarActionButtons>
-            <ButtonOutlineBlue
-              onClick={() => setEditMode({ isOpen: true, previousData: { club } })}
-            >
-              Ubah Peserta
-            </ButtonOutlineBlue>
-          </ToolbarActionButtons>
-        )}
+              <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
+            </ToolbarActionButtons>
+          ) : (
+            <ToolbarActionButtons>
+              <ButtonOutlineBlue
+                onClick={() => setEditMode({ isOpen: true, previousData: { club } })}
+              >
+                Ubah Peserta
+              </ButtonOutlineBlue>
+            </ToolbarActionButtons>
+          ))}
       </EditToolbar>
 
       {shouldAllowEdit && editMode.isOpen ? (
@@ -249,35 +250,36 @@ function ParticipantEditorTeam({
             Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
           </NoticeBar>
 
-          {shouldAllowEdit && editMode.isOpen ? (
-            <ToolbarActionButtons>
-              <Button
-                onClick={() => {
-                  dispatchForm({ type: "RESET_FORM", payload: editMode.previousData.form });
-                  dispatchClub({
-                    type: "RESET_FORM",
-                    payload: { club: editMode.previousData.club },
-                  });
-                  setTeamName(editMode.previousData.teamName);
-                  setEditMode({ isOpen: false, previousData: null });
-                }}
-              >
-                Batal
-              </Button>
+          {shouldAllowEdit &&
+            (editMode.isOpen ? (
+              <ToolbarActionButtons>
+                <Button
+                  onClick={() => {
+                    dispatchForm({ type: "RESET_FORM", payload: editMode.previousData.form });
+                    dispatchClub({
+                      type: "RESET_FORM",
+                      payload: { club: editMode.previousData.club },
+                    });
+                    setTeamName(editMode.previousData.teamName);
+                    setEditMode({ isOpen: false, previousData: null });
+                  }}
+                >
+                  Batal
+                </Button>
 
-              <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
-            </ToolbarActionButtons>
-          ) : (
-            <ToolbarActionButtons>
-              <ButtonOutlineBlue
-                onClick={() => {
-                  setEditMode({ isOpen: true, previousData: { form, club, teamName } });
-                }}
-              >
-                Ubah Peserta
-              </ButtonOutlineBlue>
-            </ToolbarActionButtons>
-          )}
+                <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
+              </ToolbarActionButtons>
+            ) : (
+              <ToolbarActionButtons>
+                <ButtonOutlineBlue
+                  onClick={() => {
+                    setEditMode({ isOpen: true, previousData: { form, club, teamName } });
+                  }}
+                >
+                  Ubah Peserta
+                </ButtonOutlineBlue>
+              </ToolbarActionButtons>
+            ))}
         </EditToolbar>
       )}
 
