@@ -151,12 +151,14 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
       </EditToolbar>
 
       {shouldAllowEdit && editMode.isOpen ? (
-        <FieldSelectClub
-          value={club || null}
-          onChange={(clubValue) => dispatchForm({ name: "club", payload: clubValue })}
-        >
-          Nama Klub
-        </FieldSelectClub>
+        <ShortFieldWrapper>
+          <FieldSelectClub
+            value={club || null}
+            onChange={(clubValue) => dispatchForm({ name: "club", payload: clubValue })}
+          >
+            Nama Klub
+          </FieldSelectClub>
+        </ShortFieldWrapper>
       ) : (
         <TeamInfoEditor>
           {participantMembers.club?.name && (
@@ -200,7 +202,6 @@ function ParticipantEditorTeam({
   }, [participantMembers]);
 
   const handleClickSave = async () => {
-    setEditMode({ isOpen: false, previousData: null });
     dispatchSubmitStatus({ status: "loading", errors: null });
     const payload = makeSavePayoad(participantMembers.participant.participantId, form);
     const result = await EventsService.updateEventParticipantMembers(payload);
@@ -463,6 +464,10 @@ const ParticipantName = styled.h5`
 const RowedLabel = styled.div`
   display: flex;
   gap: 1.5rem;
+`;
+
+const ShortFieldWrapper = styled.div`
+  max-width: 30rem;
 `;
 
 function LabelWithIcon({ icon, children }) {
