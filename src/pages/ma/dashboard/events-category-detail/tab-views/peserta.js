@@ -7,7 +7,7 @@ import { EventsService } from "services";
 import { Table } from "reactstrap";
 import { LoadingScreen } from "components";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
-import { AlertSubmitError } from "../../components/alert-submit-error";
+import { AlertSubmitError, AlertSubmitSuccess } from "../../components/alert-submit-error";
 import {
   FieldSelectEmailMember,
   FieldSelectClub,
@@ -183,6 +183,9 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
 
       <LoadingScreen loading={submitStatus.status === "loading"} />
       <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
+      <AlertSubmitSuccess isSuccess={submitStatus.status === "success"}>
+        Data peserta berhasil disimpan
+      </AlertSubmitSuccess>
     </React.Fragment>
   );
 }
@@ -347,6 +350,9 @@ function ParticipantEditorTeam({
 
       <LoadingScreen loading={submitStatus.status === "loading"} />
       <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
+      <AlertSubmitSuccess isSuccess={submitStatus.status === "success"}>
+        Data peserta berhasil disimpan
+      </AlertSubmitSuccess>
     </React.Fragment>
   );
 }
