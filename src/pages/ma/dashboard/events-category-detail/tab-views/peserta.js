@@ -316,7 +316,7 @@ function ParticipantEditorTeam({
           <DisplayTeamClub>
             <div>Nama Klub</div>
             <div className="display-value">
-              {participantMembers.club.name || <React.Fragment>&mdash;</React.Fragment>}
+              {participantMembers.club?.name || <React.Fragment>&mdash;</React.Fragment>}
             </div>
           </DisplayTeamClub>
 
@@ -335,7 +335,7 @@ function ParticipantEditorTeam({
           dispatchForm={dispatchForm}
           formData={{
             category: { id: participantMembers.eventCategoryDetail.id },
-            club: { detail: { id: participantMembers.club.id } },
+            club: participantMembers.club ? { detail: { id: participantMembers.club?.id } } : null,
           }}
         />
       ) : (
@@ -559,6 +559,9 @@ const StyledLabelWithIcon = styled.p`
 `;
 
 function transformClubDataForPicker(initialClubData) {
+  if (!initialClubData?.id) {
+    return null;
+  }
   return { detail: { name: initialClubData.name, id: initialClubData.id } };
 }
 
