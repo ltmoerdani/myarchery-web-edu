@@ -10,7 +10,9 @@ import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 import { Landingpage } from "services";
 
-import banner_satu from "../../../assets/images/myachery/Banner 2(1).svg";
+import banner_satu from "../../../assets/images/myachery/banner6 1.svg";
+import banner_dua_hero from "../../../assets/images/myachery/banner6 2.svg";
+import banner_tiga_hero from "../../../assets/images/myachery/banner6 3.svg";
 import img_target from "../../../assets/images/myachery/target-landing-1.svg";
 import ases_satu from "../../../assets/images/myachery/ases-satu.svg";
 import ases_dua from "../../../assets/images/myachery/ases-dua.svg";
@@ -121,7 +123,7 @@ function Home() {
           </div>
         </div>
         <div className="position-relative">
-          <img src={banner_satu} />
+          <img src={banner_dua_hero} />
           <div className="text-box">
             <span className="title-sub">
               selamat datang di
@@ -139,7 +141,7 @@ function Home() {
           </div>
         </div>
         <div className="position-relative">
-          <img src={banner_satu} />
+          <img src={banner_tiga_hero} />
           <div className="text-box">
             <span className="title-sub">
               selamat datang di
