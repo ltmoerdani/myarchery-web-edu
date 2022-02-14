@@ -335,7 +335,7 @@ function ParticipantEditorTeam({
           dispatchForm={dispatchForm}
           formData={{
             category: { id: participantMembers.eventCategoryDetail.id },
-            club: { detail: { id: participantMembers.club?.id } },
+            club: participantMembers.club ? { detail: { id: participantMembers.club?.id } } : null,
           }}
         />
       ) : (
