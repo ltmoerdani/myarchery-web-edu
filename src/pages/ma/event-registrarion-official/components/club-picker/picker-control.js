@@ -124,10 +124,10 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
           {clubsData?.length
             ? clubsData.map((club) => (
                 <ClubItem
-                  key={club.detail.id}
+                  key={club?.detail.id}
                   className={classnames({
-                    "club-disabled": !club.isJoin,
-                    "club-selected": club.detail.id === value?.detail.id,
+                    "club-disabled": !club?.isJoin,
+                    "club-selected": club?.detail?.id === value?.detail?.id,
                   })}
                 >
                   <input
@@ -136,7 +136,7 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
                     id={`radio-club-${club.detail.id}`}
                     className="club-item-radio"
                     value={club.detail.id}
-                    checked={club.detail.id === value?.detail.id}
+                    checked={club?.detail?.id === value?.detail?.id}
                     onChange={() => onChange?.(club)}
                     disabled={!club.isJoin}
                   />
@@ -145,12 +145,12 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
                     className={classnames({ "club-disabled": !club.isJoin })}
                   >
                     <MediaLogo>
-                      {club.detail.logo ? (
+                      {club?.detail?.logo ? (
                         <img className="club-logo-img" src={club.detail.logo} />
                       ) : (
                         <AvatarClubDefault />
                       )}
-                      {club.detail.id === value?.detail.id && (
+                      {club?.detail?.id === value?.detail?.id && (
                         <ClubSelected>
                           <IconCheck size="36" />
                         </ClubSelected>

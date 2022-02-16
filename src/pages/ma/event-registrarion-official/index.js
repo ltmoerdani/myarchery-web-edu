@@ -134,7 +134,7 @@ const PageEventRegistration = () => {
                   >
                     Nama Official
                   </FieldInputText>
-                  <FieldSelectClub>Nama Klub</FieldSelectClub>
+                  <FieldSelectClub onChange={(clubValue) => console.log(clubValue)}>Nama Klub</FieldSelectClub>
                   <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
                   <div className="mt-3">
                     <label htmlFor="relation" className="form-label">
