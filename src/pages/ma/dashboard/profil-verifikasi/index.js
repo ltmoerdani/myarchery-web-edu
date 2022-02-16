@@ -383,7 +383,7 @@ function PageProfileVerifikasiHome() {
                       }
                       onChange={(value) => handleInputProvince("addressProvince", value)}
                     >
-                      Provinsi&#47;Wilayah(Sesuai dengan KTP)
+                      Provinsi domisili&#47;Wilayah domisili(Sesuai dengan KTP)
                     </FieldSelect>
                   </div>
 
@@ -399,7 +399,7 @@ function PageProfileVerifikasiHome() {
                       value={dataUpdate?.addressCity ? dataUpdate?.addressCity : valueCity()}
                       onChange={(value) => handleInputCity("addressCity", value)}
                     >
-                      Kota
+                      Kota domisili
                     </FieldSelect>
                   </div>
 
