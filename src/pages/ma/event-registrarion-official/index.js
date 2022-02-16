@@ -11,6 +11,8 @@ import * as AuthStore from "store/slice/authentication";
 import { FieldInputText, FieldSelectClub } from "./components";
 import SweetAlert from "react-bootstrap-sweetalert";
 import CurrencyFormat from "react-currency-format";
+import {OrderEventService, EventsService} from "services"
+import {useParams} from "react-router-dom"
 
 import ImgEvent from "assets/images/myachery/a-1.jpg";
 import IconInfo from "components/ma/icons/mono/info";
@@ -27,10 +29,66 @@ const tabList = [
 ];
 
 const PageEventRegistration = () => {
+  const [club, setClub] = React.useState({});
+  const [detailEvent, setDetailEvent] = React.useState({})
+
   const breadcrumpCurrentPageLabel = `Pendaftaran ${""}`;
+  const {slug} = useParams();
 
   const { currentStep, goToStep, goToNextStep, goToPreviousStep } = useWizardView(tabList);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const [submitStatus, dispatchSubmitStatus] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    { status: "idle", errors: null }
+  );
+
+  const getEventBySlug = async() => {
+    const {data, message, errors} = await EventsService.getDetailEvent({slug: slug})
+    if (data) {
+      setDetailEvent(data)
+      console.log(message)
+      console.log(errors)
+    } else {
+      console.log(message)
+      console.log(errors)
+    }
+  }
+
+  React.useEffect(() => {
+    getEventBySlug()
+  }, [slug])
+
+  console.log(detailEvent)
+
+  const isErrorSubmit = submitStatus.status === "error";
+
+  const handleSubmitOrder = async () => {
+    dispatchSubmitStatus({ status: "loading", errors: null });
+
+    // payload kategory individual
+    const payload = {
+      event_category_id: category.id,
+      club_id: club?.detail.id || 0,
+      team_name: teamName || undefined,
+      user_id: nonEmptyParticipants.length > 1 ? getUserIdsFromParticipants() : undefined,
+    };
+
+    const result = await OrderEventService.registerOfficia(payload);
+    if (result.success) {
+      dispatchSubmitStatus({ status: "success" });
+      history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
+    } else {
+      const makeErrorData = () => {
+        // handle errors berupa [] / array kosongan
+        // dan ketika null
+        if (!result.errors?.length) {
+          return result.message;
+        }
+        return result.errors;
+      };
+      dispatchSubmitStatus({ status: "error", errors: makeErrorData() });
+    }
+  };
 
   const getLandingPagePath = (url) => {
     if (!url) {
@@ -44,9 +102,17 @@ const PageEventRegistration = () => {
     return path;
   };
 
+  const getClub = (clubValue) => {
+    const payload = { ...club };
+    payload["club"] = clubValue;
+    setClub(payload);
+  };
+
   const handleClickNext = () => {
     goToNextStep();
   };
+
+  console.log(club);
   return (
     <StyledPageWrapper>
       <MetaTags>
@@ -134,7 +200,9 @@ const PageEventRegistration = () => {
                   >
                     Nama Official
                   </FieldInputText>
-                  <FieldSelectClub onChange={(clubValue) => console.log(clubValue)}>Nama Klub</FieldSelectClub>
+                  <FieldSelectClub value={club?.club} onChange={(clubValue) => getClub(clubValue)}>
+                    Nama Klub
+                  </FieldSelectClub>
                   <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
                   <div className="mt-3">
                     <label htmlFor="relation" className="form-label">
@@ -233,9 +301,9 @@ const PageEventRegistration = () => {
                 </ParticipantCard>
 
                 {/* {participants */}
-                  {/* .filter((member) => Boolean(member.data)) */}
-                  {/* .map((participant) => ( */}
-                    {/* <ParticipantCard>
+                {/* .filter((member) => Boolean(member.data)) */}
+                {/* .map((participant) => ( */}
+                {/* <ParticipantCard>
                       <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
 
                       <ParticipantMediaObject>
@@ -271,10 +339,9 @@ const PageEventRegistration = () => {
                         </MediaParticipantContent>
                       </ParticipantMediaObject>
                     </ParticipantCard> */}
-                  {/* ))} */}
+                {/* ))} */}
               </WizardViewContent>
             </WizardView>
-
           </div>
           <div>
             <TicketCard>
@@ -340,7 +407,11 @@ const PageEventRegistration = () => {
                       onConfirm={() => handleSubmitOrder()}
                       onCancel={() => goToPreviousStep()}
                     />
-                    <AlertSubmitError />
+                    <AlertSubmitError
+                      isError={isErrorSubmit}
+                      errors={submitStatus.errors}
+                      onConfirm={() => dispatchSubmitStatus({ status: "idle" })}
+                    />
                   </React.Fragment>
                 )}
               </div>

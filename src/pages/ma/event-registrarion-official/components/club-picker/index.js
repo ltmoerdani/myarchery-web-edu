@@ -17,7 +17,7 @@ function ClubPicker({ placeholder = "Pilih klub", value, errors, disabled, ...pr
         className={classnames({ "field-invalid": errors?.length })}
         disabled={disabled}
       >
-        {value?.detail.name || <PlaceholderText>{placeholder}</PlaceholderText>}
+        {value?.detail?.name || <PlaceholderText>{placeholder}</PlaceholderText>}
       </PickerButton>
       <FieldErrorMessage errors={errors} />
 

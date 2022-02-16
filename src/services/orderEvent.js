@@ -19,4 +19,7 @@ export default {
   getEventCategoriesByAuthUser(qs = null) {
     return API.get("/app/v1/archery-event/my-category-event", qs);
   },
+  registerOfficial(data = null, qs = null) {
+    return API.post("/app/v1/archery-event-official/order", data, qs, true)
+  }
 };
