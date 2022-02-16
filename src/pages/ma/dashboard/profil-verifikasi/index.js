@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import styled from "styled-components";
-import { DateInput, TextInput } from "components";
+import { DateInput, TextInput, TextareaInput } from "components";
 import { useSelector } from "react-redux";
 import toastr from "toastr";
 import * as AuthStore from "store/slice/authentication";
@@ -42,79 +42,154 @@ function PageProfileVerifikasiHome() {
     if (dataUpdate?.ktp) {
       if (dataUpdate?.ktp) {
         // if (dataUpdate?.kk) {
-          const { message, errors } = await ArcherService.updateVerifikasi(
-            {
-              nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-              // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
-              ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : null,
-              provinceId: dataUpdate?.addressProvince
-                ? dataUpdate?.addressProvince?.value
-                : userProfile?.addressProvince?.id,
-              cityId: dataUpdate?.addressCity
-                ? dataUpdate?.addressCity?.value
-                : userProfile?.addressCity?.id,
-            },
-            { user_id: userProfile?.id }
-          );
-          if (message == 'Failed') {
-            console.log(message);
-            console.log(errors);
-            const err = Object.keys(errors).map((err) => err);
-            if(err[0] == 'cityId' || err[1] == 'cityId' || err[2] == 'cityId'){
-              toastr.error("Kota belum diisi")
-            }
-            if(err[1] == 'nik' || err[0] == 'nik' || err[2] == 'nik'){
-              toastr.error("NIK belum diisi")
-            }
-            if(err[2] == 'provinceId' || err[1] == 'provinceId' || err[0] == 'provinceId') {
-              toastr.error("Provinsi/Wilayah belum diisi")
-            }
-          } else {
-            history.push("/dashboard");
+        const { message, errors } = await ArcherService.updateVerifikasi(
+          {
+            nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
+            // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
+            ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : null,
+            provinceId: dataUpdate?.addressProvince
+              ? dataUpdate?.addressProvince?.value
+              : userProfile?.addressProvince?.id,
+            cityId: dataUpdate?.addressCity
+              ? dataUpdate?.addressCity?.value
+              : userProfile?.addressCity?.id,
+            address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
+            name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
+          },
+          { user_id: userProfile?.id }
+        );
+        if (message == "Failed") {
+          console.log(message);
+          console.log(errors);
+          const err = Object.keys(errors).map((err) => err);
+          if (
+            err[0] == "cityId" ||
+            err[1] == "cityId" ||
+            err[2] == "cityId" ||
+            err[3] == "cityId" ||
+            err[4] == "cityId"
+          ) {
+            toastr.error("Kota belum diisi");
           }
+          if (
+            err[1] == "nik" ||
+            err[0] == "nik" ||
+            err[2] == "nik" ||
+            err[3] == "nik" ||
+            err[4] == "nik"
+          ) {
+            toastr.error("NIK belum diisi");
+          }
+          if (
+            err[2] == "provinceId" ||
+            err[1] == "provinceId" ||
+            err[0] == "provinceId" ||
+            err[3] == "provinceId" ||
+            err[4] == "provinceId"
+          ) {
+            toastr.error("Provinsi/Wilayah belum diisi");
+          }
+          if (
+            err[0] == "address" ||
+            err[1] == "address" ||
+            err[2] == "address" ||
+            err[3] == "address" ||
+            err[4] == "address"
+          ) {
+            toastr.error("Alamat belum diisi");
+          }
+          if (
+            err[0] == "name" ||
+            err[1] == "name" ||
+            err[2] == "name" ||
+            err[3] == "name" ||
+            err[4] == "name"
+          ) {
+            toastr.error("Nama belum diisi");
+          }
+        } else {
+          history.push("/dashboard");
+        }
         // }else {
         //   toastr.error("Foto Selfie dengan KTP/KK belum diisi")
         // }
-      }else{
-        toastr.error("Foto KTP/KK belum diisi")
+      } else {
+        toastr.error("Foto KTP/KK belum diisi");
       }
-    }else {
-      toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi")
+    } else {
+      toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi");
     }
   };
 
   const hanleSubmitDataUpdate = async () => {
-          const { message, errors } = await ArcherService.updateVerifikasi(
-            {
-              nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-              // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
-              ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
-              provinceId: dataUpdate?.addressProvince
-                ? dataUpdate?.addressProvince?.value
-                : userProfile?.addressProvince?.id,
-              cityId: dataUpdate?.addressCity
-                ? dataUpdate?.addressCity?.value
-                : userProfile?.addressCity?.id,
-            },
-            { user_id: userProfile?.id }
-          );
-          if (message == 'Failed') {
-            console.log(message);
-            console.log(errors);
-            const err = Object.keys(errors).map((err) => err);
-            if(err[0] == 'cityId' || err[1] == 'cityId' || err[2] == 'cityId'){
-              toastr.error("Kota belum diisi")
-            }
-            if(err[1] == 'nik' || err[0] == 'nik' || err[2] == 'nik'){
-              toastr.error("NIK belum diisi")
-            }
-            if(err[2] == 'provinceId' || err[1] == 'provinceId' || err[0] == 'provinceId') {
-              toastr.error("Provinsi/Wilayah belum diisi")
-            }
-          } else {
-            history.push("/dashboard");
-          }
-     
+    const { message, errors } = await ArcherService.updateVerifikasi(
+      {
+        nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
+        // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
+        ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
+        provinceId: dataUpdate?.addressProvince
+          ? dataUpdate?.addressProvince?.value
+          : userProfile?.addressProvince?.id,
+        cityId: dataUpdate?.addressCity
+          ? dataUpdate?.addressCity?.value
+          : userProfile?.addressCity?.id,
+        address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
+        name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
+      },
+      { user_id: userProfile?.id }
+    );
+    if (message == "Failed") {
+      console.log(message);
+      console.log(errors);
+      const err = Object.keys(errors).map((err) => err);
+      if (
+        err[0] == "cityId" ||
+        err[1] == "cityId" ||
+        err[2] == "cityId" ||
+        err[3] == "cityId" ||
+        err[4] == "cityId"
+      ) {
+        toastr.error("Kota belum diisi");
+      }
+      if (
+        err[1] == "nik" ||
+        err[0] == "nik" ||
+        err[2] == "nik" ||
+        err[3] == "nik" ||
+        err[4] == "nik"
+      ) {
+        toastr.error("NIK belum diisi");
+      }
+      if (
+        err[2] == "provinceId" ||
+        err[1] == "provinceId" ||
+        err[0] == "provinceId" ||
+        err[3] == "provinceId" ||
+        err[4] == "provinceId"
+      ) {
+        toastr.error("Provinsi/Wilayah belum diisi");
+      }
+      if (
+        err[0] == "address" ||
+        err[1] == "address" ||
+        err[2] == "address" ||
+        err[3] == "address" ||
+        err[4] == "address"
+      ) {
+        toastr.error("Alamat belum diisi");
+      }
+      if (
+        err[0] == "name" ||
+        err[1] == "name" ||
+        err[2] == "name" ||
+        err[3] == "name" ||
+        err[4] == "name"
+      ) {
+        toastr.error("Nama belum diisi");
+      }
+    } else {
+      history.push("/dashboard");
+    }
   };
 
   const getDetailVerifikasi = async () => {
@@ -191,6 +266,12 @@ function PageProfileVerifikasiHome() {
   };
   const toggleIsOpenKK = () => {
     setIsOpenKK(!isOpenKK);
+  };
+
+  const hanleAddress = (e) => {
+    const payload = { ...dataUpdate };
+    payload[e.key] = e.value;
+    setUpdateData(payload);
   };
 
   const valueProvincie = () => {
@@ -306,6 +387,7 @@ function PageProfileVerifikasiHome() {
                         disabled={true}
                       />
                     </div>
+
                     <div className="w-50 ms-4">
                       <div>
                         <Label>Gender</Label>
@@ -352,7 +434,16 @@ function PageProfileVerifikasiHome() {
                       </div>
                     </div>
                   </div>
-                  <div className="mt-5">
+                  <div className="mt-4">
+                    <TextareaInput
+                      onChange={(e) => hanleAddress(e)}
+                      label="Alamat"
+                      name="address"
+                      defaultValue={userProfile?.address}
+                      value={dataUpdate?.address}
+                    />
+                  </div>
+                  <div className="mt-3">
                     <div>
                       <Label>NIK</Label>
                     </div>
@@ -433,14 +524,24 @@ function PageProfileVerifikasiHome() {
                                 Lihat
                               </Button>
                               <label className="custom-file-upload">
-                                <input accept="image/*" onChange={(e) => handleKTP(e)} name="ktp" type="file" />
+                                <input
+                                  accept="image/*"
+                                  onChange={(e) => handleKTP(e)}
+                                  name="ktp"
+                                  type="file"
+                                />
                                 <span>Ubah</span>
                               </label>
                             </div>
                           ) : (
                             <div>
                               <label className="custom-file-upload">
-                                <input accept="image/*" onChange={(e) => handleKTP(e)} name="ktp" type="file" />
+                                <input
+                                  accept="image/*"
+                                  onChange={(e) => handleKTP(e)}
+                                  name="ktp"
+                                  type="file"
+                                />
                                 <span>Unggah</span>
                               </label>
                             </div>
@@ -500,11 +601,11 @@ function PageProfileVerifikasiHome() {
                   <div className="mt-4">
                     <Button
                       onClick={() => {
-                          if(userProfile?.verifyStatus == 3 || userProfile?.verifyStatus == 2){
-                            hanleSubmitDataUpdate();
-                          } else {
-                            hanleSubmitData();
-                          }
+                        if (userProfile?.verifyStatus == 3 || userProfile?.verifyStatus == 2) {
+                          hanleSubmitDataUpdate();
+                        } else {
+                          hanleSubmitData();
+                        }
                       }}
                       className="btn float-end"
                       style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
