@@ -39,13 +39,13 @@ function PageProfileVerifikasiHome() {
   const [cityOptions, setCityOptions] = React.useState([]);
 
   const hanleSubmitData = async () => {
-    if (dataUpdate?.ktp || dataUpdate?.kk) {
+    if (dataUpdate?.ktp) {
       if (dataUpdate?.ktp) {
-        if (dataUpdate?.kk) {
+        // if (dataUpdate?.kk) {
           const { message, errors } = await ArcherService.updateVerifikasi(
             {
               nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-              selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
+              // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
               ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : null,
               provinceId: dataUpdate?.addressProvince
                 ? dataUpdate?.addressProvince?.value
@@ -72,9 +72,9 @@ function PageProfileVerifikasiHome() {
           } else {
             history.push("/dashboard");
           }
-        }else {
-          toastr.error("Foto Selfie dengan KTP/KK belum diisi")
-        }
+        // }else {
+        //   toastr.error("Foto Selfie dengan KTP/KK belum diisi")
+        // }
       }else{
         toastr.error("Foto KTP/KK belum diisi")
       }
@@ -87,7 +87,7 @@ function PageProfileVerifikasiHome() {
           const { message, errors } = await ArcherService.updateVerifikasi(
             {
               nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-              selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
+              // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
               ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
               provinceId: dataUpdate?.addressProvince
                 ? dataUpdate?.addressProvince?.value
@@ -159,12 +159,12 @@ function PageProfileVerifikasiHome() {
     setUpdateData({ ...dataUpdate, ktp: base64String });
   };
 
-  const handleKK = async (e) => {
-    const preview = URL.createObjectURL(e.target.files[0]);
-    setDisplay({ ...display, kk: e.target.files[0], priviewImgKK: preview });
-    const base64String = await imageToBase64(e.target.files[0]);
-    setUpdateData({ ...dataUpdate, kk: base64String });
-  };
+  // const handleKK = async (e) => {
+  //   const preview = URL.createObjectURL(e.target.files[0]);
+  //   setDisplay({ ...display, kk: e.target.files[0], priviewImgKK: preview });
+  //   const base64String = await imageToBase64(e.target.files[0]);
+  //   setUpdateData({ ...dataUpdate, kk: base64String });
+  // };
 
   const handleInputProvince = (key, e) => {
     const payload = { ...dataUpdate };
@@ -450,7 +450,7 @@ function PageProfileVerifikasiHome() {
                     </div>
                   </div>
 
-                  <div className="mt-3">
+                  {/* <div className="mt-3">
                     <div>
                       <Label>Foto Selfie dengan KTP/KK</Label>
                     </div>
@@ -495,7 +495,7 @@ function PageProfileVerifikasiHome() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="mt-4">
                     <Button
