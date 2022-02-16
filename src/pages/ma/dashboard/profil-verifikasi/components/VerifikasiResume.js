@@ -80,7 +80,7 @@ const VerifikasiResume = ({name, dateOfBirth, gender, photoID, selfieID, nik}) =
                     </div>
                   </td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <td className="py-2">Foto Selfie dengan KTP/KK</td>
                   <td>:</td>
                   <td className="w-100">
@@ -88,7 +88,7 @@ const VerifikasiResume = ({name, dateOfBirth, gender, photoID, selfieID, nik}) =
                       Lihat
                     </div>
                   </td>
-                </tr>
+                </tr> */}
               </table>
             </div>
           </div>
