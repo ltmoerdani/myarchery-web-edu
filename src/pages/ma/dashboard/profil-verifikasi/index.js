@@ -490,7 +490,7 @@ function PageProfileVerifikasiHome() {
                       value={dataUpdate?.addressCity ? dataUpdate?.addressCity : valueCity()}
                       onChange={(value) => handleInputCity("addressCity", value)}
                     >
-                      Kota domisili
+                      Kota domisili(Sesuai dengan KTP)
                     </FieldSelect>
                   </div>
 
