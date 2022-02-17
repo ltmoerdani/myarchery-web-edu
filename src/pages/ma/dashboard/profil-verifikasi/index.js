@@ -39,7 +39,7 @@ function PageProfileVerifikasiHome() {
   const [cityOptions, setCityOptions] = React.useState([]);
 
   const hanleSubmitData = async () => {
-    if (dataUpdate?.ktp) {
+    // if (dataUpdate?.ktp) {
       if (dataUpdate?.ktp) {
         // if (dataUpdate?.kk) {
         const { message, errors } = await ArcherService.updateVerifikasi(
@@ -116,9 +116,9 @@ function PageProfileVerifikasiHome() {
       } else {
         toastr.error("Foto KTP/KK belum diisi");
       }
-    } else {
-      toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi");
-    }
+    // } else {
+    //   toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi");
+    // }
   };
 
   const hanleSubmitDataUpdate = async () => {
