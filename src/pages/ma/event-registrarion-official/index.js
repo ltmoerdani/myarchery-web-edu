@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { Container as BSContainer, Table as BSTable } from "reactstrap";
+import { Container as BSContainer, Table as BSTable, Input } from "reactstrap";
 import classnames from "classnames";
 import { useWizardView } from "hooks/wizard-view";
 import { WizardView, WizardViewContent, ButtonBlue, Button, AvatarDefault } from "components/ma";
@@ -11,10 +11,10 @@ import * as AuthStore from "store/slice/authentication";
 import { FieldInputText, FieldSelectClub } from "./components";
 import SweetAlert from "react-bootstrap-sweetalert";
 import CurrencyFormat from "react-currency-format";
-import {OrderEventService, EventsService} from "services"
-import {useParams} from "react-router-dom"
+import { OrderEventService } from "services";
+import { useParams, useHistory } from "react-router-dom";
 
-import ImgEvent from "assets/images/myachery/a-1.jpg";
+// import ImgEvent from "assets/images/myachery/a-1.jpg";
 import IconInfo from "components/ma/icons/mono/info";
 import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 import IconAddress from "components/ma/icons/mono/address";
@@ -30,10 +30,14 @@ const tabList = [
 
 const PageEventRegistration = () => {
   const [club, setClub] = React.useState({});
-  const [detailEvent, setDetailEvent] = React.useState({})
+  const [detailEvent, setDetailEvent] = React.useState({});
+  const [official, setOfficial] = React.useState({});
+  const [customLabel, setCustomLabel] = React.useState("")
+  const [name, setName] = React.useState("")
 
   const breadcrumpCurrentPageLabel = `Pendaftaran ${""}`;
-  const {slug} = useParams();
+  const { event_id } = useParams();
+  const history = useHistory();
 
   const { currentStep, goToStep, goToNextStep, goToPreviousStep } = useWizardView(tabList);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
@@ -42,39 +46,53 @@ const PageEventRegistration = () => {
     { status: "idle", errors: null }
   );
 
-  const getEventBySlug = async() => {
-    const {data, message, errors} = await EventsService.getDetailEvent({slug: slug})
+  const getEventBySlug = async () => {
+    const { data, message, errors } = await OrderEventService.getDetailOfficial({
+      event_id: event_id,
+    });
     if (data) {
-      setDetailEvent(data)
-      console.log(message)
-      console.log(errors)
+      setDetailEvent(data);
+      console.log(message);
+      console.log(errors);
     } else {
-      console.log(message)
-      console.log(errors)
+      console.log(message);
+      console.log(errors);
     }
-  }
+  };
+
+  // const getListOfficial = async () => {
+  //   const { data, errors, message } = await OrderEventService.listOfficial();
+  //   if (data) {
+  //     setOfficial(data);
+  //     console.log(errors);
+  //     console.log(message);
+  //   }
+  // };
 
   React.useEffect(() => {
-    getEventBySlug()
-  }, [slug])
+    getEventBySlug();
+    // getListOfficial();
+  }, [event_id]);
 
-  console.log(detailEvent)
+  console.log(detailEvent);
 
   const isErrorSubmit = submitStatus.status === "error";
 
   const handleSubmitOrder = async () => {
     dispatchSubmitStatus({ status: "loading", errors: null });
 
+    let label = official?.value != 0 ? official?.label : customLabel
+
     // payload kategory individual
     const payload = {
-      event_category_id: category.id,
-      club_id: club?.detail.id || 0,
-      team_name: teamName || undefined,
-      user_id: nonEmptyParticipants.length > 1 ? getUserIdsFromParticipants() : undefined,
+      event_id: event_id,
+      relation_id: official?.value ? official?.value : 1,
+      club_id: club?.detail?.id || 0,
+      label: label || "Pelatih"
     };
 
-    const result = await OrderEventService.registerOfficia(payload);
-    if (result.success) {
+    const result = await OrderEventService.registerOfficial(payload);
+    if (result.data) {
       dispatchSubmitStatus({ status: "success" });
       history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
     } else {
@@ -113,13 +131,19 @@ const PageEventRegistration = () => {
   };
 
   console.log(club);
+  console.log(detailEvent);
+  console.log(official)
   return (
     <StyledPageWrapper>
       <MetaTags>
         <title>Pendaftaran Official | MyArchery.id</title>
       </MetaTags>
       <Container>
-        <BreadcrumbDashboard to={getLandingPagePath()}>
+        <BreadcrumbDashboard
+          to={getLandingPagePath(
+            detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation?.eventUrl
+          )}
+        >
           {breadcrumpCurrentPageLabel}
         </BreadcrumbDashboard>
         <StepIndicator>
@@ -195,8 +219,9 @@ const PageEventRegistration = () => {
                   <NoticeBar>Kartu ID Official tidak bisa dipindahtangankan</NoticeBar>
                   <FieldInputText
                     required={true}
+                    value={name}
                     placeholder="Nama lengkap sesuai KTP/KK"
-                    onChange={() => {}}
+                    onChange={(e) => {setName(e)}}
                   >
                     Nama Official
                   </FieldInputText>
@@ -208,15 +233,46 @@ const PageEventRegistration = () => {
                     <label htmlFor="relation" className="form-label">
                       Hubungan dengan peserta
                     </label>
-                    <select id="relation" className="form-select">
-                      <option>Pelatih</option>
-                      <option>Maneger Klub/Tim</option>
-                      <option>Orang Tua</option>
-                      <option>Saudara</option>
-                      <option>Lainya</option>
-                    </select>
+                    <Input
+                      type="select"
+                      id="relation"
+                      className="form-select"
+                      onChange={(e) => {
+                        setOfficial({
+                          ...official,
+                          value: e.target.value,
+                          label:
+                            e.target.value == 0
+                              ? e.target[4].label
+                              : e.target[e.target.value - 1].label,
+                        });
+                      }}
+                    >
+                      <option label="Pelatih" value={1}>
+                        Pelatih
+                      </option>
+                      <option label="Manager Club/Tim" value={2}>
+                        Maneger Klub/Tim
+                      </option>
+                      <option label="Orang Tua" value={3}>
+                        Orang Tua
+                      </option>
+                      <option label="Saudara" value={4}>
+                        Saudara
+                      </option>
+                      <option label="Lainya" value={0}>
+                        Lainya
+                      </option>
+                    </Input>
                   </div>
-                  <FieldInputText placeholder="Nama lengkap sesuai KTP/KK" onChange={() => {}}>
+                  <FieldInputText
+                    disabled={official?.value != 0 ? true : false}
+                    placeholder="Lainya..."
+                    value={customLabel}
+                    onChange={(e) => {
+                      setCustomLabel(e)
+                    }}
+                  >
                     Lainnya
                   </FieldInputText>
                 </ContentCard>
@@ -299,47 +355,6 @@ const PageEventRegistration = () => {
                     </MediaParticipantContent>
                   </ParticipantMediaObject>
                 </ParticipantCard>
-
-                {/* {participants */}
-                {/* .filter((member) => Boolean(member.data)) */}
-                {/* .map((participant) => ( */}
-                {/* <ParticipantCard>
-                      <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
-
-                      <ParticipantMediaObject>
-                        <MediaParticipantAvatar>
-                          <ParticipantAvatar>
-                            
-                              <AvatarDefault fullname="ilham" />
-                          </ParticipantAvatar>
-                        </MediaParticipantAvatar>
-
-                        <MediaParticipantContent>
-                          <ParticipantName>
-                            <span>Ilham</span>
-                            <span>
-                              <IconBadgeVerified />
-                            </span>
-                          </ParticipantName>
-
-                          <LabelWithIcon icon={<IconMail size="20" />}>
-                          msatrio1utomo@gmail.com
-                          </LabelWithIcon>
-
-                          <RowedLabel>
-                            <LabelWithIcon icon={<IconGender size="20" />}>
-                              {("male" === "male" && "Laki-laki") ||
-                                (participant.data.gender === "female" && "Perempuan")}
-                            </LabelWithIcon>
-
-                            <LabelWithIcon icon={<IconAge size="20" />}>
-                              24 Tahun
-                            </LabelWithIcon>
-                          </RowedLabel>
-                        </MediaParticipantContent>
-                      </ParticipantMediaObject>
-                    </ParticipantCard> */}
-                {/* ))} */}
               </WizardViewContent>
             </WizardView>
           </div>
@@ -358,15 +373,30 @@ const PageEventRegistration = () => {
                     }}
                   >
                     <img
-                      src={ImgEvent}
+                      src={
+                        detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation
+                          ?.eventBanner
+                      }
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   </span>
                 </div>
 
                 <EventMediaObjectContent>
-                  <h5>The HuB Scoring - 2021</h5>
-                  <p className="mb-0">Lapangan Panahan Utama - The Hub Cibubur</p>
+                  <h5>
+                    {detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation?.eventName}
+                  </h5>
+                  <p className="mb-0">
+                    {
+                      detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation
+                        ?.eventLocation
+                    }{" "}
+                    -{" "}
+                    {
+                      detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation?.eventCity
+                        ?.nameCity
+                    }
+                  </p>
                 </EventMediaObjectContent>
               </EventMediaObject>
 
@@ -390,7 +420,7 @@ const PageEventRegistration = () => {
                   <LabelTotal>Total Pembayaran</LabelTotal>
                   <TotalWithCurrency
                     displayType={"text"}
-                    value={200000}
+                    value={detailEvent?.eventOfficialDetail?.fee}
                     prefix="Rp"
                     thousandSeparator={"."}
                     decimalSeparator={","}

@@ -6,7 +6,7 @@ import { EventsService } from "services";
 import { useParams, Link } from "react-router-dom";
 import Countdown from "react-countdown";
 import { Container, Row, Col, Button } from "reactstrap";
-import { WizardView, WizardViewContent, ButtonBlue } from "components/ma";
+import { WizardView, WizardViewContent, ButtonBlue, ButtonBlueOutline } from "components/ma";
 import classnames from "classnames";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
 import { useSelector } from "react-redux";
@@ -316,12 +316,23 @@ function LandingPage() {
             </div>
 
             <div className="mt-4">
-              <Button
+              <ButtonBlueOutline
                 className="btn w-100"
                 style={{ backgroundColor: "#FFF", borderColor: "#0d47a1" }}
               >
                 <span style={{ color: "#0d47a1", fontWeight: "600" }}>Live Score</span>
-              </Button>
+              </ButtonBlueOutline>
+            </div>
+
+            <div className="mt-4">
+              <ButtonBlueOutline
+                as={Link}
+                to={`/event-registration-official/${eventData?.id}`}
+                className="btn w-100"
+                style={{ backgroundColor: "#FFF", borderColor: "#0d47a1" }}
+              >
+                <span style={{ color: "#0d47a1", fontWeight: "600" }}>Daftar Offical</span>
+              </ButtonBlueOutline>
             </div>
           </Col>
         </Row>
