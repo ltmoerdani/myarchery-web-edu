@@ -1,36 +1,64 @@
 import * as React from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useEventDetailFromSlug } from "./hooks/event-detail-slug";
+import { useCategoriesByGender } from "./hooks/event-categories-by-gender";
+import { useParticipantScorings } from "./hooks/participant-scorings";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
-import { ButtonBlue } from "components/ma";
+import { ButtonBlue, SpinnerDotBlock } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { CategoryFilterChooser, LiveIndicator, RankIndicator } from "./components";
+import {
+  CategoryFilterChooser,
+  LiveIndicator,
+  RankIndicator,
+  SessionCellsDataHeading,
+  SessionCellsData,
+  TableLoadingIndicator,
+} from "./components";
 
 import classnames from "classnames";
+import { makeCategoryOptions, getLandingPagePath } from "./utils";
 
 function PageScoreQualification() {
-  const eventName = "Nama Event";
-  const categoryOptions = [
-    { id: 177, label: "Master - Compound - 50m" },
-    { id: 178, label: "Master - Recurve - 70m" },
-    { id: 179, label: "U-12 - Nasional - 15m" },
-  ];
+  const { slug } = useParams();
+  const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
+  const eventId = eventDetail?.id;
 
-  const [categorySelected, setCategorySelected] = React.useState(null);
-  const [teamFilterSelected, setTeamFilterSelected] = React.useState(1);
+  const {
+    data: categories,
+    groupNames: teamCategories,
+    status: categoryStatus,
+  } = useCategoriesByGender(eventId);
+  const [teamFilterSelected, setTeamFilterSelected] = React.useState(0);
+
+  const currentTeamFilterName = teamCategories[teamFilterSelected];
+  const categoryOptions = makeCategoryOptions(categories?.[currentTeamFilterName]);
+
+  const [categorySelected, dispatchCategorySelected] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    {}
+  );
 
   React.useEffect(() => {
-    setCategorySelected(categoryOptions[0].id);
-  }, []);
+    if (!categoryOptions?.length) {
+      return;
+    }
+    dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
+  }, [currentTeamFilterName]);
 
-  const computeCategory = () => {
-    return (
-      categoryOptions.find((option) => option.id === categorySelected)?.label || "Pilih kategori"
-    );
-  };
+  const { data: scorings, status: scoringsStatus } = useParticipantScorings(
+    categorySelected[currentTeamFilterName]?.id
+  );
 
-  const handleSelectCategory = (id) => setCategorySelected(id);
+  const handleSelectCategory = (category) =>
+    dispatchCategorySelected({ [currentTeamFilterName]: category });
+
+  const isLoadingEvent = eventStatus === "loading";
+  const isLoadingCategory = categoryStatus === "loading";
+  const isLoadingScorings = scoringsStatus === "loading";
+  const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
 
   return (
     <StyledPageWrapper>
@@ -39,91 +67,130 @@ function PageScoreQualification() {
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to={"#"}>oishfasdfla</BreadcrumbDashboard>
+        <BreadcrumbDashboard to={getLandingPagePath(eventDetail?.publicInformation.eventUrl)}>
+          {eventDetail ? "Kembali" : ""}
+        </BreadcrumbDashboard>
 
-        <ContentHeader>
-          <div>
-            <EventName>Judul Event UPPERCASE</EventName>
-            <MetaInfo>
-              <LiveIndicator />
-              <span>| Babak Kualifikasi</span>
-            </MetaInfo>
-          </div>
-          <div></div>
-        </ContentHeader>
+        {!eventDetail && isLoadingEvent ? (
+          <SpinnerDotBlock />
+        ) : (
+          <ContentHeader>
+            <div>
+              <EventName>{eventName}</EventName>
+              <MetaInfo>
+                <LiveIndicator />
+                <span>| Babak Kualifikasi</span>
+              </MetaInfo>
+            </div>
+            <div></div>
+          </ContentHeader>
+        )}
 
-        <PanelWithStickSidebar>
-          <PanelSidebar>
-            <NavElimination>
-              <ButtonNavToElimination>Lihat Bagan Eliminasi</ButtonNavToElimination>
-            </NavElimination>
+        {!categories && isLoadingCategory ? (
+          <SpinnerDotBlock />
+        ) : (
+          eventDetail && (
+            <PanelWithStickSidebar>
+              <PanelSidebar>
+                <NavElimination>
+                  <ButtonNavToElimination>Lihat Bagan Eliminasi</ButtonNavToElimination>
+                </NavElimination>
 
-            <CategoryFilterChooser
-              options={categoryOptions}
-              selected={categorySelected}
-              onChange={(id) => handleSelectCategory(id)}
-            />
-          </PanelSidebar>
+                <CategoryFilterChooser
+                  options={categoryOptions}
+                  selected={categorySelected[currentTeamFilterName]}
+                  onChange={(category) => handleSelectCategory(category)}
+                />
+              </PanelSidebar>
 
-          <div>
-            <ListViewToolbar>
-              <LabelCurrentCategory>{computeCategory()}</LabelCurrentCategory>
-              <SpaceButtonsGroup>
-                <ButtonTeamFilter
-                  className={classnames({ "filter-selected": teamFilterSelected === 1 })}
-                  onClick={() => setTeamFilterSelected(1)}
-                >
-                  Individu Putra
-                </ButtonTeamFilter>
-                <ButtonTeamFilter
-                  className={classnames({ "filter-selected": teamFilterSelected === 2 })}
-                  onClick={() => setTeamFilterSelected(2)}
-                >
-                  Individu Putri
-                </ButtonTeamFilter>
-              </SpaceButtonsGroup>
-            </ListViewToolbar>
+              <div>
+                <ListViewToolbar>
+                  <LabelCurrentCategory>
+                    {categorySelected[currentTeamFilterName]?.label || "Pilih kategori"}
+                  </LabelCurrentCategory>
+                  <SpaceButtonsGroup>
+                    {teamCategories?.map((filter) => {
+                      if (filter === "individu male") {
+                        return (
+                          <ButtonTeamFilter
+                            key={filter}
+                            className={classnames({ "filter-selected": teamFilterSelected === 0 })}
+                            onClick={() => setTeamFilterSelected(0)}
+                          >
+                            Individu Putra
+                          </ButtonTeamFilter>
+                        );
+                      }
+                      if (filter === "individu female") {
+                        return (
+                          <ButtonTeamFilter
+                            key={filter}
+                            className={classnames({ "filter-selected": teamFilterSelected === 1 })}
+                            onClick={() => setTeamFilterSelected(1)}
+                          >
+                            Individu Putri
+                          </ButtonTeamFilter>
+                        );
+                      }
+                    })}
+                  </SpaceButtonsGroup>
+                </ListViewToolbar>
 
-            <TableScores>
-              <thead>
-                <tr>
-                  <th>Peringkat</th>
-                  <th className="text-uppercase">Nama</th>
-                  <th className="text-uppercase">Klub</th>
-                  <th>Sesi 1</th>
-                  <th>Sesi 2</th>
-                  <th className="text-uppercase">Total</th>
-                  <th className="text-uppercase">X</th>
-                  <th className="text-uppercase">X+10</th>
-                </tr>
-              </thead>
+                <SectionTableContainer>
+                  <TableLoadingIndicator isLoading={isLoadingScorings} />
 
-              <tbody>
-                {[1, 2, 3, 4, 5, 6, 7].map((id, index) => (
-                  <tr key={id}>
-                    <td>
-                      <DisplayRank>
-                        <span>{index + 1}</span>
-                        {index % 2 === 0 ? (
-                          <RankIndicator direction="1" />
-                        ) : (
-                          <RankIndicator direction="-1" />
+                  <TableScores>
+                    <thead>
+                      <tr>
+                        <th>Peringkat</th>
+                        <th className="text-uppercase">Nama</th>
+                        <th className="text-uppercase">Klub</th>
+                        <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
+                        <th className="text-uppercase">Total</th>
+                        <th className="text-uppercase">X</th>
+                        <th className="text-uppercase">X+10</th>
+                      </tr>
+                    </thead>
+
+                    {scorings && (
+                      <tbody>
+                        {scorings.map((scoring, index) => (
+                          <tr key={scoring.member.id}>
+                            <td>
+                              <DisplayRank>
+                                <span>{index + 1}</span>
+                                {index % 2 === 0 ? (
+                                  <RankIndicator direction="1" />
+                                ) : (
+                                  <RankIndicator direction="-1" />
+                                )}
+                              </DisplayRank>
+                            </td>
+                            <td>{scoring.member.name}</td>
+                            <td>
+                              {scoring.member.clubName || <React.Fragment>&ndash;</React.Fragment>}
+                            </td>
+                            <SessionCellsData sessions={scoring.sessions} />
+                            <td>{scoring.total}</td>
+                            <td>{scoring.totalX}</td>
+                            <td>{scoring.totalXPlusTen}</td>
+                          </tr>
+                        ))}
+                        {!scorings.length && (
+                          <tr>
+                            <td colSpan="6">
+                              <ScoringEmptyRow>Belum ada data skor di kategori ini</ScoringEmptyRow>
+                            </td>
+                          </tr>
                         )}
-                      </DisplayRank>
-                    </td>
-                    <td>Orang Femes</td>
-                    <td>Mega Jaya</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>100</td>
-                    <td>2</td>
-                    <td>2</td>
-                  </tr>
-                ))}
-              </tbody>
-            </TableScores>
-          </div>
-        </PanelWithStickSidebar>
+                      </tbody>
+                    )}
+                  </TableScores>
+                </SectionTableContainer>
+              </div>
+            </PanelWithStickSidebar>
+          )
+        )}
       </Container>
     </StyledPageWrapper>
   );
@@ -189,6 +256,7 @@ const ButtonNavToElimination = styled(ButtonBlue)`
   &,
   &:focus,
   &:active {
+    width: 100%;
     border-radius: 0.5rem;
   }
 `;
@@ -240,6 +308,10 @@ const ButtonTeamFilter = styled.button`
   }
 `;
 
+const SectionTableContainer = styled.div`
+  position: relative;
+`;
+
 const TableScores = styled.table`
   width: 100%;
   border-collapse: separate;
@@ -265,6 +337,12 @@ const TableScores = styled.table`
 const DisplayRank = styled.div`
   display: flex;
   justify-content: space-between;
+`;
+
+const ScoringEmptyRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default PageScoreQualification;

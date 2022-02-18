@@ -3,12 +3,22 @@ import styled from "styled-components";
 
 import classnames from "classnames";
 
-function CategoryFilterChooser({ title = "Kategori", options = [], selected, onChange }) {
-  const [idSelected, setIdSelected] = React.useState(selected);
+function CategoryFilterChooser({
+  title = "Kategori",
+  options = [],
+  selected,
+  onChange,
+  noOptionMessage,
+}) {
+  const { id } = selected || {};
+  const [optionSelected, setOptionSelected] = React.useState(selected || {});
 
   React.useEffect(() => {
-    setIdSelected(selected);
-  }, [selected]);
+    if (!id) {
+      return;
+    }
+    setOptionSelected(selected);
+  }, [id]);
 
   return (
     <StyledWrapper>
@@ -16,17 +26,17 @@ function CategoryFilterChooser({ title = "Kategori", options = [], selected, onC
       <div>
         {!options?.length ? (
           <div>
-            <ChooserOption>Belum ada kategori</ChooserOption>
+            <ChooserOption>{noOptionMessage || "Belum ada kategori"}</ChooserOption>
           </div>
         ) : (
           options.map((option) => (
             <div key={option.id}>
               <ChooserOption
-                className={classnames({ "option-selected": option.id === idSelected })}
-                disabled={option.id === idSelected}
+                className={classnames({ "option-selected": option.id === optionSelected.id })}
+                disabled={option.id === optionSelected.id}
                 onClick={() => {
-                  setIdSelected(option.id);
-                  onChange?.(option.id);
+                  setOptionSelected(option);
+                  onChange?.(option);
                 }}
               >
                 {option.label}
