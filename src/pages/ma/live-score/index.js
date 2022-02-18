@@ -3,8 +3,9 @@ import styled from "styled-components";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
+import { ButtonBlue } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { CategoryFilterChooser, LiveIndicator } from "./components";
+import { CategoryFilterChooser, LiveIndicator, RankIndicator } from "./components";
 
 import classnames from "classnames";
 
@@ -52,13 +53,17 @@ function PageScoreQualification() {
         </ContentHeader>
 
         <PanelWithStickSidebar>
-          <div>
+          <PanelSidebar>
+            <NavElimination>
+              <ButtonNavToElimination>Lihat Bagan Eliminasi</ButtonNavToElimination>
+            </NavElimination>
+
             <CategoryFilterChooser
               options={categoryOptions}
               selected={categorySelected}
               onChange={(id) => handleSelectCategory(id)}
             />
-          </div>
+          </PanelSidebar>
 
           <div>
             <ListViewToolbar>
@@ -83,92 +88,29 @@ function PageScoreQualification() {
               <thead>
                 <tr>
                   <th>Peringkat</th>
-                  <th>Nama</th>
-                  <th>Klub</th>
+                  <th className="text-uppercase">Nama</th>
+                  <th className="text-uppercase">Klub</th>
                   <th>Sesi 1</th>
                   <th>Sesi 2</th>
-                  <th>Total</th>
-                  <th>X</th>
-                  <th>X+10</th>
+                  <th className="text-uppercase">Total</th>
+                  <th className="text-uppercase">X</th>
+                  <th className="text-uppercase">X+10</th>
                 </tr>
               </thead>
 
               <tbody>
-                {[1, 2, 3, 4, 5, 6, 7].map((id) => (
+                {[1, 2, 3, 4, 5, 6, 7].map((id, index) => (
                   <tr key={id}>
-                    <td>1 up</td>
-                    <td>Orang Femes</td>
-                    <td>Mega Jaya</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>100</td>
-                    <td>2</td>
-                    <td>2</td>
-                  </tr>
-                ))}
-                {[1, 2, 3, 4, 5, 6, 7].map((id) => (
-                  <tr key={id}>
-                    <td>1 up</td>
-                    <td>Orang Femes</td>
-                    <td>Mega Jaya</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>100</td>
-                    <td>2</td>
-                    <td>2</td>
-                  </tr>
-                ))}
-                {[1, 2, 3, 4, 5, 6, 7].map((id) => (
-                  <tr key={id}>
-                    <td>1 up</td>
-                    <td>Orang Femes</td>
-                    <td>Mega Jaya</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>100</td>
-                    <td>2</td>
-                    <td>2</td>
-                  </tr>
-                ))}
-                {[1, 2, 3, 4, 5, 6, 7].map((id) => (
-                  <tr key={id}>
-                    <td>1 up</td>
-                    <td>Orang Femes</td>
-                    <td>Mega Jaya</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>100</td>
-                    <td>2</td>
-                    <td>2</td>
-                  </tr>
-                ))}
-                {[1, 2, 3, 4, 5, 6, 7].map((id) => (
-                  <tr key={id}>
-                    <td>1 up</td>
-                    <td>Orang Femes</td>
-                    <td>Mega Jaya</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>100</td>
-                    <td>2</td>
-                    <td>2</td>
-                  </tr>
-                ))}
-                {[1, 2, 3, 4, 5, 6, 7].map((id) => (
-                  <tr key={id}>
-                    <td>1 up</td>
-                    <td>Orang Femes</td>
-                    <td>Mega Jaya</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>100</td>
-                    <td>2</td>
-                    <td>2</td>
-                  </tr>
-                ))}
-                {[1, 2, 3, 4, 5, 6, 7].map((id) => (
-                  <tr key={id}>
-                    <td>1 up</td>
+                    <td>
+                      <DisplayRank>
+                        <span>{index + 1}</span>
+                        {index % 2 === 0 ? (
+                          <RankIndicator direction="1" />
+                        ) : (
+                          <RankIndicator direction="-1" />
+                        )}
+                      </DisplayRank>
+                    </td>
                     <td>Orang Femes</td>
                     <td>Mega Jaya</td>
                     <td>10</td>
@@ -231,6 +173,26 @@ const PanelWithStickSidebar = styled.div`
   }
 `;
 
+const PanelSidebar = styled.div`
+  > * + * {
+    margin-top: 1rem;
+  }
+`;
+
+const NavElimination = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ButtonNavToElimination = styled(ButtonBlue)`
+  &,
+  &:focus,
+  &:active {
+    border-radius: 0.5rem;
+  }
+`;
+
 const ListViewToolbar = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -263,9 +225,9 @@ const ButtonTeamFilter = styled.button`
   &:focus,
   &:active {
     padding: 0.5rem 0.75rem;
-    border: solid 1px #a0bff8;
+    border: solid 1px var(--ma-primary-blue-50);
     border-radius: 0.5rem;
-    background-color: #a0bff8;
+    background-color: var(--ma-primary-blue-50);
     color: var(--ma-blue);
     font-size: 0.875em;
   }
@@ -273,23 +235,36 @@ const ButtonTeamFilter = styled.button`
   transition: border-color 0.1s, background-color 0.1s;
 
   &.filter-selected {
-    border: solid 1px var(--ma-primary-blue-50);
-    background-color: var(--ma-primary-blue-50);
+    border: solid 1px var(--ma-secondary);
+    background-color: var(--ma-secondary);
   }
 `;
 
 const TableScores = styled.table`
-  thead {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.25rem;
+
+  th,
+  td {
+    cursor: auto;
+  }
+
+  thead > tr > th {
+    padding: 0.75rem;
     background-color: var(--ma-primary-blue-50);
   }
 
-  tbody > tr {
+  tbody > tr > td {
+    padding: 0.8125rem 0.625rem;
     background-color: #ffffff;
-
-    > td {
-      font-size: 0.875em;
-    }
+    font-size: 0.875em;
   }
+`;
+
+const DisplayRank = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
 
 export default PageScoreQualification;
