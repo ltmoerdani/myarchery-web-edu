@@ -358,6 +358,7 @@ function PageProfileVerifikasiHome() {
 
           <div className="card-club-form">
             <div>
+              <p style={{color:"#fa402a"}}>{userProfile.verifyStatus == 2 ? "(!) "+userProfile.reasonRejected : ""}</p>
               <div className="pb-3">
                 <span className="font-font-size-18" style={{ fontWeight: "600" }}>
                   Data Pribadi
