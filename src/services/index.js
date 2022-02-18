@@ -1,5 +1,6 @@
 export { default as AuthenticationService } from "./authentication";
 export { default as EventsService } from "./events";
+export { default as EventQualificationService } from "./event-qualification";
 export { default as OrderEventService } from "./orderEvent";
 export { default as ScheduleMemberService } from "./scheduleMember";
 export { default as ArcherService } from "./archer";
