@@ -12,7 +12,6 @@ import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import {
   CategoryFilterChooser,
   LiveIndicator,
-  RankIndicator,
   SessionCellsDataHeading,
   SessionCellsData,
   TableLoadingIndicator,
@@ -48,9 +47,24 @@ function PageScoreQualification() {
     dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
   }, [currentTeamFilterName]);
 
-  const { data: scorings, status: scoringsStatus } = useParticipantScorings(
-    categorySelected[currentTeamFilterName]?.id
-  );
+  const {
+    data: scorings,
+    status: scoringsStatus,
+    refetch: refetchScorings,
+  } = useParticipantScorings(categorySelected[currentTeamFilterName]?.id);
+
+  const selectedCategoryId = categorySelected[currentTeamFilterName]?.id;
+
+  React.useEffect(() => {
+    if (!selectedCategoryId) {
+      return;
+    }
+    const refetchTimer = setInterval(() => {
+      refetchScorings();
+    }, 10000);
+
+    return () => clearInterval(refetchTimer);
+  }, [selectedCategoryId]);
 
   const handleSelectCategory = (category) =>
     dispatchCategorySelected({ [currentTeamFilterName]: category });
@@ -159,7 +173,6 @@ function PageScoreQualification() {
                             <td>
                               <DisplayRank>
                                 <span>{index + 1}</span>
-                                <RankIndicator direction={scoring.totalTmp} />
                               </DisplayRank>
                             </td>
                             <td>{scoring.member.name}</td>
