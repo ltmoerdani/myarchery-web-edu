@@ -159,11 +159,7 @@ function PageScoreQualification() {
                             <td>
                               <DisplayRank>
                                 <span>{index + 1}</span>
-                                {index % 2 === 0 ? (
-                                  <RankIndicator direction="1" />
-                                ) : (
-                                  <RankIndicator direction="-1" />
-                                )}
+                                <RankIndicator direction={scoring.totalTmp} />
                               </DisplayRank>
                             </td>
                             <td>{scoring.member.name}</td>

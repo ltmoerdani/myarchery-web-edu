@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import IconChevronUp from "components/ma/icons/mono/chevron-up";
 import IconChevronDown from "components/ma/icons/mono/chevron-down";
+import IconMinus from "components/ma/icons/mono/minus";
 
 function RankIndicator({ direction: dir }) {
   const direction = Number(dir);
@@ -23,7 +24,7 @@ function RankIndicator({ direction: dir }) {
   }
   return (
     <Wrapper>
-      <IconChevronUp size="20" />
+      <IconMinus size="20" />
     </Wrapper>
   );
 }
