@@ -15,6 +15,7 @@ import {
   SessionCellsDataHeading,
   SessionCellsData,
   TableLoadingIndicator,
+  RankIndicator,
 } from "./components";
 
 import classnames from "classnames";
@@ -173,6 +174,7 @@ function PageScoreQualification() {
                             <td>
                               <DisplayRank>
                                 <span>{index + 1}</span>
+                                <RankIndicator direction={-1 || 0 || 1} />
                               </DisplayRank>
                             </td>
                             <td>{scoring.member.name}</td>
