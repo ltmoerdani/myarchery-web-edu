@@ -78,7 +78,7 @@ function PageScoreQualification() {
   return (
     <StyledPageWrapper>
       <MetaTags>
-        <title>Live Score - {eventName} | MyArchery.id</title>
+        <title>Live Score Kualifikasi - {eventName} | MyArchery.id</title>
       </MetaTags>
 
       <Container fluid>

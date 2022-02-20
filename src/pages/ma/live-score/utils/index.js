@@ -17,4 +17,15 @@ function getLandingPagePath(url) {
   return path;
 }
 
-export { makeCategoryOptions, getLandingPagePath };
+function getTabNameFromKey(filterKeyName) {
+  const label = {
+    "individu male": "Individu Putra",
+    "individu female": "Individu Putri",
+    maleTeam: "Beregu Putra",
+    femaleTeam: "Beregu Putri",
+    mixTeam: "Beregu Campuran",
+  };
+  return label[filterKeyName];
+}
+
+export { makeCategoryOptions, getLandingPagePath, getTabNameFromKey };
