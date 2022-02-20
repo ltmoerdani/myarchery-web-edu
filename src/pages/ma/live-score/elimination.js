@@ -3,12 +3,18 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "./hooks/event-detail-slug";
 import { useCategoriesByGenderElimination } from "./hooks/event-categories-by-gender-elimination";
+import { useMatchTemplate } from "./hooks/match-template";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { SpinnerDotBlock } from "components/ma";
-import { LiveIndicator, CategoryFilterChooser, TableLoadingIndicator } from "./components";
+import {
+  LiveIndicator,
+  CategoryFilterChooser,
+  TableLoadingIndicator,
+  MatchBracket,
+} from "./components";
 
 import classnames from "classnames";
 import { getLandingPagePath, makeCategoryOptions, getTabNameFromKey } from "./utils";
@@ -39,6 +45,8 @@ function PageScoreElimination() {
     }
     dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
   }, [currentTeamFilterName]);
+
+  const { data: matchTemplate } = useMatchTemplate(categorySelected?.[currentTeamFilterName]?.id);
 
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
   const isLoadingEvent = eventStatus === "loading";
@@ -111,7 +119,17 @@ function PageScoreElimination() {
                 <SectionTableContainer>
                   <TableLoadingIndicator isLoading={true} />
 
-                  <div>bagan to be</div>
+                  <MatchBracketContainer>
+                    {matchTemplate?.rounds && !matchTemplate.updated ? (
+                      <OverflowingBracketContent>
+                        <MatchBracket matchTemplate={matchTemplate} />
+                      </OverflowingBracketContent>
+                    ) : (
+                      <SettingsNotApplied>
+                        <h5>Belum ada pertandingan untuk kategori ini</h5>
+                      </SettingsNotApplied>
+                    )}
+                  </MatchBracketContainer>
                 </SectionTableContainer>
               </div>
             </PanelWithStickySidebar>
@@ -221,6 +239,29 @@ const ButtonTeamFilter = styled.button`
 
 const SectionTableContainer = styled.div`
   position: relative;
+`;
+
+const MatchBracketContainer = styled.div`
+  overflow: auto;
+  min-height: 400px;
+  background-color: #fbfbfb;
+`;
+
+const OverflowingBracketContent = styled.div`
+  padding: 1rem;
+`;
+
+const SettingsNotApplied = styled.div`
+  height: 400px;
+  padding: 2.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  > * {
+    color: var(--ma-gray-400);
+  }
 `;
 
 export default PageScoreElimination;
