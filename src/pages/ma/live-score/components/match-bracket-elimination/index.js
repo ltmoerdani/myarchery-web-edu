@@ -28,15 +28,39 @@ function MatchBracket({ matchTemplate }) {
   );
 }
 
-function SeedBagan({ bracketProps }) {
-  const { seed, breakpoint } = bracketProps;
+function SeedBagan({ bracketProps, configs }) {
+  const { roundIndex, seed, breakpoint } = bracketProps;
+
+  const isFinalRound = roundIndex === configs.totalRounds - 1;
+  const isThirdPlaceRound = roundIndex === configs.totalRounds;
+
+  const shouldEnableScoring = () => {
+    const noWinnersYet = seed.teams.every((team) => team.win === 0);
+    return configs.isSettingApplied && noWinnersYet;
+  };
+
+  const isBye = seed.teams.some((team) => team.status === "bye");
 
   return (
-    <Seed mobileBreakpoint={breakpoint}>
+    <Seed
+      mobileBreakpoint={breakpoint}
+      className={classnames({
+        "round-final": isFinalRound,
+        "round-third-place": isThirdPlaceRound,
+      })}
+    >
       <SeedItem>
         <ItemContainer>
+          {isFinalRound && <FinalHeading>Medali Emas</FinalHeading>}
+          {isThirdPlaceRound && <FinalHeading>Medali Perunggu</FinalHeading>}
           {seed.teams.map((team, index) => (
-            <SeedTeam key={index} className={classnames({ "item-past": false })}>
+            <SeedTeam
+              key={index}
+              className={classnames({
+                "item-active": shouldEnableScoring(),
+                "item-winner": parseInt(team.win) === 1 && !isBye,
+              })}
+            >
               <BoxName>{team.name || "-"}</BoxName>
               {typeof team.result === "number" && <BoxScore>{team.result}</BoxScore>}
             </SeedTeam>
@@ -47,9 +71,22 @@ function SeedBagan({ bracketProps }) {
   );
 }
 
+const FinalHeading = styled.h6`
+  position: absolute;
+  top: -2em;
+  left: 0;
+  right: 0;
+  font-weight: 600;
+  text-align: center;
+`;
+
 const Seed = styled(RBSeed)`
   padding-top: 2rem;
   padding-bottom: 2rem;
+
+  &.round-third-place {
+    margin-left: 3.75rem;
+  }
 `;
 
 const SeedItem = styled(RBSeedItem)`
@@ -61,14 +98,20 @@ const SeedItem = styled(RBSeedItem)`
 const SeedTeam = styled(RBSeedTeam)`
   gap: 0.25rem;
   padding: 0.5rem;
-  border: solid 1px #0d47a1;
-  border-radius: 0.25rem;
+  border: solid 2px #757575;
+  border-radius: 0.375rem;
   background-color: #ffffff;
   color: var(--bs-body-color);
   font-size: var(--bs-body-font-size);
 
-  &.item-past {
-    border-color: #757575;
+  &.item-active {
+    border-color: #0d47a1;
+  }
+
+  &.item-winner {
+    border-color: var(--ma-blue);
+    background-color: #bc8b2c;
+    color: #000000;
   }
 `;
 
@@ -93,6 +136,10 @@ const BoxScore = styled.span`
   background-color: var(--ma-gray-400);
   color: #ffffff;
   font-weight: 600;
+
+  .item-winner & {
+    background-color: #000000;
+  }
 `;
 
 export { MatchBracket };
