@@ -438,7 +438,7 @@ function PageProfileVerifikasiHome() {
                   <div className="mt-4">
                     <TextareaInput
                       onChange={(e) => hanleAddress(e)}
-                      label="Alamat"
+                      label="Alamat (sesuai KTP/KK)"
                       name="address"
                       defaultValue={userProfile?.address}
                       value={dataUpdate?.address}
@@ -475,7 +475,7 @@ function PageProfileVerifikasiHome() {
                       }
                       onChange={(value) => handleInputProvince("addressProvince", value)}
                     >
-                      Provinsi domisili&#47;Wilayah domisili(Sesuai dengan KTP)
+                      Provinsi&#47;Wilayah(Sesuai dengan KTP/KK)
                     </FieldSelect>
                   </div>
 
@@ -491,7 +491,7 @@ function PageProfileVerifikasiHome() {
                       value={dataUpdate?.addressCity ? dataUpdate?.addressCity : valueCity()}
                       onChange={(value) => handleInputCity("addressCity", value)}
                     >
-                      Kota domisili(Sesuai dengan KTP)
+                      Kota (Sesuai dengan KTP/KK)
                     </FieldSelect>
                   </div>
 

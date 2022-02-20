@@ -319,6 +319,8 @@ function LandingPage() {
               <Button
                 className="btn w-100"
                 style={{ backgroundColor: "#FFF", borderColor: "#0d47a1" }}
+                tag={Link}
+                to={`/live-score/${slug}/qualification`}
               >
                 <span style={{ color: "#0d47a1", fontWeight: "600" }}>Live Score</span>
               </Button>
