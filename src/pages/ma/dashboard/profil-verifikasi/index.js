@@ -437,7 +437,7 @@ function PageProfileVerifikasiHome() {
                   <div className="mt-4">
                     <TextareaInput
                       onChange={(e) => hanleAddress(e)}
-                      label="Alamat"
+                      label="Alamat (sesuai KTP/KK)"
                       name="address"
                       defaultValue={userProfile?.address}
                       value={dataUpdate?.address}
