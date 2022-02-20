@@ -46,11 +46,14 @@ function PageScoreElimination() {
     dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
   }, [currentTeamFilterName]);
 
-  const { data: matchTemplate } = useMatchTemplate(categorySelected?.[currentTeamFilterName]?.id);
+  const { data: matchTemplate, status: statusMatchTemplate } = useMatchTemplate(
+    categorySelected?.[currentTeamFilterName]?.id
+  );
 
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
   const isLoadingEvent = eventStatus === "loading";
   const isLoadingCategory = categoryStatus === "loading";
+  const isLoadingMatchTemplate = statusMatchTemplate === "loading";
 
   return (
     <StyledPageWrapper>
@@ -117,7 +120,7 @@ function PageScoreElimination() {
                 </ListViewToolbar>
 
                 <SectionTableContainer>
-                  <TableLoadingIndicator isLoading={true} />
+                  <TableLoadingIndicator isLoading={isLoadingMatchTemplate} />
 
                   <MatchBracketContainer>
                     {matchTemplate?.rounds && !matchTemplate.updated ? (
