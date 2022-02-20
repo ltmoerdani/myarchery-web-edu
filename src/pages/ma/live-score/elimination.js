@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "./hooks/event-detail-slug";
 import { useCategoriesByGenderElimination } from "./hooks/event-categories-by-gender-elimination";
@@ -17,9 +17,10 @@ import {
 } from "./components";
 
 import classnames from "classnames";
-import { getLandingPagePath, makeCategoryOptions, getTabNameFromKey } from "./utils";
+import { getQualificationScorePageUrl, makeCategoryOptions, getTabNameFromKey } from "./utils";
 
 function PageScoreElimination() {
+  const { pathname } = useLocation();
   const { slug } = useParams();
   const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
   const eventId = eventDetail?.id;
@@ -62,7 +63,7 @@ function PageScoreElimination() {
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to={getLandingPagePath(eventDetail?.publicInformation.eventUrl)}>
+        <BreadcrumbDashboard to={getQualificationScorePageUrl(pathname)}>
           {eventDetail ? "Live Score Kualifikasi" : ""}
         </BreadcrumbDashboard>
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "./hooks/event-detail-slug";
 import { useCategoriesByGender } from "./hooks/event-categories-by-gender";
@@ -108,7 +108,9 @@ function PageScoreQualification() {
             <PanelWithStickSidebar>
               <PanelSidebar>
                 <NavElimination>
-                  <ButtonNavToElimination>Lihat Bagan Eliminasi</ButtonNavToElimination>
+                  <ButtonNavToElimination to={`/live-score/${slug}/elimination`}>
+                    Lihat Bagan Eliminasi
+                  </ButtonNavToElimination>
                 </NavElimination>
 
                 <CategoryFilterChooser
@@ -263,7 +265,11 @@ const NavElimination = styled.div`
   align-items: center;
 `;
 
-const ButtonNavToElimination = styled(ButtonBlue)`
+function ButtonLink(props) {
+  return <ButtonBlue as={Link} {...props} />;
+}
+
+const ButtonNavToElimination = styled(ButtonLink)`
   &,
   &:focus,
   &:active {

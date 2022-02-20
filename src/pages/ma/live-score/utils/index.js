@@ -28,4 +28,10 @@ function getTabNameFromKey(filterKeyName) {
   return label[filterKeyName];
 }
 
-export { makeCategoryOptions, getLandingPagePath, getTabNameFromKey };
+function getQualificationScorePageUrl(pathname) {
+  const segments = pathname.split("/");
+  segments[segments.length - 1] = "qualification";
+  return segments.join("/");
+}
+
+export { makeCategoryOptions, getLandingPagePath, getTabNameFromKey, getQualificationScorePageUrl };
