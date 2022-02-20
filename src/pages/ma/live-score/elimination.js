@@ -47,9 +47,19 @@ function PageScoreElimination() {
     dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
   }, [currentTeamFilterName]);
 
-  const { data: matchTemplate, status: statusMatchTemplate } = useMatchTemplate(
-    categorySelected?.[currentTeamFilterName]?.id
-  );
+  const {
+    data: matchTemplate,
+    status: statusMatchTemplate,
+    refetch: refetchMatchTemplate,
+  } = useMatchTemplate(categorySelected?.[currentTeamFilterName]?.id);
+
+  React.useEffect(() => {
+    const timerRefetch = setInterval(() => {
+      refetchMatchTemplate();
+    }, 10000);
+
+    return () => clearInterval(timerRefetch);
+  }, []);
 
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
   const isLoadingEvent = eventStatus === "loading";
