@@ -32,6 +32,7 @@ import img_about_enam from "../../../assets/images/myachery/image 28.svg";
 import img_usedby_satu from "../../../assets/images/myachery/image 20.svg";
 import img_usedby_dua from "../../../assets/images/myachery/image 19.svg";
 import img_usedby_tiga from "../../../assets/images/myachery/image 18.svg";
+import img_usedby_empat from "../../../assets/images/myachery/photo_2022-02-21_14-02-22.jpg";
 
 import "./components/sass/header.scss";
 //TODO: Clrea all the comment before commit please
@@ -462,7 +463,7 @@ function Home() {
                   <img src={img_usedby_satu} />
                   <img src={img_usedby_dua} />
                   <img src={img_usedby_tiga} />
-                  {/* <img src={img_usedby_empat} /> */}
+                  <img className="ms-2" src={img_usedby_empat} width="100px" height="100px" />
                 </div>
               </div>
             </div>
