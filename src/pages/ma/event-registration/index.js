@@ -14,12 +14,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { LoadingScreen } from "components";
 import { WizardView, WizardViewContent, Button, ButtonBlue, AvatarDefault } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import {
-  FieldInputText,
-  FieldSelectCategory,
-  FieldSelectClub,
-  FieldSelectEmailMember,
-} from "./components";
+import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
 
 import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
@@ -119,44 +114,6 @@ function PageEventRegistration() {
 
       if (!club?.detail.id) {
         validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
-      }
-    }
-
-    // required, untuk kategori tim putra/putri
-    if (
-      category?.id &&
-      ["male_team", "female_team"].some((team) => team === category?.teamCategoryId)
-    ) {
-      if (participants.filter((member) => member.data).length <= 1) {
-        participants
-          .filter((member) => !member.data)
-          .forEach((member) => {
-            validationErrors = {
-              ...validationErrors,
-              [member.name]: ["Harus dipilih lebih dari 1 peserta"],
-            };
-          });
-      }
-    }
-
-    // required, untuk kategori tim campuran, min 1 cewek & 1 cowok
-    if (category?.id && category?.teamCategoryId === "mix_team") {
-      const maleMembers = participants.filter((member) => member.data?.gender === "male");
-      const femaleMembers = participants.filter((member) => member.data?.gender === "female");
-      const emptyFieldName = participants.find((member) => !member.data).name;
-
-      if (maleMembers.length < 1) {
-        validationErrors = {
-          ...validationErrors,
-          [emptyFieldName]: ["Peserta putra harus dipilih"],
-        };
-      }
-
-      if (femaleMembers.length < 1) {
-        validationErrors = {
-          ...validationErrors,
-          [emptyFieldName]: ["Peserta putri harus dipilih"],
-        };
       }
     }
 
@@ -404,33 +361,6 @@ function PageEventRegistration() {
                     >
                       Peserta
                     </FieldInputText>
-                  </SegmentByTeamCategory>
-
-                  <SegmentByTeamCategory
-                    teamFilters={["male_team", "female_team", "mix_team"]}
-                    teamCategoryId={category?.teamCategoryId}
-                  >
-                    {participants.map((participant, index) => (
-                      category?.teamCategoryId == "mix_team" && index > 1 ? <></> :
-                      <FieldSelectEmailMember
-                        key={participant.name}
-                        name={participant.name}
-                        placeholder="Pilih email peserta"
-                        required
-                        value={participant.data || null}
-                        formData={formData.data}
-                        onChange={(profile) =>
-                          updateFormData({
-                            type: "FIELD_MEMBER_EMAIL",
-                            name: participant.name,
-                            payload: profile,
-                          })
-                        }
-                        errors={formErrors[participant.name]}
-                      >
-                        Peserta {index + 1}
-                      </FieldSelectEmailMember>
-                    ))}
                   </SegmentByTeamCategory>
                 </ContentCard>
               </WizardViewContent>
@@ -735,6 +665,7 @@ const SplitDisplay = styled.div`
 const ContentCard = styled.div`
   margin-bottom: 1rem;
   padding: 1.5rem;
+  padding-bottom: 2.5rem;
   border-radius: 0.5rem;
   background-color: #ffffff;
 `;
