@@ -61,7 +61,7 @@ const Header = () => {
             <img width="100%" height="100%" src={icon} />
           </div>
           <div className="ms-2">
-            <span style={{ fontWeight: "600" }}>Proses verifikasi ditolak silahkan ajukan lagi.</span>
+            <span style={{ fontWeight: "600" }}>Proses verifikasi ditolak karena {userProfile?.reasonRejected}, silahkan ajukan lagi.</span>
           </div>
           <div style={{ width: "70%" }}>
             <Link className="float-end" to="/dashboard/profile/verifikasi">
