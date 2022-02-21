@@ -21,7 +21,6 @@ import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
 import IconMail from "components/ma/icons/mono/mail";
 import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
-import IconInfo from "components/ma/icons/mono/info";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
@@ -301,17 +300,13 @@ function PageEventRegistration() {
 
                   <div className="mt-5 mb-0">
                     <h5>Data Peserta</h5>
-                    <p>Masukkan email peserta yang telah terdaftar</p>
+                    <SegmentByTeamCategory
+                      teamFilters={["individu male", "individu female"]}
+                      teamCategoryId={category?.teamCategoryId}
+                    >
+                      <p>Masukkan email peserta yang telah terdaftar</p>
+                    </SegmentByTeamCategory>
                   </div>
-
-                  <SegmentByTeamCategory
-                    teamFilters={["mix_team"]}
-                    teamCategoryId={category?.teamCategoryId}
-                  >
-                    <NoticeBar>
-                      Pendaftaran untuk Mix Team minimal terdiri dari 1 peserta putra dan putri
-                    </NoticeBar>
-                  </SegmentByTeamCategory>
 
                   <SegmentByTeamCategory
                     teamFilters={["male_team", "female_team", "mix_team"]}
@@ -697,28 +692,6 @@ const SplitFieldItem = styled.div`
 
 const SubtleFieldNote = styled.div`
   color: var(--ma-gray-400);
-`;
-
-function NoticeBar({ children }) {
-  return (
-    <StyledNoticeBar>
-      <span>
-        <IconInfo />
-      </span>
-      <span>{children}</span>
-    </StyledNoticeBar>
-  );
-}
-
-const StyledNoticeBar = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: var(--ma-blue-primary-50);
-  color: var(--ma-blue);
 `;
 
 const ParticipantCard = styled.div`
