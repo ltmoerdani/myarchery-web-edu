@@ -298,15 +298,15 @@ function PageEventRegistration() {
                     <div>Sedang memuat data pengguna...</div>
                   )}
 
-                  <div className="mt-5 mb-0">
-                    <h5>Data Peserta</h5>
-                    <SegmentByTeamCategory
-                      teamFilters={["individu male", "individu female"]}
-                      teamCategoryId={category?.teamCategoryId}
-                    >
+                  <SegmentByTeamCategory
+                    teamFilters={["individu male", "individu female"]}
+                    teamCategoryId={category?.teamCategoryId}
+                  >
+                    <div className="mt-5 mb-0">
+                      <h5>Data Peserta</h5>
                       <p>Masukkan email peserta yang telah terdaftar</p>
-                    </SegmentByTeamCategory>
-                  </div>
+                    </div>
+                  </SegmentByTeamCategory>
 
                   <SegmentByTeamCategory
                     teamFilters={["male_team", "female_team", "mix_team"]}
