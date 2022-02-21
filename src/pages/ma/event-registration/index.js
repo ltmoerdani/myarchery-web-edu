@@ -406,7 +406,7 @@ function PageEventRegistration() {
                 {club && (
                   <ContentCard>
                     <SplitFields>
-                      {participantCounts > 1 && (
+                      {teamName && (
                         <SplitFieldItem>
                           <ClubDetailLabel>Nama Tim</ClubDetailLabel>
                           <ClubDetailValue>{teamName}</ClubDetailValue>
@@ -564,8 +564,10 @@ function PageEventRegistration() {
                     <DetailLabel>Jumlah Peserta</DetailLabel>
                     {isCategoryIndividu ? (
                       <DetailValue>1 Orang</DetailValue>
-                    ) : (
+                    ) : participantCounts > 0 ? (
                       <DetailValue>{participantCounts} Orang</DetailValue>
+                    ) : (
+                      <DetailValue muted>&mdash;</DetailValue>
                     )}
                   </div>
                 </TicketSectionDetail>
@@ -831,10 +833,13 @@ const DetailLabel = styled.h6`
   font-weight: 400;
 `;
 
+const isTextMuted = ({ muted }) => (muted ? "color: var(--ma-gray-400);" : "");
+
 const DetailValue = styled.p`
   font-size: 15px;
   font-weight: 600;
   text-transform: capitalize;
+  ${isTextMuted}
 `;
 
 const TicketSectionTotal = styled.div`
