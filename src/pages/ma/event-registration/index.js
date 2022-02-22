@@ -12,7 +12,14 @@ import { Container as BSContainer, Table as BSTable } from "reactstrap";
 import CurrencyFormat from "react-currency-format";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { LoadingScreen } from "components";
-import { WizardView, WizardViewContent, Button, ButtonBlue, AvatarDefault } from "components/ma";
+import {
+  WizardView,
+  WizardViewContent,
+  Button,
+  ButtonBlue,
+  AvatarDefault,
+  AlertSubmitError,
+} from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
 
@@ -20,11 +27,10 @@ import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
 import IconMail from "components/ma/icons/mono/mail";
-import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
-import { stringUtil } from "utils";
+import { stringUtil, errorsUtil } from "utils";
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
@@ -107,10 +113,6 @@ function PageEventRegistration() {
       category?.id &&
       ["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)
     ) {
-      if (!teamName) {
-        validationErrors = { ...validationErrors, teamName: ["Nama tim harus diisi"] };
-      }
-
       if (!club?.detail.id) {
         validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
       }
@@ -138,15 +140,8 @@ function PageEventRegistration() {
       dispatchSubmitStatus({ status: "success" });
       history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
     } else {
-      const makeErrorData = () => {
-        // handle errors berupa [] / array kosongan
-        // dan ketika null
-        if (!result.errors?.length) {
-          return result.message;
-        }
-        return result.errors;
-      };
-      dispatchSubmitStatus({ status: "error", errors: makeErrorData() });
+      const errorData = errorsUtil.interpretServerErrors(result);
+      dispatchSubmitStatus({ status: "error", errors: errorData });
     }
   };
 
@@ -308,22 +303,6 @@ function PageEventRegistration() {
                     </div>
                   </SegmentByTeamCategory>
 
-                  <SegmentByTeamCategory
-                    teamFilters={["male_team", "female_team", "mix_team"]}
-                    teamCategoryId={category?.teamCategoryId}
-                  >
-                    <FieldInputText
-                      name="teamName"
-                      required
-                      placeholder="Masukkan Nama Tim"
-                      value={teamName}
-                      onChange={(inputValue) => updateFormData({ teamName: inputValue })}
-                      errors={formErrors.teamName}
-                    >
-                      Nama Tim
-                    </FieldInputText>
-                  </SegmentByTeamCategory>
-
                   <FieldSelectClub
                     required={category?.id && !isCategoryIndividu}
                     disabled={!category?.id}
@@ -394,13 +373,6 @@ function PageEventRegistration() {
                 {club && (
                   <ContentCard>
                     <SplitFields>
-                      {teamName && (
-                        <SplitFieldItem>
-                          <ClubDetailLabel>Nama Tim</ClubDetailLabel>
-                          <ClubDetailValue>{teamName}</ClubDetailValue>
-                        </SplitFieldItem>
-                      )}
-
                       <SplitFieldItem>
                         <ClubDetailLabel>Nama Klub</ClubDetailLabel>
                         <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
@@ -866,71 +838,6 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
         }
       >
         <p>Apakah data pemesanan Anda sudah benar?</p>
-      </SweetAlert>
-    </React.Fragment>
-  );
-}
-
-function AlertSubmitError({ isError, errors, onConfirm }) {
-  const [isAlertOpen, setAlertOpen] = React.useState(false);
-
-  const renderErrorMessages = () => {
-    if (errors && typeof errors === "string") {
-      return errors;
-    }
-
-    if (errors) {
-      const fields = Object.keys(errors);
-      const messages = fields.map(
-        (field) => `${errors[field].map((message) => `- ${message}\n`).join("")}`
-      );
-      if (messages.length) {
-        return `${messages.join("")}`;
-      }
-    }
-
-    return "Error tidak diketahui.";
-  };
-
-  const handleConfirm = () => {
-    setAlertOpen(false);
-    onConfirm?.();
-  };
-
-  React.useEffect(() => {
-    if (!isError) {
-      return;
-    }
-    setAlertOpen(true);
-  }, [isError]);
-
-  return (
-    <React.Fragment>
-      <SweetAlert
-        show={isAlertOpen}
-        title=""
-        custom
-        btnSize="md"
-        style={{ padding: "30px 40px", width: "720px" }}
-        onConfirm={handleConfirm}
-        customButtons={
-          <span className="d-flex flex-column w-100">
-            <ButtonBlue onClick={handleConfirm}>Tutup</ButtonBlue>
-          </span>
-        }
-      >
-        <h4>
-          <IconAlertTriangle />
-        </h4>
-        <div className="text-start">
-          <p>
-            Terdapat kendala teknis dalam memproses data. Coba kembali beberapa saat lagi, atau
-            silakan berikan pesan error berikut kepada technical support:
-          </p>
-          <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
-            {renderErrorMessages()}
-          </pre>
-        </div>
       </SweetAlert>
     </React.Fragment>
   );
