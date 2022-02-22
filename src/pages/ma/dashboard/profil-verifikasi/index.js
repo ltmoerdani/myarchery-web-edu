@@ -127,7 +127,7 @@ function PageProfileVerifikasiHome() {
   };
 
   const hanleSubmitDataUpdate = async () => {
-      const result = await ArcherService.updateVerifikasi(
+      const {message, errors} = await ArcherService.updateVerifikasi(
         {
           nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
           // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
@@ -143,10 +143,10 @@ function PageProfileVerifikasiHome() {
         },
         { user_id: userProfile?.id }
       );
-      if (result?.message == "Failed") {
+      if (message == "Failed") {
         console.log(message);
         console.log(errors);
-        const err = Object.keys(result?.errors).map((err) => err);
+        const err = Object.keys(errors).map((err) => err);
         if (
           err[0] == "cityId" ||
           err[1] == "cityId" ||
