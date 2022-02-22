@@ -164,7 +164,7 @@ function PageProfileVerifikasiHome() {
           err[3] == "nik" ||
           err[4] == "nik"
         ) {
-          toastr.error("NIK belum diisi");
+          toastr.error("NIK belum diisi/NIK sudah digunakan");
         }
         if (
           err[2] == "provinceId" ||
