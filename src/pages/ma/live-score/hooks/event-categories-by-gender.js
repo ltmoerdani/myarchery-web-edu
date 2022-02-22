@@ -20,11 +20,23 @@ function useCategoriesByGender(eventId) {
 
 function transform(data) {
   const filteredGroups = {};
-  for (const name of ["individu male", "individu female"]) {
+  // ambil key yang ada datanya aja.
+  for (const name of ["individu male", "individu female", "maleTeam", "femaleTeam", "mixTeam"]) {
     if (!data[name]) {
       continue;
     }
-    filteredGroups[name] = data[name];
+    filteredGroups[name] = data[name].map((category) => {
+      const checkWhichTeamType = (id) => {
+        if (id === "individu male" || id === "individu female") {
+          return "individu";
+        }
+        if (id === "male_team" || id === "female_team" || id === "mix_team") {
+          return "team";
+        }
+      };
+      const type = checkWhichTeamType(category.teamCategoryId);
+      return { ...category, type };
+    });
   }
   return filteredGroups;
 }
@@ -32,9 +44,8 @@ function transform(data) {
 function makeGroupNames(data) {
   if (!data) return [];
 
-  // ambil key yang ada datanya aja.
   const filteredNames = [];
-  for (const name of ["individu male", "individu female"]) {
+  for (const name of Object.keys(data)) {
     if (!data[name]) {
       continue;
     }
