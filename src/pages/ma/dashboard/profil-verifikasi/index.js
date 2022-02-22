@@ -9,8 +9,6 @@ import * as AuthStore from "store/slice/authentication";
 import { ArcherService, ArcheryClubService } from "services";
 import { useHistory } from "react-router-dom";
 import { FieldSelect } from "./components";
-// import {errorsUtil} from "utils"
-// import {AlertSubmitError} from "components/ma"
 import "./components/sass/styles.scss";
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
