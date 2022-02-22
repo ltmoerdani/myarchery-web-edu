@@ -2,7 +2,11 @@ function makeCategoryOptions(data) {
   if (!data) {
     return [];
   }
-  return data.map((option) => ({ id: option.id, label: option.categoryLabel }));
+  return data.map((option) => ({
+    id: option.id,
+    label: option.categoryLabel,
+    type: option.type,
+  }));
 }
 
 function getLandingPagePath(url) {
