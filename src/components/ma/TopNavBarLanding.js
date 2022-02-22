@@ -73,7 +73,7 @@ function TopNavBarLanding() {
           <span className="bx bx-menu"></span>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <DropdownItem className="dropdown-item">
+          <DropdownItem tag="div" className="dropdown-item">
             <div>
               <a href="/archer/register">
                 <ButtonOne className="me-2 btn">Buat Akun</ButtonOne>

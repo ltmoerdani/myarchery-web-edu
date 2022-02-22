@@ -65,6 +65,8 @@ function LandingPage() {
   const [eventData, setEventData] = React.useState({});
   const [eventPerCategoryTeamPriceData, setEventPerCategoryTeamPriceData] = React.useState([]);
   const [category, setCategory] = React.useState({});
+  const [loading, setLoading] = React.useState(false);
+  const [loadingCategory, setLoadingCategory] = React.useState(false)
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
 
@@ -72,15 +74,16 @@ function LandingPage() {
     const { message, errors, data } = await EventsService.getDetailEvent({ slug });
     if (data) {
       setEventData(data);
-      let fees = []
-      let checkFees = []
-      if(data.eventCategories && data.eventCategories.length > 0){
+      setLoading(true);
+      let fees = [];
+      let checkFees = [];
+      if (data.eventCategories && data.eventCategories.length > 0) {
         data.eventCategories.map((eventCategori) => {
-          if(checkFees[eventCategori.teamCategoryId.id] == undefined)
-            fees.push({label : eventCategori?.teamCategoryId?.label, fee : eventCategori?.fee });
-          
+          if (checkFees[eventCategori.teamCategoryId.id] == undefined)
+            fees.push({ label: eventCategori?.teamCategoryId?.label, fee: eventCategori?.fee });
+
           checkFees[eventCategori.teamCategoryId.id] = 1;
-        })
+        });
       }
       setEventPerCategoryTeamPriceData(fees);
     }
@@ -92,6 +95,7 @@ function LandingPage() {
     const { message, errors, data } = await EventsService.getCategory({ event_id: id });
     if (data) {
       setCategory(data);
+      setLoadingCategory(true)
       console.log(message);
       console.log(errors);
     }
@@ -141,6 +145,44 @@ function LandingPage() {
       </>
     );
   };
+
+  let feeArray = [];
+
+  const getFee = () => {
+    return eventData?.eventCategories?.map((categorie) => {
+      return categorie?.fee;
+    });
+  };
+  feeArray = getFee();
+  feeArray?.sort((a, b) => a - b);
+
+  // console.log(feeArray);
+
+  const screenLoading = () => {
+    return (
+      <div style={{ height: "50vh" }} className="d-flex justify-content-center align-items-center">
+        <div className="spinner-grow" role="status">
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  };
+
+  if (!loading) {
+    return (
+      <React.Fragment>
+        {screenLoading()}
+      </React.Fragment>
+    );
+  }
+
+  const handleLoadCategory = () => {
+    return(
+      <div>
+        {screenLoading()}
+      </div>
+    )
+  }
 
   return (
     <PageWrapper>
@@ -231,7 +273,12 @@ function LandingPage() {
                           )}`}
                         </span>
                         <br />
-                        <span>Mulai dari Rp {Number(eventCategori?.fee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</span>
+                        <span>
+                          Mulai dari Rp{" "}
+                          {Number(eventCategori?.fee)
+                            .toFixed(2)
+                            .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
+                        </span>
                       </p>
                     </>
                   );
@@ -272,6 +319,8 @@ function LandingPage() {
               <Button
                 className="btn w-100"
                 style={{ backgroundColor: "#FFF", borderColor: "#0d47a1" }}
+                tag={Link}
+                to={`/live-score/${slug}/qualification`}
               >
                 <span style={{ color: "#0d47a1", fontWeight: "600" }}>Live Score</span>
               </Button>
@@ -282,7 +331,7 @@ function LandingPage() {
         <div className="mt-4" id="kategori-lomba">
           <h5 className="text-black">Kategori Lomba</h5>
 
-          <div className="event-team-tabs mt-3 mb-4">
+          <div className="event-team-tabs mt-3 mb-4" style={{ overflowX: "auto" }}>
             {steps.map((tabItem) => (
               <div key={tabItem.step}>
                 <button
@@ -297,6 +346,7 @@ function LandingPage() {
             ))}
           </div>
 
+          {!loadingCategory ? handleLoadCategory() : (
           <WizardView currentStep={currentStep}>
             <WizardViewContent>
               <EventCategoryGrid
@@ -334,6 +384,7 @@ function LandingPage() {
               />
             </WizardViewContent>
           </WizardView>
+            )}
         </div>
       </Container>
     </PageWrapper>
@@ -407,6 +458,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
 // }
 
 function EventCategoryGrid({ categories, slug, isLoggedIn }) {
+  console.log(categories);
   return (
     <div className="event-category-grid">
       {categories.map((category, index) => (
@@ -414,35 +466,30 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
           <h5 className="heading-category-name">{category.categoryLabel}</h5>
           <div className="mt-4 body-category-detail">
             <div>
-              <span className="category-quota-label">{category.totalParticipant}&#47;{category.quota}</span>
+              <span className="category-quota-label">
+                Tersedia: {category.quota - category.totalParticipant}/{category.quota}
+                {/* {category.totalParticipant}&#47;{category.quota} */}
+              </span>
             </div>
             <div>
-            {category.totalParticipant >= category.quota ?
-            <Button
-                as={Link}
-                disabled={true}
-                className="btn btn-primary"
-                corner="8"
-                style={{ width: 120 }}
-              >
-                Penuh
-              </Button>
-            :
-              <ButtonBlue
-                as={Link}
-                disabled={true}
-                to={`${
-                  !isLoggedIn
-                    ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
-                    : `/event-registration/${slug}?categoryId=${category?.id}`
-                }`}
-                className="btn btn-primary"
-                corner="8"
-                style={{ width: 120 }}
-              >
-                Daftar
-              </ButtonBlue>
-            }
+              {category.quota - category.totalParticipant > 0 && category?.isOpen ? (
+                <ButtonBlue
+                  as={Link}
+                  to={`${
+                    !isLoggedIn
+                      ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
+                      : `/event-registration/${slug}?categoryId=${category?.id}`
+                  }`}
+                  corner="8"
+                  style={{ width: 120 }}
+                >
+                  Daftar
+                </ButtonBlue>
+              ) : (
+                <Button disabled style={{ width: 120 }}>
+                  {!category.isOpen ? "Daftar" : "Full"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -597,6 +644,12 @@ const PageWrapper = styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+
+    @media screen and (max-width: 600px) {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      height: 245px;
+      overflow-y: auto;
+    }
 
     .event-category-card {
       padding: 12px 1rem;

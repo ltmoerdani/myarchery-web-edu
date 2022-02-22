@@ -3,3 +3,4 @@ export * from "./wizard-view";
 export * from "./avatar-default";
 export * from "./avatar-club-default";
 export * from "./alert-submit-error";
+export * from "./loading-spinner";

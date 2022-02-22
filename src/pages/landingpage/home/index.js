@@ -10,7 +10,9 @@ import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 import { Landingpage } from "services";
 
-import banner_satu from "../../../assets/images/myachery/Banner 2(1).svg";
+import banner_satu from "../../../assets/images/myachery/banner6 1.svg";
+import banner_dua_hero from "../../../assets/images/myachery/banner6 2.svg";
+import banner_tiga_hero from "../../../assets/images/myachery/banner6 3.svg";
 import img_target from "../../../assets/images/myachery/target-landing-1.svg";
 import ases_satu from "../../../assets/images/myachery/ases-satu.svg";
 import ases_dua from "../../../assets/images/myachery/ases-dua.svg";
@@ -30,6 +32,7 @@ import img_about_enam from "../../../assets/images/myachery/image 28.svg";
 import img_usedby_satu from "../../../assets/images/myachery/image 20.svg";
 import img_usedby_dua from "../../../assets/images/myachery/image 19.svg";
 import img_usedby_tiga from "../../../assets/images/myachery/image 18.svg";
+import img_usedby_empat from "../../../assets/images/myachery/photo_2022-02-21_14-02-22.jpg";
 
 import "./components/sass/header.scss";
 //TODO: Clrea all the comment before commit please
@@ -38,8 +41,19 @@ const { getWebAdminURL } = url;
 
 function Home() {
   const [dataEvent, setDataEventList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
+
+  const screenLoading = () => {
+    return (
+      <div style={{ height: "50vh" }} className="d-flex justify-content-center align-items-center">
+        <div className="spinner-grow" role="status">
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     getEventListbyLimit();
@@ -51,6 +65,7 @@ function Home() {
     });
     if (data) {
       setDataEventList(data);
+      setLoading(true);
     }
     console.log(message);
     console.log(errors);
@@ -121,7 +136,7 @@ function Home() {
           </div>
         </div>
         <div className="position-relative">
-          <img src={banner_satu} />
+          <img src={banner_dua_hero} />
           <div className="text-box">
             <span className="title-sub">
               selamat datang di
@@ -139,7 +154,7 @@ function Home() {
           </div>
         </div>
         <div className="position-relative">
-          <img src={banner_satu} />
+          <img src={banner_tiga_hero} />
           <div className="text-box">
             <span className="title-sub">
               selamat datang di
@@ -163,82 +178,98 @@ function Home() {
             <Row>
               <Col md={8} sm={12}>
                 <Card>
-                  <div className="img-responsive-event-one">
-                    <img
-                      src={dataEvent[numberEventOne]?.poster}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  </div>
-                  <CardBody className="card-responsive-event-one">
-                    <div>
-                      <span className="tag px-3 py-1">
-                        {dataEvent[numberEventOne]?.eventCompetition}
-                      </span>
-                      <h3 className="primary-color mt-2">{dataEvent[numberEventOne]?.eventName}</h3>
-                      <div className="mt-3">
-                        <span className="bx bx-map"></span>
-                        <span className="ms-1">{dataEvent[numberEventOne]?.location}</span>
+                  {!loading ? (
+                    screenLoading()
+                  ) : (
+                    <>
+                      <div className="img-responsive-event-one">
+                        <img
+                          src={dataEvent[numberEventOne]?.poster}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
                       </div>
-                      <div>
-                        <span className="bx bx-calendar"></span>
-                        <span className="ms-1">{getDateEvent(numberEventOne)}</span>
-                      </div>
-                      <div className="mt-3">
-                        <div
-                          className="line-clamp mb-3"
-                          dangerouslySetInnerHTML={{
-                            __html: dataEvent[numberEventOne]?.description,
-                          }}
-                        ></div>
-                        {/* <p >{dataEvent[0]?.description}</p> */}
-                      </div>
-                      <a href={dataEvent[numberEventOne]?.eventUrl}>
-                        <Button color="primary" outline>
-                          Lihat Detail
-                        </Button>
-                      </a>
-                    </div>
-                  </CardBody>
+                      <CardBody className="card-responsive-event-one">
+                        <div>
+                          <span className="tag px-3 py-1">
+                            {dataEvent[numberEventOne]?.eventCompetition}
+                          </span>
+                          <h3 className="primary-color mt-2">
+                            {dataEvent[numberEventOne]?.eventName}
+                          </h3>
+                          <div className="mt-3">
+                            <span className="bx bx-map"></span>
+                            <span className="ms-1">{dataEvent[numberEventOne]?.location}</span>
+                          </div>
+                          <div>
+                            <span className="bx bx-calendar"></span>
+                            <span className="ms-1">{getDateEvent(numberEventOne)}</span>
+                          </div>
+                          <div className="mt-3">
+                            <div
+                              className="line-clamp mb-3"
+                              dangerouslySetInnerHTML={{
+                                __html: dataEvent[numberEventOne]?.description,
+                              }}
+                            ></div>
+                            {/* <p >{dataEvent[0]?.description}</p> */}
+                          </div>
+                          <a href={dataEvent[numberEventOne]?.eventUrl}>
+                            <Button color="primary" outline>
+                              Lihat Detail
+                            </Button>
+                          </a>
+                        </div>
+                      </CardBody>
+                    </>
+                  )}
                 </Card>
               </Col>
               <Col md={4} sm={12}>
                 <Card>
-                  <div className="img-responsive-event-two">
-                    <img
-                      src={dataEvent[numberEventTwo]?.poster}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  </div>
-                  <CardBody className="card-responsive-event-two">
-                    <div>
-                      <span className="tag-sub px-3 py-1">
-                        {dataEvent[numberEventTwo]?.eventCompetition}
-                      </span>
-                      <h3 className="primary-color mt-2">{dataEvent[numberEventTwo]?.eventName}</h3>
-                      <div className="mt-3">
-                        <span className="bx bx-map"></span>
-                        <span className="ms-1">{dataEvent[numberEventTwo]?.location}</span>
+                  {!loading ? (
+                    screenLoading()
+                  ) : (
+                    <>
+                      <div className="img-responsive-event-two">
+                        <img
+                          src={dataEvent[numberEventTwo]?.poster}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
                       </div>
-                      <div>
-                        <span className="bx bx-calendar"></span>
-                        <span className="ms-1">{getDateEvent(numberEventTwo)}</span>
-                      </div>
-                      <div className="mt-3">
-                        <div
-                          className="line-clamp mb-3"
-                          dangerouslySetInnerHTML={{
-                            __html: dataEvent[numberEventTwo]?.description,
-                          }}
-                        ></div>
-                        {/* <p>Latihan Bersama Barebow Karawang.</p> */}
-                      </div>
-                      <a href={dataEvent[numberEventTwo]?.eventUrl}>
-                        <Button color="primary" outline>
-                          Lihat Detail
-                        </Button>
-                      </a>
-                    </div>
-                  </CardBody>
+                      <CardBody className="card-responsive-event-two">
+                        <div>
+                          <span className="tag-sub px-3 py-1">
+                            {dataEvent[numberEventTwo]?.eventCompetition}
+                          </span>
+                          <h3 className="primary-color mt-2">
+                            {dataEvent[numberEventTwo]?.eventName}
+                          </h3>
+                          <div className="mt-3">
+                            <span className="bx bx-map"></span>
+                            <span className="ms-1">{dataEvent[numberEventTwo]?.location}</span>
+                          </div>
+                          <div>
+                            <span className="bx bx-calendar"></span>
+                            <span className="ms-1">{getDateEvent(numberEventTwo)}</span>
+                          </div>
+                          <div className="mt-3">
+                            <div
+                              className="line-clamp mb-3"
+                              dangerouslySetInnerHTML={{
+                                __html: dataEvent[numberEventTwo]?.description,
+                              }}
+                            ></div>
+                            {/* <p>Latihan Bersama Barebow Karawang.</p> */}
+                          </div>
+                          <a href={dataEvent[numberEventTwo]?.eventUrl}>
+                            <Button color="primary" outline>
+                              Lihat Detail
+                            </Button>
+                          </a>
+                        </div>
+                      </CardBody>
+                    </>
+                  )}
                 </Card>
                 <div className="look-event card-effect">
                   <div className="w-100">
@@ -432,7 +463,7 @@ function Home() {
                   <img src={img_usedby_satu} />
                   <img src={img_usedby_dua} />
                   <img src={img_usedby_tiga} />
-                  {/* <img src={img_usedby_empat} /> */}
+                  <img className="ms-2" src={img_usedby_empat} width="100px" height="100px" />
                 </div>
               </div>
             </div>

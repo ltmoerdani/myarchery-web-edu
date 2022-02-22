@@ -14,19 +14,13 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { LoadingScreen } from "components";
 import { WizardView, WizardViewContent, Button, ButtonBlue, AvatarDefault } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import {
-  FieldInputText,
-  FieldSelectCategory,
-  FieldSelectClub,
-  FieldSelectEmailMember,
-} from "./components";
+import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
 
 import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
 import IconMail from "components/ma/icons/mono/mail";
 import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
-import IconInfo from "components/ma/icons/mono/info";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
@@ -43,7 +37,6 @@ const initialFormState = {
     teamName: "",
     club: null,
     participants: [
-      { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -123,44 +116,6 @@ function PageEventRegistration() {
       }
     }
 
-    // required, untuk kategori tim putra/putri
-    if (
-      category?.id &&
-      ["male_team", "female_team"].some((team) => team === category?.teamCategoryId)
-    ) {
-      if (participants.filter((member) => member.data).length <= 1) {
-        participants
-          .filter((member) => !member.data)
-          .forEach((member) => {
-            validationErrors = {
-              ...validationErrors,
-              [member.name]: ["Harus dipilih lebih dari 1 peserta"],
-            };
-          });
-      }
-    }
-
-    // required, untuk kategori tim campuran, min 1 cewek & 1 cowok
-    if (category?.id && category?.teamCategoryId === "mix_team") {
-      const maleMembers = participants.filter((member) => member.data?.gender === "male");
-      const femaleMembers = participants.filter((member) => member.data?.gender === "female");
-      const emptyFieldName = participants.find((member) => !member.data).name;
-
-      if (maleMembers.length < 1) {
-        validationErrors = {
-          ...validationErrors,
-          [emptyFieldName]: ["Peserta putra harus dipilih"],
-        };
-      }
-
-      if (femaleMembers.length < 1) {
-        validationErrors = {
-          ...validationErrors,
-          [emptyFieldName]: ["Peserta putri harus dipilih"],
-        };
-      }
-    }
-
     updateFormData({ type: "FORM_INVALID", errors: validationErrors });
 
     const isValid = !Object.keys(validationErrors)?.length;
@@ -172,17 +127,10 @@ function PageEventRegistration() {
   const handleSubmitOrder = async () => {
     dispatchSubmitStatus({ status: "loading", errors: null });
 
-    const nonEmptyParticipants = participants.filter((member) => Boolean(member.data));
-    const getUserIdsFromParticipants = () => {
-      return nonEmptyParticipants.map((member) => member.data.userId);
-    };
-
-    // payload kategory individual
     const payload = {
       event_category_id: category.id,
       club_id: club?.detail.id || 0,
       team_name: teamName || undefined,
-      user_id: nonEmptyParticipants.length > 1 ? getUserIdsFromParticipants() : undefined,
     };
 
     const result = await OrderEventService.register(payload);
@@ -350,18 +298,14 @@ function PageEventRegistration() {
                     <div>Sedang memuat data pengguna...</div>
                   )}
 
-                  <div className="mt-5 mb-0">
-                    <h5>Data Peserta</h5>
-                    <p>Masukkan email peserta yang telah terdaftar</p>
-                  </div>
-
                   <SegmentByTeamCategory
-                    teamFilters={["mix_team"]}
+                    teamFilters={["individu male", "individu female"]}
                     teamCategoryId={category?.teamCategoryId}
                   >
-                    <NoticeBar>
-                      Pendaftaran untuk Mix Team minimal terdiri dari 1 peserta putra dan putri
-                    </NoticeBar>
+                    <div className="mt-5 mb-0">
+                      <h5>Data Peserta</h5>
+                      <p>Masukkan email peserta yang telah terdaftar</p>
+                    </div>
                   </SegmentByTeamCategory>
 
                   <SegmentByTeamCategory
@@ -405,32 +349,6 @@ function PageEventRegistration() {
                     >
                       Peserta
                     </FieldInputText>
-                  </SegmentByTeamCategory>
-
-                  <SegmentByTeamCategory
-                    teamFilters={["male_team", "female_team", "mix_team"]}
-                    teamCategoryId={category?.teamCategoryId}
-                  >
-                    {participants.map((participant, index) => (
-                      <FieldSelectEmailMember
-                        key={participant.name}
-                        name={participant.name}
-                        placeholder="Pilih email peserta"
-                        required
-                        value={participant.data || null}
-                        formData={formData.data}
-                        onChange={(profile) =>
-                          updateFormData({
-                            type: "FIELD_MEMBER_EMAIL",
-                            name: participant.name,
-                            payload: profile,
-                          })
-                        }
-                        errors={formErrors[participant.name]}
-                      >
-                        Peserta {index + 1}
-                      </FieldSelectEmailMember>
-                    ))}
                   </SegmentByTeamCategory>
                 </ContentCard>
               </WizardViewContent>
@@ -476,7 +394,7 @@ function PageEventRegistration() {
                 {club && (
                   <ContentCard>
                     <SplitFields>
-                      {participantCounts > 1 && (
+                      {teamName && (
                         <SplitFieldItem>
                           <ClubDetailLabel>Nama Tim</ClubDetailLabel>
                           <ClubDetailValue>{teamName}</ClubDetailValue>
@@ -634,8 +552,10 @@ function PageEventRegistration() {
                     <DetailLabel>Jumlah Peserta</DetailLabel>
                     {isCategoryIndividu ? (
                       <DetailValue>1 Orang</DetailValue>
-                    ) : (
+                    ) : participantCounts > 0 ? (
                       <DetailValue>{participantCounts} Orang</DetailValue>
+                    ) : (
+                      <DetailValue muted>&mdash;</DetailValue>
                     )}
                   </div>
                 </TicketSectionDetail>
@@ -735,6 +655,7 @@ const SplitDisplay = styled.div`
 const ContentCard = styled.div`
   margin-bottom: 1rem;
   padding: 1.5rem;
+  padding-bottom: 2.5rem;
   border-radius: 0.5rem;
   background-color: #ffffff;
 `;
@@ -771,28 +692,6 @@ const SplitFieldItem = styled.div`
 
 const SubtleFieldNote = styled.div`
   color: var(--ma-gray-400);
-`;
-
-function NoticeBar({ children }) {
-  return (
-    <StyledNoticeBar>
-      <span>
-        <IconInfo />
-      </span>
-      <span>{children}</span>
-    </StyledNoticeBar>
-  );
-}
-
-const StyledNoticeBar = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: var(--ma-blue-primary-50);
-  color: var(--ma-blue);
 `;
 
 const ParticipantCard = styled.div`
@@ -900,10 +799,13 @@ const DetailLabel = styled.h6`
   font-weight: 400;
 `;
 
+const isTextMuted = ({ muted }) => (muted ? "color: var(--ma-gray-400);" : "");
+
 const DetailValue = styled.p`
   font-size: 15px;
   font-weight: 600;
   text-transform: capitalize;
+  ${isTextMuted}
 `;
 
 const TicketSectionTotal = styled.div`
