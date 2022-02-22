@@ -43,7 +43,7 @@ function PageProfileVerifikasiHome() {
     if (dataUpdate?.ktp) {
       // if (dataUpdate?.kk) {
       if (display?.ktp?.size <= 2000000) {
-        const {message, errors} = await ArcherService.updateVerifikasi(
+        const { message, errors, success } = await ArcherService.updateVerifikasi(
           {
             nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
             // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
@@ -62,55 +62,13 @@ function PageProfileVerifikasiHome() {
         if (message == "Failed") {
           console.log(message);
           console.log(errors);
-          const err = Object.keys(errors).map((err) => err);
-          if (
-            err[0] == "cityId" ||
-            err[1] == "cityId" ||
-            err[2] == "cityId" ||
-            err[3] == "cityId" ||
-            err[4] == "cityId"
-          ) {
-            toastr.error("Kota belum diisi");
-          }
-          if (
-            err[1] == "nik" ||
-            err[0] == "nik" ||
-            err[2] == "nik" ||
-            err[3] == "nik" ||
-            err[4] == "nik"
-          ) {
-            toastr.error("NIK belum diisi/NIK sudah digunakan");
-          }
-          if (
-            err[2] == "provinceId" ||
-            err[1] == "provinceId" ||
-            err[0] == "provinceId" ||
-            err[3] == "provinceId" ||
-            err[4] == "provinceId"
-          ) {
-            toastr.error("Provinsi/Wilayah belum diisi");
-          }
-          if (
-            err[0] == "address" ||
-            err[1] == "address" ||
-            err[2] == "address" ||
-            err[3] == "address" ||
-            err[4] == "address"
-          ) {
-            toastr.error("Alamat belum diisi");
-          }
-          if (
-            err[0] == "name" ||
-            err[1] == "name" ||
-            err[2] == "name" ||
-            err[3] == "name" ||
-            err[4] == "name"
-          ) {
-            toastr.error("Nama belum diisi");
-          }
+          Object.values(errors).map((err) => {
+            toastr.error(err);
+          });
         } else {
-          // const errors = errorsUtil.interpretServerErrors(result)
-          history.push("/dashboard");
+          if (success) {
+            history.push("/dashboard");
+          }
         }
         // }else {
         //   toastr.error("Foto Selfie dengan KTP/KK belum diisi")
@@ -127,74 +85,33 @@ function PageProfileVerifikasiHome() {
   };
 
   const hanleSubmitDataUpdate = async () => {
-      const {message, errors} = await ArcherService.updateVerifikasi(
-        {
-          nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-          // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
-          ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
-          provinceId: dataUpdate?.addressProvince
-            ? dataUpdate?.addressProvince?.value
-            : userProfile?.addressProvince?.id,
-          cityId: dataUpdate?.addressCity
-            ? dataUpdate?.addressCity?.value
-            : userProfile?.addressCity?.id,
-          address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
-          name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
-        },
-        { user_id: userProfile?.id }
-      );
-      if (message == "Failed") {
-        console.log(message);
-        console.log(errors);
-        const err = Object.keys(errors).map((err) => err);
-        if (
-          err[0] == "cityId" ||
-          err[1] == "cityId" ||
-          err[2] == "cityId" ||
-          err[3] == "cityId" ||
-          err[4] == "cityId"
-        ) {
-          toastr.error("Kota belum diisi");
-        }
-        if (
-          err[1] == "nik" ||
-          err[0] == "nik" ||
-          err[2] == "nik" ||
-          err[3] == "nik" ||
-          err[4] == "nik"
-        ) {
-          toastr.error("NIK belum diisi/NIK sudah digunakan");
-        }
-        if (
-          err[2] == "provinceId" ||
-          err[1] == "provinceId" ||
-          err[0] == "provinceId" ||
-          err[3] == "provinceId" ||
-          err[4] == "provinceId"
-        ) {
-          toastr.error("Provinsi/Wilayah belum diisi");
-        }
-        if (
-          err[0] == "address" ||
-          err[1] == "address" ||
-          err[2] == "address" ||
-          err[3] == "address" ||
-          err[4] == "address"
-        ) {
-          toastr.error("Alamat belum diisi");
-        }
-        if (
-          err[0] == "name" ||
-          err[1] == "name" ||
-          err[2] == "name" ||
-          err[3] == "name" ||
-          err[4] == "name"
-        ) {
-          toastr.error("Nama belum diisi");
-        }
-      } else {
+    const { message, errors, success } = await ArcherService.updateVerifikasi(
+      {
+        nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
+        // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
+        ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
+        provinceId: dataUpdate?.addressProvince
+          ? dataUpdate?.addressProvince?.value
+          : userProfile?.addressProvince?.id,
+        cityId: dataUpdate?.addressCity
+          ? dataUpdate?.addressCity?.value
+          : userProfile?.addressCity?.id,
+        address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
+        name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
+      },
+      { user_id: userProfile?.id }
+    );
+    if (message == "Failed") {
+      console.log(message);
+      console.log(errors);
+      Object.values(errors).map((err) => {
+        toastr.error(err);
+      });
+    } else {
+      if (success) {
         history.push("/dashboard");
       }
+    }
   };
 
   const getDetailVerifikasi = async () => {
