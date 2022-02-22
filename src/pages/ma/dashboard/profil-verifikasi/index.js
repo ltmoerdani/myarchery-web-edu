@@ -43,7 +43,7 @@ function PageProfileVerifikasiHome() {
     if (dataUpdate?.ktp) {
       // if (dataUpdate?.kk) {
       if (display?.ktp?.size <= 2000000) {
-        const result = await ArcherService.updateVerifikasi(
+        const {message, errors} = await ArcherService.updateVerifikasi(
           {
             nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
             // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
@@ -59,10 +59,10 @@ function PageProfileVerifikasiHome() {
           },
           { user_id: userProfile?.id }
         );
-        if (result?.message == "Failed") {
+        if (message == "Failed") {
           console.log(message);
           console.log(errors);
-          const err = Object.keys(result?.errors).map((err) => err);
+          const err = Object.keys(errors).map((err) => err);
           if (
             err[0] == "cityId" ||
             err[1] == "cityId" ||
@@ -79,7 +79,8 @@ function PageProfileVerifikasiHome() {
             err[3] == "nik" ||
             err[4] == "nik"
           ) {
-            toastr.error("NIK belum diisi");
+            console.log([0])
+            toastr.error("NIK belum diisi/NIK sudah digunakan");
           }
           if (
             err[2] == "provinceId" ||
