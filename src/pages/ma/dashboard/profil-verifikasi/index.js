@@ -79,7 +79,6 @@ function PageProfileVerifikasiHome() {
             err[3] == "nik" ||
             err[4] == "nik"
           ) {
-            console.log([0])
             toastr.error("NIK belum diisi/NIK sudah digunakan");
           }
           if (
