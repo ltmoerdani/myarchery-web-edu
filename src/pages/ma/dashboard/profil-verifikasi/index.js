@@ -39,10 +39,10 @@ function PageProfileVerifikasiHome() {
   const [cityOptions, setCityOptions] = React.useState([]);
 
   const hanleSubmitData = async () => {
-    if(display?.ktp?.size <= 2000000){
     // if (dataUpdate?.ktp) {
-      if (dataUpdate?.ktp) {
-        // if (dataUpdate?.kk) {
+    if (dataUpdate?.ktp) {
+      // if (dataUpdate?.kk) {
+      if (display?.ktp?.size <= 2000000) {
         const result = await ArcherService.updateVerifikasi(
           {
             nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
@@ -111,96 +111,90 @@ function PageProfileVerifikasiHome() {
         } else {
           // const errors = errorsUtil.interpretServerErrors(result)
           history.push("/dashboard");
-
         }
         // }else {
         //   toastr.error("Foto Selfie dengan KTP/KK belum diisi")
         // }
       } else {
-        toastr.error("Foto KTP/KK belum diisi");
+        toastr.error("Ukuran KTP/KK tidak boleh lebih dari 2MB");
       }
+    } else {
+      toastr.error("Foto KTP/KK belum diisi");
+    }
     // } else {
     //   toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi");
     // }
-  } else {
-    toastr.error("Ukuran KTP/KK tidak boleh lebih dari 2MB")
-  }
   };
 
   const hanleSubmitDataUpdate = async () => {
-    if(display?.ktp?.size <= 2000000){
-
-    const result = await ArcherService.updateVerifikasi(
-      {
-        nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-        // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
-        ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
-        provinceId: dataUpdate?.addressProvince
-          ? dataUpdate?.addressProvince?.value
-          : userProfile?.addressProvince?.id,
-        cityId: dataUpdate?.addressCity
-          ? dataUpdate?.addressCity?.value
-          : userProfile?.addressCity?.id,
-        address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
-        name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
-      },
-      { user_id: userProfile?.id }
-    );
-    if (result?.message == "Failed") {
-      console.log(message);
-      console.log(errors);
-      const err = Object.keys(result?.errors).map((err) => err);
-      if (
-        err[0] == "cityId" ||
-        err[1] == "cityId" ||
-        err[2] == "cityId" ||
-        err[3] == "cityId" ||
-        err[4] == "cityId"
-      ) {
-        toastr.error("Kota belum diisi");
+      const result = await ArcherService.updateVerifikasi(
+        {
+          nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
+          // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
+          ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
+          provinceId: dataUpdate?.addressProvince
+            ? dataUpdate?.addressProvince?.value
+            : userProfile?.addressProvince?.id,
+          cityId: dataUpdate?.addressCity
+            ? dataUpdate?.addressCity?.value
+            : userProfile?.addressCity?.id,
+          address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
+          name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
+        },
+        { user_id: userProfile?.id }
+      );
+      if (result?.message == "Failed") {
+        console.log(message);
+        console.log(errors);
+        const err = Object.keys(result?.errors).map((err) => err);
+        if (
+          err[0] == "cityId" ||
+          err[1] == "cityId" ||
+          err[2] == "cityId" ||
+          err[3] == "cityId" ||
+          err[4] == "cityId"
+        ) {
+          toastr.error("Kota belum diisi");
+        }
+        if (
+          err[1] == "nik" ||
+          err[0] == "nik" ||
+          err[2] == "nik" ||
+          err[3] == "nik" ||
+          err[4] == "nik"
+        ) {
+          toastr.error("NIK belum diisi");
+        }
+        if (
+          err[2] == "provinceId" ||
+          err[1] == "provinceId" ||
+          err[0] == "provinceId" ||
+          err[3] == "provinceId" ||
+          err[4] == "provinceId"
+        ) {
+          toastr.error("Provinsi/Wilayah belum diisi");
+        }
+        if (
+          err[0] == "address" ||
+          err[1] == "address" ||
+          err[2] == "address" ||
+          err[3] == "address" ||
+          err[4] == "address"
+        ) {
+          toastr.error("Alamat belum diisi");
+        }
+        if (
+          err[0] == "name" ||
+          err[1] == "name" ||
+          err[2] == "name" ||
+          err[3] == "name" ||
+          err[4] == "name"
+        ) {
+          toastr.error("Nama belum diisi");
+        }
+      } else {
+        history.push("/dashboard");
       }
-      if (
-        err[1] == "nik" ||
-        err[0] == "nik" ||
-        err[2] == "nik" ||
-        err[3] == "nik" ||
-        err[4] == "nik"
-      ) {
-        toastr.error("NIK belum diisi");
-      }
-      if (
-        err[2] == "provinceId" ||
-        err[1] == "provinceId" ||
-        err[0] == "provinceId" ||
-        err[3] == "provinceId" ||
-        err[4] == "provinceId"
-      ) {
-        toastr.error("Provinsi/Wilayah belum diisi");
-      }
-      if (
-        err[0] == "address" ||
-        err[1] == "address" ||
-        err[2] == "address" ||
-        err[3] == "address" ||
-        err[4] == "address"
-      ) {
-        toastr.error("Alamat belum diisi");
-      }
-      if (
-        err[0] == "name" ||
-        err[1] == "name" ||
-        err[2] == "name" ||
-        err[3] == "name" ||
-        err[4] == "name"
-      ) {
-        toastr.error("Nama belum diisi");
-      }
-    } else {
-      history.push("/dashboard");
-    }
-  } else {
-    toastr.error("Ukuran KTP/KK tidak boleh lebih dari 2MB")
-  }
   };
 
   const getDetailVerifikasi = async () => {
@@ -369,7 +363,9 @@ function PageProfileVerifikasiHome() {
 
           <div className="card-club-form">
             <div>
-              <p style={{color:"#fa402a"}}>{userProfile.verifyStatus == 2 ? "(!) "+userProfile.reasonRejected : ""}</p>
+              <p style={{ color: "#fa402a" }}>
+                {userProfile.verifyStatus == 2 ? "(!) " + userProfile.reasonRejected : ""}
+              </p>
               <div className="pb-3">
                 <span className="font-font-size-18" style={{ fontWeight: "600" }}>
                   Data Pribadi
