@@ -160,7 +160,10 @@ function PageScoreQualification() {
                         <th>Peringkat</th>
                         <th className="text-uppercase">Nama</th>
                         <th className="text-uppercase">Klub</th>
-                        <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
+                        <SessionCellsDataHeading
+                          key={selectedCategoryId}
+                          sessions={scorings?.[0]?.sessions}
+                        />
                         <th className="text-uppercase">Total</th>
                         <th className="text-uppercase">X</th>
                         <th className="text-uppercase">X+10</th>
@@ -168,7 +171,7 @@ function PageScoreQualification() {
                     </thead>
 
                     {scorings && (
-                      <tbody>
+                      <tbody key={selectedCategoryId}>
                         {scorings.map((scoring, index) => (
                           <tr key={scoring.member.id}>
                             <td>
