@@ -9,6 +9,8 @@ import * as AuthStore from "store/slice/authentication";
 import { ArcherService, ArcheryClubService } from "services";
 import { useHistory } from "react-router-dom";
 import { FieldSelect } from "./components";
+// import {errorsUtil} from "utils"
+// import {AlertSubmitError} from "components/ma"
 import "./components/sass/styles.scss";
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
@@ -39,10 +41,11 @@ function PageProfileVerifikasiHome() {
   const [cityOptions, setCityOptions] = React.useState([]);
 
   const hanleSubmitData = async () => {
+    if(display?.ktp?.size <= 2000000){
     // if (dataUpdate?.ktp) {
       if (dataUpdate?.ktp) {
         // if (dataUpdate?.kk) {
-        const { message, errors } = await ArcherService.updateVerifikasi(
+        const result = await ArcherService.updateVerifikasi(
           {
             nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
             // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
@@ -58,10 +61,10 @@ function PageProfileVerifikasiHome() {
           },
           { user_id: userProfile?.id }
         );
-        if (message == "Failed") {
+        if (result?.message == "Failed") {
           console.log(message);
           console.log(errors);
-          const err = Object.keys(errors).map((err) => err);
+          const err = Object.keys(result?.errors).map((err) => err);
           if (
             err[0] == "cityId" ||
             err[1] == "cityId" ||
@@ -108,7 +111,9 @@ function PageProfileVerifikasiHome() {
             toastr.error("Nama belum diisi");
           }
         } else {
+          // const errors = errorsUtil.interpretServerErrors(result)
           history.push("/dashboard");
+
         }
         // }else {
         //   toastr.error("Foto Selfie dengan KTP/KK belum diisi")
@@ -119,10 +124,15 @@ function PageProfileVerifikasiHome() {
     // } else {
     //   toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi");
     // }
+  } else {
+    toastr.error("Ukuran KTP/KK tidak boleh lebih dari 2MB")
+  }
   };
 
   const hanleSubmitDataUpdate = async () => {
-    const { message, errors } = await ArcherService.updateVerifikasi(
+    if(display?.ktp?.size <= 2000000){
+
+    const result = await ArcherService.updateVerifikasi(
       {
         nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
         // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
@@ -138,10 +148,10 @@ function PageProfileVerifikasiHome() {
       },
       { user_id: userProfile?.id }
     );
-    if (message == "Failed") {
+    if (result?.message == "Failed") {
       console.log(message);
       console.log(errors);
-      const err = Object.keys(errors).map((err) => err);
+      const err = Object.keys(result?.errors).map((err) => err);
       if (
         err[0] == "cityId" ||
         err[1] == "cityId" ||
@@ -190,6 +200,9 @@ function PageProfileVerifikasiHome() {
     } else {
       history.push("/dashboard");
     }
+  } else {
+    toastr.error("Ukuran KTP/KK tidak boleh lebih dari 2MB")
+  }
   };
 
   const getDetailVerifikasi = async () => {
@@ -328,9 +341,9 @@ function PageProfileVerifikasiHome() {
 
   const breadcrumpCurrentPageLabel = "Ajukan Data";
 
-  // console.log(display);
+  console.log(display);
   // console.log(dataUpdate);
-  console.log(userProfile);
+  // console.log(userProfile);
 
   if (userProfile?.verifyStatus == 1) {
     return (
