@@ -135,6 +135,9 @@ function PageProfileVerifikasiHome() {
   };
 
   const handleKTP = async (e) => {
+    if (!e.target.files?.[0]) {
+      return;
+    }
     const preview = URL.createObjectURL(e.target.files[0]);
     setDisplayImage({ ...displayImage, raw: e.target.files[0], priviewImgKTP: preview });
     const base64String = await filesUtil.imageToBase64(e.target.files[0]);
