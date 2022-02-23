@@ -118,6 +118,7 @@ function PageScoreQualification() {
                 </NavElimination>
 
                 <CategoryFilterChooser
+                  breakpoint="min-width: 1081px"
                   options={categoryOptions}
                   selected={categorySelected[currentTeamFilterName]}
                   onChange={(category) => {
@@ -131,133 +132,140 @@ function PageScoreQualification() {
                   <LabelCurrentCategory>
                     {categorySelected[currentTeamFilterName]?.label || "Pilih kategori"}
                   </LabelCurrentCategory>
-                  <SpaceButtonsGroup>
-                    {teamCategories?.map((filter, index) => (
-                      <ButtonTeamFilter
-                        key={filter}
-                        className={classnames({ "filter-selected": teamFilterSelected === index })}
-                        onClick={() => setTeamFilterSelected(index)}
-                      >
-                        {teamFilterLabels[filter]}
-                      </ButtonTeamFilter>
-                    ))}
-                  </SpaceButtonsGroup>
+
+                  <ScrollX>
+                    <SpaceButtonsGroup>
+                      {teamCategories?.map((filter, index) => (
+                        <ButtonTeamFilter
+                          key={filter}
+                          className={classnames({
+                            "filter-selected": teamFilterSelected === index,
+                          })}
+                          onClick={() => setTeamFilterSelected(index)}
+                        >
+                          {teamFilterLabels[filter]}
+                        </ButtonTeamFilter>
+                      ))}
+                    </SpaceButtonsGroup>
+                  </ScrollX>
                 </ListViewToolbar>
 
-                <SectionTableContainer>
-                  {!scorings || isLoadingScorings || !categorySelected[currentTeamFilterName] ? (
-                    <React.Fragment>
-                      <TableLoadingIndicator isLoading />
-                      <ScoringEmptyBar>Memuat data scoring...</ScoringEmptyBar>
-                    </React.Fragment>
-                  ) : (
-                    <TableScores>
-                      <thead>
-                        <tr>
-                          <th>Peringkat</th>
-                          {categorySelected[currentTeamFilterName].type === "individu" ? (
-                            <th className="text-uppercase">Nama</th>
-                          ) : (
-                            <th className="text-uppercase">Nama Tim</th>
-                          )}
-                          <th className="text-uppercase">Klub</th>
-                          <SessionCellsDataHeading
-                            key={selectedCategoryId}
-                            sessions={scorings?.[0]?.sessions}
-                          />
-                          <th className="text-uppercase">Total</th>
-                          <th className="text-uppercase">X</th>
-                          <th className="text-uppercase">X+10</th>
-                        </tr>
-                      </thead>
-
-                      {categorySelected[currentTeamFilterName].type === "individu" ? (
-                        <tbody key={selectedCategoryId}>
-                          {scorings.length > 0 ? (
-                            scorings.map(
-                              (scoring, index) =>
-                                scoring.member && (
-                                  <tr key={scoring.member.id}>
-                                    <td>
-                                      <DisplayRank>
-                                        <span>{index + 1}</span>
-                                      </DisplayRank>
-                                    </td>
-                                    <td>{scoring.member.name}</td>
-                                    <td>
-                                      {scoring.member.clubName || (
-                                        <React.Fragment>&ndash;</React.Fragment>
-                                      )}
-                                    </td>
-                                    <SessionCellsData sessions={scoring.sessions} />
-                                    <td>{scoring.total}</td>
-                                    <td>{scoring.totalX}</td>
-                                    <td>{scoring.totalXPlusTen}</td>
-                                  </tr>
-                                )
-                            )
-                          ) : (
-                            <tr>
-                              <td colSpan="6">
-                                <ScoringEmptyRow>
-                                  Belum ada data skor di kategori ini
-                                </ScoringEmptyRow>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      ) : categorySelected[currentTeamFilterName].type === "team" ? (
-                        <tbody key={selectedCategoryId}>
-                          {scorings.length > 0 ? (
-                            scorings.map((scoring, index) => (
-                              <tr key={scoring.participantId}>
-                                <td>
-                                  <DisplayRank>
-                                    <span>{index + 1}</span>
-                                  </DisplayRank>
-                                </td>
-                                <td>
-                                  <div>
-                                    <h6>{scoring.team}</h6>
-                                    {scoring.teams && (
-                                      <ol>
-                                        {scoring.teams.map((member) => (
-                                          <li key={member.id}>{member.name}</li>
-                                        ))}
-                                      </ol>
-                                    )}
-                                  </div>
-                                </td>
-                                <td>
-                                  {scoring.clubName || <React.Fragment>&ndash;</React.Fragment>}
-                                </td>
-                                <td>{scoring.total}</td>
-                                <td>{scoring.totalX}</td>
-                                <td>{scoring.totalXPlusTen}</td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td colSpan="6">
-                                <ScoringEmptyRow>
-                                  Belum ada data skor di kategori ini
-                                </ScoringEmptyRow>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      ) : (
-                        <tbody>
+                <ScrollX>
+                  <SectionTableContainer>
+                    {!scorings || isLoadingScorings || !categorySelected[currentTeamFilterName] ? (
+                      <React.Fragment>
+                        <TableLoadingIndicator isLoading />
+                        <ScoringEmptyBar>Memuat data scoring...</ScoringEmptyBar>
+                      </React.Fragment>
+                    ) : (
+                      <TableScores>
+                        <thead>
                           <tr>
-                            <td colSpan="6">
-                              <ScoringEmptyRow>unknown</ScoringEmptyRow>
-                            </td>
+                            <th>Peringkat</th>
+                            {categorySelected[currentTeamFilterName].type === "individu" ? (
+                              <th className="text-uppercase">Nama</th>
+                            ) : (
+                              <th className="text-uppercase">Nama Tim</th>
+                            )}
+                            <th className="text-uppercase">Klub</th>
+                            <SessionCellsDataHeading
+                              key={selectedCategoryId}
+                              sessions={scorings?.[0]?.sessions}
+                            />
+                            <th className="text-uppercase">Total</th>
+                            <th className="text-uppercase">X</th>
+                            <th className="text-uppercase">X+10</th>
                           </tr>
-                        </tbody>
-                      )}
-                    </TableScores>
-                  )}
-                </SectionTableContainer>
+                        </thead>
+
+                        {categorySelected[currentTeamFilterName].type === "individu" ? (
+                          <tbody key={selectedCategoryId}>
+                            {scorings.length > 0 ? (
+                              scorings.map(
+                                (scoring, index) =>
+                                  scoring.member && (
+                                    <tr key={scoring.member.id}>
+                                      <td>
+                                        <DisplayRank>
+                                          <span>{index + 1}</span>
+                                        </DisplayRank>
+                                      </td>
+                                      <td>{scoring.member.name}</td>
+                                      <td>
+                                        {scoring.member.clubName || (
+                                          <React.Fragment>&ndash;</React.Fragment>
+                                        )}
+                                      </td>
+                                      <SessionCellsData sessions={scoring.sessions} />
+                                      <td>{scoring.total}</td>
+                                      <td>{scoring.totalX}</td>
+                                      <td>{scoring.totalXPlusTen}</td>
+                                    </tr>
+                                  )
+                              )
+                            ) : (
+                              <tr>
+                                <td colSpan="6">
+                                  <ScoringEmptyRow>
+                                    Belum ada data skor di kategori ini
+                                  </ScoringEmptyRow>
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        ) : categorySelected[currentTeamFilterName].type === "team" ? (
+                          <tbody key={selectedCategoryId}>
+                            {scorings.length > 0 ? (
+                              scorings.map((scoring, index) => (
+                                <tr key={scoring.participantId}>
+                                  <td>
+                                    <DisplayRank>
+                                      <span>{index + 1}</span>
+                                    </DisplayRank>
+                                  </td>
+                                  <td>
+                                    <div>
+                                      <h6>{scoring.team}</h6>
+                                      {scoring.teams && (
+                                        <ol>
+                                          {scoring.teams.map((member) => (
+                                            <li key={member.id}>{member.name}</li>
+                                          ))}
+                                        </ol>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    {scoring.clubName || <React.Fragment>&ndash;</React.Fragment>}
+                                  </td>
+                                  <td>{scoring.total}</td>
+                                  <td>{scoring.totalX}</td>
+                                  <td>{scoring.totalXPlusTen}</td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan="6">
+                                  <ScoringEmptyRow>
+                                    Belum ada data skor di kategori ini
+                                  </ScoringEmptyRow>
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        ) : (
+                          <tbody>
+                            <tr>
+                              <td colSpan="6">
+                                <ScoringEmptyRow>unknown</ScoringEmptyRow>
+                              </td>
+                            </tr>
+                          </tbody>
+                        )}
+                      </TableScores>
+                    )}
+                  </SectionTableContainer>
+                </ScrollX>
               </div>
             </PanelWithStickSidebar>
           )
@@ -293,27 +301,54 @@ const MetaInfo = styled.div`
 `;
 
 const PanelWithStickSidebar = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-
-  > *:first-child {
-    flex: 1 0 16.25rem;
-    max-width: 16.25rem;
-    position: sticky;
-    top: calc(var(--ma-header-height) + 2.5rem);
+  > * + * {
+    margin-top: 1.5rem;
   }
 
-  > *:last-child {
-    flex: 16 0 18.75rem;
+  @media (min-width: 961px) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    > *:last-child {
+      flex: 16 0 18.75rem;
+    }
+
+    > * + * {
+      margin-top: 0;
+    }
   }
 `;
 
 const PanelSidebar = styled.div`
-  > * + * {
-    margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 1.5rem;
+
+  > *:first-child {
+    flex-basis: 240px;
+    flex-grow: 1;
+  }
+
+  > *:last-child {
+    flex-basis: 360px;
+    flex-grow: 10;
+  }
+
+  @media (min-width: 961px) {
+    display: block;
+    flex: 1 0 16.25rem;
+    max-width: 16.25rem;
+    position: sticky;
+    top: calc(var(--ma-header-height) + 2.5rem);
+
+    > * + * {
+      margin-top: 1.5rem;
+    }
   }
 `;
 
@@ -337,30 +372,45 @@ const ButtonNavToElimination = styled(ButtonLink)`
 `;
 
 const ListViewToolbar = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-
-  padding: 0.625rem 1.375rem;
+  padding: 0.5rem 0.5rem;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
   background-color: var(--ma-blue);
   color: #ffffff;
   text-transform: capitalize;
+
+  @media (min-width: 961px) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+
+    padding: 0.625rem 1.375rem;
+  }
 `;
 
 const LabelCurrentCategory = styled.div`
   font-weight: 600;
   font-size: 1.125em;
+  display: none;
+
+  @media (min-width: 1081px) {
+    display: block;
+  }
+`;
+
+const ScrollX = styled.div`
+  overflow-x: auto;
 `;
 
 const SpaceButtonsGroup = styled.div`
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
   gap: 0.5rem;
+
+  @media (min-width: 721px) {
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
 `;
 
 const ButtonTeamFilter = styled.button`
@@ -375,6 +425,7 @@ const ButtonTeamFilter = styled.button`
     font-size: 0.875em;
   }
 
+  white-space: nowrap;
   transition: border-color 0.1s, background-color 0.1s;
 
   &.filter-selected {
@@ -395,6 +446,9 @@ const TableScores = styled.table`
   th,
   td {
     cursor: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   thead > tr > th {
