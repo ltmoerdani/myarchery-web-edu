@@ -6,3 +6,4 @@ export * from "./alert-submit-error";
 export * from "./loading-spinner";
 export * from "./alert-submit-error";
 export * from "./alert-confirm-action";
+export * from "./alert-submit-success";

@@ -10,6 +10,7 @@ function AlertConfirmAction({
   onClose,
   labelCancel = "Batal",
   labelConfirm = "Konfirmasi",
+  reverseActions = false,
 }) {
   const [isAlertOpen, setAlertOpen] = React.useState(false);
 
@@ -42,11 +43,18 @@ function AlertConfirmAction({
         onConfirm={handleConfirm}
         customButtons={
           <span className="d-flex justify-content-center" style={{ gap: "0.5rem" }}>
-            <Button style={{ minWidth: 120 }} onClick={handleCancel}>
-              {labelCancel}
+            <Button
+              style={{ minWidth: 120 }}
+              onClick={reverseActions ? handleConfirm : handleCancel}
+            >
+              {reverseActions ? labelConfirm : labelCancel}
             </Button>
-            <ButtonBlue style={{ minWidth: 120 }} onClick={handleConfirm}>
-              {labelConfirm}
+
+            <ButtonBlue
+              style={{ minWidth: 120 }}
+              onClick={reverseActions ? handleCancel : handleConfirm}
+            >
+              {reverseActions ? labelCancel : labelConfirm}
             </ButtonBlue>
           </span>
         }
