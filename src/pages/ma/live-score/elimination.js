@@ -99,6 +99,7 @@ function PageScoreElimination() {
             <PanelWithStickySidebar>
               <PanelSidebar>
                 <CategoryFilterChooser
+                  breakpoint="min-width: 961px"
                   options={categoryOptions}
                   selected={categorySelected[currentTeamFilterName]}
                   onChange={(category) => {
@@ -113,21 +114,23 @@ function PageScoreElimination() {
                     {categorySelected[currentTeamFilterName]?.label || "Pilih kategori"}
                   </LabelCurrentCategory>
 
-                  <SpaceButtonsGroup>
-                    {teamCategories?.map((filter, index) => {
-                      return (
-                        <ButtonTeamFilter
-                          key={filter}
-                          className={classnames({
-                            "filter-selected": teamFilterSelected === index,
-                          })}
-                          onClick={() => setTeamFilterSelected(index)}
-                        >
-                          {getTabNameFromKey(filter)}
-                        </ButtonTeamFilter>
-                      );
-                    })}
-                  </SpaceButtonsGroup>
+                  <ScrollX>
+                    <SpaceButtonsGroup>
+                      {teamCategories?.map((filter, index) => {
+                        return (
+                          <ButtonTeamFilter
+                            key={filter}
+                            className={classnames({
+                              "filter-selected": teamFilterSelected === index,
+                            })}
+                            onClick={() => setTeamFilterSelected(index)}
+                          >
+                            {getTabNameFromKey(filter)}
+                          </ButtonTeamFilter>
+                        );
+                      })}
+                    </SpaceButtonsGroup>
+                  </ScrollX>
                 </ListViewToolbar>
 
                 <SectionTableContainer>
@@ -180,62 +183,106 @@ const MetaInfo = styled.div`
 `;
 
 const PanelWithStickySidebar = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-
-  > *:first-child {
-    flex: 1 0 16.25rem;
-    max-width: 16.25rem;
-    position: sticky;
-    top: calc(var(--ma-header-height) + 2.5rem);
+  > * + * {
+    margin-top: 1.5rem;
   }
 
-  > *:last-child {
-    flex: 16 0 18.75rem;
+  @media (min-width: 961px) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    > *:last-child {
+      flex: 16 0 18.75rem;
+    }
+
+    > * + * {
+      margin-top: 0;
+    }
   }
 `;
 
 const PanelSidebar = styled.div`
-  > * + * {
-    margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 1.5rem;
+
+  > *:first-child {
+    flex-basis: 240px;
+    flex-grow: 1;
+  }
+
+  > *:last-child {
+    flex-basis: 360px;
+    flex-grow: 10;
+  }
+
+  @media (min-width: 961px) {
+    display: block;
+    flex: 1 0 16.25rem;
+    max-width: 16.25rem;
+    position: sticky;
+    top: calc(var(--ma-header-height) + 2.5rem);
+
+    > * + * {
+      margin-top: 1.5rem;
+    }
   }
 `;
 
 const ListViewToolbar = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-
-  padding: 0.625rem 1.375rem;
+  padding: 0.75rem 0.75rem;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
   background-color: var(--ma-blue);
   color: #ffffff;
   text-transform: capitalize;
+
+  @media (min-width: 961px) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    padding: 0.625rem 1.375rem;
+  }
 `;
 
 const LabelCurrentCategory = styled.div`
   font-weight: 600;
   font-size: 1.125em;
+  display: none;
+
+  @media (min-width: 1081px) {
+    display: block;
+  }
+`;
+
+const ScrollX = styled.div`
+  overflow-x: auto;
 `;
 
 const SpaceButtonsGroup = styled.div`
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.75rem;
+
+  @media (min-width: 721px) {
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 `;
 
 const ButtonTeamFilter = styled.button`
   &,
   &:focus,
   &:active {
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem 1rem;
     border: solid 1px var(--ma-primary-blue-50);
     border-radius: 0.5rem;
     background-color: var(--ma-primary-blue-50);
@@ -243,6 +290,7 @@ const ButtonTeamFilter = styled.button`
     font-size: 0.875em;
   }
 
+  white-space: nowrap;
   transition: border-color 0.1s, background-color 0.1s;
 
   &.filter-selected {

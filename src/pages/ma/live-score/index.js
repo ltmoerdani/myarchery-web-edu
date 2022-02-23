@@ -372,7 +372,7 @@ const ButtonNavToElimination = styled(ButtonLink)`
 `;
 
 const ListViewToolbar = styled.div`
-  padding: 0.5rem 0.5rem;
+  padding: 0.75rem 0.75rem;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
   background-color: var(--ma-blue);
@@ -383,6 +383,7 @@ const ListViewToolbar = styled.div`
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: center;
     gap: 1rem;
 
     padding: 0.625rem 1.375rem;
@@ -405,11 +406,12 @@ const ScrollX = styled.div`
 
 const SpaceButtonsGroup = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 
   @media (min-width: 721px) {
     justify-content: flex-end;
     align-items: flex-start;
+    gap: 0.5rem;
   }
 `;
 
@@ -417,7 +419,7 @@ const ButtonTeamFilter = styled.button`
   &,
   &:focus,
   &:active {
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem 1rem;
     border: solid 1px var(--ma-primary-blue-50);
     border-radius: 0.5rem;
     background-color: var(--ma-primary-blue-50);
