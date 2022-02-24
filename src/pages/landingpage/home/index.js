@@ -104,6 +104,7 @@ function Home() {
       <MetaTags>
         <title>Home | MyArchery</title>
       </MetaTags>
+
       <Carousel
         showArrows={false}
         infiniteLoop
@@ -113,7 +114,10 @@ function Home() {
         interval={2000}
         showStatus={false}
       >
-        <div className="position-relative">
+        <div
+          className="position-relative"
+          style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
+        >
           <img src={banner_satu} />
           <div className="text-box">
             <span className="title-sub">
@@ -131,7 +135,11 @@ function Home() {
             </div>
           </div>
         </div>
-        <div className="position-relative">
+
+        <div
+          className="position-relative"
+          style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
+        >
           <img src={banner_dua_hero} />
           <div className="text-box">
             <span className="title-sub">
@@ -149,7 +157,11 @@ function Home() {
             </div>
           </div>
         </div>
-        <div className="position-relative">
+
+        <div
+          className="position-relative"
+          style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
+        >
           <img src={banner_tiga_hero} />
           <div className="text-box">
             <span className="title-sub">
@@ -168,6 +180,7 @@ function Home() {
           </div>
         </div>
       </Carousel>
+
       <div className="content-landing mt-0" id="list-event">
         <Container fluid>
           <div className="py-5 px-3">
