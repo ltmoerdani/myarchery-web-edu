@@ -33,11 +33,14 @@ function useFetcher() {
     }
   };
 
+  // Pertimbangkan, di reducer ada reset, tapi masih pakai state `attempts`
+  const reset = () => dispatch({ status: "idle", errors: null, data: null });
+
   const isLoading = status === "loading";
   const isSuccess = status === "success";
   const isError = status === "errors";
 
-  return { ...state, state, runAsync, isLoading, isSuccess, isError };
+  return { ...state, state, runAsync, reset, isLoading, isSuccess, isError };
 }
 
 export { useFetcher };

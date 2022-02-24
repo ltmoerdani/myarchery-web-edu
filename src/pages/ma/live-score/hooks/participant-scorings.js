@@ -4,7 +4,7 @@ import { EventQualificationService } from "services";
 
 const POLLING_INTERVAL = 10000;
 
-function useParticipantScorings(categoryDetailId) {
+function useParticipantScorings(categoryDetailId, teamType) {
   const fetcher = useFetcher();
 
   React.useEffect(() => {
@@ -13,15 +13,19 @@ function useParticipantScorings(categoryDetailId) {
     }
 
     const fetcherCallback = async () => {
-      return EventQualificationService.getParticipantScoring({
-        event_category_id: categoryDetailId,
-      });
+      const queryParams = { event_category_id: categoryDetailId };
+      return EventQualificationService.getParticipantScoring(queryParams);
     };
 
-    fetcher.runAsync(fetcherCallback);
+    const getData = () => {
+      const options = { transform: getDataTransformer(teamType) };
+      fetcher.runAsync(fetcherCallback, options);
+    };
+
+    getData();
 
     const scoringPollingTimer = setInterval(() => {
-      fetcher.runAsync(fetcherCallback);
+      getData();
     }, POLLING_INTERVAL);
 
     // clean up
@@ -29,6 +33,32 @@ function useParticipantScorings(categoryDetailId) {
   }, [categoryDetailId]);
 
   return fetcher;
+}
+
+function getDataTransformer(teamType) {
+  return (originalData) => {
+    if (!originalData) {
+      return [];
+    }
+
+    if (teamType === "individu") {
+      const checkMemberIds = new Set();
+      return originalData.filter((row) => {
+        return !checkMemberIds.has(row.member.id) && checkMemberIds.add(row.member.id);
+      });
+    }
+
+    if (teamType === "team") {
+      const checkParticipantIds = new Set();
+      return originalData.filter((row) => {
+        return (
+          !checkParticipantIds.has(row.participantId) && checkParticipantIds.add(row.participantId)
+        );
+      });
+    }
+
+    return originalData;
+  };
 }
 
 export { useParticipantScorings };
