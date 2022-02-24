@@ -12,7 +12,7 @@ import { SpinnerDotBlock } from "components/ma";
 import {
   LiveIndicator,
   CategoryFilterChooser,
-  TableLoadingIndicator,
+  FullPageLoadingIndicator,
   MatchBracket,
 } from "./components";
 
@@ -41,25 +41,15 @@ function PageScoreElimination() {
   );
 
   React.useEffect(() => {
-    if (!categoryOptions?.length) {
+    if (!categoryOptions?.length || categorySelected[currentTeamFilterName]) {
       return;
     }
     dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
   }, [currentTeamFilterName]);
 
-  const {
-    data: matchTemplate,
-    status: statusMatchTemplate,
-    refetch: refetchMatchTemplate,
-  } = useMatchTemplate(categorySelected?.[currentTeamFilterName]?.id);
-
-  React.useEffect(() => {
-    const timerRefetch = setInterval(() => {
-      refetchMatchTemplate();
-    }, 10000);
-
-    return () => clearInterval(timerRefetch);
-  }, []);
+  const { data: matchTemplate, status: statusMatchTemplate } = useMatchTemplate(
+    categorySelected?.[currentTeamFilterName]?.id
+  );
 
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
   const isLoadingEvent = eventStatus === "loading";
@@ -134,10 +124,10 @@ function PageScoreElimination() {
                 </ListViewToolbar>
 
                 <SectionTableContainer>
-                  <TableLoadingIndicator isLoading={isLoadingMatchTemplate} />
+                  <FullPageLoadingIndicator isLoading={isLoadingMatchTemplate} />
 
                   <MatchBracketContainer>
-                    {matchTemplate?.rounds && !matchTemplate.updated ? (
+                    {matchTemplate?.rounds ? (
                       <OverflowingBracketContent>
                         <MatchBracket matchTemplate={matchTemplate} />
                       </OverflowingBracketContent>
@@ -308,7 +298,7 @@ const SectionTableContainer = styled.div`
 `;
 
 const MatchBracketContainer = styled.div`
-  overflow: auto;
+  overflow-x: auto;
   min-height: 400px;
   background-color: #fbfbfb;
 `;
