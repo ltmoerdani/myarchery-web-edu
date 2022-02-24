@@ -43,7 +43,9 @@ function ForgotPassword() {
             className="position-absolute d-md-block d-none"
             style={{ zIndex: "1", width: "50%", height: "100vh" }}
           >
-            <img className="img-circle" src={login_background} />
+            <Link to="/">
+              <img className="img-circle" src={login_background} />
+            </Link>
           </div>
           <div className="circle-blue d-md-block d-none"></div>
           <div className="circle-yellow d-md-block d-none"></div>

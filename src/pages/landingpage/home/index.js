@@ -60,15 +60,11 @@ function Home() {
   }, []);
 
   const getEventListbyLimit = async () => {
-    const { message, errors, data } = await Landingpage.getEvent({
-      limit: 3,
-    });
+    const { data } = await Landingpage.getEvent({ limit: 3 });
     if (data) {
       setDataEventList(data);
       setLoading(true);
     }
-    console.log(message);
-    console.log(errors);
   };
 
   const getDateEvent = (number) => {
@@ -335,7 +331,7 @@ function Home() {
                 <span className="title-sub">jadi bagian</span>
                 <span className="title-hero">dari klub</span>
                 <div className="content">
-                  <span>Berkumpul dan mamantau kegiatan klub secara virtual lebih</span>
+                  <span>Berkumpul dan memantau kegiatan klub secara virtual lebih</span>
                   <br />
                   <span>mudah melalui MyArchery</span>
                 </div>
