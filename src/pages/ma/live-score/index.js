@@ -55,24 +55,11 @@ function PageScoreQualification() {
     dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
   }, [currentTeamFilterName]);
 
-  const {
-    data: scorings,
-    status: scoringsStatus,
-    refetch: refetchScorings,
-  } = useParticipantScorings(categorySelected[currentTeamFilterName]?.id);
+  const { data: scorings, status: scoringsStatus } = useParticipantScorings(
+    categorySelected[currentTeamFilterName]?.id
+  );
 
   const selectedCategoryId = categorySelected[currentTeamFilterName]?.id;
-
-  React.useEffect(() => {
-    if (!selectedCategoryId) {
-      return;
-    }
-    const refetchTimer = setInterval(() => {
-      refetchScorings();
-    }, 10000);
-
-    return () => clearInterval(refetchTimer);
-  }, [selectedCategoryId]);
 
   const isLoadingEvent = eventStatus === "loading";
   const isLoadingCategory = categoryStatus === "loading";
