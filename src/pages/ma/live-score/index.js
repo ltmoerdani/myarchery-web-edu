@@ -291,6 +291,10 @@ const ButtonTeamFilter = styled.button`
     background-color: var(--ma-primary-blue-50);
     color: var(--ma-blue);
     font-size: 0.875em;
+
+    @media (min-width: 721px) {
+      padding: 0.5rem 0.75rem;
+    }
   }
 
   white-space: nowrap;
