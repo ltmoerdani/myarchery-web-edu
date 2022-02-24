@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import { useParticipantScorings } from "../../hooks/participant-scorings";
 
-import { SessionCellsDataHeading, SessionCellsData, TableLoadingIndicator } from "../index";
+import { SessionCellsDataHeading, SessionCellsData, FullPageLoadingIndicator } from "../index";
 
 function ScoringTable({ categoryDetail }) {
   const { data: scorings, isLoading } = useParticipantScorings(
@@ -13,6 +13,7 @@ function ScoringTable({ categoryDetail }) {
   if (!categoryDetail || !scorings) {
     return (
       <SectionTableContainer>
+        <FullPageLoadingIndicator isLoading={isLoading} />
         <ScoringEmptyBar>Memproses data scoring...</ScoringEmptyBar>
       </SectionTableContainer>
     );
@@ -21,7 +22,7 @@ function ScoringTable({ categoryDetail }) {
   if (categoryDetail.type === "individu") {
     return (
       <SectionTableContainer>
-        <TableLoadingIndicator isLoading={isLoading} />
+        <FullPageLoadingIndicator isLoading={isLoading} />
 
         <TableScores>
           <thead>
@@ -71,7 +72,7 @@ function ScoringTable({ categoryDetail }) {
   if (categoryDetail.type === "team") {
     return (
       <SectionTableContainer>
-        <TableLoadingIndicator isLoading={isLoading} />
+        <FullPageLoadingIndicator isLoading={isLoading} />
 
         <TableScores>
           <thead>
