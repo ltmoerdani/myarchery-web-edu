@@ -25,9 +25,11 @@ function FullPageLoadingIndicator({ isLoading, delay = DEFAULT_DELAY }) {
       setShowingLoading(true);
     }
 
-    setTimeout(() => {
+    const loadingTimer = setTimeout(() => {
       setShowingLoading(false);
     }, delay);
+
+    return () => clearTimeout(loadingTimer);
   }, [isLoading]);
 
   if (!isShowingLoading || !portalRef.current) {
