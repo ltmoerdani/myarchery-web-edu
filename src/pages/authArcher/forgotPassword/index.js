@@ -23,14 +23,12 @@ function ForgotPassword() {
 
   const handleValidSubmit = async (event, values) => {
     setEmail(values.email);
-    const { data, message, errors } = await ArcherService.forgotPassword(values);
+    const { data, message } = await ArcherService.forgotPassword(values);
     if (!data) {
-      // setMessage(message);
       setMessage(message);
       setFaild(true);
     }
     if (data) {
-      console.log(errors);
       setConfirm(true);
     }
   };
@@ -53,14 +51,15 @@ function ForgotPassword() {
             <Col md={5} sm={12} xs={12}></Col>
             <Col md={7} sm={12} xs={12}>
               <div className="mx-auto w-50" style={{ paddingTop: "25vh" }}>
-                <div className="text-center">
-                  <h2 style={{ color: "#0D47A1", fontSize: "32px", lineHeight: "38.4px" }}>
+                <div className="text-center mb-4">
+                  <h2 className="fw-bold" style={{ color: "var(--ma-blue)" }}>
                     Ubah Kata Sandi
                   </h2>
-                  <span style={{ fontSize: "20px", lineHeight: "28px" }}>
+                  <p className="fs-5">
                     Link reset kata sandi akan dikirimkan ke email di bawah ini
-                  </span>
+                  </p>
                 </div>
+
                 <AvForm
                   className="form-horizontal"
                   onValidSubmit={(e, v) => {
@@ -91,11 +90,10 @@ function ForgotPassword() {
 
                   <div className="mt-5 text-center">
                     <p>
-                      Batal Ubah?{" "}
+                      Batal ubah?{" "}
                       <Link to="/archer/login" className="fw-medium text-primary">
-                        {" "}
-                        Masuk di sini{" "}
-                      </Link>{" "}
+                        Masuk di sini
+                      </Link>
                     </p>
                   </div>
                 </AvForm>
