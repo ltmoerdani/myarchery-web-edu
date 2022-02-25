@@ -1,25 +1,34 @@
 import * as React from "react";
-import { useFetcher } from "hooks/fetcher";
+import { useFetcher } from "hooks/fetcher-alt";
 import { Elimination } from "services";
 
+const POLLING_INTERVAL = 10000;
+
 function useMatchTemplate(eventCategoryId) {
-  const getTemplate = () => {
-    return Elimination.getEventElimination({
-      match_type: 1,
-      event_category_id: eventCategoryId,
-      elimination_member_count: 16,
-    });
-  };
-  const matches = useFetcher(getTemplate, { shouldFetch: Boolean(eventCategoryId) });
+  const fetcher = useFetcher();
 
   React.useEffect(() => {
     if (!eventCategoryId) {
       return;
     }
-    matches.refetch();
+
+    const fetcherCallback = async () => {
+      return Elimination.getEventElimination({ event_category_id: eventCategoryId });
+    };
+
+    const getData = () => fetcher.runAsync(fetcherCallback);
+
+    getData();
+
+    const matchesPollingTimer = setInterval(() => {
+      getData();
+    }, POLLING_INTERVAL);
+
+    // clean up
+    return () => clearInterval(matchesPollingTimer);
   }, [eventCategoryId]);
 
-  return matches;
+  return fetcher;
 }
 
 export { useMatchTemplate };
