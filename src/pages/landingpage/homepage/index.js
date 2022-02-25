@@ -302,17 +302,23 @@ function LandingPage() {
                 date={`${eventData?.publicInformation?.eventEndRegister}`}
                 renderer={HandlerCountDown}
               />
-              <ButtonBlue
-                as={Link}
-                to={`${
-                  !isLoggedIn
-                    ? `/archer/login?path=/event-registration/${slug}`
-                    : `/event-registration/${slug}`
-                }`}
-                style={{ width: "100%" }}
-              >
-                Daftar
-              </ButtonBlue>
+              { eventData.closedRegister ?
+                <Button disabled style={{ width: 120 }}>
+                  Tutup
+                </Button>
+                :
+                <ButtonBlue
+                  as={Link}
+                  to={`${
+                    !isLoggedIn
+                      ? `/archer/login?path=/event-registration/${slug}`
+                      : `/event-registration/${slug}`
+                  }`}
+                  style={{ width: "100%" }}
+                >
+                  Daftar
+                </ButtonBlue>
+              }
             </div>
 
             <div className="mt-4">
@@ -350,6 +356,7 @@ function LandingPage() {
           <WizardView currentStep={currentStep}>
             <WizardViewContent>
               <EventCategoryGrid
+                eventData={eventData}
                 isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]}
@@ -357,6 +364,7 @@ function LandingPage() {
             </WizardViewContent>
             <WizardViewContent>
               <EventCategoryGrid
+                eventData={eventData}
                 isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]}
@@ -364,6 +372,7 @@ function LandingPage() {
             </WizardViewContent>
             <WizardViewContent>
               <EventCategoryGrid
+                eventData={eventData}
                 isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]}
@@ -371,6 +380,7 @@ function LandingPage() {
             </WizardViewContent>
             <WizardViewContent>
               <EventCategoryGrid
+                eventData={eventData}
                 isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]}
@@ -378,6 +388,7 @@ function LandingPage() {
             </WizardViewContent>
             <WizardViewContent>
               <EventCategoryGrid
+                eventData={eventData}
                 isLoggedIn={isLoggedIn}
                 slug={slug}
                 categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]}
@@ -457,7 +468,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
 //   );
 // }
 
-function EventCategoryGrid({ categories, slug, isLoggedIn }) {
+function EventCategoryGrid({eventData, categories, slug, isLoggedIn }) {
   console.log(categories);
   return (
     <div className="event-category-grid">
@@ -472,7 +483,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
               </span>
             </div>
             <div>
-              {category.quota - category.totalParticipant > 0 && category?.isOpen ? (
+              {eventData.closedRegister == false && category.quota - category.totalParticipant > 0 && category?.isOpen ? (
                 <ButtonBlue
                   as={Link}
                   to={`${
@@ -487,7 +498,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
                 </ButtonBlue>
               ) : (
                 <Button disabled style={{ width: 120 }}>
-                  {!category.isOpen ? "Daftar" : "Full"}
+                  {!category.isOpen ? "Belum Buka" : eventData.closedRegister ? "Tutup" : "Full"}
                 </Button>
               )}
             </div>
