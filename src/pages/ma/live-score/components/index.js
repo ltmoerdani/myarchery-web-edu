@@ -3,3 +3,4 @@ export * from "./icon-live-dot";
 export * from "./rank-indicator";
 export * from "./sessions-cells-data";
 export * from "./table-loading-indicator";
+export * from "./match-bracket-elimination";

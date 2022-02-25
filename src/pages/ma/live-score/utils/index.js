@@ -2,7 +2,11 @@ function makeCategoryOptions(data) {
   if (!data) {
     return [];
   }
-  return data.map((option) => ({ id: option.id, label: option.categoryLabel }));
+  return data.map((option) => ({
+    id: option.id,
+    label: option.categoryLabel,
+    type: option.type,
+  }));
 }
 
 function getLandingPagePath(url) {
@@ -17,4 +21,21 @@ function getLandingPagePath(url) {
   return path;
 }
 
-export { makeCategoryOptions, getLandingPagePath };
+function getTabNameFromKey(filterKeyName) {
+  const label = {
+    "individu male": "Individu Putra",
+    "individu female": "Individu Putri",
+    maleTeam: "Beregu Putra",
+    femaleTeam: "Beregu Putri",
+    mixTeam: "Beregu Campuran",
+  };
+  return label[filterKeyName];
+}
+
+function getQualificationScorePageUrl(pathname) {
+  const segments = pathname.split("/");
+  segments[segments.length - 1] = "qualification";
+  return segments.join("/");
+}
+
+export { makeCategoryOptions, getLandingPagePath, getTabNameFromKey, getQualificationScorePageUrl };
