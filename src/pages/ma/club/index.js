@@ -154,7 +154,7 @@ function PageProfile() {
     if (isLoadingMembers || !membersLoaderDOM.current || isLastPage) {
       return;
     }
-    const option = { root: null, rootMargin: "-40px", threshold: 1 };
+    const option = { root: null, rootMargin: "0px", threshold: 1.0 };
     const handleOnOverlapping = (entries) => {
       const target = entries[0];
       if (target.isIntersecting) {
