@@ -66,12 +66,12 @@ function LandingPage() {
   const [eventPerCategoryTeamPriceData, setEventPerCategoryTeamPriceData] = React.useState([]);
   const [category, setCategory] = React.useState({});
   const [loading, setLoading] = React.useState(false);
-  const [loadingCategory, setLoadingCategory] = React.useState(false)
+  const [loadingCategory, setLoadingCategory] = React.useState(false);
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
 
   const getDataEventDetail = async () => {
-    const { message, errors, data } = await EventsService.getDetailEvent({ slug });
+    const { data } = await EventsService.getDetailEvent({ slug });
     if (data) {
       setEventData(data);
       setLoading(true);
@@ -87,20 +87,14 @@ function LandingPage() {
       }
       setEventPerCategoryTeamPriceData(fees);
     }
-    console.log(message);
-    console.log(errors);
   };
 
   const getCategoryEvent = async (id) => {
-    const { message, errors, data } = await EventsService.getCategory({ event_id: id });
+    const { data } = await EventsService.getCategory({ event_id: id });
     if (data) {
       setCategory(data);
-      setLoadingCategory(true)
-      console.log(message);
-      console.log(errors);
+      setLoadingCategory(true);
     }
-    console.log(message);
-    console.log(errors);
   };
 
   React.useEffect(() => {
@@ -169,20 +163,12 @@ function LandingPage() {
   };
 
   if (!loading) {
-    return (
-      <React.Fragment>
-        {screenLoading()}
-      </React.Fragment>
-    );
+    return <React.Fragment>{screenLoading()}</React.Fragment>;
   }
 
   const handleLoadCategory = () => {
-    return(
-      <div>
-        {screenLoading()}
-      </div>
-    )
-  }
+    return <div>{screenLoading()}</div>;
+  };
 
   return (
     <PageWrapper>
@@ -209,13 +195,15 @@ function LandingPage() {
                 {eventData?.eventType}
               </span>
             </div>
-            <div>Oleh {`${eventData?.admins?.name}`} Club</div>
+            <div>Oleh {`${eventData?.admins?.name}`}</div>
 
             <div className="content-section mt-5">
               {/* Optional field */}
               <React.Fragment>
                 <h5 className="content-info-heading">Deskripsi</h5>
-                <p>{eventData?.publicInformation?.eventDescription}</p>
+                <DescriptionContent>
+                  {eventData?.publicInformation?.eventDescription}
+                </DescriptionContent>
               </React.Fragment>
               {/* Required fields */}
               <h5 className="content-info-heading">Waktu &amp; Tempat</h5>
@@ -248,7 +236,7 @@ function LandingPage() {
                   <div key={information.id}>
                     <h5 className="content-info-heading">{information?.title}</h5>
                     <div>
-                      <p>{information?.description}</p>
+                      <DescriptionContent>{information?.description}</DescriptionContent>
                     </div>
                   </div>
                 );
@@ -262,10 +250,6 @@ function LandingPage() {
                       <p>
                         <strong>{eventCategori.label}:</strong>
                         <br />
-                        {/* <span>
-                          {`${eventCategori?.ageCategoryId?.label} - ${eventCategori?.competitionCategoryId?.label} - ${eventCategori?.distanceId?.label}`}
-                        </span>
-                        <br /> */}
                         <span>
                           Tanggal Registrasi{" "}
                           {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
@@ -352,50 +336,47 @@ function LandingPage() {
             ))}
           </div>
 
-          {!loadingCategory ? handleLoadCategory() : (
-          <WizardView currentStep={currentStep}>
-            <WizardViewContent>
-              <EventCategoryGrid
-                eventData={eventData}
-                isLoggedIn={isLoggedIn}
-                slug={slug}
-                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]}
-              />
-            </WizardViewContent>
-            <WizardViewContent>
-              <EventCategoryGrid
-                eventData={eventData}
-                isLoggedIn={isLoggedIn}
-                slug={slug}
-                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]}
-              />
-            </WizardViewContent>
-            <WizardViewContent>
-              <EventCategoryGrid
-                eventData={eventData}
-                isLoggedIn={isLoggedIn}
-                slug={slug}
-                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]}
-              />
-            </WizardViewContent>
-            <WizardViewContent>
-              <EventCategoryGrid
-                eventData={eventData}
-                isLoggedIn={isLoggedIn}
-                slug={slug}
-                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]}
-              />
-            </WizardViewContent>
-            <WizardViewContent>
-              <EventCategoryGrid
-                eventData={eventData}
-                isLoggedIn={isLoggedIn}
-                slug={slug}
-                categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]}
-              />
-            </WizardViewContent>
-          </WizardView>
-            )}
+          {!loadingCategory ? (
+            handleLoadCategory()
+          ) : (
+            <WizardView currentStep={currentStep}>
+              <WizardViewContent>
+                <EventCategoryGrid
+                  isLoggedIn={isLoggedIn}
+                  slug={slug}
+                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]}
+                />
+              </WizardViewContent>
+              <WizardViewContent>
+                <EventCategoryGrid
+                  isLoggedIn={isLoggedIn}
+                  slug={slug}
+                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]}
+                />
+              </WizardViewContent>
+              <WizardViewContent>
+                <EventCategoryGrid
+                  isLoggedIn={isLoggedIn}
+                  slug={slug}
+                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]}
+                />
+              </WizardViewContent>
+              <WizardViewContent>
+                <EventCategoryGrid
+                  isLoggedIn={isLoggedIn}
+                  slug={slug}
+                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]}
+                />
+              </WizardViewContent>
+              <WizardViewContent>
+                <EventCategoryGrid
+                  isLoggedIn={isLoggedIn}
+                  slug={slug}
+                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]}
+                />
+              </WizardViewContent>
+            </WizardView>
+          )}
         </div>
       </Container>
     </PageWrapper>
@@ -403,7 +384,6 @@ function LandingPage() {
 }
 
 function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
-  // const { slug } = useParams();
   if (completed) {
     return (
       <div>
@@ -435,40 +415,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   );
 }
 
-// function CopywritingRegistrationFee({ eventData }) {
-//   const computeDisplayFee = () => {
-//     if (eventData.isFlatRegistrationFee) {
-//       return eventData.registrationFee;
-//     }
-//     const lowestFee = eventData.registrationFees?.sort(lowToHigh)[0].amount;
-//     return lowestFee;
-//   };
-
-//   if (!eventData.registrationFee && !eventData.registrationFees?.length) {
-//     return (
-//       <React.Fragment>
-//         Mulai dari Rp <span>&laquo;data harga tidak tersedia&raquo;</span>
-//       </React.Fragment>
-//     );
-//   }
-
-//   return (
-//     <React.Fragment>
-//       Mulai dari{" "}
-//       <CurrencyFormat
-//         displayType={"text"}
-//         value={computeDisplayFee()}
-//         prefix="Rp&nbsp;"
-//         thousandSeparator={"."}
-//         decimalSeparator={","}
-//         decimalScale={2}
-//         fixedDecimalScale
-//       />
-//     </React.Fragment>
-//   );
-// }
-
-function EventCategoryGrid({eventData, categories, slug, isLoggedIn }) {
+function EventCategoryGrid({ categories, slug, isLoggedIn }) {
   console.log(categories);
   return (
     <div className="event-category-grid">
@@ -479,7 +426,6 @@ function EventCategoryGrid({eventData, categories, slug, isLoggedIn }) {
             <div>
               <span className="category-quota-label">
                 Tersedia: {category.quota - category.totalParticipant}/{category.quota}
-                {/* {category.totalParticipant}&#47;{category.quota} */}
               </span>
             </div>
             <div>
@@ -702,14 +648,8 @@ const PageWrapper = styled.div`
   }
 `;
 
-// const lowToHigh = (feeA, feeB) => {
-//   if (feeA.amount === feeB.amount) {
-//     return 0;
-//   }
-//   if (feeA.amount < feeB.amount) {
-//     return -1;
-//   }
-//   return 1;
-// };
+const DescriptionContent = styled.p`
+  white-space: pre-wrap;
+`;
 
 export default LandingPage;

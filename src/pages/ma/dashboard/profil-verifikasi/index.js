@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import styled from "styled-components";
-import { DateInput, TextInput, TextareaInput } from "components";
+import { DateInput, TextInput, TextareaInput, LoadingScreen } from "components";
 import { useSelector } from "react-redux";
 import toastr from "toastr";
 import * as AuthStore from "store/slice/authentication";
@@ -12,266 +12,166 @@ import { FieldSelect } from "./components";
 import "./components/sass/styles.scss";
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
+import { AlertSubmitError, AlertSubmitSuccess, AlertConfirmAction } from "components/ma";
 import VerifikasiResume from "./components/VerifikasiResume";
 
-async function imageToBase64(imageFileRaw) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(imageFileRaw);
-    reader.onload = () => {
-      const baseURL = reader.result;
-      resolve(baseURL);
-    };
-  });
-}
+import { filesUtil, errorsUtil } from "utils";
 
 function PageProfileVerifikasiHome() {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
   const history = useHistory();
 
-  const [dataUpdate, setUpdateData] = useState({});
-  const [toggle, setToggle] = useState(userProfile?.gender);
-  const [display, setDisplay] = useState();
+  const [updateFormData, setUpdateFormData] = useState({});
+  const [gender, setGender] = useState(userProfile?.gender);
+  const [displayImage, setDisplayImage] = useState({ raw: null });
   const [isOpenKTP, setIsOpenKTP] = useState(false);
-  const [isOpenKK, setIsOpenKK] = useState(false);
   const [detailData, setDetailData] = useState({});
   const [provinceOptions, setProvinceOptions] = React.useState([]);
   const [cityOptions, setCityOptions] = React.useState([]);
+  const [formSubmit, dispatchFormSubmit] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    { status: "idle", errors: null }
+  );
+  const [isPromptCancelOpen, setPromptCancelOpen] = React.useState(false);
+
+  const breadcrumpCurrentPageLabel = "Ajukan Data";
+  const isUpdateFormClean = !Object.keys(updateFormData).length;
 
   const hanleSubmitData = async () => {
-    // if (dataUpdate?.ktp) {
-      if (dataUpdate?.ktp) {
-        // if (dataUpdate?.kk) {
-        const { message, errors } = await ArcherService.updateVerifikasi(
-          {
-            nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-            // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : null,
-            ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : null,
-            provinceId: dataUpdate?.addressProvince
-              ? dataUpdate?.addressProvince?.value
-              : userProfile?.addressProvince?.id,
-            cityId: dataUpdate?.addressCity
-              ? dataUpdate?.addressCity?.value
-              : userProfile?.addressCity?.id,
-            address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
-            name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
-          },
-          { user_id: userProfile?.id }
-        );
-        if (message == "Failed") {
-          console.log(message);
-          console.log(errors);
-          const err = Object.keys(errors).map((err) => err);
-          if (
-            err[0] == "cityId" ||
-            err[1] == "cityId" ||
-            err[2] == "cityId" ||
-            err[3] == "cityId" ||
-            err[4] == "cityId"
-          ) {
-            toastr.error("Kota belum diisi");
-          }
-          if (
-            err[1] == "nik" ||
-            err[0] == "nik" ||
-            err[2] == "nik" ||
-            err[3] == "nik" ||
-            err[4] == "nik"
-          ) {
-            toastr.error("NIK belum diisi");
-          }
-          if (
-            err[2] == "provinceId" ||
-            err[1] == "provinceId" ||
-            err[0] == "provinceId" ||
-            err[3] == "provinceId" ||
-            err[4] == "provinceId"
-          ) {
-            toastr.error("Provinsi/Wilayah belum diisi");
-          }
-          if (
-            err[0] == "address" ||
-            err[1] == "address" ||
-            err[2] == "address" ||
-            err[3] == "address" ||
-            err[4] == "address"
-          ) {
-            toastr.error("Alamat belum diisi");
-          }
-          if (
-            err[0] == "name" ||
-            err[1] == "name" ||
-            err[2] == "name" ||
-            err[3] == "name" ||
-            err[4] == "name"
-          ) {
-            toastr.error("Nama belum diisi");
-          }
-        } else {
-          history.push("/dashboard");
-        }
-        // }else {
-        //   toastr.error("Foto Selfie dengan KTP/KK belum diisi")
-        // }
-      } else {
-        toastr.error("Foto KTP/KK belum diisi");
-      }
-    // } else {
-    //   toastr.error("Foto KTP/KK dan Foto Selfie dengan KTP/KK belum diisi");
-    // }
+    if (!updateFormData?.ktp) {
+      toastr.error("Foto KTP/KK belum diisi");
+      return;
+    }
+
+    if (displayImage?.raw?.size > 2000000) {
+      toastr.error("Ukuran KTP/KK tidak boleh lebih dari 2MB");
+      return;
+    }
+
+    const payload = {
+      nik: updateFormData?.nik || detailData?.nik,
+      ktpKk: updateFormData?.ktp || null,
+      provinceId: updateFormData?.addressProvince?.value || userProfile?.addressProvince?.id,
+      cityId: updateFormData?.addressCity?.value || userProfile?.addressCity?.id,
+      address: updateFormData?.address || userProfile?.address,
+      name: updateFormData?.name || userProfile?.name,
+    };
+
+    dispatchFormSubmit({ status: "loading", errors: null });
+    const queryStrings = { user_id: userProfile?.id };
+    const result = await ArcherService.updateVerifikasi(payload, queryStrings);
+
+    if (result.success) {
+      dispatchFormSubmit({ status: "success" });
+    } else {
+      const errorsData = errorsUtil.interpretServerErrors(result);
+      dispatchFormSubmit({ status: "error", errors: errorsData });
+    }
   };
 
   const hanleSubmitDataUpdate = async () => {
-    const { message, errors } = await ArcherService.updateVerifikasi(
-      {
-        nik: dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik,
-        // selfieKtpKk: dataUpdate?.kk ? dataUpdate?.kk : "",
-        ktpKk: dataUpdate?.ktp ? dataUpdate?.ktp : "",
-        provinceId: dataUpdate?.addressProvince
-          ? dataUpdate?.addressProvince?.value
-          : userProfile?.addressProvince?.id,
-        cityId: dataUpdate?.addressCity
-          ? dataUpdate?.addressCity?.value
-          : userProfile?.addressCity?.id,
-        address: dataUpdate?.address ? dataUpdate?.address : userProfile?.address,
-        name: dataUpdate?.name ? dataUpdate?.name : userProfile?.name,
-      },
-      { user_id: userProfile?.id }
-    );
-    if (message == "Failed") {
-      console.log(message);
-      console.log(errors);
-      const err = Object.keys(errors).map((err) => err);
-      if (
-        err[0] == "cityId" ||
-        err[1] == "cityId" ||
-        err[2] == "cityId" ||
-        err[3] == "cityId" ||
-        err[4] == "cityId"
-      ) {
-        toastr.error("Kota belum diisi");
-      }
-      if (
-        err[1] == "nik" ||
-        err[0] == "nik" ||
-        err[2] == "nik" ||
-        err[3] == "nik" ||
-        err[4] == "nik"
-      ) {
-        toastr.error("NIK belum diisi");
-      }
-      if (
-        err[2] == "provinceId" ||
-        err[1] == "provinceId" ||
-        err[0] == "provinceId" ||
-        err[3] == "provinceId" ||
-        err[4] == "provinceId"
-      ) {
-        toastr.error("Provinsi/Wilayah belum diisi");
-      }
-      if (
-        err[0] == "address" ||
-        err[1] == "address" ||
-        err[2] == "address" ||
-        err[3] == "address" ||
-        err[4] == "address"
-      ) {
-        toastr.error("Alamat belum diisi");
-      }
-      if (
-        err[0] == "name" ||
-        err[1] == "name" ||
-        err[2] == "name" ||
-        err[3] == "name" ||
-        err[4] == "name"
-      ) {
-        toastr.error("Nama belum diisi");
-      }
-    } else {
-      history.push("/dashboard");
+    if (displayImage?.raw?.size > 2000000) {
+      toastr.error("Ukuran KTP/KK tidak boleh lebih dari 2MB");
+      return;
     }
-  };
 
-  const getDetailVerifikasi = async () => {
-    const { message, errors, data } = await ArcherService.getDetailVerifikasi({
+    if (updateFormData?.addressProvince?.value && !updateFormData?.addressCity?.value) {
+      toastr.error("Isi kota yang sesuai dengan provinsinya");
+      return;
+    }
+
+    const payload = {
+      nik: updateFormData?.nik || detailData?.nik,
+      ktpKk: updateFormData?.ktp || "",
+      provinceId: updateFormData?.addressProvince?.value || userProfile?.addressProvince?.id,
+      cityId: updateFormData?.addressCity?.value || userProfile?.addressCity?.id,
+      address: updateFormData?.address || userProfile?.address,
+      name: updateFormData?.name || userProfile?.name,
+    };
+
+    dispatchFormSubmit({ status: "loading", errors: null });
+    const result = await ArcherService.updateVerifikasi(payload, {
       user_id: userProfile?.id,
     });
-    if (data) {
-      setDetailData(data);
-      console.log(message);
-      console.log(errors);
+
+    if (result.success) {
+      dispatchFormSubmit({ status: "success" });
+    } else {
+      const errorsData = errorsUtil.interpretServerErrors(result);
+      dispatchFormSubmit({ status: "error", errors: errorsData });
     }
-    console.log(message);
-    console.log(errors);
   };
 
   React.useEffect(() => {
+    if (!userProfile) {
+      return;
+    }
+
+    const getDetailVerifikasi = async () => {
+      const { data } = await ArcherService.getDetailVerifikasi({ user_id: userProfile.id });
+      if (data) {
+        setDetailData(data);
+      }
+    };
+
     getDetailVerifikasi();
   }, [userProfile]);
 
   const handleInputName = (e) => {
-    const payload = { ...dataUpdate };
+    const payload = { ...updateFormData };
     payload[e.key] = e.value;
-    setUpdateData(payload);
+    setUpdateFormData(payload);
   };
   const handleInputDate = (e) => {
-    const payload = { ...dataUpdate };
+    const payload = { ...updateFormData };
     payload[e.key] = e.value;
-    setUpdateData(payload);
+    setUpdateFormData(payload);
   };
 
   const handleNIK = (e) => {
-    const payload = { ...dataUpdate };
+    const payload = { ...updateFormData };
     payload[e.target.name] = e.target.value;
-    setUpdateData(payload);
+    setUpdateFormData(payload);
   };
 
-  // eslint-disable-next-line no-unused-vars
   const handleKTP = async (e) => {
+    if (!e.target.files?.[0]) {
+      return;
+    }
     const preview = URL.createObjectURL(e.target.files[0]);
-    setDisplay({ ...display, ktp: e.target.files[0], priviewImgKTP: preview });
-    const base64String = await imageToBase64(e.target.files[0]);
-    setUpdateData({ ...dataUpdate, ktp: base64String });
+    setDisplayImage({ ...displayImage, raw: e.target.files[0], priviewImgKTP: preview });
+    const base64String = await filesUtil.imageToBase64(e.target.files[0]);
+    setUpdateFormData({ ...updateFormData, ktp: base64String });
   };
-
-  // const handleKK = async (e) => {
-  //   const preview = URL.createObjectURL(e.target.files[0]);
-  //   setDisplay({ ...display, kk: e.target.files[0], priviewImgKK: preview });
-  //   const base64String = await imageToBase64(e.target.files[0]);
-  //   setUpdateData({ ...dataUpdate, kk: base64String });
-  // };
 
   const handleInputProvince = (key, e) => {
-    const payload = { ...dataUpdate };
+    const payload = { ...updateFormData };
     payload[key] = e;
-    setUpdateData(payload);
+    setUpdateFormData(payload);
   };
 
   const handleInputCity = (key, e) => {
-    const payload = { ...dataUpdate };
-    payload[key] = e;
-    setUpdateData(payload);
+    const data = { ...updateFormData };
+    data[key] = e;
+    setUpdateFormData(data);
   };
 
   const handleRadio = (e) => {
-    setUpdateData({ ...dataUpdate, gender: e.target.value });
+    setUpdateFormData({ ...updateFormData, gender: e.target.value });
   };
 
   const toggleChange = (e) => {
-    setToggle(e.target.value ? e.target.value : userProfile?.gender);
+    setGender(e.target.value || userProfile?.gender);
   };
 
   const toggleIsOpenKTP = () => {
-    setIsOpenKTP(!isOpenKTP);
-  };
-  const toggleIsOpenKK = () => {
-    setIsOpenKK(!isOpenKK);
+    setIsOpenKTP((open) => !open);
   };
 
   const hanleAddress = (e) => {
-    const payload = { ...dataUpdate };
+    const payload = { ...updateFormData };
     payload[e.key] = e.value;
-    setUpdateData(payload);
+    setUpdateFormData(payload);
   };
 
   const valueProvincie = () => {
@@ -294,8 +194,6 @@ function PageProfileVerifikasiHome() {
           value: parseInt(province.id),
         }));
         setProvinceOptions(provinceOptions);
-      } else {
-        console.log(result.errors || "error getting provinces list");
       }
     };
 
@@ -303,14 +201,18 @@ function PageProfileVerifikasiHome() {
   }, []);
 
   React.useEffect(() => {
-    if (!dataUpdate?.addressProvince?.value) {
+    if (!updateFormData?.addressProvince?.value && !userProfile?.addressProvince?.id) {
       setCityOptions([]);
       return;
     }
 
+    // Paksa reset kota setiap provinsi diganti
+    // Biar gak mismatch kota sama provinsinya
+    updateFormData.addressCity && handleInputCity("addressCity", null);
+
     const fetchCityOptions = async () => {
       const result = await ArcheryClubService.getCities({
-        province_id: dataUpdate?.addressProvince.value,
+        province_id: updateFormData?.addressProvince?.value || userProfile?.addressProvince?.id,
       });
       if (result.success) {
         const cityOptions = result.data.map((city) => ({
@@ -318,19 +220,18 @@ function PageProfileVerifikasiHome() {
           value: parseInt(city.id),
         }));
         setCityOptions(cityOptions);
-      } else {
-        console.log(result.errors || "error getting cities list");
       }
     };
 
     fetchCityOptions();
-  }, [dataUpdate?.addressProvince]);
+  }, [userProfile, updateFormData?.addressProvince]);
 
-  const breadcrumpCurrentPageLabel = "Ajukan Data";
-
-  // console.log(display);
-  // console.log(dataUpdate);
-  console.log(userProfile);
+  const showTemporaryLoading = () => {
+    dispatchFormSubmit({ status: "loading" });
+    setTimeout(() => {
+      dispatchFormSubmit({ status: "idle" });
+    }, 2000);
+  };
 
   if (userProfile?.verifyStatus == 1) {
     return (
@@ -352,12 +253,13 @@ function PageProfileVerifikasiHome() {
           <title>Profil Archer Verifikasi | MyArchery.id</title>
         </MetaTags>
         <Container fluid>
-          <BreadcrumbDashboard to="/dashboard/profile">
-            {breadcrumpCurrentPageLabel}
-          </BreadcrumbDashboard>
+          <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
 
           <div className="card-club-form">
             <div>
+              <p style={{ color: "#fa402a" }}>
+                {userProfile.verifyStatus == 2 ? "(!) " + userProfile.reasonRejected : ""}
+              </p>
               <div className="pb-3">
                 <span className="font-font-size-18" style={{ fontWeight: "600" }}>
                   Data Pribadi
@@ -367,24 +269,20 @@ function PageProfileVerifikasiHome() {
                 <Col md={12}>
                   <TextInput
                     label="Nama Lengkap"
-                    value={dataUpdate?.name}
+                    value={updateFormData?.name}
                     defaultValue={userProfile?.name}
                     name="name"
                     onChange={(e) => handleInputName(e)}
-                    disabled={true}
+                    disabled
                   />
                   <div className="d-flex mt-4">
                     <div className="w-50">
                       <DateInput
-                        value={
-                          userProfile?.dateOfBirth
-                            ? userProfile?.dateOfBirth
-                            : dataUpdate?.date_of_birth
-                        }
+                        value={userProfile?.dateOfBirth || updateFormData?.date_of_birth}
                         name="date_of_birth"
                         onChange={(e) => handleInputDate(e)}
                         label="Tanggal Lahir"
-                        disabled={true}
+                        disabled
                       />
                     </div>
 
@@ -405,13 +303,14 @@ function PageProfileVerifikasiHome() {
                             handleRadio(e);
                             toggleChange(e);
                           }}
-                          checked={toggle == "male" ? true : false}
+                          checked={gender == "male" ? true : false}
                           className="form-check-Input"
                         />
                         <Label className="form-check-label" htmlFor="male">
                           Pria
                         </Label>
                       </div>
+
                       <div
                         className={`form-check form-radio-primary`}
                         style={{ display: "inline-block", marginRight: 10 }}
@@ -422,7 +321,7 @@ function PageProfileVerifikasiHome() {
                           name="gender"
                           value="female"
                           className="form-check-Input"
-                          checked={toggle == "female" ? true : false}
+                          checked={gender == "female" ? true : false}
                           onChange={(e) => {
                             handleRadio(e);
                             toggleChange(e);
@@ -440,7 +339,7 @@ function PageProfileVerifikasiHome() {
                       label="Alamat (Sesuai dengan KTP/KK)"
                       name="address"
                       defaultValue={userProfile?.address}
-                      value={dataUpdate?.address}
+                      value={updateFormData?.address}
                     />
                   </div>
                   <div className="mt-3">
@@ -449,7 +348,7 @@ function PageProfileVerifikasiHome() {
                     </div>
                     <div>
                       <Input
-                        value={dataUpdate?.nik ? dataUpdate?.nik : detailData?.nik}
+                        value={updateFormData?.nik || detailData?.nik || ""}
                         name="nik"
                         onChange={(e) => handleNIK(e)}
                         required
@@ -469,9 +368,7 @@ function PageProfileVerifikasiHome() {
                       placeholder="Pilih provinsi &#47; wilayah(Sesuai dengan KTP)"
                       required
                       options={provinceOptions}
-                      value={
-                        dataUpdate?.addressProvince ? dataUpdate?.addressProvince : valueProvincie()
-                      }
+                      value={updateFormData.addressProvince || valueProvincie()}
                       onChange={(value) => handleInputProvince("addressProvince", value)}
                     >
                       Provinsi&#47;Wilayah(Sesuai dengan KTP/KK)
@@ -482,12 +379,17 @@ function PageProfileVerifikasiHome() {
                     <FieldSelect
                       name="addressCity"
                       placeholder={
-                        dataUpdate.addressProvince ? "Pilih kota" : "Pilih provinsi terlebih dulu"
+                        updateFormData.addressProvince
+                          ? "Pilih kota"
+                          : "Pilih provinsi terlebih dulu"
                       }
                       required
                       options={cityOptions}
-                      disabled={!dataUpdate.addressProvince}
-                      value={dataUpdate?.addressCity ? dataUpdate?.addressCity : valueCity()}
+                      value={
+                        updateFormData.addressProvince
+                          ? updateFormData.addressCity || null
+                          : valueCity()
+                      }
                       onChange={(value) => handleInputCity("addressCity", value)}
                     >
                       Kota (Sesuai dengan KTP/KK)
@@ -504,17 +406,15 @@ function PageProfileVerifikasiHome() {
                           <div className="py-2">
                             {userProfile?.verifyStatus === 4 ? (
                               <span className="font-size-14" style={{ fontWeight: "500" }}>
-                                {display?.ktp ? display?.ktp?.name : "Unggah gambar png/jpg"}
+                                {displayImage?.raw?.name || "Unggah gambar png/jpg"}
                               </span>
                             ) : (
                               <span className="font-size-14" style={{ fontWeight: "500" }}>
-                                {display?.ktp
-                                  ? display?.ktp?.name
-                                  : "Klik lihat untuk memunculkan gambar"}
+                                {displayImage?.raw?.name || "Klik lihat untuk memunculkan gambar"}
                               </span>
                             )}
                           </div>
-                          {detailData?.ktpKk || display?.ktp ? (
+                          {detailData?.ktpKk || displayImage?.raw ? (
                             <div>
                               <Button
                                 onClick={toggleIsOpenKTP}
@@ -523,7 +423,8 @@ function PageProfileVerifikasiHome() {
                               >
                                 Lihat
                               </Button>
-                              <label className="custom-file-upload">
+
+                              <label className="custom-file-upload" onClick={showTemporaryLoading}>
                                 <input
                                   accept="image/*"
                                   onChange={(e) => handleKTP(e)}
@@ -535,7 +436,7 @@ function PageProfileVerifikasiHome() {
                             </div>
                           ) : (
                             <div>
-                              <label className="custom-file-upload">
+                              <label className="custom-file-upload" onClick={showTemporaryLoading}>
                                 <input
                                   accept="image/*"
                                   onChange={(e) => handleKTP(e)}
@@ -551,55 +452,9 @@ function PageProfileVerifikasiHome() {
                     </div>
                   </div>
 
-                  {/* <div className="mt-3">
-                    <div>
-                      <Label>Foto Selfie dengan KTP/KK</Label>
-                    </div>
-                    <div className="box-upload d-flex justify-content-center align-items-center">
-                      <div>
-                        <div className="d-block" style={{ textAlign: "center" }}>
-                          <div className="py-2">
-                            {userProfile?.verifyStatus === 4 ? (
-                              <span className="font-size-14" style={{ fontWeight: "500" }}>
-                                {display?.kk ? display?.kk?.name : "Unggah gambar png/jpg"}
-                              </span>
-                            ) : (
-                              <span className="font-size-14" style={{ fontWeight: "500" }}>
-                                {display?.kk
-                                  ? display?.kk?.name
-                                  : "Klik lihat untuk memunculkan gambar"}
-                              </span>
-                            )}
-                          </div>
-                          {detailData?.selfieKtpKk || display?.kk ? (
-                            <div>
-                              <Button
-                                onClick={toggleIsOpenKK}
-                                className="btn me-2"
-                                style={{ color: "#FFF", backgroundColor: '#0D47A1"' }}
-                              >
-                                Lihat
-                              </Button>
-                              <label className="custom-file-upload">
-                                <input accept="image/*" onChange={(e) => handleKK(e)} name="kk" type="file" />
-                                <span>Ubah</span>
-                              </label>
-                            </div>
-                          ) : (
-                            <div>
-                              <label className="custom-file-upload">
-                                <input accept="image/*" name="kk" onChange={(e) => handleKK(e)} type="file" />
-                                <span>Unggah</span>
-                              </label>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div> */}
-
                   <div className="mt-4">
                     <Button
+                      disabled={isUpdateFormClean}
                       onClick={() => {
                         if (userProfile?.verifyStatus == 3 || userProfile?.verifyStatus == 2) {
                           hanleSubmitDataUpdate();
@@ -612,10 +467,10 @@ function PageProfileVerifikasiHome() {
                     >
                       Simpan
                     </Button>
+
                     <Button
-                      onClick={() => {
-                        history.push("/dashboard");
-                      }}
+                      disabled={isUpdateFormClean}
+                      onClick={() => setPromptCancelOpen(true)}
                       className="btn float-end me-2"
                       style={{ color: "#0D47A1" }}
                     >
@@ -643,38 +498,8 @@ function PageProfileVerifikasiHome() {
               }}
             >
               <img
-                src={display?.priviewImgKTP ? display?.priviewImgKTP : detailData?.ktpKk}
-                alt={display?.ktp?.name}
-                style={{
-                  height: "50%",
-                  width: "auto",
-                  position: "absolute",
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%,-50%)",
-                }}
-              />
-            </div>
-          ) : null}
-        </div>
-        <div>
-          {isOpenKK ? (
-            <div
-              onClick={toggleIsOpenKK}
-              style={{
-                position: "fixed",
-                top: "0",
-                left: "0",
-                height: "100vh",
-                width: "100vw",
-                backgroundColor: "rgba(0,0,0,0.7)",
-                cursor: "pointer",
-                zIndex: "100",
-              }}
-            >
-              <img
-                src={display?.priviewImgKK ? display?.priviewImgKK : detailData?.selfieKtpKk}
-                alt={display?.kk?.name}
+                src={displayImage?.priviewImgKTP || detailData?.ktpKk}
+                alt={displayImage?.raw?.name}
                 style={{
                   height: "50%",
                   width: "auto",
@@ -688,6 +513,29 @@ function PageProfileVerifikasiHome() {
           ) : null}
         </div>
       </React.Fragment>
+
+      <LoadingScreen loading={formSubmit.status === "loading"} />
+      <AlertSubmitError isError={formSubmit.status === "error"} errors={formSubmit.errors} />
+      <AlertSubmitSuccess
+        isSuccess={formSubmit.status === "success"}
+        labelConfirm="Kembali ke dashboard"
+        onConfirm={() => {
+          history.push("/dashboard");
+        }}
+      >
+        Pengajuan verifikasi data berhasil disimpan
+      </AlertSubmitSuccess>
+
+      <AlertConfirmAction
+        shouldConfirm={isPromptCancelOpen}
+        onConfirm={() => history.push("/dashboard")}
+        onClose={() => setPromptCancelOpen(false)}
+        labelConfirm="Ke dashboard"
+        labelCancel="Lanjutkan mengisi"
+        reverseActions
+      >
+        Anda akan dibawa ke dashboard dan data yang terisi tidak akan disimpan jika batal.
+      </AlertConfirmAction>
     </ProfileWrapper>
   );
 }
