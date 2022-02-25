@@ -286,17 +286,23 @@ function LandingPage() {
                 date={`${eventData?.publicInformation?.eventEndRegister}`}
                 renderer={HandlerCountDown}
               />
-              <ButtonBlue
-                as={Link}
-                to={`${
-                  !isLoggedIn
-                    ? `/archer/login?path=/event-registration/${slug}`
-                    : `/event-registration/${slug}`
-                }`}
-                style={{ width: "100%" }}
-              >
-                Daftar
-              </ButtonBlue>
+              { eventData.closedRegister ?
+                <Button disabled style={{ width: 120 }}>
+                  Tutup
+                </Button>
+                :
+                <ButtonBlue
+                  as={Link}
+                  to={`${
+                    !isLoggedIn
+                      ? `/archer/login?path=/event-registration/${slug}`
+                      : `/event-registration/${slug}`
+                  }`}
+                  style={{ width: "100%" }}
+                >
+                  Daftar
+                </ButtonBlue>
+              }
             </div>
 
             <div className="mt-4">
@@ -423,7 +429,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
               </span>
             </div>
             <div>
-              {category.quota - category.totalParticipant > 0 && category?.isOpen ? (
+              {eventData.closedRegister == false && category.quota - category.totalParticipant > 0 && category?.isOpen ? (
                 <ButtonBlue
                   as={Link}
                   to={`${
@@ -438,7 +444,7 @@ function EventCategoryGrid({ categories, slug, isLoggedIn }) {
                 </ButtonBlue>
               ) : (
                 <Button disabled style={{ width: 120 }}>
-                  {!category.isOpen ? "Daftar" : "Full"}
+                  {!category.isOpen ? "Belum Buka" : eventData.closedRegister ? "Tutup" : "Full"}
                 </Button>
               )}
             </div>
