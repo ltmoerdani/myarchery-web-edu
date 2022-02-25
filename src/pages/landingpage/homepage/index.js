@@ -420,7 +420,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   );
 }
 
-function EventCategoryGrid({ categories, slug, isLoggedIn }) {
+function EventCategoryGrid({eventData ,categories, slug, isLoggedIn }) {
   console.log(categories);
   return (
     <div className="event-category-grid">
