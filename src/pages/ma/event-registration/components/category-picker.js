@@ -138,24 +138,26 @@ function PickerControl({
             <p>Silakan pilih salah satu kategori</p>
           </div>
 
-          <TeamFilterList>
-            {filters.map((filter) => (
-              <TeamFilterItem key={filter.value}>
-                <input
-                  type="radio"
-                  id={`filter-item-${filter.value}`}
-                  className="filter-item-radio"
-                  name={`filter-item`}
-                  value={filter?.value || ""}
-                  checked={selectedFilter === filter.value}
-                  onChange={() => setSelectedFilter(filter.value)}
-                />
-                <TeamFilterBadge htmlFor={`filter-item-${filter.value}`}>
-                  {filter.label}
-                </TeamFilterBadge>
-              </TeamFilterItem>
-            ))}
-          </TeamFilterList>
+          <ScrollX>
+            <TeamFilterList>
+              {filters.map((filter) => (
+                <TeamFilterItem key={filter.value}>
+                  <input
+                    type="radio"
+                    id={`filter-item-${filter.value}`}
+                    className="filter-item-radio"
+                    name={`filter-item`}
+                    value={filter?.value || ""}
+                    checked={selectedFilter === filter.value}
+                    onChange={() => setSelectedFilter(filter.value)}
+                  />
+                  <TeamFilterBadge htmlFor={`filter-item-${filter.value}`}>
+                    {filter.label}
+                  </TeamFilterBadge>
+                </TeamFilterItem>
+              ))}
+            </TeamFilterList>
+          </ScrollX>
 
           <CategoryGrid>
             {groupedCategories[selectedFilter].map((category) => {
@@ -172,7 +174,12 @@ function PickerControl({
                     name="categoryId"
                     value={category.id || ""}
                     checked={value?.id === category.id}
-                    onChange={() => handleSelectCategory(category)}
+                    onChange={() => {
+                      handleSelectCategory(category);
+                      setTimeout(() => {
+                        onClosed();
+                      }, 325);
+                    }}
                     disabled={shouldOptionDisabled || !categoryMatchesUser}
                   />
                   <CategoryItemLabel
@@ -232,6 +239,10 @@ const StyledBSModalBody = styled(ModalBody)`
   font-family: "Inter", sans-serif;
 `;
 
+const ScrollX = styled.div`
+  overflow-x: auto;
+`;
+
 const TeamFilterList = styled.ul`
   display: flex;
   gap: 0.5rem;
@@ -242,7 +253,6 @@ const TeamFilterList = styled.ul`
 const TeamFilterItem = styled.li`
   ${TeamFilterList} > & {
     position: relative;
-    overflow: hidden;
 
     .filter-item-radio {
       position: absolute;
@@ -259,6 +269,7 @@ const TeamFilterBadge = styled.label`
   border-radius: 2rem;
   border: solid 1px var(--ma-blue);
   color: var(--ma-blue);
+  text-align: center;
 
   .filter-item-radio:checked + & {
     background-color: var(--ma-blue);
