@@ -215,7 +215,9 @@ function LandingPage() {
               {/* Optional field */}
               <React.Fragment>
                 <h5 className="content-info-heading">Deskripsi</h5>
-                <p>{eventData?.publicInformation?.eventDescription}</p>
+                <DescriptionContent>
+                  {eventData?.publicInformation?.eventDescription}
+                </DescriptionContent>
               </React.Fragment>
               {/* Required fields */}
               <h5 className="content-info-heading">Waktu &amp; Tempat</h5>
@@ -248,7 +250,7 @@ function LandingPage() {
                   <div key={information.id}>
                     <h5 className="content-info-heading">{information?.title}</h5>
                     <div>
-                      <p>{information?.description}</p>
+                      <DescriptionContent>{information?.description}</DescriptionContent>
                     </div>
                   </div>
                 );
@@ -691,14 +693,8 @@ const PageWrapper = styled.div`
   }
 `;
 
-// const lowToHigh = (feeA, feeB) => {
-//   if (feeA.amount === feeB.amount) {
-//     return 0;
-//   }
-//   if (feeA.amount < feeB.amount) {
-//     return -1;
-//   }
-//   return 1;
-// };
+const DescriptionContent = styled.p`
+  white-space: pre-wrap;
+`;
 
 export default LandingPage;
