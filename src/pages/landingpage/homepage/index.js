@@ -342,6 +342,7 @@ function LandingPage() {
             <WizardView currentStep={currentStep}>
               <WizardViewContent>
                 <EventCategoryGrid
+                  eventData={eventData}
                   isLoggedIn={isLoggedIn}
                   slug={slug}
                   categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]}
@@ -349,6 +350,7 @@ function LandingPage() {
               </WizardViewContent>
               <WizardViewContent>
                 <EventCategoryGrid
+                  eventData={eventData}
                   isLoggedIn={isLoggedIn}
                   slug={slug}
                   categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]}
@@ -356,6 +358,7 @@ function LandingPage() {
               </WizardViewContent>
               <WizardViewContent>
                 <EventCategoryGrid
+                  eventData={eventData}
                   isLoggedIn={isLoggedIn}
                   slug={slug}
                   categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]}
@@ -363,6 +366,7 @@ function LandingPage() {
               </WizardViewContent>
               <WizardViewContent>
                 <EventCategoryGrid
+                  eventData={eventData}
                   isLoggedIn={isLoggedIn}
                   slug={slug}
                   categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]}
@@ -370,6 +374,7 @@ function LandingPage() {
               </WizardViewContent>
               <WizardViewContent>
                 <EventCategoryGrid
+                  eventData={eventData}
                   isLoggedIn={isLoggedIn}
                   slug={slug}
                   categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]}
