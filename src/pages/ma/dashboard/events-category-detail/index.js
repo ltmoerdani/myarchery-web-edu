@@ -41,7 +41,7 @@ function PageEventCategoryDetail() {
       <Container fluid>
         <BreadcrumbDashboard to={`/dashboard/events/${eventId}`}>
           <CapitalizedText>
-            {participantMembers?.eventCategoryDetail?.categoryLabel ||
+            {participantMembers?.eventCategoryDetail.categoryLabel ||
               event?.publicInformation?.eventName ||
               "Kategori Event"}
           </CapitalizedText>
