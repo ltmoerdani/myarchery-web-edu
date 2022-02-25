@@ -302,7 +302,7 @@ function LandingPage() {
                 date={`${eventData?.publicInformation?.eventEndRegister}`}
                 renderer={HandlerCountDown}
               />
-              { eventData.closedRegister ?
+              { eventData?.closedRegister ?
                 <Button disabled style={{ width: 120 }}>
                   Tutup
                 </Button>
@@ -483,7 +483,7 @@ function EventCategoryGrid({eventData, categories, slug, isLoggedIn }) {
               </span>
             </div>
             <div>
-              {eventData.closedRegister == false && category.quota - category.totalParticipant > 0 && category?.isOpen ? (
+              {eventData?.closedRegister == false && category.quota - category.totalParticipant > 0 && category?.isOpen ? (
                 <ButtonBlue
                   as={Link}
                   to={`${
@@ -498,7 +498,7 @@ function EventCategoryGrid({eventData, categories, slug, isLoggedIn }) {
                 </ButtonBlue>
               ) : (
                 <Button disabled style={{ width: 120 }}>
-                  {!category.isOpen ? "Belum Buka" : eventData.closedRegister ? "Tutup" : "Full"}
+                  {!category.isOpen ? "Belum Buka" : eventData?.closedRegister ? "Tutup" : "Full"}
                 </Button>
               )}
             </div>
