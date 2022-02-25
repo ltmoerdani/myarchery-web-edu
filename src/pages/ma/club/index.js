@@ -81,7 +81,10 @@ function PageProfile() {
   const computeFullAddress = () => {
     if (clubDetail) {
       const parts = [clubDetail.placeName, clubDetail.address, clubDetail.detailCity?.name];
-      return parts.filter((part) => Boolean(part)).join(", ");
+      return parts
+        .filter((part) => Boolean(part))
+        .join(", ")
+        .toLowerCase();
     }
     return "";
   };
@@ -202,78 +205,85 @@ function PageProfile() {
             </div>
 
             <div className="info-details">
-              <div className="float-end">
-                {!isLoggedIn ? (
-                  <ButtonBlue
-                    as={Link}
-                    to={{ pathname: "/archer/login", state: { from: location } }}
-                    className="button-wide"
-                  >
-                    Gabung Klub
-                  </ButtonBlue>
-                ) : (
-                  <React.Fragment>
-                    {clubDetail?.isJoin ? (
-                      clubDetail?.isAdmin ? (
-                        <ButtonBlue
-                          as={Link}
-                          to={`/dashboard/clubs/detail/${clubDetail?.id || clubId}`}
-                          className="button-wide"
-                        >
-                          Edit Klub
-                        </ButtonBlue>
+              <div className="info-head">
+                <div className="info-meta">
+                  <h3 className="info-name">{clubDetail?.name}</h3>
+                </div>
+
+                <div className="info-buttons-group">
+                  <div className="info-member-counts">
+                    <span className="info-member-counts-icon">
+                      <IconUsers />
+                    </span>
+                    {clubDetail?.totalMember} Anggota
+                  </div>
+
+                  {!isLoggedIn ? (
+                    <ButtonBlue
+                      as={Link}
+                      to={{ pathname: "/archer/login", state: { from: location } }}
+                      className="button-wide"
+                    >
+                      Gabung Klub
+                    </ButtonBlue>
+                  ) : (
+                    <React.Fragment>
+                      {clubDetail?.isJoin ? (
+                        clubDetail?.isAdmin ? (
+                          <ButtonBlue
+                            as={Link}
+                            to={`/dashboard/clubs/detail/${clubDetail?.id || clubId}`}
+                            className="button-wide"
+                          >
+                            Edit Klub
+                          </ButtonBlue>
+                        ) : (
+                          <React.Fragment>
+                            <ButtonBlue
+                              className="button-wide button-leave"
+                              onClick={handleClickLeave}
+                            >
+                              Keluar Klub
+                            </ButtonBlue>
+
+                            {clubDetail && (
+                              <AlertConfirmLeave
+                                show={shoulShowConfirmLeave}
+                                club={clubDetail}
+                                onCancel={handleCancelLeaveClub}
+                                onConfirm={handleAgreedLeaveClub}
+                              />
+                            )}
+                          </React.Fragment>
+                        )
                       ) : (
                         <React.Fragment>
-                          <ButtonBlue
-                            className="button-wide button-leave"
-                            onClick={handleClickLeave}
-                          >
-                            Keluar Klub
+                          <ButtonBlue className="button-wide" onClick={handleClickJoin}>
+                            Gabung Klub
                           </ButtonBlue>
 
                           {clubDetail && (
-                            <AlertConfirmLeave
-                              show={shoulShowConfirmLeave}
+                            <AlertConfirmJoin
+                              show={shoulShowConfirmJoin}
                               club={clubDetail}
-                              onCancel={handleCancelLeaveClub}
-                              onConfirm={handleAgreedLeaveClub}
+                              onCancel={handleCancelJoin}
+                              onConfirm={handleAgreedJoin}
                             />
                           )}
                         </React.Fragment>
-                      )
-                    ) : (
-                      <React.Fragment>
-                        <ButtonBlue className="button-wide" onClick={handleClickJoin}>
-                          Gabung Klub
-                        </ButtonBlue>
-
-                        {clubDetail && (
-                          <AlertConfirmJoin
-                            show={shoulShowConfirmJoin}
-                            club={clubDetail}
-                            onCancel={handleCancelJoin}
-                            onConfirm={handleAgreedJoin}
-                          />
-                        )}
-                      </React.Fragment>
-                    )}
-                  </React.Fragment>
-                )}
-              </div>
-
-              <div className="info-head">
-                <h3 className="info-name">{clubDetail?.name}</h3>
-                <div className="info-member-counts">
-                  <span className="info-member-counts-icon">
-                    <IconUsers />
-                  </span>
-                  {clubDetail?.totalMember} Anggota
+                      )}
+                    </React.Fragment>
+                  )}
                 </div>
               </div>
 
-              <p>{computeFullAddress()}</p>
+              <div className="info-body">
+                <p className="info-address">{computeFullAddress()}</p>
 
-              {clubDetail?.description && <p>{clubDetail.description}</p>}
+                {clubDetail?.description && (
+                  <DescriptionContent>{clubDetail.description}</DescriptionContent>
+                )}
+              </div>
 
               <LandingPageLinkPlaceholder url={landingPageFullURL} />
             </div>
@@ -285,14 +295,16 @@ function PageProfile() {
         <Container fluid>
           <h4 className="mb-4">Anggota</h4>
 
-          <div className="mb-5 d-flex justify-content-between">
+          <MemberToolbar className="mb-5">
             <SearchBox>
               <SearchBoxInput
                 className="search-box-input"
                 placeholder="Cari archer"
                 onChange={handleChangeSearchBox}
               />{" "}
-              <ButtonBlue onClick={handleClickSearchByName}>Cari</ButtonBlue>
+              <ButtonBlue className="button-wide" onClick={handleClickSearchByName}>
+                Cari
+              </ButtonBlue>
             </SearchBox>
 
             <FilterTabs className="filter-tabs">
@@ -300,7 +312,7 @@ function PageProfile() {
               <Button {...getTabItemProps("female")}>Perempuan</Button>
               <Button {...getTabItemProps("male")}>Laki-Laki</Button>
             </FilterTabs>
-          </div>
+          </MemberToolbar>
 
           <MemberGrid>
             {members?.length
@@ -334,14 +346,7 @@ function PageProfile() {
                   </MemberItem>
                 ))
               : !isLoadingMembers && (
-                  <MemberItem
-                    style={
-                      {
-                        // backgroundColor: "var(--ma-gray-50)",
-                        // border: "solid 1px var(--ma-gray-100)",
-                      }
-                    }
-                  >
+                  <MemberItem>
                     <div
                       style={{
                         display: "flex",
@@ -410,9 +415,13 @@ const ClubInfoBanner = styled.div`
 const ClubInfo = styled.div`
   position: relative;
   display: flex;
-  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 40px;
+  margin-bottom: 5rem;
 
   .info-photo-container {
+    flex-grow: 1;
     position: relative;
     left: 0;
     top: -60px;
@@ -433,19 +442,57 @@ const ClubInfo = styled.div`
 
   .info-details {
     flex-grow: 1;
-    flex-basis: 100%;
+    flex-basis: 40%;
     margin-top: 40px;
+
+    @media (max-width: 580px) {
+      margin-top: -2rem;
+    }
 
     .info-head {
       display: flex;
       align-items: baseline;
-      gap: 4rem;
+      flex-wrap: wrap;
+      gap: 0.5rem 6rem;
+      margin-bottom: 2.5rem;
 
-      .info-name {
-        font-weight: 600;
+      @media (max-width: 580px) {
+        margin-bottom: 4rem;
+      }
+
+      .info-meta {
+        flex-grow: 1;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+
+        @media (max-width: 580px) {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .info-name {
+          font-weight: 600;
+        }
+      }
+
+      .info-buttons-group {
+        flex-grow: 1;
+        flex-basis: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem 1rem;
+
+        @media (max-width: 580px) {
+          flex-direction: column;
+          align-items: center;
+        }
       }
 
       .info-member-counts {
+        flex-basis: auto;
         font-size: 18px;
         font-weight: 600;
 
@@ -456,11 +503,25 @@ const ClubInfo = styled.div`
         }
       }
     }
+
+    .info-body {
+      max-width: 520px;
+
+      .info-address {
+        margin-bottom: 2rem;
+        text-transform: capitalize !important;
+        font-weight: 600;
+      }
+    }
   }
 `;
 
 const AvatarClubDefaultLarge = styled(AvatarClubDefault)`
   font-size: 4rem;
+`;
+
+const DescriptionContent = styled.p`
+  white-space: pre-wrap;
 `;
 
 function LandingPageLinkPlaceholder({ url = "" }) {
@@ -479,6 +540,7 @@ function LandingPageLinkPlaceholder({ url = "" }) {
 }
 
 const StyledLandingPageLink = styled.div`
+  margin-top: 2rem;
   position: relative;
   width: 300px;
   cursor: pointer;
@@ -517,9 +579,16 @@ const SectionContent = styled.div`
   margin: 40px 0;
 `;
 
+const MemberToolbar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem 8rem;
+`;
+
 const MemberGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   column-gap: 1rem;
   row-gap: 2rem;
 `;
@@ -534,6 +603,12 @@ const MemberItem = styled.div`
       height: 100px;
       border-radius: 50%;
       background-color: var(--ma-gray-200);
+
+      .member-photo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
     }
   }
 
@@ -605,8 +680,16 @@ function AlertConfirmLeave({ show, club, onCancel, onConfirm }) {
 }
 
 const FilterTabs = styled.div`
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: auto;
   display: flex;
+  justify-content: flex-end;
   gap: 0.5rem;
+
+  @media (max-width: 778px) {
+    justify-content: flex-start;
+  }
 
   .button-filter {
     background-color: transparent;
@@ -634,13 +717,18 @@ const FilterTabs = styled.div`
 `;
 
 const SearchBox = styled.div`
+  flex-grow: 1;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.875rem;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+  }
 `;
 
 const SearchBoxInput = styled.input`
   padding: 0.47rem 0.75rem;
-  width: 400px;
+  width: 100%;
   border-radius: 4px;
   border: none;
   border: solid 1px var(--ma-gray-100);
