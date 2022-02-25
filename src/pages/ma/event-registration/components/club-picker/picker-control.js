@@ -137,7 +137,12 @@ function PickerControl({ toggle, onClosed, value = {}, onChange }) {
                     className="club-item-radio"
                     value={club.detail.id}
                     checked={club.detail.id === value?.detail.id}
-                    onChange={() => onChange?.(club)}
+                    onChange={() => {
+                      onChange?.(club);
+                      setTimeout(() => {
+                        onClosed();
+                      }, 325);
+                    }}
                     disabled={!club.isJoin}
                   />
                   <ClubItemBody
@@ -431,11 +436,12 @@ const ClubItemBodySkeleton = styled.div`
   gap: 1.5rem;
 
   ${StyledClubItemSkeleton} > & {
-    flex: 3 1 0%;
+    flex: 3 1 70%;
   }
 `;
 
 const MediaLogoSkeleton = styled.div`
+  flex-shrink: 0;
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -444,19 +450,19 @@ const MediaLogoSkeleton = styled.div`
 `;
 
 const ClubNameSkeleton = styled.h4`
-  width: 300px;
+  max-width: 300px;
   color: var(--ma-gray-200);
   background-color: var(--ma-gray-200);
 `;
 
 const AddressSkeleton = styled.div`
-  width: 300px;
+  max-width: 300px;
   color: var(--ma-gray-200);
   background-color: var(--ma-gray-200);
 `;
 
 const MemberCountsSkeleton = styled.span`
-  width: 300px;
+  max-width: 300px;
   background-color: var(--ma-gray-200);
   color: var(--ma-gray-200);
 `;
@@ -516,7 +522,7 @@ const ClubItemBody = styled.label`
   }
 
   ${ClubItem} > & {
-    flex: 3 1 0%;
+    flex: 3 1 70%;
   }
 `;
 
@@ -548,20 +554,27 @@ const MediaContent = styled.div`
 
   .club-info {
     display: flex;
-    gap: 5rem;
+    gap: 1rem 5rem;
+    flex-wrap: wrap;
   }
 `;
 
 const Address = styled.span`
   flex-basis: 50%;
+  flex-grow: 1;
   display: inline-block;
 `;
 
 const MemberCounts = styled.span`
   flex-basis: 50%;
+  flex-grow: 1;
   position: relative;
   display: inline-block;
   padding-left: 2.5rem;
+
+  @media (max-width: 520px) {
+    padding-left: 0;
+  }
 `;
 
 const BlueBullet = styled.span`
@@ -571,6 +584,10 @@ const BlueBullet = styled.span`
   display: inline-block;
   color: var(--ma-blue);
   font-size: 1.25rem;
+
+  @media (max-width: 520px) {
+    display: none;
+  }
 `;
 
 const ClubActionButtonsGroup = styled(ActionButtonsGroup)`
