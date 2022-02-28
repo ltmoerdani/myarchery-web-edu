@@ -6,7 +6,7 @@ import { OrderEventService } from "services";
 import MetaTags from "react-meta-tags";
 import CurrencyFormat from "react-currency-format";
 import { Container } from "reactstrap";
-import { ButtonBlue } from "components/ma";
+import { ButtonBlue, ButtonOutline, ButtonOutlineBlue, ButtonRed } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 
 import IconUsers from "components/ma/icons/mono/users";
@@ -20,6 +20,13 @@ function PageEventCategories() {
 
   const isLoadingEvents = categoriesState.status === "loading";
   const isErrorEvents = categoriesState.status === "error";
+
+  const setSerieCategory = async (memberId, categoryId, status) => {
+    const result = await OrderEventService.setSerieCategory({ member_id: memberId, category_id : categoryId, status });
+    if (result.success) {
+      window.location = "";
+    }
+  };
 
   return (
     <PageWrapper>
@@ -119,7 +126,44 @@ function PageEventCategories() {
                           </DetailItem>
                         </DetailCol>
                       </DetailBar>
-
+                      {
+                        eventCategory?.haveSeries == 1 ?
+                        <div>
+                          {eventCategory.canUpdateSeries == 1 && eventCategory.canJoinSeries == 1 && (eventCategory.joinSerieCategoryId == 0 || eventCategory.joinSerieCategoryId == eventCategory.id)?
+                              eventCategory.joinSerieCategoryId == eventCategory.id ?
+                                <ButtonRed
+                                onClick={()=>{setSerieCategory(eventCategory.detailParticipant.memberId,eventCategory.id,0)}}
+                                >
+                                  batalkan sebagai pemeringkatan series
+                                </ButtonRed>
+                                :
+                                <ButtonOutlineBlue
+                                onClick={()=>{setSerieCategory(eventCategory.detailParticipant.memberId,eventCategory.id,1)}}
+                                >
+                                  pilih sebagai pemeringkatan series 
+                                </ButtonOutlineBlue>
+                            :
+                            <ButtonOutline>
+                              {eventCategory.joinSerieCategoryId == eventCategory.id ? "pemeringkatan series dikuti" : "pilih sebagai pemeringkatan series" }
+                            </ButtonOutline>
+                          }
+                          <br></br>
+                          <label style={{color:"red"}}>
+                            {eventCategory.canJoinSeries != 1 ? "*domisili tidak memenuhi syarat untuk mengikuti pemeringkatan series" 
+                              : 
+                              eventCategory.canUpdateSeries != 1 ?
+                              "*penentuan kategori untuk series sudah ditutup"
+                              :
+                              eventCategory.joinSerieCategoryId != 0 && eventCategory.joinSerieCategoryId != eventCategory.id ?
+                              "*hanya bisa memilih 1 kategori untuk pemeringkatan"
+                              :
+                              ""
+                            }
+                          </label>
+                        </div>
+                        :
+                        null
+                      }
                       <ItemFooter>
                         <StatusList></StatusList>
 
