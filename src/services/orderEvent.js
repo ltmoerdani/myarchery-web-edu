@@ -16,6 +16,9 @@ export default {
   getEventsByAuthUser(qs = null) {
     return API.get("/app/v1/archery-event/my-event", qs);
   },
+  setSerieCategory(data = null, qs = null) {
+    return API.post("/app/v1/archery-series/join-archery-series", data, qs, true);
+  },
   getEventCategoriesByAuthUser(qs = null) {
     return API.get("/app/v1/archery-event/my-category-event", qs);
   },
