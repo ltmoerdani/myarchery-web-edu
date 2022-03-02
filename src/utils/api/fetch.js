@@ -13,6 +13,12 @@ export default function resource(endpoint, config) {
       if (response.status === 401) {
         store.dispatch(AuthenticationStore.logout());
       }
+      if (response.status === 503) {
+        if (window.location.pathname !== "/working/maintenance") {
+          window.location = "/working/maintenance";
+          return;
+        }
+      }
       return responseObject;
     })
     .catch((error) => {
