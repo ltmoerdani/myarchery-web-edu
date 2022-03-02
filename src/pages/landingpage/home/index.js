@@ -10,6 +10,8 @@ import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 import { Landingpage } from "services";
 
+import { ButtonBlue } from "components/ma";
+
 import banner_satu from "../../../assets/images/myachery/banner6 1.svg";
 import banner_dua_hero from "../../../assets/images/myachery/banner6 2.svg";
 import banner_tiga_hero from "../../../assets/images/myachery/banner6 3.svg";
@@ -98,6 +100,9 @@ function Home() {
 
   let numberEventOne = 0;
   let numberEventTwo = 1;
+
+  // TODO: masih hardcoded, ubah dinamis kalau series udah ready
+  const linkToJakartaSeriesLeaderboard = `/series/1/leaderboard`;
 
   return (
     <React.Fragment>
@@ -400,7 +405,9 @@ function Home() {
                           Rangkaian pertandingan panahan sebagai wadah atlet untuk mengumpulkan skor
                           dan menjadi pemain inti dalam pertandingan bertaraf nasional.{" "}
                         </p>
-                        <Button style={{ backgroundColor: "#0D47A1" }}>Lihat Series</Button>
+                        <ButtonBlue as={Link} to={linkToJakartaSeriesLeaderboard}>
+                          Leaderboard
+                        </ButtonBlue>
                       </div>
                     </div>
                     <div style={{ width: "70%" }} className="w-sm-100">

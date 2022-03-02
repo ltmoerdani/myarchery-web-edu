@@ -9,3 +9,4 @@ export { default as Elimination } from "./elimination";
 export { default as ArcheryClubService } from "./archery-club";
 export { default as Certificate } from "./certificate";
 export { default as Landingpage } from "./landingpage";
+export { default as SeriesService } from "./series";

@@ -36,7 +36,7 @@ function LatestEventsList() {
 
   React.useEffect(() => {
     const getEventOrders = async () => {
-      const { data, success } = await OrderEventService.getAll();
+      const { data, success } = await OrderEventService.getEventsByAuthUser();
       if (success) {
         const latestThreeOrders = data.slice(0, 3);
         setOrders(latestThreeOrders);

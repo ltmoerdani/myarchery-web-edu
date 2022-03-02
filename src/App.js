@@ -11,7 +11,13 @@ import {
   certificateRoutes,
 } from "./routes";
 
-import { dashboardRoutes, clubRoutes, eventRegistrationRoutes, liveScoreRoutes } from "./routes";
+import {
+  dashboardRoutes,
+  clubRoutes,
+  eventRegistrationRoutes,
+  liveScoreRoutes,
+  seriesRoutes,
+} from "./routes";
 import {
   LayoutDashboard,
   LayoutClub,
@@ -62,6 +68,17 @@ const App = () => {
           ))}
 
           {liveScoreRoutes.map((route, idx) => (
+            <AuthenticationArcherMiddleware
+              path={route.path}
+              layout={LayoutLiveScore}
+              component={route.component}
+              key={idx}
+              isAuthProtected={false}
+              exact
+            />
+          ))}
+
+          {seriesRoutes.map((route, idx) => (
             <AuthenticationArcherMiddleware
               path={route.path}
               layout={LayoutLiveScore}
