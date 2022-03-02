@@ -32,7 +32,8 @@ function TabPeserta({ eventState, participantMembersState }) {
   const isUserParticipant = participantMembers.participant.userId === userProfile.id;
 
   const dayBefore = subDays(parseISO(event.publicInformation.eventStart), 1);
-  const shouldAllowEdit = isBefore(new Date(), dayBefore);
+  // TODO: masih lepas syarat enable, kembalikan kapan-kapan...(?)
+  const shouldAllowEdit = true || isBefore(new Date(), dayBefore);
 
   return (
     <PanelContainer>
@@ -128,9 +129,9 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
   return (
     <React.Fragment>
       <EditToolbar>
-        <NoticeBar>
+        {/* <NoticeBar>
           Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
-        </NoticeBar>
+        </NoticeBar> */}
 
         {shouldAllowEdit &&
           (editMode.isOpen ? (
@@ -246,9 +247,9 @@ function ParticipantEditorTeam({
     <React.Fragment>
       {isUserParticipant && (
         <EditToolbar>
-          <NoticeBar>
+          {/* <NoticeBar>
             Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
-          </NoticeBar>
+          </NoticeBar> */}
 
           {shouldAllowEdit &&
             (editMode.isOpen ? (
@@ -364,6 +365,10 @@ const EditToolbar = styled.div`
   display: flex;
   align-items: center;
   gap: 1.5rem;
+
+  > *:first-child {
+    flex-grow: 1;
+  }
 `;
 
 const ToolbarActionButtons = styled.div`
@@ -419,6 +424,7 @@ const DisplayJumlahPeserta = styled.div`
   }
 `;
 
+// eslint-disable-next-line no-unused-vars
 function NoticeBar({ children }) {
   return (
     <StyledNoticeBar>
