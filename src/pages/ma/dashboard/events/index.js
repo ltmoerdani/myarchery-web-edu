@@ -57,7 +57,7 @@ function PageEventsHome() {
         ) : !events?.length ? (
           <div>Belum mengikuti event</div>
         ) : (
-          <div>
+          <EventsList>
             {events.map((event) => (
               <EventItem key={event.id}>
                 {event.publicInformation.eventBanner ? (
@@ -102,7 +102,7 @@ function PageEventsHome() {
                 </ItemContent>
               </EventItem>
             ))}
-          </div>
+          </EventsList>
         )}
       </Container>
     </PageWrapper>
@@ -112,6 +112,12 @@ function PageEventsHome() {
 const PageWrapper = styled.div`
   margin: 40px 0;
   font-family: "Inter";
+`;
+
+const EventsList = styled.div`
+  > * + * {
+    margin-top: 1rem;
+  }
 `;
 
 const EventItem = styled.div`
