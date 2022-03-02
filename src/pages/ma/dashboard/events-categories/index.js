@@ -22,7 +22,11 @@ function PageEventCategories() {
   const isErrorEvents = categoriesState.status === "error";
 
   const setSerieCategory = async (memberId, categoryId, status) => {
-    const result = await OrderEventService.setSerieCategory({ member_id: memberId, category_id : categoryId, status });
+    const result = await OrderEventService.setSerieCategory({
+      member_id: memberId,
+      category_id: categoryId,
+      status,
+    });
     if (result.success) {
       window.location = "";
     }
@@ -72,11 +76,7 @@ function PageEventCategories() {
                       </TeamTypeLabel>
                     )}
 
-                    <InvoiceNo>
-                      {eventCategory.detailParticipant.orderId || (
-                        <React.Fragment>Data ID transaksi/invoice (?)</React.Fragment>
-                      )}
-                    </InvoiceNo>
+                    <InvoiceNo>{eventCategory.detailParticipant.orderId || ""}</InvoiceNo>
                   </ItemHeader>
 
                   <ItemMediaObject>
@@ -126,44 +126,57 @@ function PageEventCategories() {
                           </DetailItem>
                         </DetailCol>
                       </DetailBar>
-                      {
-                        eventCategory?.haveSeries == 1 ?
+                      {eventCategory?.haveSeries == 1 ? (
                         <div>
-                          {eventCategory.canUpdateSeries == 1 && eventCategory.canJoinSeries == 1 && (eventCategory.joinSerieCategoryId == 0 || eventCategory.joinSerieCategoryId == eventCategory.id)?
-                              eventCategory.joinSerieCategoryId == eventCategory.id ?
-                                <ButtonRed
-                                onClick={()=>{setSerieCategory(eventCategory.detailParticipant.memberId,eventCategory.id,0)}}
-                                >
-                                  batalkan sebagai pemeringkatan series
-                                </ButtonRed>
-                                :
-                                <ButtonOutlineBlue
-                                onClick={()=>{setSerieCategory(eventCategory.detailParticipant.memberId,eventCategory.id,1)}}
-                                >
-                                  pilih sebagai pemeringkatan series 
-                                </ButtonOutlineBlue>
-                            :
+                          {eventCategory.canUpdateSeries == 1 &&
+                          eventCategory.canJoinSeries == 1 &&
+                          (eventCategory.joinSerieCategoryId == 0 ||
+                            eventCategory.joinSerieCategoryId == eventCategory.id) ? (
+                            eventCategory.joinSerieCategoryId == eventCategory.id ? (
+                              <ButtonRed
+                                onClick={() => {
+                                  setSerieCategory(
+                                    eventCategory.detailParticipant.memberId,
+                                    eventCategory.id,
+                                    0
+                                  );
+                                }}
+                              >
+                                batalkan sebagai pemeringkatan series
+                              </ButtonRed>
+                            ) : (
+                              <ButtonOutlineBlue
+                                onClick={() => {
+                                  setSerieCategory(
+                                    eventCategory.detailParticipant.memberId,
+                                    eventCategory.id,
+                                    1
+                                  );
+                                }}
+                              >
+                                pilih sebagai pemeringkatan series
+                              </ButtonOutlineBlue>
+                            )
+                          ) : (
                             <ButtonOutline>
-                              {eventCategory.joinSerieCategoryId == eventCategory.id ? "pemeringkatan series dikuti" : "pilih sebagai pemeringkatan series" }
+                              {eventCategory.joinSerieCategoryId == eventCategory.id
+                                ? "pemeringkatan series dikuti"
+                                : "pilih sebagai pemeringkatan series"}
                             </ButtonOutline>
-                          }
+                          )}
                           <br></br>
-                          <label style={{color:"red"}}>
-                            {eventCategory.canJoinSeries != 1 ? "*domisili tidak memenuhi syarat untuk mengikuti pemeringkatan series" 
-                              : 
-                              eventCategory.canUpdateSeries != 1 ?
-                              "*penentuan kategori untuk series sudah ditutup"
-                              :
-                              eventCategory.joinSerieCategoryId != 0 && eventCategory.joinSerieCategoryId != eventCategory.id ?
-                              "*hanya bisa memilih 1 kategori untuk pemeringkatan"
-                              :
-                              ""
-                            }
+                          <label style={{ color: "red" }}>
+                            {eventCategory.canJoinSeries != 1
+                              ? "*domisili tidak memenuhi syarat untuk mengikuti pemeringkatan series"
+                              : eventCategory.canUpdateSeries != 1
+                              ? "*penentuan kategori untuk series sudah ditutup"
+                              : eventCategory.joinSerieCategoryId != 0 &&
+                                eventCategory.joinSerieCategoryId != eventCategory.id
+                              ? "*hanya bisa memilih 1 kategori untuk pemeringkatan"
+                              : ""}
                           </label>
                         </div>
-                        :
-                        null
-                      }
+                      ) : null}
                       <ItemFooter>
                         <StatusList></StatusList>
 

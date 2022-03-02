@@ -53,17 +53,6 @@ function EventDateRange({ from, to }) {
   );
 }
 
-function EventCategory({ category }) {
-  return (
-    <InfoDisplayWrapper>
-      <span className="info-icon">
-        <Panah size={16} />
-      </span>
-      <span>{category || "Ketegori tidak tersedia"}</span>
-    </InfoDisplayWrapper>
-  );
-}
-
 const EventItemCardWrapper = styled.div`
   position: relative;
   display: flex;
@@ -111,9 +100,9 @@ const EventItemCardWrapper = styled.div`
   }
 `;
 
-function EventItemCard({ event: order }) {
-  const { archeryEvent, participant } = order;
-  const hrefToEventHome = participant?.id ? `/checkout-event/${participant.id}` : "#";
+function EventItemCard({ event: eventDetail }) {
+  const { publicInformation } = eventDetail;
+  const hrefToEventPage = `/dashboard/events/${eventDetail.id}`;
 
   return (
     <EventItemCardWrapper>
@@ -122,15 +111,13 @@ function EventItemCard({ event: order }) {
           <Panah size={28} color="#afafaf" />
         </div>
 
-        <h4 className="event-title">{archeryEvent.eventName}</h4>
-        <EventCity city={archeryEvent.city} />
-        <EventDateRange from={archeryEvent.eventStartDatetime} to={archeryEvent.eventEndDatetime} />
-        <EventCategory category={participant.categoryLabel} />
+        <h4 className="event-title">{publicInformation.eventName}</h4>
+        <EventCity city={publicInformation.eventCity.nameCity} />
+        <EventDateRange from={publicInformation.eventStart} to={publicInformation.eventEnd} />
       </div>
 
       <div className="event-footer">
-        {/* TODO: arahkan link ke url yang benar setelah siap */}
-        <Link className="event-link" to={"#" || hrefToEventHome}>
+        <Link className="event-link" to={hrefToEventPage}>
           <i className="bx bx-right-arrow-alt fs-3" style={{ color: "var(--ma-blue)" }} />
         </Link>
       </div>
