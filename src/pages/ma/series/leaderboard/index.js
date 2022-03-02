@@ -47,7 +47,7 @@ function PageSeriesLeaderboard() {
   return (
     <StyledPageWrapper>
       <MetaTags>
-        {series?.seriesName ? (
+        {series?.name ? (
           <title>Pemeringkatan Series - {series.name} | MyArchery.id</title>
         ) : (
           <title>Pemeringkatan Series | MyArchery.id</title>
@@ -55,7 +55,9 @@ function PageSeriesLeaderboard() {
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to="/home">Kembali</BreadcrumbDashboard>
+        <BreadcrumbDashboard to="/home">
+          {series?.name ? series.name : "Kembali"}
+        </BreadcrumbDashboard>
 
         <InnerContainer>
           <h2>Pemeringkatan Series</h2>
