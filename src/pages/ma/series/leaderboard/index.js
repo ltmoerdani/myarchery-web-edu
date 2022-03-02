@@ -1,13 +1,17 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { useSeries } from "../hooks/series";
+import { useSeriesCategories } from "./hooks/series-categories";
+import { useRankedMembers } from "./hooks/ranked-members";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
-import { AvatarDefault } from "components/ma";
+import { AvatarDefault, SpinnerDotBlock } from "components/ma";
 import { BreadcrumbDashboard } from "../../dashboard/components/breadcrumb";
-import { FieldSelect } from "../components/field-select";
+import { FieldSelect } from "./components/field-select";
+import { FullPageLoadingIndicator } from "./components/portal-loading";
+
+import { makeCategoryOptions } from "./utils";
 
 const teamCategoryOptions = [
   { label: "Individu Putra", value: "individu male" },
@@ -15,14 +19,36 @@ const teamCategoryOptions = [
 ];
 
 function PageSeriesLeaderboard() {
-  const { slug } = useParams();
-  const { data: series } = useSeries(slug);
+  const { series_id } = useParams();
+  const seriesId = parseInt(series_id);
+  const { data: seriesData } = useSeriesCategories(seriesId);
+  const { detailSeries: series, categorySeries: categories } = seriesData || {};
+
+  const [teamCategorySelected, setTeamCategorySelected] = React.useState(teamCategoryOptions[0]);
+
+  const categoryOptions = makeCategoryOptions(categories, teamCategorySelected);
+  const [categorySelected, setCategorySelected] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    {}
+  );
+
+  const { value: categoryId } = categorySelected[teamCategorySelected.value] || {};
+  const { data: rankedMembers, isLoading: isLoadingRankedMembers } = useRankedMembers(categoryId);
+
+  React.useEffect(() => {
+    if (!categories) {
+      return;
+    }
+
+    !categorySelected[teamCategorySelected.value] &&
+      setCategorySelected({ [teamCategorySelected.value]: categoryOptions[0] });
+  }, [categories, teamCategorySelected]);
 
   return (
     <StyledPageWrapper>
       <MetaTags>
         {series?.seriesName ? (
-          <title>Pemeringkatan Series - {series.seriesName} | MyArchery.id</title>
+          <title>Pemeringkatan Series - {series.name} | MyArchery.id</title>
         ) : (
           <title>Pemeringkatan Series | MyArchery.id</title>
         )}
@@ -34,42 +60,73 @@ function PageSeriesLeaderboard() {
         <InnerContainer>
           <h2>Pemeringkatan Series</h2>
 
-          <FiltersBar>
-            <div>
-              <FieldSelect options={teamCategoryOptions} value={teamCategoryOptions[0]} />
-            </div>
-            <div>
-              <FieldSelect />
-            </div>
-          </FiltersBar>
+          {categories ? (
+            <FiltersBar>
+              <div>
+                <FieldSelect
+                  options={teamCategoryOptions}
+                  value={teamCategorySelected}
+                  onChange={(option) => setTeamCategorySelected(option)}
+                />
+              </div>
+
+              <div>
+                <FieldSelect
+                  options={categoryOptions}
+                  value={categorySelected[teamCategorySelected.value]}
+                  onChange={(option) => {
+                    setCategorySelected({ [teamCategorySelected.value]: option });
+                  }}
+                />
+              </div>
+            </FiltersBar>
+          ) : (
+            <SpinnerDotBlock />
+          )}
 
           <div>
-            <RanksList>
-              {[1, 2, 3, 4, 5, 6].map((id, index) => (
-                <li key={id}>
-                  <RankItem>
-                    <BlockRankNo>{index + 1}</BlockRankNo>
+            {rankedMembers && (
+              <React.Fragment>
+                <FullPageLoadingIndicator isLoading={isLoadingRankedMembers} />
 
-                    <BlockMain>
-                      <BlockAvatar>
-                        <AvatarContainer>
-                          <AvatarDefault fullname="Nama archer panjangnya segini" />
-                        </AvatarContainer>
-                      </BlockAvatar>
+                {isLoadingRankedMembers ? (
+                  <EmptyRank>Sedang memuat data pemeringkatan...</EmptyRank>
+                ) : rankedMembers.length > 0 ? (
+                  <RanksList>
+                    {rankedMembers.map((member) => (
+                      <li key={member.detailUsers.userId}>
+                        <RankItem>
+                          <BlockRankNo>{member.position}</BlockRankNo>
 
-                      <BlockData>
-                        <div>
-                          <ArcherName>Nama archer panjangnya segini</ArcherName>
-                          <ClubName>Nama Klub</ClubName>
-                        </div>
+                          <BlockMain>
+                            <BlockAvatar>
+                              <AvatarContainer>
+                                {member.detailUsers.avatar ? (
+                                  <img src={member.detailUsers.avatar} />
+                                ) : (
+                                  <AvatarDefault fullname={member.detailUsers.name} />
+                                )}
+                              </AvatarContainer>
+                            </BlockAvatar>
 
-                        <BlockPoints>2078</BlockPoints>
-                      </BlockData>
-                    </BlockMain>
-                  </RankItem>
-                </li>
-              ))}
-            </RanksList>
+                            <BlockData>
+                              <div>
+                                <ArcherName>{member.detailUsers.name}</ArcherName>
+                                <ClubName>{member.detailClub.name}</ClubName>
+                              </div>
+
+                              <BlockPoints>{member.point}</BlockPoints>
+                            </BlockData>
+                          </BlockMain>
+                        </RankItem>
+                      </li>
+                    ))}
+                  </RanksList>
+                ) : (
+                  <EmptyRank>Belum ada data pemeringkatan di kategori ini</EmptyRank>
+                )}
+              </React.Fragment>
+            )}
           </div>
         </InnerContainer>
       </Container>
@@ -118,6 +175,17 @@ const FiltersBar = styled.div`
     flex-grow: 1;
     flex-basis: 300px;
   }
+`;
+
+const EmptyRank = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: var(--ma-gray-400);
 `;
 
 const RanksList = styled.ul`
