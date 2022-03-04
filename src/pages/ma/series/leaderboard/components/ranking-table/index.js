@@ -184,6 +184,12 @@ const AvatarContainer = styled.div`
   height: 80px;
   border-radius: 50%;
   background-color: var(--ma-gray-50);
+
+  > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const BlockData = styled.div`
