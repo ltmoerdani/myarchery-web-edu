@@ -40,7 +40,7 @@ function ChooserAsSidebar({
       <div>
         {!options?.length ? (
           <div>
-            <ChooserOption>{noOptionMessage || "Belum ada kategori"}</ChooserOption>
+            <ChooserNoOption>{noOptionMessage || "Belum ada kategori"}</ChooserNoOption>
           </div>
         ) : (
           options.map((option) => (
@@ -75,6 +75,20 @@ const ChooserHeader = styled.div`
   color: var(--ma-blue);
   text-transform: capitalize;
   font-weight: 600;
+`;
+
+const ChooserNoOption = styled.span`
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1.125rem;
+  border: none;
+  background-color: transparent;
+  color: var(--ma-gray-400);
+  text-align: left;
+  text-transform: capitalize;
+  font-size: 0.875em;
+
+  transition: padding 0.3s, color 0.3s;
 `;
 
 const ChooserOption = styled.button`
