@@ -2,15 +2,15 @@ import * as React from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useSeriesCategories } from "./hooks/series-categories";
-import { useRankedMembers } from "./hooks/ranked-members";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
-import { AvatarDefault, SpinnerDotBlock } from "components/ma";
+import { SpinnerDotBlock } from "components/ma";
 import { BreadcrumbDashboard } from "../../dashboard/components/breadcrumb";
-import { FieldSelect } from "./components/field-select";
-import { FullPageLoadingIndicator } from "./components/portal-loading";
+import { CategoryFilterChooser } from "../../live-score/components";
+import { RankingTable } from "./components/ranking-table";
 
+import classnames from "classnames";
 import { makeCategoryOptions } from "./utils";
 
 const teamCategoryOptions = [
@@ -21,28 +21,24 @@ const teamCategoryOptions = [
 function PageSeriesLeaderboard() {
   const { series_id } = useParams();
   const seriesId = parseInt(series_id);
-  const { data: seriesData } = useSeriesCategories(seriesId);
+  const { data: seriesData, isLoading: isLoadingSeriesData } = useSeriesCategories(seriesId);
   const { detailSeries: series, categorySeries: categories } = seriesData || {};
 
   const [teamCategorySelected, setTeamCategorySelected] = React.useState(teamCategoryOptions[0]);
 
   const categoryOptions = makeCategoryOptions(categories, teamCategorySelected);
-  const [categorySelected, setCategorySelected] = React.useReducer(
+  const [categorySelected, dispatchCategorySelected] = React.useReducer(
     (state, action) => ({ ...state, ...action }),
     {}
   );
 
-  const { value: categoryId } = categorySelected[teamCategorySelected.value] || {};
-  const { data: rankedMembers, isLoading: isLoadingRankedMembers } = useRankedMembers(categoryId);
-
   React.useEffect(() => {
-    if (!categories) {
+    if (!categoryOptions?.length || categorySelected[teamCategorySelected.value]) {
       return;
     }
 
-    !categorySelected[teamCategorySelected.value] &&
-      setCategorySelected({ [teamCategorySelected.value]: categoryOptions[0] });
-  }, [categories, teamCategorySelected]);
+    dispatchCategorySelected({ [teamCategorySelected.value]: categoryOptions[0] });
+  }, [categoryOptions, teamCategorySelected]);
 
   return (
     <StyledPageWrapper>
@@ -59,95 +55,61 @@ function PageSeriesLeaderboard() {
           {series?.name ? series.name : "Kembali"}
         </BreadcrumbDashboard>
 
-        <InnerContainer>
-          <h2>Pemeringkatan Series</h2>
+        {!seriesData && isLoadingSeriesData ? (
+          <SpinnerDotBlock />
+        ) : (
+          <ContentHeader>
+            <div>
+              <EventName>Pemeringkatan Series</EventName>
+            </div>
+            <div></div>
+          </ContentHeader>
+        )}
 
-          {categories ? (
-            <FiltersBar>
-              <div>
-                <FieldSelect
-                  options={teamCategoryOptions}
-                  value={teamCategorySelected}
-                  onChange={(option) => setTeamCategorySelected(option)}
-                />
-              </div>
+        {!categories && isLoadingSeriesData ? (
+          <SpinnerDotBlock />
+        ) : (
+          <PanelWithStickSidebar>
+            <PanelSidebar>
+              <CategoryFilterChooser
+                breakpoint="min-width: 1081px"
+                options={categoryOptions}
+                selected={categorySelected[teamCategorySelected.value]}
+                onChange={(category) => {
+                  dispatchCategorySelected({ [teamCategorySelected.value]: category });
+                }}
+              />
+            </PanelSidebar>
 
-              <div>
-                <FieldSelect
-                  options={categoryOptions}
-                  value={categorySelected[teamCategorySelected.value]}
-                  onChange={(option) => {
-                    setCategorySelected({ [teamCategorySelected.value]: option });
-                  }}
-                />
-              </div>
-            </FiltersBar>
-          ) : (
-            <SpinnerDotBlock />
-          )}
+            <div>
+              <ListViewToolbar>
+                <LabelCurrentCategory>
+                  {categorySelected[teamCategorySelected.value]?.label || "Pilih kategori"}
+                </LabelCurrentCategory>
 
-          <div>
-            {rankedMembers && (
-              <React.Fragment>
-                <FullPageLoadingIndicator isLoading={isLoadingRankedMembers} />
-
-                {isLoadingRankedMembers ? (
-                  <EmptyRank>Sedang memuat data pemeringkatan...</EmptyRank>
-                ) : rankedMembers.length > 0 ? (
-                  <RanksList>
-                    {rankedMembers.map((member) => (
-                      <li key={member.detailUsers.userId}>
-                        <RankItem>
-                          <BlockRankNo>{member.position}</BlockRankNo>
-
-                          <BlockMain>
-                            <BlockAvatar>
-                              <AvatarContainer>
-                                {member.detailUsers.avatar ? (
-                                  <img src={member.detailUsers.avatar} />
-                                ) : (
-                                  <AvatarDefault fullname={member.detailUsers.name} />
-                                )}
-                              </AvatarContainer>
-                            </BlockAvatar>
-
-                            <BlockData>
-                              <div>
-                                <ArcherName>{member.detailUsers.name}</ArcherName>
-                                <ClubName>{member.detailClub.name}</ClubName>
-                              </div>
-
-                              <BlockPoints>{member.point}</BlockPoints>
-                            </BlockData>
-                          </BlockMain>
-                        </RankItem>
-                      </li>
+                <ScrollX>
+                  <SpaceButtonsGroup>
+                    {teamCategoryOptions?.map((filter) => (
+                      <ButtonTeamFilter
+                        key={filter.value}
+                        className={classnames({
+                          "filter-selected": filter.value === teamCategorySelected.value,
+                        })}
+                        onClick={() => setTeamCategorySelected(filter)}
+                      >
+                        {filter.label}
+                      </ButtonTeamFilter>
                     ))}
-                  </RanksList>
-                ) : (
-                  <EmptyRank>Belum ada data pemeringkatan di kategori ini</EmptyRank>
-                )}
-              </React.Fragment>
-            )}
-          </div>
-        </InnerContainer>
+                  </SpaceButtonsGroup>
+                </ScrollX>
+              </ListViewToolbar>
+
+              <RankingTable categoryDetail={categorySelected[teamCategorySelected.value]} />
+            </div>
+          </PanelWithStickSidebar>
+        )}
       </Container>
     </StyledPageWrapper>
-  );
-}
-
-function BlockRankNo({ children }) {
-  const renderRankNumber = (number) => {
-    if (number < 10 && number >= 0) {
-      return "0" + number;
-    }
-    return number;
-  };
-
-  return (
-    <StyledBlockRankNo>
-      <span>{renderRankNumber(children)}</span>
-    </StyledBlockRankNo>
   );
 }
 
@@ -159,132 +121,134 @@ const Container = styled(BSContainer)`
   margin-bottom: 5rem;
 `;
 
-const InnerContainer = styled.div`
-  max-width: 60rem;
-  margin: 0 auto;
+const ContentHeader = styled.div`
+  margin-bottom: 1.375rem;
+`;
 
+const EventName = styled.h4`
+  color: var(--ma-blue);
+  font-weight: 600;
+  text-transform: uppercase;
+`;
+
+const PanelWithStickSidebar = styled.div`
   > * + * {
     margin-top: 1.5rem;
   }
+
+  @media (min-width: 961px) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    > *:last-child {
+      flex: 16 0 18.75rem;
+    }
+
+    > * + * {
+      margin-top: 0;
+    }
+  }
 `;
 
-const FiltersBar = styled.div`
+const PanelSidebar = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-
-  > * {
-    flex-grow: 1;
-    flex-basis: 300px;
-  }
-`;
-
-const EmptyRank = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: #ffffff;
-  color: var(--ma-gray-400);
-`;
-
-const RanksList = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-  > li + li {
-    margin-top: 0.625rem;
-  }
-`;
-
-const RankItem = styled.div`
-  display: flex;
-
-  > *:first-child {
-    flex-shrink: 0;
-  }
-
-  > *:last-child {
-    flex-grow: 1;
-  }
-`;
-
-const StyledBlockRankNo = styled.div`
-  display: flex;
-  flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
-  width: 3.75rem;
-  padding: 0.5rem;
+  align-items: stretch;
+  gap: 1.5rem;
 
-  > span {
-    font-size: 1rem;
-    font-weight: 600;
+  > *:first-child {
+    flex-basis: 240px;
+    flex-grow: 1;
+  }
+
+  > *:last-child {
+    flex-basis: 360px;
+    flex-grow: 10;
+  }
+
+  @media (min-width: 961px) {
+    display: block;
+    flex: 1 0 16.25rem;
+    max-width: 16.25rem;
+    position: sticky;
+    top: calc(var(--ma-header-height) + 2.5rem);
+
+    > * + * {
+      margin-top: 1.5rem;
+    }
   }
 `;
 
-const BlockMain = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  overflow: hidden;
+const ListViewToolbar = styled.div`
+  padding: 0.75rem 0.75rem;
   border-radius: 0.5rem;
-  background-color: #ffffff;
+  background-color: var(--ma-blue);
+  color: #ffffff;
+  text-transform: capitalize;
 
-  > *:first-child {
-    flex-shrink: 0;
+  @media (min-width: 961px) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    padding: 0.625rem 1.375rem;
   }
+`;
 
-  > *:last-child {
-    flex-grow: 1;
+const LabelCurrentCategory = styled.div`
+  font-weight: 600;
+  font-size: 1.125em;
+  display: none;
+
+  @media (min-width: 1081px) {
+    display: block;
   }
 `;
 
-const BlockAvatar = styled.div`
-  padding: 1rem;
-  padding-right: 0;
+const ScrollX = styled.div`
+  overflow-x: auto;
 `;
 
-const AvatarContainer = styled.div`
-  overflow: hidden;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: var(--ma-gray-50);
-`;
-
-const BlockData = styled.div`
+const SpaceButtonsGroup = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem 1rem;
-  padding: 1rem;
+  gap: 0.75rem;
 
-  > *:first-child {
-    flex-grow: 1;
-  }
-
-  > *:last-child {
-    flex-shrink: 0;
+  @media (min-width: 721px) {
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 `;
 
-const ArcherName = styled.h6`
-  margin: 0;
-  font-weight: 600;
-`;
+const ButtonTeamFilter = styled.button`
+  &,
+  &:focus,
+  &:active {
+    padding: 0.75rem 1rem;
+    border: solid 1px var(--ma-primary-blue-50);
+    border-radius: 0.5rem;
+    background-color: var(--ma-primary-blue-50);
+    color: var(--ma-blue);
+    font-size: 0.875em;
 
-const ClubName = styled.div`
-  font-size: 13px;
-  color: var(--ma-gray-400);
-`;
+    @media (min-width: 721px) {
+      padding: 0.5rem 0.75rem;
+    }
+  }
 
-const BlockPoints = styled.div`
-  font-weight: 600;
-  font-size: 1.25rem;
+  white-space: nowrap;
+  transition: border-color 0.1s, background-color 0.1s;
+
+  &.filter-selected {
+    border: solid 1px var(--ma-secondary);
+    background-color: var(--ma-secondary);
+  }
 `;
 
 export default PageSeriesLeaderboard;
