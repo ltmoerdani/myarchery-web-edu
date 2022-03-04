@@ -9,7 +9,7 @@ function makeCategoryOptions(data, teamCategorySelected) {
       category.ageDetail.label,
       category.distanceDetail.label,
     ].join(" - ");
-    return { value: category.id, label };
+    return { id: category.id, label };
   });
 }
 
