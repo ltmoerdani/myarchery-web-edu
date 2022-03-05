@@ -2,18 +2,18 @@ import * as React from "react";
 import { useFetcher } from "hooks/fetcher-alt";
 import { EventsService } from "services";
 
-function useEventDetail(eventId) {
+function useEventDetail(slug) {
   const fetcher = useFetcher();
 
   React.useEffect(() => {
-    if (!eventId) {
+    if (!slug) {
       return;
     }
 
     fetcher.runAsync(() => {
-      return EventsService.getEventDetailById({ event_id: eventId });
+      return EventsService.getDetailEvent({ slug: slug });
     });
-  }, [eventId]);
+  }, [slug]);
 
   return fetcher;
 }
