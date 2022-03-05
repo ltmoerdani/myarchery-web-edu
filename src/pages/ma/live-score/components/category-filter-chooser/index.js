@@ -43,8 +43,8 @@ function ChooserAsSidebar({
             <ChooserNoOption>{noOptionMessage || "Belum ada kategori"}</ChooserNoOption>
           </div>
         ) : (
-          options.map((option) => (
-            <div key={option.id}>
+          options.map((option, index) => (
+            <div key={option.id || option.label || index}>
               <ChooserOption
                 className={classnames({ "option-selected": option.id === optionSelected.id })}
                 disabled={option.id === optionSelected.id}
@@ -152,8 +152,8 @@ function ChooserMobile({ title = "Kategori", options = [], selected, onChange, n
                   <ChooserOption>{noOptionMessage || "Belum ada kategori"}</ChooserOption>
                 </div>
               ) : (
-                options.map((option) => (
-                  <div key={option.id}>
+                options.map((option, index) => (
+                  <div key={option.id || option.label || index}>
                     <ChooserOption
                       className={classnames({ "option-selected": option.id === optionSelected.id })}
                       disabled={option.id === optionSelected.id}
