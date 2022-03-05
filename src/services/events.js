@@ -35,9 +35,12 @@ export default {
         return API.post("/app/v1/archery-event/update-category-event-member", data, null, true);
     },
     getDetailEvent(qs = null) {
-      return API.get("/web/v1/archery/events/detail-by-slug", qs);
+        return API.get("/web/v1/archery/events/detail-by-slug", qs);
     },
     getCategory(qs = null) {
-      return API.get("/web/v1/archery/events/register/list-categories", qs);
+        return API.get("/web/v1/archery/events/register/list-categories", qs);
+    },
+    getEventRanksClubs(qs = null) {
+        return API.get("/api/event-ranked/club", qs);
     },
 }

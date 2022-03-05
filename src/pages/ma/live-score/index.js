@@ -90,6 +90,10 @@ function PageScoreQualification() {
                   <ButtonNavToElimination to={`/live-score/${slug}/elimination`}>
                     Lihat Bagan Eliminasi
                   </ButtonNavToElimination>
+
+                  <ButtonNavToElimination to={`/event-ranks/${eventDetail.id}/clubs`}>
+                    Lihat Pemeringkatan Klub
+                  </ButtonNavToElimination>
                 </NavElimination>
 
                 <CategoryFilterChooser
@@ -220,8 +224,10 @@ const PanelSidebar = styled.div`
 
 const NavElimination = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
 `;
 
 function ButtonLink(props) {
