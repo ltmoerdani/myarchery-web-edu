@@ -11,9 +11,8 @@ import { CategoryFilterChooser } from "../../live-score/components";
 import { RankingTable } from "./components/ranking-table";
 
 function PageEventRanksClubs() {
-  const { event_id } = useParams();
-  const eventId = parseInt(event_id);
-  const { data: eventDetail, isLoading: isLoadingEventDetail } = useEventDetail(eventId);
+  const { slug } = useParams();
+  const { data: eventDetail, isLoading: isLoadingEventDetail } = useEventDetail(slug);
 
   return (
     <StyledPageWrapper>
@@ -61,7 +60,7 @@ function PageEventRanksClubs() {
                 <LabelCurrentCategory>Semua kategori</LabelCurrentCategory>
               </ListViewToolbar>
 
-              <RankingTable eventId={eventId} />
+              {eventDetail && <RankingTable eventId={eventDetail.id} />}
             </div>
           </PanelWithStickSidebar>
         )}

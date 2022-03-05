@@ -91,7 +91,7 @@ function PageScoreQualification() {
                     Lihat Bagan Eliminasi
                   </ButtonNavToElimination>
 
-                  <ButtonNavToElimination to={`/event-ranks/${eventDetail.id}/clubs`}>
+                  <ButtonNavToElimination to={`/event-ranks/${slug}/clubs`}>
                     Lihat Pemeringkatan Klub
                   </ButtonNavToElimination>
                 </NavElimination>
