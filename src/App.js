@@ -17,6 +17,7 @@ import {
   eventRegistrationRoutes,
   liveScoreRoutes,
   seriesRoutes,
+  ranksRoutes,
 } from "./routes";
 import {
   LayoutDashboard,
@@ -68,6 +69,17 @@ const App = () => {
           ))}
 
           {liveScoreRoutes.map((route, idx) => (
+            <AuthenticationArcherMiddleware
+              path={route.path}
+              layout={LayoutLiveScore}
+              component={route.component}
+              key={idx}
+              isAuthProtected={false}
+              exact
+            />
+          ))}
+
+          {ranksRoutes.map((route, idx) => (
             <AuthenticationArcherMiddleware
               path={route.path}
               layout={LayoutLiveScore}
