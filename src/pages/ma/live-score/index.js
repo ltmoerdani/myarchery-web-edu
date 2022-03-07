@@ -90,10 +90,6 @@ function PageScoreQualification() {
                   <ButtonNavToElimination to={`/live-score/${slug}/elimination`}>
                     Lihat Bagan Eliminasi
                   </ButtonNavToElimination>
-
-                  <ButtonNavToElimination to={`/event-ranks/${slug}/clubs`}>
-                    Lihat Pemeringkatan Klub
-                  </ButtonNavToElimination>
                 </NavElimination>
 
                 <CategoryFilterChooser

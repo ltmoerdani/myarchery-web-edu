@@ -6,7 +6,7 @@ import { EventsService } from "services";
 import { useParams, Link } from "react-router-dom";
 import Countdown from "react-countdown";
 import { Container, Row, Col, Button } from "reactstrap";
-import { WizardView, WizardViewContent, ButtonBlue } from "components/ma";
+import { WizardView, WizardViewContent, ButtonBlue, ButtonOutlineBlue } from "components/ma";
 import classnames from "classnames";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
 import { useSelector } from "react-redux";
@@ -150,8 +150,6 @@ function LandingPage() {
   feeArray = getFee();
   feeArray?.sort((a, b) => a - b);
 
-  // console.log(feeArray);
-
   const screenLoading = () => {
     return (
       <div style={{ height: "50vh" }} className="d-flex justify-content-center align-items-center">
@@ -286,11 +284,11 @@ function LandingPage() {
                 date={`${eventData?.publicInformation?.eventEndRegister}`}
                 renderer={HandlerCountDown}
               />
-              { eventData?.closedRegister ?
+              {eventData?.closedRegister ? (
                 <Button disabled style={{ width: 120 }}>
                   Tutup
                 </Button>
-                :
+              ) : (
                 <ButtonBlue
                   as={Link}
                   to={`${
@@ -302,18 +300,25 @@ function LandingPage() {
                 >
                   Daftar
                 </ButtonBlue>
-              }
+              )}
             </div>
 
             <div className="mt-4">
-              <Button
-                className="btn w-100"
-                style={{ backgroundColor: "#FFF", borderColor: "#0d47a1" }}
-                tag={Link}
+              <ButtonOutlineBlue
+                className="w-100 fw-bold"
+                as={Link}
                 to={`/live-score/${slug}/qualification`}
               >
-                <span style={{ color: "#0d47a1", fontWeight: "600" }}>Live Score</span>
-              </Button>
+                Live Score
+              </ButtonOutlineBlue>
+
+              <ButtonOutlineBlue
+                className="w-100 fw-bold mt-2"
+                as={Link}
+                to={`/event-ranks/${slug}/clubs`}
+              >
+                Lihat Pemeringkatan Klub
+              </ButtonOutlineBlue>
             </div>
           </Col>
         </Row>
@@ -420,8 +425,7 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   );
 }
 
-function EventCategoryGrid({eventData ,categories, slug, isLoggedIn }) {
-  console.log(categories);
+function EventCategoryGrid({ eventData, categories, slug, isLoggedIn }) {
   return (
     <div className="event-category-grid">
       {categories.map((category, index) => (
@@ -434,7 +438,9 @@ function EventCategoryGrid({eventData ,categories, slug, isLoggedIn }) {
               </span>
             </div>
             <div>
-              {eventData?.closedRegister == false && category.quota - category.totalParticipant > 0 && category?.isOpen ? (
+              {eventData?.closedRegister == false &&
+              category.quota - category.totalParticipant > 0 &&
+              category?.isOpen ? (
                 <ButtonBlue
                   as={Link}
                   to={`${
