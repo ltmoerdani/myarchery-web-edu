@@ -7,20 +7,20 @@ import { id } from "date-fns/locale";
 import { parseISO, format } from "date-fns";
 
 function TabEvent({ eventState }) {
-  const { data: event } = eventState;
+  const { data: eventDetail } = eventState;
   const isLoadingEvent = eventState.status === "loading";
 
   return (
     <PanelContainer>
-      {!event && isLoadingEvent ? (
+      {!eventDetail && isLoadingEvent ? (
         <div>Sedang memuat data lomba...</div>
       ) : (
-        event && (
+        eventDetail && (
           <EventMediaObject>
             <MediaImage>
               <PosterContainer>
-                {event.publicInformation.eventBanner ? (
-                  <img src={event.publicInformation.eventBanner} />
+                {eventDetail.publicInformation.eventBanner ? (
+                  <img src={eventDetail.publicInformation.eventBanner} />
                 ) : (
                   <React.Fragment>gambar banner</React.Fragment>
                 )}
@@ -34,7 +34,7 @@ function TabEvent({ eventState }) {
                     <td width="200">Nama Event</td>
                     <td width="16">:</td>
                     <td>
-                      <div>{event.publicInformation.eventName}</div>
+                      <div>{eventDetail.publicInformation.eventName}</div>
                     </td>
                   </tr>
 
@@ -42,25 +42,25 @@ function TabEvent({ eventState }) {
                     <td>Jenis Event</td>
                     <td width="16">:</td>
                     <td>
-                      <div>{event.eventCompetition}</div>
+                      <div>{eventDetail.eventCompetition}</div>
                     </td>
                   </tr>
 
                   <tr>
                     <td>Lokasi</td>
                     <td width="16">:</td>
-                    <td>{event.publicInformation.eventCity.nameCity}</td>
+                    <td>{eventDetail.publicInformation.eventCity.nameCity}</td>
                   </tr>
 
                   <tr>
                     <td>Tanggal</td>
                     <td width="16">:</td>
                     <td>
-                      {format(parseISO(event.publicInformation.eventStart), "dd MMMM yyyy", {
+                      {format(parseISO(eventDetail.publicInformation.eventStart), "dd MMMM yyyy", {
                         locale: id,
                       })}{" "}
                       &ndash;{" "}
-                      {format(parseISO(event.publicInformation.eventEnd), "dd MMMM yyyy", {
+                      {format(parseISO(eventDetail.publicInformation.eventEnd), "dd MMMM yyyy", {
                         locale: id,
                       })}
                     </td>
