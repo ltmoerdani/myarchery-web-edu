@@ -26,12 +26,12 @@ import { parseISO, isBefore, subDays } from "date-fns";
 function TabPeserta({ eventState, participantMembersState }) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
   const { data: participantMembers, refetchParticipantMembers } = participantMembersState;
-  const { data: event } = eventState;
+  const { data: eventDetail } = eventState;
 
   const isLoadingOrder = participantMembersState.status === "loading";
   const isUserParticipant = participantMembers.participant.userId === userProfile.id;
 
-  const dayBefore = subDays(parseISO(event.publicInformation.eventStart), 1);
+  const dayBefore = subDays(parseISO(eventDetail.publicInformation.eventStart), 1);
   // TODO: masih lepas syarat enable, kembalikan kapan-kapan...(?)
   const shouldAllowEdit = true || isBefore(new Date(), dayBefore);
 
