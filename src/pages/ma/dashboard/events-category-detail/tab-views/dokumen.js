@@ -27,49 +27,51 @@ function TabDokumen({ certificateState }) {
   };
 
   return (
-    <PanelContainer>
-      <GridCardWannabe>
-        {!certificates && isLoadingCertificates ? (
-          <div>Sedang memuat data sertifikat...</div>
-        ) : certificates ? (
-          certificates.length ? (
-            certificates.map((certificate) => (
-              <CardDocItem key={certificate.data.id}>
-                <div>
-                  <DocItemTitle>
-                    <span>
-                      <IconCertificate />
-                    </span>
-                    <span>Sertifikat {getCertificateTypeLabel(certificate.type)}</span>
-                  </DocItemTitle>
-                </div>
+    <React.Fragment>
+      <PanelContainer>
+        <GridCardWannabe>
+          {!certificates && isLoadingCertificates ? (
+            <div>Sedang memuat data sertifikat...</div>
+          ) : certificates ? (
+            certificates.length ? (
+              certificates.map((certificate) => (
+                <CardDocItem key={certificate.data.id}>
+                  <div>
+                    <DocItemTitle>
+                      <span>
+                        <IconCertificate />
+                      </span>
+                      <span>Sertifikat {getCertificateTypeLabel(certificate.type)}</span>
+                    </DocItemTitle>
+                  </div>
 
-                <div>
-                  <CertificatePreviewer certificateData={certificate.data} />
+                  <div>
+                    <CertificatePreviewer certificateData={certificate.data} />
 
-                  <ButtonBlueDownload
-                    onClick={() => {
-                      handleCertificateDownload(orderId, certificate.data.typeCertificate);
-                    }}
-                  >
-                    <span>
-                      <IconDownload size="16" />
-                    </span>
-                    <span>Unduh</span>
-                  </ButtonBlueDownload>
-                </div>
-              </CardDocItem>
-            ))
+                    <ButtonBlueDownload
+                      onClick={() => {
+                        handleCertificateDownload(orderId, certificate.data.typeCertificate);
+                      }}
+                    >
+                      <span>
+                        <IconDownload size="16" />
+                      </span>
+                      <span>Unduh</span>
+                    </ButtonBlueDownload>
+                  </div>
+                </CardDocItem>
+              ))
+            ) : (
+              <div>Belum memiliki sertifikat di kategori ini</div>
+            )
           ) : (
             <div>Belum memiliki sertifikat di kategori ini</div>
-          )
-        ) : (
-          <div>Belum memiliki sertifikat di kategori ini</div>
-        )}
-      </GridCardWannabe>
+          )}
+        </GridCardWannabe>
+      </PanelContainer>
 
       <LoadingScreen loading={isLoadingDownload} />
-    </PanelContainer>
+    </React.Fragment>
   );
 }
 
@@ -128,7 +130,7 @@ const CertificateThumbnail = ({ templateData }) => {
       <ThumbnailTextField field={fields[0]}>{templateData.memberName}</ThumbnailTextField>
 
       {parseInt(templateData.typeCertificate) === 2 && (
-        <ThumbnailTextField field={fields[1]}>{templateData.ranked}</ThumbnailTextField>
+        <ThumbnailTextField field={fields[1]}>Juara {templateData.ranked}</ThumbnailTextField>
       )}
 
       <ThumbnailTextField field={fields[2]}>{templateData.categoryName}</ThumbnailTextField>
