@@ -1,31 +1,21 @@
 import * as React from "react";
+import { useFetcher } from "hooks/fetcher-alt";
 import { EventsService } from "services";
 
 function useEventDetail(eventId) {
-  const [eventState, dispatchEventState] = React.useReducer(
-    (state, action) => ({ ...state, ...action }),
-    {
-      status: "idle",
-      data: null,
-      errors: null,
-    }
-  );
+  const eventDetail = useFetcher();
 
   React.useEffect(() => {
-    const fetchEventDetail = async () => {
-      dispatchEventState({ status: "loading", errors: null });
-      const result = await EventsService.getEventDetailById({ event_id: eventId });
-      if (result.success) {
-        dispatchEventState({ status: "success", data: result.data });
-      } else {
-        dispatchEventState({ status: "error", errors: result.errors });
-      }
-    };
+    if (!eventId) {
+      return;
+    }
 
-    fetchEventDetail();
-  }, []);
+    eventDetail.runAsync(() => {
+      return EventsService.getEventDetailById({ event_id: eventId });
+    });
+  }, [eventId]);
 
-  return { ...eventState, eventState, dispatchEventState };
+  return eventDetail;
 }
 
 export { useEventDetail };
