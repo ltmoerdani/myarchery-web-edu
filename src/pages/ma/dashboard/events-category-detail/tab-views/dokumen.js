@@ -130,7 +130,7 @@ const CertificateThumbnail = ({ templateData }) => {
       <ThumbnailTextField field={fields[0]}>{templateData.memberName}</ThumbnailTextField>
 
       {parseInt(templateData.typeCertificate) === 2 && (
-        <ThumbnailTextField field={fields[1]}>{templateData.ranked}</ThumbnailTextField>
+        <ThumbnailTextField field={fields[1]}>Juara {templateData.ranked}</ThumbnailTextField>
       )}
 
       <ThumbnailTextField field={fields[2]}>{templateData.categoryName}</ThumbnailTextField>
