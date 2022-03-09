@@ -18,9 +18,9 @@ function TabDokumen({ certificateState }) {
 
   const getCertificateTypeLabel = (type) => {
     const labels = {
-      participant: "Peserta",
-      elimination: "Eliminasi",
-      winner: "Juara",
+      1: "Peserta",
+      2: "Juara Eliminasi",
+      3: "Peserta Eliminasi",
     };
     return labels[type];
   };
