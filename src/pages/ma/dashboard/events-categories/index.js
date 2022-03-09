@@ -12,17 +12,14 @@ import { BreadcrumbDashboard } from "../components/breadcrumb";
 import IconUsers from "components/ma/icons/mono/users";
 import IconUser from "components/ma/icons/mono/user";
 
-import { shouldDisableEditing } from "./utils";
-
 function PageEventCategories() {
   const { event_id } = useParams();
   const eventId = parseInt(event_id);
 
-  const { event: eventDetail, eventCategories, categoriesState } = usePageData(eventId);
+  const { event, eventCategories, categoriesState } = usePageData(eventId);
 
   const isLoadingEvents = categoriesState.status === "loading";
   const isErrorEvents = categoriesState.status === "error";
-  const editIsDisabled = shouldDisableEditing(eventDetail?.publicInformation.eventEnd);
 
   const setSerieCategory = async (memberId, categoryId, status) => {
     const result = await OrderEventService.setSerieCategory({
@@ -38,8 +35,8 @@ function PageEventCategories() {
   return (
     <PageWrapper>
       <MetaTags>
-        {eventDetail ? (
-          <title>{eventDetail.eventName} | MyArchery.id</title>
+        {event ? (
+          <title>{event.eventName} | MyArchery.id</title>
         ) : (
           <title>Event Saya | MyArchery.id</title>
         )}
@@ -47,7 +44,7 @@ function PageEventCategories() {
 
       <Container fluid>
         <BreadcrumbDashboard to="/dashboard/events">
-          {eventDetail?.publicInformation.eventName || "Event"}
+          {event?.publicInformation.eventName || "Event"}
         </BreadcrumbDashboard>
 
         {!eventCategories && isLoadingEvents ? (
@@ -84,9 +81,9 @@ function PageEventCategories() {
 
                   <ItemMediaObject>
                     <div>
-                      {eventDetail.publicInformation.eventBanner ? (
+                      {event.publicInformation.eventBanner ? (
                         <PosterThumb>
-                          <img src={eventDetail.publicInformation.eventBanner} />
+                          <img src={event.publicInformation.eventBanner} />
                         </PosterThumb>
                       ) : (
                         <PosterThumb>&nbsp;</PosterThumb>
@@ -137,7 +134,6 @@ function PageEventCategories() {
                             eventCategory.joinSerieCategoryId == eventCategory.id) ? (
                             eventCategory.joinSerieCategoryId == eventCategory.id ? (
                               <ButtonRed
-                                disabled={editIsDisabled}
                                 onClick={() => {
                                   setSerieCategory(
                                     eventCategory.detailParticipant.memberId,
@@ -150,7 +146,6 @@ function PageEventCategories() {
                               </ButtonRed>
                             ) : (
                               <ButtonOutlineBlue
-                                disabled={editIsDisabled}
                                 onClick={() => {
                                   setSerieCategory(
                                     eventCategory.detailParticipant.memberId,
@@ -163,7 +158,7 @@ function PageEventCategories() {
                               </ButtonOutlineBlue>
                             )
                           ) : (
-                            <ButtonOutline disabled={editIsDisabled}>
+                            <ButtonOutline>
                               {eventCategory.joinSerieCategoryId == eventCategory.id
                                 ? "pemeringkatan series dikuti"
                                 : "pilih sebagai pemeringkatan series"}
@@ -291,22 +286,13 @@ const DetailBar = styled.div`
   justify-content: space-between;
   gap: 1rem;
   background-color: var(--ma-gray-100);
-
-  > *:first-child {
-    flex-grow: 1;
-  }
 `;
 
 const DetailCol = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1.5rem;
   padding: 0.5rem 1.25rem;
-
-  > * {
-    flex-basis: auto;
-  }
 `;
 
 const DetailItem = styled.div`

@@ -33,14 +33,6 @@ const ButtonWrapper = styled.button`
     color: var(--button-font-color-hover, var(--ma-blue));
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
   }
-
-  &:disabled {
-    background-color: var(--ma-gray-400);
-    border-color: var(--ma-gray-400);
-    box-shadow: none;
-    color: var(--ma-gray-100);
-    cursor: not-allowed;
-  }
 `;
 
 const variantStyles = {
