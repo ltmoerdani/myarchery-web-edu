@@ -71,7 +71,13 @@ function TabDokumen({ certificateState }) {
 
       <LoadingScreen
         loading={isLoadingDownload}
-        message="Sedang menyiapkan berkas sertifikat. Mohon tunggu sejenak..."
+        message={
+          <React.Fragment>
+            Sedang menyiapkan berkas sertifikat.
+            <br />
+            Mohon jangan tutup jendela dan tunggu sejenak...
+          </React.Fragment>
+        }
       />
     </React.Fragment>
   );
