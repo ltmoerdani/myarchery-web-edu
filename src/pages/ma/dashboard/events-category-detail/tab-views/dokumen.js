@@ -21,6 +21,8 @@ function TabDokumen({ certificateState }) {
       1: "Peserta",
       2: "Juara Eliminasi",
       3: "Peserta Eliminasi",
+      4: "Juara Kualifikasi",
+      5: "Juara Beregu",
     };
     return labels[type];
   };
@@ -40,7 +42,9 @@ function TabDokumen({ certificateState }) {
                       <span>
                         <IconCertificate />
                       </span>
-                      <span>Sertifikat {getCertificateTypeLabel(certificate.type)}</span>
+                      <span>
+                        Sertifikat {getCertificateTypeLabel(certificate.data.typeCertificate)}
+                      </span>
                     </DocItemTitle>
                   </div>
 
@@ -227,11 +231,13 @@ const CardDocItem = styled.div`
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-end;
+    align-items: stretch;
     gap: 0.5rem;
 
     @media (min-width: 361px) {
       flex-direction: row;
       flex-wrap: wrap;
+      align-items: flex-start;
     }
   }
 `;
@@ -242,10 +248,6 @@ const DocItemTitle = styled.h5`
 
   > span + span {
     margin-left: 0.5rem;
-  }
-
-  > span {
-    display: inline-block;
   }
 `;
 
