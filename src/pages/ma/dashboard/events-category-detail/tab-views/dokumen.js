@@ -4,8 +4,7 @@ import styled from "styled-components";
 import { useCertificateDownload } from "../hooks/certificate-download";
 
 import { Modal, ModalBody } from "reactstrap";
-import { LoadingScreen } from "components";
-import { Button, ButtonBlue } from "components/ma";
+import { Button, ButtonBlue, LoadingScreen } from "components/ma";
 
 import IconCertificate from "components/ma/icons/color/certificate";
 import IconDownload from "components/ma/icons/mono/download";
@@ -19,9 +18,11 @@ function TabDokumen({ certificateState }) {
 
   const getCertificateTypeLabel = (type) => {
     const labels = {
-      participant: "Peserta",
-      elimination: "Eliminasi",
-      winner: "Juara",
+      1: "Peserta",
+      2: "Juara Eliminasi",
+      3: "Peserta Eliminasi",
+      4: "Juara Kualifikasi",
+      5: "Juara Beregu",
     };
     return labels[type];
   };
@@ -41,7 +42,9 @@ function TabDokumen({ certificateState }) {
                       <span>
                         <IconCertificate />
                       </span>
-                      <span>Sertifikat {getCertificateTypeLabel(certificate.type)}</span>
+                      <span>
+                        Sertifikat {getCertificateTypeLabel(certificate.data.typeCertificate)}
+                      </span>
                     </DocItemTitle>
                   </div>
 
@@ -70,7 +73,16 @@ function TabDokumen({ certificateState }) {
         </GridCardWannabe>
       </PanelContainer>
 
-      <LoadingScreen loading={isLoadingDownload} />
+      <LoadingScreen
+        loading={isLoadingDownload}
+        message={
+          <React.Fragment>
+            Sedang menyiapkan berkas sertifikat.
+            <br />
+            Mohon jangan tutup jendela dan tunggu sejenak...
+          </React.Fragment>
+        }
+      />
     </React.Fragment>
   );
 }
@@ -219,11 +231,13 @@ const CardDocItem = styled.div`
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-end;
+    align-items: stretch;
     gap: 0.5rem;
 
     @media (min-width: 361px) {
       flex-direction: row;
       flex-wrap: wrap;
+      align-items: flex-start;
     }
   }
 `;
@@ -234,10 +248,6 @@ const DocItemTitle = styled.h5`
 
   > span + span {
     margin-left: 0.5rem;
-  }
-
-  > span {
-    display: inline-block;
   }
 `;
 
