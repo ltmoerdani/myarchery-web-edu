@@ -4,8 +4,7 @@ import styled from "styled-components";
 import { useCertificateDownload } from "../hooks/certificate-download";
 
 import { Modal, ModalBody } from "reactstrap";
-import { LoadingScreen } from "components";
-import { Button, ButtonBlue } from "components/ma";
+import { Button, ButtonBlue, LoadingScreen } from "components/ma";
 
 import IconCertificate from "components/ma/icons/color/certificate";
 import IconDownload from "components/ma/icons/mono/download";
@@ -70,7 +69,10 @@ function TabDokumen({ certificateState }) {
         </GridCardWannabe>
       </PanelContainer>
 
-      <LoadingScreen loading={isLoadingDownload} />
+      <LoadingScreen
+        loading={isLoadingDownload}
+        message="Sedang menyiapkan berkas sertifikat. Mohon tunggu sejenak..."
+      />
     </React.Fragment>
   );
 }
