@@ -291,13 +291,22 @@ const DetailBar = styled.div`
   justify-content: space-between;
   gap: 1rem;
   background-color: var(--ma-gray-100);
+
+  > *:first-child {
+    flex-grow: 1;
+  }
 `;
 
 const DetailCol = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   gap: 1.5rem;
   padding: 0.5rem 1.25rem;
+
+  > * {
+    flex-basis: auto;
+  }
 `;
 
 const DetailItem = styled.div`
