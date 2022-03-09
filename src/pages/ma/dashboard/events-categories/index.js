@@ -12,14 +12,17 @@ import { BreadcrumbDashboard } from "../components/breadcrumb";
 import IconUsers from "components/ma/icons/mono/users";
 import IconUser from "components/ma/icons/mono/user";
 
+import { shouldDisableEditing } from "./utils";
+
 function PageEventCategories() {
   const { event_id } = useParams();
   const eventId = parseInt(event_id);
 
-  const { event, eventCategories, categoriesState } = usePageData(eventId);
+  const { event: eventDetail, eventCategories, categoriesState } = usePageData(eventId);
 
   const isLoadingEvents = categoriesState.status === "loading";
   const isErrorEvents = categoriesState.status === "error";
+  const editIsDisabled = shouldDisableEditing(eventDetail?.publicInformation.eventEnd);
 
   const setSerieCategory = async (memberId, categoryId, status) => {
     const result = await OrderEventService.setSerieCategory({
@@ -35,8 +38,8 @@ function PageEventCategories() {
   return (
     <PageWrapper>
       <MetaTags>
-        {event ? (
-          <title>{event.eventName} | MyArchery.id</title>
+        {eventDetail ? (
+          <title>{eventDetail.eventName} | MyArchery.id</title>
         ) : (
           <title>Event Saya | MyArchery.id</title>
         )}
@@ -44,7 +47,7 @@ function PageEventCategories() {
 
       <Container fluid>
         <BreadcrumbDashboard to="/dashboard/events">
-          {event?.publicInformation.eventName || "Event"}
+          {eventDetail?.publicInformation.eventName || "Event"}
         </BreadcrumbDashboard>
 
         {!eventCategories && isLoadingEvents ? (
@@ -81,9 +84,9 @@ function PageEventCategories() {
 
                   <ItemMediaObject>
                     <div>
-                      {event.publicInformation.eventBanner ? (
+                      {eventDetail.publicInformation.eventBanner ? (
                         <PosterThumb>
-                          <img src={event.publicInformation.eventBanner} />
+                          <img src={eventDetail.publicInformation.eventBanner} />
                         </PosterThumb>
                       ) : (
                         <PosterThumb>&nbsp;</PosterThumb>
@@ -134,6 +137,7 @@ function PageEventCategories() {
                             eventCategory.joinSerieCategoryId == eventCategory.id) ? (
                             eventCategory.joinSerieCategoryId == eventCategory.id ? (
                               <ButtonRed
+                                disabled={editIsDisabled}
                                 onClick={() => {
                                   setSerieCategory(
                                     eventCategory.detailParticipant.memberId,
@@ -146,6 +150,7 @@ function PageEventCategories() {
                               </ButtonRed>
                             ) : (
                               <ButtonOutlineBlue
+                                disabled={editIsDisabled}
                                 onClick={() => {
                                   setSerieCategory(
                                     eventCategory.detailParticipant.memberId,
@@ -158,7 +163,7 @@ function PageEventCategories() {
                               </ButtonOutlineBlue>
                             )
                           ) : (
-                            <ButtonOutline>
+                            <ButtonOutline disabled={editIsDisabled}>
                               {eventCategory.joinSerieCategoryId == eventCategory.id
                                 ? "pemeringkatan series dikuti"
                                 : "pilih sebagai pemeringkatan series"}
