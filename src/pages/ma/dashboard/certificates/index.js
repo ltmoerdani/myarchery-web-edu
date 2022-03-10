@@ -4,14 +4,19 @@ import { useUserCertificates } from "./hooks/user-certificates";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
-import { ButtonBlue, LoadingScreen } from "components/ma";
+import { ButtonBlue, LoadingScreen, AlertSubmitError as AlertErrorFetch } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 
 import IconCertificate from "components/ma/icons/color/certificate";
 import IconDownload from "components/ma/icons/mono/download";
 
 function PageCertificates() {
-  const { data: certificatesByEvents, isLoading: isLoadingCertificates } = useUserCertificates();
+  const {
+    data: certificatesByEvents,
+    isLoading: isLoadingCertificates,
+    isError: isErrorCertificates,
+    errors: errorsCertificates,
+  } = useUserCertificates();
 
   return (
     <PageWrapper>
@@ -88,8 +93,8 @@ function PageCertificates() {
                 </CategoryName>
 
                 <CertificatesGrid>
-                  {[1, 2].map((item) => (
-                    <SkeletonCardDocItem key={item}>
+                  {new Array(2).fill("skeleton").map((item, index) => (
+                    <SkeletonCardDocItem key={index}>
                       <DocItemTitle>
                         <span>
                           <SkeletonBlockText width="28" fontSize="1em" />
@@ -107,7 +112,7 @@ function PageCertificates() {
             </EventItem>
           ) : (
             <EventItem>
-              <EventEmpty>Belum terdaftar dalam event</EventEmpty>
+              <EventEmpty>Tidak ditemukan data sertifikat</EventEmpty>
             </EventItem>
           )}
         </EventsList>
@@ -123,6 +128,7 @@ function PageCertificates() {
           </React.Fragment>
         }
       />
+      <AlertErrorFetch isError={isErrorCertificates} errors={errorsCertificates} />
     </PageWrapper>
   );
 }

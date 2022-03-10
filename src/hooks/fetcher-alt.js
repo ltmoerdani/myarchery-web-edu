@@ -44,7 +44,7 @@ function useFetcher() {
 
   const isLoading = status === "loading";
   const isSuccess = status === "success";
-  const isError = status === "errors";
+  const isError = status === "error";
 
   return { ...state, state, runAsync, reset, isLoading, isSuccess, isError };
 }
