@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { LoadingScreen } from "./loading-spinner-portal";
+import { LoadingScreen } from "./loading-screen-portal";
 
 function SpinnerDotBlock() {
   return (

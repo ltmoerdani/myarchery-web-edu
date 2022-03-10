@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { useWizardView } from "hooks/wizard-view";
 import { useEventDetail } from "../hooks/event-detail";
 import { useParticipantMembers } from "../hooks/participant-members";
-import { useParticipantCertificates } from "./hooks/certificate-download";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
@@ -13,7 +12,6 @@ import { BreadcrumbDashboard } from "../components/breadcrumb";
 
 import { TabEvent } from "./tab-views/event";
 import { TabPeserta } from "./tab-views/peserta";
-import { TabDokumen } from "./tab-views/dokumen";
 
 import classnames from "classnames";
 
@@ -29,11 +27,9 @@ function PageEventCategoryDetail() {
   const eventId = parseInt(event_id);
   const orderId = parseInt(order_id);
   const { currentStep, goToStep } = useWizardView(tabsList);
-  const eventState = useEventDetail(eventId);
+  const { eventState, data: event } = useEventDetail(eventId);
   const participantMembersState = useParticipantMembers(orderId);
-  const certificateState = useParticipantCertificates(orderId);
 
-  const { data: eventDetail } = eventState;
   const { data: participantMembers } = participantMembersState;
 
   return (
@@ -46,7 +42,7 @@ function PageEventCategoryDetail() {
         <BreadcrumbDashboard to={`/dashboard/events/${eventId}`}>
           <CapitalizedText>
             {participantMembers?.eventCategoryDetail.categoryLabel ||
-              eventDetail?.publicInformation?.eventName ||
+              event?.publicInformation?.eventName ||
               "Kategori Event"}
           </CapitalizedText>
         </BreadcrumbDashboard>
@@ -70,21 +66,22 @@ function PageEventCategoryDetail() {
             </TabItem>
 
             {/* TODO: uncomment kalo udah ready */}
-            {/* <TabItem */}
-            {/* className={classnames({ "tab-active": currentStep === 3 })} */}
-            {/* onClick={() => goToStep(3)} */}
-            {/* disabled={currentStep === 3} */}
-            {/* > */}
-            {/* Riwayat */}
-            {/* </TabItem> */}
+            {/* <TabItem
+              className={classnames({ "tab-active": currentStep === 3 })}
+              onClick={() => goToStep(3)}
+              disabled={currentStep === 3}
+            >
+              Riwayat
+            </TabItem> */}
 
-            <TabItem
+            {/* TODO: uncomment kalo udah ready */}
+            {/* <TabItem
               className={classnames({ "tab-active": currentStep === 4 })}
               onClick={() => goToStep(4)}
               disabled={currentStep === 4}
             >
               Dokumen
-            </TabItem>
+            </TabItem> */}
           </TabsList>
 
           <PanelWrapper>
@@ -98,13 +95,6 @@ function PageEventCategoryDetail() {
                   eventState={eventState}
                   participantMembersState={participantMembersState}
                 />
-              </WizardViewContent>
-
-              {/* TODO: view tab untuk tab ketiga */}
-              <WizardViewContent noContainer></WizardViewContent>
-
-              <WizardViewContent noContainer>
-                <TabDokumen eventState={eventState} certificateState={certificateState} />
               </WizardViewContent>
             </WizardView>
           </PanelWrapper>
@@ -129,7 +119,7 @@ const TabsList = styled.div`
   background-color: var(--ma-gray-100);
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
-  overflow-x: auto;
+  overflow: hidden;
 `;
 
 const TabItem = styled.button`

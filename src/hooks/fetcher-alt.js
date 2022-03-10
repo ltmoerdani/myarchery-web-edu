@@ -9,7 +9,7 @@ function useFetcher() {
     data: null,
     errors: null,
   });
-
+  const isMounted = useUnmountChecker();
   const { status } = state;
 
   const runAsync = async (serviceFetcher, { onSuccess, onError, transform } = {}) => {
@@ -18,56 +18,49 @@ function useFetcher() {
     }
 
     dispatch({ status: "loading", errors: null });
-
     const result = await serviceFetcher();
+
+    // Cegah memory leak
+    // Gak perlu update state kalau sudah unmount
+    if (!isMounted.current) {
+      return;
+    }
+
     if (result.success) {
-      const resultData = typeof transform === "function" ? transform(result.data) : result.data;
       dispatch({
         status: "success",
-        data: resultData,
+        data: typeof transform === "function" ? transform(result.data) : result.data,
       });
-      onSuccess?.(resultData);
+      onSuccess?.();
     } else {
       const fetchingErrors = errorsUtil.interpretServerErrors(result);
       dispatch({ status: "error", errors: fetchingErrors });
-      onError?.(fetchingErrors);
+      onError?.();
     }
   };
 
   // Pertimbangkan, di reducer ada reset, tapi masih pakai state `attempts`
   const reset = () => dispatch({ status: "idle", errors: null, data: null });
-  const setLoading = () => dispatch({ status: "loading", errors: null });
-  const setSuccess = (data) => {
-    const action = { status: "success" };
-    if (data) {
-      action.data = data;
-    }
-    dispatch(action);
-  };
-  const setError = (errors) => {
-    const action = { status: "error" };
-    if (errors) {
-      action.errors = errors;
-    }
-    dispatch(action);
-  };
 
   const isLoading = status === "loading";
   const isSuccess = status === "success";
-  const isError = status === "errors";
+  const isError = status === "error";
 
-  return {
-    ...state,
-    state,
-    runAsync,
-    reset,
-    setLoading,
-    setSuccess,
-    setError,
-    isLoading,
-    isSuccess,
-    isError,
-  };
+  return { ...state, state, runAsync, reset, isLoading, isSuccess, isError };
+}
+
+function useUnmountChecker() {
+  const isMountedRef = React.useRef(false);
+
+  // Cek mounting komponen
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  return isMountedRef;
 }
 
 export { useFetcher };
