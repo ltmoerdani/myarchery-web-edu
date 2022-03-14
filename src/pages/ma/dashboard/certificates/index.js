@@ -40,7 +40,7 @@ function PageCertificates() {
                         {index > 0 && <GroupSeparator />}
 
                         <CertificatesGroup>
-                          <CategoryName>{certificate.category.label}</CategoryName>
+                          <CategoryName>{certificate.category.name}</CategoryName>
 
                           <CertificatesGrid>
                             {certificate.files.map((file) => (
