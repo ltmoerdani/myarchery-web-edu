@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import { LoadingScreen } from "./loading-screen-portal";
 
 function SpinnerDotBlock() {
   return (
@@ -18,4 +19,4 @@ const StyledSpinnerContainer = styled.div`
   align-items: center;
 `;
 
-export { SpinnerDotBlock };
+export { SpinnerDotBlock, LoadingScreen };

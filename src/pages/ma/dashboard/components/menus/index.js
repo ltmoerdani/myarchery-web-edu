@@ -58,8 +58,8 @@ function DashboardMenus() {
     <React.Fragment>
       <MenuGridWrapperTop>
         <UserProfileCard to="/dashboard/profile" />
-        <MenuItemCard menu={menuItems[0]} href={menuItems[0].computeLink?.()} />
-        <MenuItemCard menu={menuItems[1]} href={menuItems[1].computeLink?.()} />
+        <MenuItemCard menu={menuItems[0]} href="/dashboard/certificates" />
+        <MenuItemCard menu={menuItems[1]} href="/dashboard/clubs" />
       </MenuGridWrapperTop>
 
       <MenuGridWrapper>

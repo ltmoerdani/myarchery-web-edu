@@ -9,7 +9,7 @@ function useFetcher() {
     data: null,
     errors: null,
   });
-
+  const isMounted = useUnmountChecker();
   const { status } = state;
 
   const runAsync = async (serviceFetcher, { onSuccess, onError, transform } = {}) => {
@@ -18,8 +18,14 @@ function useFetcher() {
     }
 
     dispatch({ status: "loading", errors: null });
-
     const result = await serviceFetcher();
+
+    // Cegah memory leak
+    // Gak perlu update state kalau sudah unmount
+    if (!isMounted.current) {
+      return;
+    }
+
     if (result.success) {
       dispatch({
         status: "success",
@@ -38,9 +44,23 @@ function useFetcher() {
 
   const isLoading = status === "loading";
   const isSuccess = status === "success";
-  const isError = status === "errors";
+  const isError = status === "error";
 
   return { ...state, state, runAsync, reset, isLoading, isSuccess, isError };
+}
+
+function useUnmountChecker() {
+  const isMountedRef = React.useRef(false);
+
+  // Cek mounting komponen
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  return isMountedRef;
 }
 
 export { useFetcher };
