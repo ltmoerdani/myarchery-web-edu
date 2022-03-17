@@ -11,28 +11,42 @@ import {
   Row,
   Col,
 } from "reactstrap";
+import { useSelector } from "react-redux";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
 import MetaTags from "react-meta-tags";
 import classNames from "classnames";
 import { OrderEventService } from "services";
 import { useParams, useHistory, Link } from "react-router-dom";
 import styled from "styled-components";
+import { Button, ButtonBlue } from "components/ma";
+import SweetAlert from "react-bootstrap-sweetalert";
+import * as AuthStore from "store/slice/authentication";
+import logoBuatAkun from "assets/images/myachery/Illustration.png";
 
 import event_img from "assets/images/myachery/a-1.jpg";
 
 import "./components/sass/sytles.scss";
 import Avatar from "./components/Avatar";
-import { ButtonBlue } from "components/ma";
 
 function PageTransactionDetail() {
   const [activeTab, setActiveTab] = useState("1");
   const [dataDetail, setDataDetail] = useState({});
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
   const { orderId } = useParams();
   // eslint-disable-next-line no-unused-vars
   const { push } = useHistory();
 
   const breadcrumpCurrentPageLabel = "Kembali";
+
+  const onConfirm = () => {
+    push("/dashboard/profile/verifikasi");
+  };
+
+  const onCancel = () => {
+    setIsAlertOpen(false);
+  };
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
@@ -54,6 +68,11 @@ function PageTransactionDetail() {
       return "di-ikuti";
     }
   };
+
+  useEffect(() => {
+    setIsAlertOpen(true);
+  }, []);
+
   useEffect(() => {
     const getOrderEventBySlug = async () => {
       const { data, message, errors } = await OrderEventService.get({ id: orderId });
@@ -72,19 +91,21 @@ function PageTransactionDetail() {
   }, [dataDetail?.transactionInfo?.snapToken]);
 
   useEffect(() => {
-    const snapSrcUrl = `${dataDetail?.transactionInfo?.clientLibLink}`;
-    const myMidtransClientKey = `${dataDetail?.transactionInfo?.clientKey}`; //change this according to your client-key
+    if (userProfile?.verifyStatus == 1) {
+      const snapSrcUrl = `${dataDetail?.transactionInfo?.clientLibLink}`;
+      const myMidtransClientKey = `${dataDetail?.transactionInfo?.clientKey}`; //change this according to your client-key
 
-    const script = document.createElement("script");
-    script.src = snapSrcUrl;
-    script.setAttribute("data-client-key", myMidtransClientKey);
-    script.async = true;
+      const script = document.createElement("script");
+      script.src = snapSrcUrl;
+      script.setAttribute("data-client-key", myMidtransClientKey);
+      script.async = true;
 
-    document.body.appendChild(script);
+      document.body.appendChild(script);
 
-    return () => {
-      document.body.removeChild(script);
-    };
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
   }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
   const handleClickPayment = () => {
@@ -125,6 +146,136 @@ function PageTransactionDetail() {
   const handlerEvenDate = (date) => {
     const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
     return dateEvent;
+  };
+
+  const verifiedAlert = () => {
+    if (userProfile?.verifyStatus == 1) {
+      return null;
+    }
+    if (userProfile?.verifyStatus == 2) {
+      return (
+        <>
+          <SweetAlert
+            show={isAlertOpen}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={onConfirm}
+            style={{ padding: "1.25rem" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
+                  Nanti Saja
+                </Button>
+                <ButtonBlue onClick={onConfirm}>Ya, lengkapi data</ButtonBlue>
+              </span>
+            }
+          >
+            <div className="d-flex justify-content-center flex-column">
+              <div style={{ width: "60%", margin: "0 auto" }}>
+                <div style={{ width: "214px", height: "145px" }}>
+                  <img
+                    src={logoBuatAkun}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+              <span
+                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
+                className="mt-3"
+              >
+                Verifikasi Akun
+              </span>
+              <p>
+                Proses verifikasi Anda hampir selesai,
+                <br />
+                <span>{userProfile?.reasonRejected}</span>
+              </p>
+            </div>
+          </SweetAlert>
+        </>
+      );
+    }
+    if (userProfile?.verifyStatus == 3) {
+      return (
+        <>
+          <SweetAlert
+            show={isAlertOpen}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={() => push("/dashboard")}
+            style={{ padding: "1.25rem" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <ButtonBlue onClick={() => push("/dashboard")}>Kembali ke Dashboard</ButtonBlue>
+              </span>
+            }
+          >
+            <div className="d-flex justify-content-center flex-column">
+              <div style={{ width: "60%", margin: "0 auto" }}>
+                <div style={{ width: "214px", height: "145px" }}>
+                  <img
+                    src={logoBuatAkun}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+              <p>Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.</p>
+            </div>
+          </SweetAlert>
+        </>
+      );
+    }
+    if (userProfile?.verifyStatus == 4) {
+      return (
+        <>
+          <SweetAlert
+            show={isAlertOpen}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={onConfirm}
+            style={{ padding: "1.25rem" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
+                  Nanti Saja
+                </Button>
+                <ButtonBlue onClick={onConfirm}>Ya, lengkapi data</ButtonBlue>
+              </span>
+            }
+          >
+            <div className="d-flex justify-content-center flex-column">
+              <div style={{ width: "60%", margin: "0 auto" }}>
+                <div style={{ width: "214px", height: "145px" }}>
+                  <img
+                    src={logoBuatAkun}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+              <span
+                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
+                className="mt-3"
+              >
+                Verifikasi Akun
+              </span>
+              <p>
+                Event yang Anda ikuti mewajibkan user untuk melengkapi data. Silakan lengkapi data
+                untuk dapat mengikuti berbagai event panahan.
+              </p>
+            </div>
+          </SweetAlert>
+        </>
+      );
+    }
   };
 
   return (
@@ -498,13 +649,19 @@ function PageTransactionDetail() {
                               {dataDetail?.transactionInfo?.statusId == 4 ? (
                                 <>
                                   <button
-                                    onClick={handleClickPayment}
+                                    onClick={
+                                      userProfile?.verifyStatus != 1
+                                        ? () => setIsAlertOpen(true)
+                                        : handleClickPayment
+                                    }
                                     className="btn"
                                     style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                                   >
                                     Bayar Sekarang
                                   </button>
-                                  <p style={{textAlign:"center"}}>code : {dataDetail?.transactionInfo?.orderId}</p>
+                                  <p style={{ textAlign: "center" }}>
+                                    code : {dataDetail?.transactionInfo?.orderId}
+                                  </p>
                                 </>
                               ) : (
                                 <>
@@ -530,6 +687,7 @@ function PageTransactionDetail() {
           </TabContent>
         </div>
       </Container>
+      {verifiedAlert()}
     </React.Fragment>
   );
 }
