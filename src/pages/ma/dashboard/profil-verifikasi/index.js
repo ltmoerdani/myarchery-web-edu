@@ -12,11 +12,12 @@ import { FieldSelect } from "./components";
 import SweetAlert from "react-bootstrap-sweetalert";
 import "./components/sass/styles.scss";
 import logoBuatAkun from "assets/images/myachery/tungu-verifiakasi.svg";
+import logoWarning from "assets/images/myachery/warning.png"
+import logoSuccess from "assets/images/myachery/success.png"
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
 import {
   AlertSubmitError,
-  AlertSubmitSuccess,
   AlertConfirmAction,
   ButtonBlue,
 } from "components/ma";
@@ -41,6 +42,7 @@ function PageProfileVerifikasiHome() {
     { status: "idle", errors: null }
   );
   const [isPromptCancelOpen, setPromptCancelOpen] = React.useState(false);
+  const [isPromptSendOpen, setPromptSendOpen] = React.useState(false);
 
   const breadcrumpCurrentPageLabel = "Ajukan Data";
   const isUpdateFormClean = !Object.keys(updateFormData).length;
@@ -557,25 +559,33 @@ function PageProfileVerifikasiHome() {
 
       <LoadingScreen loading={formSubmit.status === "loading"} />
       <AlertSubmitError isError={formSubmit.status === "error"} errors={formSubmit.errors} />
-      <AlertSubmitSuccess
-        isSuccess={formSubmit.status === "success"}
+      <AlertConfirmAction
+        shouldConfirm={formSubmit.status === "success" ? formSubmit.status === "success" : isPromptSendOpen}
         labelConfirm="Sudah Benar"
+        labelCancel="Cek Kembali"
+        onClose={() => setPromptSendOpen(false)}
         onConfirm={() => {
           setIsAlertOpen(true);
         }}
       >
+         <div className="mt-2">
+          <img src={logoSuccess} />
+        </div>
         Apakah data Anda sudah benar?
-      </AlertSubmitSuccess>
+      </AlertConfirmAction>
 
       <AlertConfirmAction
         shouldConfirm={isPromptCancelOpen}
-        onConfirm={() => setIsAlertOpen(true)}
+        onConfirm={() => history.push("/dashboard")}
         onClose={() => setPromptCancelOpen(false)}
-        labelConfirm="Sudah Benar"
-        labelCancel="Lanjutkan mengisi"
+        labelConfirm="Ya, kembali ke dashboard"
+        labelCancel="Tidak, lanjutkan isi data"
         reverseActions
       >
-        Apakah data Anda sudah benar?
+        <div className="mt-2">
+          <img src={logoWarning} />
+        </div>
+        Anda belum menyelesaikan pengisian data, yakin akan membatalkan pengisian data?
       </AlertConfirmAction>
       {verifiedAlert()}
     </ProfileWrapper>
