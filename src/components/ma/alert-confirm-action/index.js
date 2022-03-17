@@ -42,7 +42,7 @@ function AlertConfirmAction({
         style={{ padding: "30px 40px", width: "520px" }}
         onConfirm={handleConfirm}
         customButtons={
-          <span className="d-flex justify-content-center" style={{ gap: "0.5rem" }}>
+          <span className="d-flex flex-column justify-content-center" style={{ gap: "0.5rem" }}>
             <Button
               style={{ minWidth: 120 }}
               onClick={reverseActions ? handleConfirm : handleCancel}

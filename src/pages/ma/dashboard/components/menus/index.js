@@ -35,7 +35,7 @@ const menuItems = [
     id: 4,
     icon: shoppingBag,
     title: "Transaksi",
-    description: "Daftar klub yang Anda ikuti. Temukan berbagai klub panahan di myarchery.id",
+    description: "Daftar event yang Anda ikuti. Temukan berbagai event panahan di myarchery.id",
     computeLink: () => "/dashboard/list-transaction",
   },
 ];

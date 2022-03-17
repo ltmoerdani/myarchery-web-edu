@@ -8,9 +8,10 @@ import { Container } from "reactstrap";
 import LatestEventsList from "./components/latest-events";
 import DashboardMenus from "./components/menus";
 import SweetAlert from "react-bootstrap-sweetalert";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { Button, ButtonBlue } from "components/ma";
 import logoBuatAkun from "assets/images/myachery/Illustration.png";
+import icon from "assets/images/myachery/icon.svg";
 
 const DashboardWrapper = styled.div`
   margin: 40px 0;
@@ -137,6 +138,65 @@ function PageDashboard() {
       );
     }
   };
+
+  const statusVerifikasi = () => {
+    if (userProfile?.verifyStatus == 4) {
+      return (
+        <div className="d-flex align-items-center p-2" style={{ backgroundColor: "#F2F8FF" }}>
+          <div style={{ width: "24px", height: "24px" }}>
+            <img width="100%" height="100%" src={icon} />
+          </div>
+          <div className="ms-2">
+            <span style={{ fontWeight: "600" }}>
+              Akun Anda belum terverifikasi. Silakan lengkapi data Anda.
+            </span>
+          </div>
+          <div style={{ width: "60%" }}>
+            <Link className="float-end" to="/dashboard/profile/verifikasi">
+              <span>Verifikasi Sekarang</span>
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    if (userProfile?.verifyStatus == 3) {
+      return (
+        <div className="d-flex align-items-center p-2" style={{ backgroundColor: "#F2F8FF" }}>
+          <div style={{ width: "24px", height: "24px" }}>
+            <img width="100%" height="100%" src={icon} />
+          </div>
+          <div className="ms-2">
+            <span style={{ fontWeight: "600" }}>Akun Anda sedang dalam proses verifikasi.</span>
+          </div>
+          <div style={{ width: "70%" }}>
+            <Link className="float-end" to="/dashboard/profile/verifikasi">
+              <span>Halam Verifikasi</span>
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    if (userProfile?.verifyStatus == 2) {
+      return (
+        <div className="d-flex align-items-center p-2" style={{ backgroundColor: "#fcc8c2" }}>
+          <div style={{ width: "24px", height: "24px" }}>
+            <img width="100%" height="100%" src={icon} />
+          </div>
+          <div className="ms-2">
+            <span style={{ fontWeight: "600" }}>Proses verifikasi ditolak karena {userProfile?.reasonRejected}, silahkan ajukan lagi.</span>
+          </div>
+          <div style={{ width: "70%" }}>
+            <Link className="float-end" to="/dashboard/profile/verifikasi">
+              <span>Halam Verifikasi</span>
+            </Link>
+          </div>
+        </div>
+      );
+    }
+  };
+  
   return (
     <DashboardWrapper>
       <MetaTags>
@@ -144,9 +204,12 @@ function PageDashboard() {
       </MetaTags>
 
       <Container fluid>
-        <div className="mb-5">
+        <div className="mb-2">
           <GreetingUserText>{userProfile}</GreetingUserText>
           <p className="subheading">Selamat datang di myarchery.id</p>
+          <div className="mt-3">
+            {statusVerifikasi()}
+          </div>
         </div>
 
         <DashboardMenus />
