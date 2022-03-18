@@ -79,7 +79,7 @@ function PageTransactionDetail() {
 
       if (data) {
         setDataDetail(data);
-        if (dataDetail?.transactionInfo?.statusId == 4) {
+        if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
           handleClickPayment();
         }
         console.log(message);
@@ -91,23 +91,19 @@ function PageTransactionDetail() {
   }, [dataDetail?.transactionInfo?.snapToken]);
 
   useEffect(() => {
-    if (userProfile?.verifyStatus === 1) {
-      const snapSrcUrl = `${dataDetail?.transactionInfo?.clientLibLink}`;
-      const myMidtransClientKey = `${dataDetail?.transactionInfo?.clientKey}`; //change this according to your client-key
+    const snapSrcUrl = `${dataDetail?.transactionInfo?.clientLibLink}`;
+    const myMidtransClientKey = `${dataDetail?.transactionInfo?.clientKey}`; //change this according to your client-key
 
-      const script = document.createElement("script");
-      script.src = snapSrcUrl;
-      script.setAttribute("data-client-key", myMidtransClientKey);
-      script.async = true;
+    const script = document.createElement("script");
+    script.src = snapSrcUrl;
+    script.setAttribute("data-client-key", myMidtransClientKey);
+    script.async = true;
 
-      document.body.appendChild(script);
+    document.body.appendChild(script);
 
-      return () => {
-        document.body.removeChild(script);
-      };
-    }else {
-      return null
-    }
+    return () => {
+      document.body.removeChild(script);
+    };
   }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
   const handleClickPayment = () => {
