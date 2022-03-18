@@ -91,7 +91,7 @@ function PageTransactionDetail() {
   }, [dataDetail?.transactionInfo?.snapToken]);
 
   useEffect(() => {
-    if (userProfile?.verifyStatus == 1) {
+    if (userProfile?.verifyStatus === 1) {
       const snapSrcUrl = `${dataDetail?.transactionInfo?.clientLibLink}`;
       const myMidtransClientKey = `${dataDetail?.transactionInfo?.clientKey}`; //change this according to your client-key
 
@@ -105,6 +105,8 @@ function PageTransactionDetail() {
       return () => {
         document.body.removeChild(script);
       };
+    }else {
+      return null
     }
   }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
