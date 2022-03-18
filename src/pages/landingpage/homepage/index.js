@@ -338,7 +338,13 @@ function LandingPage() {
 
             <div className="mt-4">
               <ButtonOutlineBlue
+                onClick={() => window.open(eventData?.publicInformation?.handbook)}
                 className="w-100 fw-bold"
+              >
+                Download THB
+              </ButtonOutlineBlue>
+              <ButtonOutlineBlue
+                className="w-100 fw-bold mt-2"
                 as={Link}
                 to={`/live-score/${slug}/qualification`}
               >
