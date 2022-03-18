@@ -534,16 +534,39 @@ function PageEventRegistration() {
 
                 <div className="d-flex flex-column justify-content-between">
                   <TicketSectionTotal>
-                    <LabelTotal>Total Pembayaran</LabelTotal>
-                    <TotalWithCurrency
-                      displayType={"text"}
-                      value={category ? Number(category?.fee) : 0}
-                      prefix="Rp"
-                      thousandSeparator={"."}
-                      decimalSeparator={","}
-                      decimalScale={2}
-                      fixedDecimalScale
-                    />
+                    <div>
+                      <LabelTotal>Total Pembayaran</LabelTotal>
+                    </div>
+                    <div>
+                      {category?.endDateEarlyBird ? (
+                        <>
+                          <span className="me-2" style={{ textDecoration: "line-through" }}>
+                            Rp {Number(category?.fee)}
+                          </span>
+                          <TotalWithCurrency
+                            displayType={"text"}
+                            value={category ? Number(category?.earlyBird) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={2}
+                            fixedDecimalScale
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <TotalWithCurrency
+                            displayType={"text"}
+                            value={category ? Number(category?.fee) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={2}
+                            fixedDecimalScale
+                          />
+                        </>
+                      )}
+                    </div>
                   </TicketSectionTotal>
 
                   {currentStep === 1 ? (
