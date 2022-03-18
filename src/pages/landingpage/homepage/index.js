@@ -337,12 +337,15 @@ function LandingPage() {
             </div>
 
             <div className="mt-4">
-              <ButtonOutlineBlue
+              { eventData?.publicInformation?.handbook ? (
+                <ButtonOutlineBlue
                 onClick={() => window.open(eventData?.publicInformation?.handbook)}
                 className="w-100 fw-bold"
-              >
+                >
                 Download THB
               </ButtonOutlineBlue>
+              ): null
+              }
               <ButtonOutlineBlue
                 className="w-100 fw-bold mt-2"
                 as={Link}
