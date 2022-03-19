@@ -85,6 +85,7 @@ function LandingPage() {
               fee: eventCategori?.fee,
               earlyBird: eventCategori?.earlyBird,
               endDateEarlyBird: eventCategori?.endDateEarlyBird,
+              isEarlyBird: eventCategori?.isEarlyBird,
             });
 
           checkFees[eventCategori.teamCategoryId.id] = 1;
@@ -261,7 +262,7 @@ function LandingPage() {
                           )}`}
                         </span>
                         <br />
-                        {eventCategori?.endDateEarlyBird ? (
+                        {eventCategori?.isEarlyBird ? (
                           <>
                             <span>
                               Early Bird{" "}
