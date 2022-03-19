@@ -538,7 +538,7 @@ function PageEventRegistration() {
                       <LabelTotal>Total Pembayaran</LabelTotal>
                     </div>
                     <div>
-                      {category?.endDateEarlyBird ? (
+                      {category?.isEarlyBird ? (
                         <>
                           <span className="me-2" style={{ textDecoration: "line-through" }}>
                             Rp {Number(category?.fee)}
