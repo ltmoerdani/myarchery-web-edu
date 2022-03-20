@@ -13,6 +13,9 @@ import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 import { format } from "date-fns";
 
+import { parseISO, format } from "date-fns";
+import { id } from "date-fns/locale";
+
 const { TEAM_CATEGORIES } = eventCategories;
 
 const categoryTabsList = [
@@ -111,56 +114,15 @@ function LandingPage() {
 
   const categoriesByTeam = React.useMemo(() => computeCategoriesByTeam(category), [category]);
 
-  // const months = [
-  //   "January",
-  //   "February",
-  //   "March",
-  //   "April",
-  //   "May",
-  //   "June",
-  //   "July",
-  //   "August",
-  //   "September",
-  //   "October",
-  //   "November",
-  //   "December",
-  // ];
+  const dateEventStart = eventData ? parseISO(eventData?.publicInformation?.eventStart) : "";
+  const dateEventEnd = eventData ? parseISO(eventData?.publicInformation?.eventEnd) : "";
 
-  const dateEventStart = format(
-    new Date(
-      eventData?.publicInformation?.eventStart ? eventData?.publicInformation?.eventStart : null
-    ),
-    "d MMMM yyyy"
-  );
-  // const dateEventStart = new Date(eventData?.publicInformation?.eventStart);
-  const dateEventEnd = format(
-    new Date(
-      eventData?.publicInformation?.eventEnd ? eventData?.publicInformation?.eventEnd : null
-    ),
-    "d MMMM yyyy"
-  );
-
-  const registerEventStart = format(
-    new Date(
-      eventData?.publicInformation?.eventStartRegister
-        ? eventData?.publicInformation?.eventStartRegister
-        : null
-    ),
-    "d MMMM yyyy"
-  );
-  const registerEventEnd = format(
-    new Date(
-      eventData?.publicInformation?.eventEndRegister
-        ? eventData?.publicInformation?.eventEndRegister
-        : null
-    ),
-    "d MMMM yyyy"
-  );
-
-  // const handlerEvenDate = (date) => {
-  //   const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
-  //   return dateEvent;
-  // };
+  const registerEventStart = eventData
+    ? parseISO(eventData?.publicInformation?.eventStartRegister)
+    : "";
+  const registerEventEnd = eventData
+    ? parseISO(eventData?.publicInformation?.eventEndRegister)
+    : "";
 
   const breadcrumpCurrentPageLabel = () => {
     return (
@@ -242,7 +204,11 @@ function LandingPage() {
                   <tr>
                     <td style={{ minWidth: 120 }}>Tanggal Event</td>
                     <td style={{ minWidth: "0.5rem" }}>:</td>
-                    <td>{`${dateEventStart} - ${dateEventEnd}`}</td>
+                    <td>
+                      {eventData
+                        ? `${formatEventDate(dateEventStart)} - ${formatEventDate(dateEventEnd)}`
+                        : "tanggal tidak tersedia"}
+                    </td>
                   </tr>
                   <tr>
                     <td>Lokasi</td>
@@ -282,20 +248,22 @@ function LandingPage() {
                         <strong>{eventCategori.label}:</strong>
                         <br />
                         <span>
-                          Tanggal Registrasi {`${registerEventStart} - ${registerEventEnd}`}
+                          {eventData && (
+                            <React.Fragment>
+                              Tanggal Registrasi{" "}
+                              {`${formatEventDate(registerEventStart)} - ${formatEventDate(
+                                registerEventEnd
+                              )}`}
+                            </React.Fragment>
+                          )}
                         </span>
                         <br />
                         {eventCategori?.isEarlyBird ? (
                           <>
                             <span>
                               Early Bird{" "}
-                              {`${registerEventStart} -  ${format(
-                                new Date(
-                                  eventCategori?.endDateEarlyBird
-                                    ? eventCategori?.endDateEarlyBird
-                                    : null
-                                ),
-                                "d MMMM yyyy"
+                              {`${formatEventDate(registerEventStart)} -  ${formatEventDate(
+                                eventCategori?.endDateEarlyBird
                               )}`}
                             </span>
                             <br />
@@ -732,5 +700,11 @@ const PageWrapper = styled.div`
 const DescriptionContent = styled.p`
   white-space: pre-wrap;
 `;
+
+// util
+function formatEventDate(date) {
+  let dateObject = typeof date === "string" ? parseISO(date) : date;
+  return format(dateObject, "d MMMM yyyy", { locale: id });
+}
 
 export default LandingPage;
