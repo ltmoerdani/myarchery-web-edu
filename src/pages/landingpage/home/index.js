@@ -12,6 +12,9 @@ import { Landingpage } from "services";
 
 import { ButtonBlue } from "components/ma";
 
+import { parseISO, format } from "date-fns";
+import { id } from "date-fns/locale";
+
 import banner_satu from "../../../assets/images/myachery/banner6 1.svg";
 import banner_dua_hero from "../../../assets/images/myachery/banner6 2.svg";
 import banner_tiga_hero from "../../../assets/images/myachery/banner6 3.svg";
@@ -70,25 +73,9 @@ function Home() {
   };
 
   const getDateEvent = (number) => {
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    let date = new Date(dataEvent[number]?.eventStartDatetime);
-    let startDate = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    const startDate = formatEventDate(dataEvent[number]?.eventStartDatetime);
+    const EndDate = formatEventDate(dataEvent[number]?.eventEndDatetime);
 
-    let dateend = new Date(dataEvent[number]?.eventEndDatetime);
-    let EndDate = `${dateend.getDate()} ${monthNames[dateend.getMonth()]} ${dateend.getFullYear()}`;
     return (
       <>
         <span>
@@ -216,7 +203,9 @@ function Home() {
                           </div>
                           <div>
                             <span className="bx bx-calendar"></span>
-                            <span className="ms-1">{getDateEvent(numberEventOne)}</span>
+                            <span className="ms-1">
+                              {dataEvent?.[numberEventOne] && getDateEvent(numberEventOne)}
+                            </span>
                           </div>
                           <div className="mt-3">
                             <div
@@ -264,7 +253,9 @@ function Home() {
                           </div>
                           <div>
                             <span className="bx bx-calendar"></span>
-                            <span className="ms-1">{getDateEvent(numberEventTwo)}</span>
+                            <span className="ms-1">
+                              {dataEvent?.[numberEventTwo] && getDateEvent(numberEventTwo)}
+                            </span>
                           </div>
                           <div className="mt-3">
                             <div
@@ -488,6 +479,12 @@ function Home() {
       </div>
     </React.Fragment>
   );
+}
+
+// util
+function formatEventDate(date) {
+  const dateObject = typeof date === "string" ? parseISO(date) : date;
+  return format(dateObject, "d MMMM yyyy", { locale: id });
 }
 
 export default Home;
