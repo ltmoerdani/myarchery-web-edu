@@ -11,6 +11,7 @@ import classnames from "classnames";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
+import { format } from "date-fns";
 
 const { TEAM_CATEGORIES } = eventCategories;
 
@@ -110,31 +111,56 @@ function LandingPage() {
 
   const categoriesByTeam = React.useMemo(() => computeCategoriesByTeam(category), [category]);
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  // const months = [
+  //   "January",
+  //   "February",
+  //   "March",
+  //   "April",
+  //   "May",
+  //   "June",
+  //   "July",
+  //   "August",
+  //   "September",
+  //   "October",
+  //   "November",
+  //   "December",
+  // ];
 
-  const dateEventStart = new Date(eventData?.publicInformation?.eventStart);
-  const dateEventEnd = new Date(eventData?.publicInformation?.eventEnd);
+  const dateEventStart = format(
+    new Date(
+      eventData?.publicInformation?.eventStart ? eventData?.publicInformation?.eventStart : null
+    ),
+    "d MMMM yyyy"
+  );
+  // const dateEventStart = new Date(eventData?.publicInformation?.eventStart);
+  const dateEventEnd = format(
+    new Date(
+      eventData?.publicInformation?.eventEnd ? eventData?.publicInformation?.eventEnd : null
+    ),
+    "d MMMM yyyy"
+  );
 
-  const registerEventStart = new Date(eventData?.publicInformation?.eventStartRegister);
-  const registerEventEnd = new Date(eventData?.publicInformation?.eventEndRegister);
+  const registerEventStart = format(
+    new Date(
+      eventData?.publicInformation?.eventStartRegister
+        ? eventData?.publicInformation?.eventStartRegister
+        : null
+    ),
+    "d MMMM yyyy"
+  );
+  const registerEventEnd = format(
+    new Date(
+      eventData?.publicInformation?.eventEndRegister
+        ? eventData?.publicInformation?.eventEndRegister
+        : null
+    ),
+    "d MMMM yyyy"
+  );
 
-  const handlerEvenDate = (date) => {
-    const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
-    return dateEvent;
-  };
+  // const handlerEvenDate = (date) => {
+  //   const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
+  //   return dateEvent;
+  // };
 
   const breadcrumpCurrentPageLabel = () => {
     return (
@@ -216,7 +242,7 @@ function LandingPage() {
                   <tr>
                     <td style={{ minWidth: 120 }}>Tanggal Event</td>
                     <td style={{ minWidth: "0.5rem" }}>:</td>
-                    <td>{`${handlerEvenDate(dateEventStart)} ${handlerEvenDate(dateEventEnd)}`}</td>
+                    <td>{`${dateEventStart} - ${dateEventEnd}`}</td>
                   </tr>
                   <tr>
                     <td>Lokasi</td>
@@ -256,18 +282,20 @@ function LandingPage() {
                         <strong>{eventCategori.label}:</strong>
                         <br />
                         <span>
-                          Tanggal Registrasi{" "}
-                          {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
-                            registerEventEnd
-                          )}`}
+                          Tanggal Registrasi {`${registerEventStart} - ${registerEventEnd}`}
                         </span>
                         <br />
                         {eventCategori?.isEarlyBird ? (
                           <>
                             <span>
                               Early Bird{" "}
-                              {`${handlerEvenDate(registerEventStart)} -  ${handlerEvenDate(
-                                new Date(eventCategori?.endDateEarlyBird)
+                              {`${registerEventStart} -  ${format(
+                                new Date(
+                                  eventCategori?.endDateEarlyBird
+                                    ? eventCategori?.endDateEarlyBird
+                                    : null
+                                ),
+                                "d MMMM yyyy"
                               )}`}
                             </span>
                             <br />
@@ -338,15 +366,14 @@ function LandingPage() {
             </div>
 
             <div className="mt-4">
-              { eventData?.publicInformation?.handbook ? (
+              {eventData?.publicInformation?.handbook ? (
                 <ButtonOutlineBlue
-                onClick={() => window.open(eventData?.publicInformation?.handbook)}
-                className="w-100 fw-bold"
+                  onClick={() => window.open(eventData?.publicInformation?.handbook)}
+                  className="w-100 fw-bold"
                 >
-                Download THB
-              </ButtonOutlineBlue>
-              ): null
-              }
+                  Download THB
+                </ButtonOutlineBlue>
+              ) : null}
               <ButtonOutlineBlue
                 className="w-100 fw-bold mt-2"
                 as={Link}
