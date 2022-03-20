@@ -307,12 +307,13 @@ function LandingPage() {
             </div>
 
             <div className="event-countdown-box">
-              <h5>Waktu tersisa</h5>
+              {eventData && (
+                <React.Fragment>
+                  <h5>Waktu tersisa</h5>
+                  <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
+                </React.Fragment>
+              )}
 
-              <Countdown
-                date={`${eventData?.publicInformation?.eventEndRegister}`}
-                renderer={HandlerCountDown}
-              />
               {eventData?.closedRegister ? (
                 <Button disabled style={{ width: 120 }}>
                   Tutup
