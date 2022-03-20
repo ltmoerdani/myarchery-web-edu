@@ -8,10 +8,10 @@ import { useWizardView } from "hooks/wizard-view";
 import { EventsService, OrderEventService } from "services";
 
 import MetaTags from "react-meta-tags";
-import { Container as BSContainer, Table as BSTable } from "reactstrap";
+import { Container as BSContainer, Table as BSTable, Input, Label} from "reactstrap";
 import CurrencyFormat from "react-currency-format";
 import SweetAlert from "react-bootstrap-sweetalert";
-import { LoadingScreen } from "components";
+import { LoadingScreen} from "components";
 import {
   WizardView,
   WizardViewContent,
@@ -52,6 +52,7 @@ const initialFormState = {
 };
 
 function PageEventRegistration() {
+  const [withClub, setWithClub] = React.useState("yes");
   const { slug } = useParams();
   const { search } = useLocation();
   const { categoryId } = queryString.parse(search);
@@ -108,6 +109,10 @@ function PageEventRegistration() {
       validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
     }
 
+    if (!club?.detail.id && withClub == "yes") {
+      validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
+    }
+
     // Kategori tim secara umum
     if (
       category?.id &&
@@ -133,6 +138,7 @@ function PageEventRegistration() {
       event_category_id: category.id,
       club_id: club?.detail.id || 0,
       team_name: teamName || undefined,
+      with_club: withClub
     };
 
     const result = await OrderEventService.register(payload);
@@ -299,18 +305,59 @@ function PageEventRegistration() {
                   >
                     <div className="mt-5 mb-0">
                       <h5>Data Peserta</h5>
-                      <p>Masukkan email peserta yang telah terdaftar</p>
+                      {/* <p>Masukkan email peserta yang telah terdaftar</p> */}
                     </div>
                   </SegmentByTeamCategory>
+                  <Label className="form-check-label" htmlFor="yes">
+                          Apakah anda mewakili klub ?
+                        </Label>
+                        <br></br>
+                  <div
+                        className={`form-check form-radio-primary`}
+                        style={{ display: "inline-block", marginRight: 10 }}
+                      >
+                        <Input
+                          type="radio"
+                          name="withClub"
+                          value="yes"
+                          onChange={() => {
+                            setWithClub("yes");
+                          }}
+                          checked={withClub == "yes" ? true : false}
+                          className="form-check-Input"
+                        />
+                        <Label className="form-check-label" htmlFor="yes">
+                          iya, saya mewakili klub
+                        </Label>
+                      </div>
+
+                      <div
+                        className={`form-check form-radio-primary`}
+                        style={{ display: "inline-block", marginRight: 10 }}
+                      >
+                        <Input
+                          type="radio"
+                          name="withClub"
+                          value="no"
+                          onChange={() => {
+                            setWithClub("no");
+                          }}
+                          checked={withClub == "no" ? true : false}
+                          className="form-check-Input"
+                        />
+                        <Label className="form-check-label" htmlFor="no">
+                        tidak, saya individu
+                        </Label>
+                      </div>
 
                   <FieldSelectClub
                     required={category?.id && !isCategoryIndividu}
-                    disabled={!category?.id}
+                    disabled={!category?.id || withClub=="no"}
                     value={club}
                     onChange={(clubValue) => updateFormData({ club: clubValue })}
                     errors={formErrors.club}
                   >
-                    Nama Klub
+                    Pilih Klub yang diwakilkan
                   </FieldSelectClub>
                   {isCategoryIndividu && (
                     <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
@@ -534,16 +581,39 @@ function PageEventRegistration() {
 
                 <div className="d-flex flex-column justify-content-between">
                   <TicketSectionTotal>
-                    <LabelTotal>Total Pembayaran</LabelTotal>
-                    <TotalWithCurrency
-                      displayType={"text"}
-                      value={category ? Number(category?.fee) : 0}
-                      prefix="Rp"
-                      thousandSeparator={"."}
-                      decimalSeparator={","}
-                      decimalScale={2}
-                      fixedDecimalScale
-                    />
+                    <div>
+                      <LabelTotal>Total Pembayaran</LabelTotal>
+                    </div>
+                    <div>
+                      {category?.isEarlyBird ? (
+                        <>
+                          <span className="me-2" style={{ textDecoration: "line-through" }}>
+                            Rp {Number(category?.fee)}
+                          </span>
+                          <TotalWithCurrency
+                            displayType={"text"}
+                            value={category ? Number(category?.earlyBird) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={2}
+                            fixedDecimalScale
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <TotalWithCurrency
+                            displayType={"text"}
+                            value={category ? Number(category?.fee) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={2}
+                            fixedDecimalScale
+                          />
+                        </>
+                      )}
+                    </div>
                   </TicketSectionTotal>
 
                   {currentStep === 1 ? (

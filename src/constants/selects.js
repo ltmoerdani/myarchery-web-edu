@@ -13,6 +13,17 @@ const eventLocationType = [
   },
 ];
 
+const eventRegisterClub = [
+  {
+    id: "yes",
+    label: "iya, saya mewakili club",
+  },
+  {
+    id: "no",
+    label: "tidak, saya individu",
+  }
+];
+
 const eventAvailableRegistrationFee = [
   {
     id: "normal",
@@ -111,4 +122,5 @@ export default {
   eventPublishTime,
   fulldayAudience,
   gender,
+  eventRegisterClub
 };

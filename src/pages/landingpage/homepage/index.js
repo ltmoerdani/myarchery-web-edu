@@ -80,7 +80,13 @@ function LandingPage() {
       if (data.eventCategories && data.eventCategories.length > 0) {
         data.eventCategories.map((eventCategori) => {
           if (checkFees[eventCategori.teamCategoryId.id] == undefined)
-            fees.push({ label: eventCategori?.teamCategoryId?.label, fee: eventCategori?.fee });
+            fees.push({
+              label: eventCategori?.teamCategoryId?.label,
+              fee: eventCategori?.fee,
+              earlyBird: eventCategori?.earlyBird,
+              endDateEarlyBird: eventCategori?.endDateEarlyBird,
+              isEarlyBird: eventCategori?.isEarlyBird,
+            });
 
           checkFees[eventCategori.teamCategoryId.id] = 1;
         });
@@ -243,6 +249,7 @@ function LandingPage() {
               <h5 className="content-info-heading">Biaya Registrasi</h5>
               <div>
                 {eventPerCategoryTeamPriceData.map((eventCategori) => {
+                  console.log(eventCategori);
                   return (
                     <>
                       <p>
@@ -255,12 +262,39 @@ function LandingPage() {
                           )}`}
                         </span>
                         <br />
-                        <span>
-                          Mulai dari Rp{" "}
-                          {Number(eventCategori?.fee)
-                            .toFixed(2)
-                            .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-                        </span>
+                        {eventCategori?.isEarlyBird ? (
+                          <>
+                            <span>
+                              Early Bird{" "}
+                              {`${handlerEvenDate(registerEventStart)} -  ${handlerEvenDate(
+                                new Date(eventCategori?.endDateEarlyBird)
+                              )}`}
+                            </span>
+                            <br />
+                            <span>Mulai dari</span>
+                            <span style={{ textDecoration: "line-through" }} className="ms-2">
+                              Rp{" "}
+                              {Number(eventCategori?.fee)
+                                .toFixed(2)
+                                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
+                            </span>
+                            <span className="ms-2">
+                              Rp{" "}
+                              {Number(eventCategori?.earlyBird)
+                                .toFixed(2)
+                                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span>
+                              Mulai dari Rp{" "}
+                              {Number(eventCategori?.fee)
+                                .toFixed(2)
+                                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
+                            </span>
+                          </>
+                        )}
                       </p>
                     </>
                   );
@@ -304,8 +338,17 @@ function LandingPage() {
             </div>
 
             <div className="mt-4">
-              <ButtonOutlineBlue
+              { eventData?.publicInformation?.handbook ? (
+                <ButtonOutlineBlue
+                onClick={() => window.open(eventData?.publicInformation?.handbook)}
                 className="w-100 fw-bold"
+                >
+                Download THB
+              </ButtonOutlineBlue>
+              ): null
+              }
+              <ButtonOutlineBlue
+                className="w-100 fw-bold mt-2"
                 as={Link}
                 to={`/live-score/${slug}/qualification`}
               >

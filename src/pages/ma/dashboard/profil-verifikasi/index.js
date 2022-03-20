@@ -9,10 +9,18 @@ import * as AuthStore from "store/slice/authentication";
 import { ArcherService, ArcheryClubService } from "services";
 import { useHistory } from "react-router-dom";
 import { FieldSelect } from "./components";
+import SweetAlert from "react-bootstrap-sweetalert";
 import "./components/sass/styles.scss";
+import logoBuatAkun from "assets/images/myachery/tungu-verifiakasi.svg";
+import logoWarning from "assets/images/myachery/warning.png"
+import logoSuccess from "assets/images/myachery/success.png"
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
-import { AlertSubmitError, AlertSubmitSuccess, AlertConfirmAction } from "components/ma";
+import {
+  AlertSubmitError,
+  AlertConfirmAction,
+  ButtonBlue,
+} from "components/ma";
 import VerifikasiResume from "./components/VerifikasiResume";
 
 import { filesUtil, errorsUtil } from "utils";
@@ -28,11 +36,13 @@ function PageProfileVerifikasiHome() {
   const [detailData, setDetailData] = useState({});
   const [provinceOptions, setProvinceOptions] = React.useState([]);
   const [cityOptions, setCityOptions] = React.useState([]);
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false);
   const [formSubmit, dispatchFormSubmit] = React.useReducer(
     (state, action) => ({ ...state, ...action }),
     { status: "idle", errors: null }
   );
   const [isPromptCancelOpen, setPromptCancelOpen] = React.useState(false);
+  const [isPromptSendOpen, setPromptSendOpen] = React.useState(false);
 
   const breadcrumpCurrentPageLabel = "Ajukan Data";
   const isUpdateFormClean = !Object.keys(updateFormData).length;
@@ -231,6 +241,39 @@ function PageProfileVerifikasiHome() {
     setTimeout(() => {
       dispatchFormSubmit({ status: "idle" });
     }, 2000);
+  };
+
+  const onConfirm = () => {
+    history.push("/dashboard");
+  };
+
+  const verifiedAlert = () => {
+    return (
+      <>
+        <SweetAlert
+          show={isAlertOpen}
+          title=""
+          custom
+          btnSize="md"
+          onConfirm={onConfirm}
+          style={{ padding: "1.25rem" }}
+          customButtons={
+            <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+              <ButtonBlue onClick={onConfirm}>Kembali ke Dashboard</ButtonBlue>
+            </span>
+          }
+        >
+          <div className="d-flex justify-content-center flex-column">
+            <div style={{ width: "60%", margin: "0 auto" }}>
+              <div style={{ width: "214px", height: "145px" }}>
+                <img src={logoBuatAkun} width="100%" height="100%" style={{ objectFit: "cover" }} />
+              </div>
+            </div>
+            <p>Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.</p>
+          </div>
+        </SweetAlert>
+      </>
+    );
   };
 
   if (userProfile?.verifyStatus == 1) {
@@ -516,26 +559,35 @@ function PageProfileVerifikasiHome() {
 
       <LoadingScreen loading={formSubmit.status === "loading"} />
       <AlertSubmitError isError={formSubmit.status === "error"} errors={formSubmit.errors} />
-      <AlertSubmitSuccess
-        isSuccess={formSubmit.status === "success"}
-        labelConfirm="Kembali ke dashboard"
+      <AlertConfirmAction
+        shouldConfirm={formSubmit.status === "success" ? formSubmit.status === "success" : isPromptSendOpen}
+        labelConfirm="Sudah Benar"
+        labelCancel="Cek Kembali"
+        onClose={() => setPromptSendOpen(false)}
         onConfirm={() => {
-          history.push("/dashboard");
+          setIsAlertOpen(true);
         }}
       >
-        Pengajuan verifikasi data berhasil disimpan
-      </AlertSubmitSuccess>
+         <div className="mt-2">
+          <img src={logoSuccess} />
+        </div>
+        Apakah data Anda sudah benar?
+      </AlertConfirmAction>
 
       <AlertConfirmAction
         shouldConfirm={isPromptCancelOpen}
         onConfirm={() => history.push("/dashboard")}
         onClose={() => setPromptCancelOpen(false)}
-        labelConfirm="Ke dashboard"
-        labelCancel="Lanjutkan mengisi"
+        labelConfirm="Ya, kembali ke dashboard"
+        labelCancel="Tidak, lanjutkan isi data"
         reverseActions
       >
-        Anda akan dibawa ke dashboard dan data yang terisi tidak akan disimpan jika batal.
+        <div className="mt-2">
+          <img src={logoWarning} />
+        </div>
+        Anda belum menyelesaikan pengisian data, yakin akan membatalkan pengisian data?
       </AlertConfirmAction>
+      {verifiedAlert()}
     </ProfileWrapper>
   );
 }
