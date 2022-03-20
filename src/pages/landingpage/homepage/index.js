@@ -262,7 +262,7 @@ function LandingPage() {
                             <span>
                               Early Bird{" "}
                               {`${formatEventDate(registerEventStart)} -  ${formatEventDate(
-                                new Date(eventCategori?.endDateEarlyBird)
+                                eventCategori?.endDateEarlyBird
                               )}`}
                             </span>
                             <br />
