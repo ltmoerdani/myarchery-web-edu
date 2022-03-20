@@ -12,6 +12,9 @@ import { BreadcrumbDashboard } from "./components/breadcrumb";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
 
+import { parseISO, format } from "date-fns";
+import { id } from "date-fns/locale";
+
 const { TEAM_CATEGORIES } = eventCategories;
 
 const categoryTabsList = [
@@ -110,31 +113,15 @@ function LandingPage() {
 
   const categoriesByTeam = React.useMemo(() => computeCategoriesByTeam(category), [category]);
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const dateEventStart = eventData ? parseISO(eventData?.publicInformation?.eventStart) : "";
+  const dateEventEnd = eventData ? parseISO(eventData?.publicInformation?.eventEnd) : "";
 
-  const dateEventStart = new Date(eventData?.publicInformation?.eventStart);
-  const dateEventEnd = new Date(eventData?.publicInformation?.eventEnd);
-
-  const registerEventStart = new Date(eventData?.publicInformation?.eventStartRegister);
-  const registerEventEnd = new Date(eventData?.publicInformation?.eventEndRegister);
-
-  const handlerEvenDate = (date) => {
-    const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
-    return dateEvent;
-  };
+  const registerEventStart = eventData
+    ? parseISO(eventData?.publicInformation?.eventStartRegister)
+    : "";
+  const registerEventEnd = eventData
+    ? parseISO(eventData?.publicInformation?.eventEndRegister)
+    : "";
 
   const breadcrumpCurrentPageLabel = () => {
     return (
@@ -216,7 +203,11 @@ function LandingPage() {
                   <tr>
                     <td style={{ minWidth: 120 }}>Tanggal Event</td>
                     <td style={{ minWidth: "0.5rem" }}>:</td>
-                    <td>{`${handlerEvenDate(dateEventStart)} ${handlerEvenDate(dateEventEnd)}`}</td>
+                    <td>
+                      {eventData
+                        ? `${formatEventDate(dateEventStart)} - ${formatEventDate(dateEventEnd)}`
+                        : "tanggal tidak tersedia"}
+                    </td>
                   </tr>
                   <tr>
                     <td>Lokasi</td>
@@ -256,18 +247,22 @@ function LandingPage() {
                         <strong>{eventCategori.label}:</strong>
                         <br />
                         <span>
-                          Tanggal Registrasi{" "}
-                          {`${handlerEvenDate(registerEventStart)} - ${handlerEvenDate(
-                            registerEventEnd
-                          )}`}
+                          {eventData && (
+                            <React.Fragment>
+                              Tanggal Registrasi{" "}
+                              {`${formatEventDate(registerEventStart)} - ${formatEventDate(
+                                registerEventEnd
+                              )}`}
+                            </React.Fragment>
+                          )}
                         </span>
                         <br />
                         {eventCategori?.isEarlyBird ? (
                           <>
                             <span>
                               Early Bird{" "}
-                              {`${handlerEvenDate(registerEventStart)} -  ${handlerEvenDate(
-                                new Date(eventCategori?.endDateEarlyBird)
+                              {`${formatEventDate(registerEventStart)} -  ${formatEventDate(
+                                eventCategori?.endDateEarlyBird
                               )}`}
                             </span>
                             <br />
@@ -312,12 +307,13 @@ function LandingPage() {
             </div>
 
             <div className="event-countdown-box">
-              <h5>Waktu tersisa</h5>
+              {eventData && (
+                <React.Fragment>
+                  <h5>Waktu tersisa</h5>
+                  <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
+                </React.Fragment>
+              )}
 
-              <Countdown
-                date={`${eventData?.publicInformation?.eventEndRegister}`}
-                renderer={HandlerCountDown}
-              />
               {eventData?.closedRegister ? (
                 <Button disabled style={{ width: 120 }}>
                   Tutup
@@ -338,15 +334,14 @@ function LandingPage() {
             </div>
 
             <div className="mt-4">
-              { eventData?.publicInformation?.handbook ? (
+              {eventData?.publicInformation?.handbook ? (
                 <ButtonOutlineBlue
-                onClick={() => window.open(eventData?.publicInformation?.handbook)}
-                className="w-100 fw-bold"
+                  onClick={() => window.open(eventData?.publicInformation?.handbook)}
+                  className="w-100 fw-bold"
                 >
-                Download THB
-              </ButtonOutlineBlue>
-              ): null
-              }
+                  Download THB
+                </ButtonOutlineBlue>
+              ) : null}
               <ButtonOutlineBlue
                 className="w-100 fw-bold mt-2"
                 as={Link}
@@ -705,5 +700,11 @@ const PageWrapper = styled.div`
 const DescriptionContent = styled.p`
   white-space: pre-wrap;
 `;
+
+// util
+function formatEventDate(date) {
+  let dateObject = typeof date === "string" ? parseISO(date) : date;
+  return format(dateObject, "d MMMM yyyy", { locale: id });
+}
 
 export default LandingPage;
