@@ -223,7 +223,7 @@ function PageTransactionDetail() {
                   />
                 </div>
               </div>
-              <p>Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.</p>
+              <p>Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam. proses pembayaran akan bisa dilakukan setelah akun terverifikasi</p>
             </div>
           </SweetAlert>
         </>
