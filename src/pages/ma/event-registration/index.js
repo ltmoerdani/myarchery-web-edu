@@ -8,10 +8,10 @@ import { useWizardView } from "hooks/wizard-view";
 import { EventsService, OrderEventService } from "services";
 
 import MetaTags from "react-meta-tags";
-import { Container as BSContainer, Table as BSTable, Input, Label} from "reactstrap";
+import { Container as BSContainer, Table as BSTable, Input, Label } from "reactstrap";
 import CurrencyFormat from "react-currency-format";
 import SweetAlert from "react-bootstrap-sweetalert";
-import { LoadingScreen} from "components";
+import { LoadingScreen } from "components";
 import {
   WizardView,
   WizardViewContent,
@@ -138,7 +138,7 @@ function PageEventRegistration() {
       event_category_id: category.id,
       club_id: club?.detail.id || 0,
       team_name: teamName || undefined,
-      with_club: withClub
+      with_club: withClub,
     };
 
     const result = await OrderEventService.register(payload);
@@ -309,50 +309,50 @@ function PageEventRegistration() {
                     </div>
                   </SegmentByTeamCategory>
                   <Label className="form-check-label" htmlFor="yes">
-                          Apakah anda mewakili klub ?
-                        </Label>
-                        <br></br>
+                    Apakah anda mewakili klub ?
+                  </Label>
+                  <br></br>
                   <div
-                        className={`form-check form-radio-primary`}
-                        style={{ display: "inline-block", marginRight: 10 }}
-                      >
-                        <Input
-                          type="radio"
-                          name="withClub"
-                          value="yes"
-                          onChange={() => {
-                            setWithClub("yes");
-                          }}
-                          checked={withClub == "yes" ? true : false}
-                          className="form-check-Input"
-                        />
-                        <Label className="form-check-label" htmlFor="yes">
-                          iya, saya mewakili klub
-                        </Label>
-                      </div>
+                    className={`form-check form-radio-primary`}
+                    style={{ display: "inline-block", marginRight: 10 }}
+                  >
+                    <Input
+                      type="radio"
+                      name="withClub"
+                      value="yes"
+                      onChange={() => {
+                        setWithClub("yes");
+                      }}
+                      checked={withClub == "yes" ? true : false}
+                      className="form-check-Input"
+                    />
+                    <Label className="form-check-label" htmlFor="yes">
+                      iya, saya mewakili klub
+                    </Label>
+                  </div>
 
-                      <div
-                        className={`form-check form-radio-primary`}
-                        style={{ display: "inline-block", marginRight: 10 }}
-                      >
-                        <Input
-                          type="radio"
-                          name="withClub"
-                          value="no"
-                          onChange={() => {
-                            setWithClub("no");
-                          }}
-                          checked={withClub == "no" ? true : false}
-                          className="form-check-Input"
-                        />
-                        <Label className="form-check-label" htmlFor="no">
-                        tidak, saya individu
-                        </Label>
-                      </div>
+                  <div
+                    className={`form-check form-radio-primary`}
+                    style={{ display: "inline-block", marginRight: 10 }}
+                  >
+                    <Input
+                      type="radio"
+                      name="withClub"
+                      value="no"
+                      onChange={() => {
+                        setWithClub("no");
+                      }}
+                      checked={withClub == "no" ? true : false}
+                      className="form-check-Input"
+                    />
+                    <Label className="form-check-label" htmlFor="no">
+                      tidak, saya individu
+                    </Label>
+                  </div>
 
                   <FieldSelectClub
                     required={category?.id && !isCategoryIndividu}
-                    disabled={!category?.id || withClub=="no"}
+                    disabled={!category?.id || withClub == "no"}
                     value={club}
                     onChange={(clubValue) => updateFormData({ club: clubValue })}
                     errors={formErrors.club}
@@ -587,16 +587,24 @@ function PageEventRegistration() {
                     <div>
                       {category?.isEarlyBird ? (
                         <>
-                          <span className="me-2" style={{ textDecoration: "line-through" }}>
-                            Rp {Number(category?.fee)}
-                          </span>
+                          <CurrencyFormat
+                            style={{ textDecoration: "line-through" }}
+                            className="me-2"
+                            displayType={"text"}
+                            value={category?.fee ? Number(category?.fee) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={0}
+                            fixedDecimalScale
+                          />
                           <TotalWithCurrency
                             displayType={"text"}
                             value={category ? Number(category?.earlyBird) : 0}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
-                            decimalScale={2}
+                            decimalScale={0}
                             fixedDecimalScale
                           />
                         </>
@@ -608,7 +616,7 @@ function PageEventRegistration() {
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
-                            decimalScale={2}
+                            decimalScale={0}
                             fixedDecimalScale
                           />
                         </>

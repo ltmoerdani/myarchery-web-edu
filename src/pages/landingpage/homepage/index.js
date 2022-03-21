@@ -11,6 +11,7 @@ import classnames from "classnames";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
+import CurrencyFormat from "react-currency-format";
 
 import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -267,27 +268,41 @@ function LandingPage() {
                             </span>
                             <br />
                             <span>Mulai dari</span>
-                            <span style={{ textDecoration: "line-through" }} className="ms-2">
-                              Rp{" "}
-                              {Number(eventCategori?.fee)
-                                .toFixed(2)
-                                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-                            </span>
-                            <span className="ms-2">
-                              Rp{" "}
-                              {Number(eventCategori?.earlyBird)
-                                .toFixed(2)
-                                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-                            </span>
+
+                            <CurrencyFormat
+                              style={{ textDecoration: "line-through" }}
+                              className="mx-2"
+                              displayType={"text"}
+                              value={eventCategori?.fee ? Number(eventCategori?.fee) : 0}
+                              prefix="Rp"
+                              thousandSeparator={"."}
+                              decimalSeparator={","}
+                              decimalScale={0}
+                              fixedDecimalScale
+                            />
+                            <CurrencyFormat
+                              displayType={"text"}
+                              value={
+                                eventCategori?.earlyBird ? Number(eventCategori?.earlyBird) : 0
+                              }
+                              prefix="Rp"
+                              thousandSeparator={"."}
+                              decimalSeparator={","}
+                              decimalScale={0}
+                              fixedDecimalScale
+                            />
                           </>
                         ) : (
                           <>
-                            <span>
-                              Mulai dari Rp{" "}
-                              {Number(eventCategori?.fee)
-                                .toFixed(2)
-                                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-                            </span>
+                            <CurrencyFormat
+                              displayType={"text"}
+                              value={eventCategori?.fee ? Number(eventCategori?.fee) : 0}
+                              prefix="Rp"
+                              thousandSeparator={"."}
+                              decimalSeparator={","}
+                              decimalScale={0}
+                              fixedDecimalScale
+                            />
                           </>
                         )}
                       </p>

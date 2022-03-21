@@ -89,8 +89,12 @@ function PageProfileHome() {
       if(err[0] == "address"){
         toastr.error("Alamat belum diisi")
       }
-      if(err[0] == 'placeOfBirth' || err[1] == 'placeOfBirth')
-      toastr.error("Tempat lahir belum diisi")
+      if(err[0] == 'placeOfBirth' || err[1] == 'placeOfBirth' || err[2] == 'placeOfBirth'){
+        toastr.error("Tempat lahir belum diisi")
+      }
+      if(err[0] == 'phoneNumber' || err[1] == 'phoneNumber' || err[2] == 'phoneNumber') {
+        toastr.error("No Handphone belum diisi")
+      }
 
     }
   };

@@ -70,7 +70,9 @@ function PageTransactionDetail() {
   };
 
   useEffect(() => {
-    setIsAlertOpen(true);
+    if(userProfile?.verifyStatus != 3) {
+      setIsAlertOpen(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -208,7 +210,7 @@ function PageTransactionDetail() {
             style={{ padding: "1.25rem" }}
             customButtons={
               <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
-                <ButtonBlue onClick={() => push("/dashboard")}>Kembali ke Dashboard</ButtonBlue>
+                <Button onClick={onCancel}>Lihat Detail Event</Button>
               </span>
             }
           >
@@ -289,12 +291,20 @@ function PageTransactionDetail() {
 
         <div className="mt-5">
           <Nav style={{ backgroundColor: "#EEE" }}>
-            <NavItem>
+            {/* <NavItem>
               <NavLink
                 className={classNames({ activate: activeTab === "1" })}
                 onClick={() => toggleTab("1")}
               >
                 Event
+              </NavLink>
+            </NavItem> */}
+            <NavItem>
+              <NavLink
+                className={classNames({ activate: activeTab === "4" })}
+                onClick={() => toggleTab("4")}
+              >
+                Pembayaran
               </NavLink>
             </NavItem>
             <NavItem>
@@ -313,14 +323,6 @@ function PageTransactionDetail() {
                 Pertandingan
               </NavLink>
             </NavItem> */}
-            <NavItem>
-              <NavLink
-                className={classNames({ activate: activeTab === "4" })}
-                onClick={() => toggleTab("4")}
-              >
-                Pembayaran
-              </NavLink>
-            </NavItem>
           </Nav>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="1">
