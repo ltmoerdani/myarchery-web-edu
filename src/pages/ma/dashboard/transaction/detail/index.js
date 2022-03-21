@@ -28,6 +28,9 @@ import event_img from "assets/images/myachery/a-1.jpg";
 import "./components/sass/sytles.scss";
 import Avatar from "./components/Avatar";
 
+import { parseISO, format } from "date-fns";
+import { id } from "date-fns/locale";
+
 function PageTransactionDetail() {
   const [activeTab, setActiveTab] = useState("1");
   const [dataDetail, setDataDetail] = useState({});
@@ -70,7 +73,7 @@ function PageTransactionDetail() {
   };
 
   useEffect(() => {
-    if(userProfile?.verifyStatus != 3) {
+    if (userProfile?.verifyStatus != 3) {
       setIsAlertOpen(true);
     }
   }, []);
@@ -125,28 +128,12 @@ function PageTransactionDetail() {
     });
   };
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const dateEventStart = new Date(dataDetail?.archeryEvent?.eventStartDatetime);
-  const dateEventEnd = new Date(dataDetail?.archeryEvent?.eventEndDatetime);
-
-  const handlerEvenDate = (date) => {
-    const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
-    return dateEvent;
-  };
+  const dateEventStart = dataDetail?.archeryEvent?.eventStartDatetime
+    ? parseISO(dataDetail?.archeryEvent?.eventStartDatetime)
+    : "";
+  const dateEventEnd = dataDetail?.archeryEvent?.eventStartDatetime
+    ? parseISO(dataDetail?.archeryEvent?.eventEndDatetime)
+    : "";
 
   const verifiedAlert = () => {
     if (userProfile?.verifyStatus == 1) {
@@ -225,7 +212,10 @@ function PageTransactionDetail() {
                   />
                 </div>
               </div>
-              <p>Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam. proses pembayaran akan bisa dilakukan setelah akun terverifikasi</p>
+              <p>
+                Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.
+                proses pembayaran akan bisa dilakukan setelah akun terverifikasi
+              </p>
             </div>
           </SweetAlert>
         </>
@@ -345,32 +335,40 @@ function PageTransactionDetail() {
                       </Col>
                       <Col md={10}>
                         <table>
-                          <tr>
-                            <td>Nama Event</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>: {dataDetail?.archeryEvent?.eventName}</td>
-                            <hr />
-                          </tr>
-                          <tr>
-                            <td>Jenis Event</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>: {dataDetail?.archeryEvent?.eventType}</td>
-                            <hr />
-                          </tr>
-                          <tr>
-                            <td>Lokasi</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>: {dataDetail?.archeryEvent?.location}</td>
-                            <hr />
-                          </tr>
-                          <tr>
-                            <td>Tanggal</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>
-                              : {handlerEvenDate(dateEventStart)} - {handlerEvenDate(dateEventEnd)}
-                            </td>
-                            <hr />
-                          </tr>
+                          <tbody>
+                            <tr>
+                              <td>Nama Event</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>: {dataDetail?.archeryEvent?.eventName}</td>
+                              <hr />
+                            </tr>
+                            <tr>
+                              <td>Jenis Event</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>: {dataDetail?.archeryEvent?.eventType}</td>
+                              <hr />
+                            </tr>
+                            <tr>
+                              <td>Lokasi</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>: {dataDetail?.archeryEvent?.location}</td>
+                              <hr />
+                            </tr>
+                            <tr>
+                              <td>Tanggal</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>
+                                :{" "}
+                                {dataDetail?.archeryEvent?.eventStartDatetime && (
+                                  <React.Fragment>
+                                    {formatFullDate(dateEventStart)} -{" "}
+                                    {formatFullDate(dateEventEnd)}
+                                  </React.Fragment>
+                                )}
+                              </td>
+                              <hr />
+                            </tr>
+                          </tbody>
                         </table>
                       </Col>
                     </Row>
@@ -383,24 +381,26 @@ function PageTransactionDetail() {
                 <CardBody>
                   <div>
                     <table>
-                      <tr>
-                        <td>Nama Pendaftar</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.name}</td>
-                        <hr />
-                      </tr>
-                      <tr>
-                        <td>Email</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.email}</td>
-                        <hr />
-                      </tr>
-                      <tr>
-                        <td>No. Telpon</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.phoneNumber}</td>
-                        <hr />
-                      </tr>
+                      <tbody>
+                        <tr>
+                          <td>Nama Pendaftar</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.name}</td>
+                          <hr />
+                        </tr>
+                        <tr>
+                          <td>Email</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.email}</td>
+                          <hr />
+                        </tr>
+                        <tr>
+                          <td>No. Telpon</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.phoneNumber}</td>
+                          <hr />
+                        </tr>
+                      </tbody>
                     </table>
                     <div style={{ backgroundColor: "#E7EDF6" }}>
                       <p className="p-2 font-size-16">Peserta</p>
@@ -430,22 +430,24 @@ function PageTransactionDetail() {
                 <CardBody>
                   <div>
                     <table>
-                      <tr>
-                        <td>Jenis Regu</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.teamCategoryId}</td>
-                        <hr />
-                      </tr>
-                      <tr>
-                        <td>Detal Katogri</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>
-                          : {dataDetail?.participant?.ageCategoryId} -{" "}
-                          {dataDetail?.participant?.competitionCategoryId} -{" "}
-                          {dataDetail?.participant?.distanceId}m
-                        </td>
-                        <hr />
-                      </tr>
+                      <tbody>
+                        <tr>
+                          <td>Jenis Regu</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.teamCategoryId}</td>
+                          <hr />
+                        </tr>
+                        <tr>
+                          <td>Detal Katogri</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>
+                            : {dataDetail?.participant?.ageCategoryId} -{" "}
+                            {dataDetail?.participant?.competitionCategoryId} -{" "}
+                            {dataDetail?.participant?.distanceId}m
+                          </td>
+                          <hr />
+                        </tr>
+                      </tbody>
                     </table>
                     <hr />
                     <div>
@@ -589,28 +591,30 @@ function PageTransactionDetail() {
                       </Col>
                       <Col md={10}>
                         <table>
-                          <tr>
-                            <td>
-                              <h5>{dataDetail?.archeryEvent?.eventName}</h5>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div className="mb-3">{dataDetail?.archeryEvent?.location}</div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <WrapperPaymentStatus>
-                                <span
-                                  style={{ borderRadius: "10px", padding: "8px" }}
-                                  className={statusPayment(dataDetail?.transactionInfo?.statusId)}
-                                >
-                                  {dataDetail?.transactionInfo?.status}
-                                </span>
-                              </WrapperPaymentStatus>
-                            </td>
-                          </tr>
+                          <tbody>
+                            <tr>
+                              <td>
+                                <h5>{dataDetail?.archeryEvent?.eventName}</h5>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div className="mb-3">{dataDetail?.archeryEvent?.location}</div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <WrapperPaymentStatus>
+                                  <span
+                                    style={{ borderRadius: "10px", padding: "8px" }}
+                                    className={statusPayment(dataDetail?.transactionInfo?.statusId)}
+                                  >
+                                    {dataDetail?.transactionInfo?.status}
+                                  </span>
+                                </WrapperPaymentStatus>
+                              </td>
+                            </tr>
+                          </tbody>
                         </table>
                       </Col>
                     </Row>
@@ -713,5 +717,11 @@ const WrapperPaymentStatus = styled.div`
     color: #000;
   }
 `;
+
+// util
+function formatFullDate(date) {
+  const dateObject = typeof date === "string" ? parseISO(date) : date;
+  return format(dateObject, "d MMMM yyyy", { locale: id });
+}
 
 export default PageTransactionDetail;

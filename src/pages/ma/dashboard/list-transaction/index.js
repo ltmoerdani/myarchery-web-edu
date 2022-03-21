@@ -25,25 +25,20 @@ function ListTransactionPage() {
   return (
     <React.Fragment>
       <Container fluid>
-      <BreadcrumbDashboard to="/dashboard">
-          {breadcrumpCurrentPageLabel}
-        </BreadcrumbDashboard>
+        <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
         <div className="pt-5">
-          {dataEvent?.map((event) => {
-            return (
-              <>
-                <CardTransaction
-                  eventName={event?.archeryEvent?.eventName}
-                  eventType={event?.archeryEvent?.eventType}
-                  eventStart={event?.archeryEvent?.eventStartDatetime}
-                  eventEnd={event?.archeryEvent?.eventEndDatetime}
-                  poster={event?.archeryEvent?.poster}
-                  location={event?.archeryEvent?.location}
-                  idEvent={event?.participant?.id}
-                />
-              </>
-            );
-          })}
+          {dataEvent?.map((event, index) => (
+            <CardTransaction
+              key={index}
+              eventName={event?.archeryEvent?.eventName}
+              eventType={event?.archeryEvent?.eventType}
+              eventStart={event?.archeryEvent?.eventStartDatetime}
+              eventEnd={event?.archeryEvent?.eventEndDatetime}
+              poster={event?.archeryEvent?.poster}
+              location={event?.archeryEvent?.location}
+              idEvent={event?.participant?.id}
+            />
+          ))}
         </div>
       </Container>
     </React.Fragment>
