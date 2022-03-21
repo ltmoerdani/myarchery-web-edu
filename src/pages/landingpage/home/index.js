@@ -194,7 +194,7 @@ function Home() {
                           <span className="tag px-3 py-1">
                             {dataEvent[numberEventOne]?.eventCompetition}
                           </span>
-                          <h3 className="primary-color mt-2">
+                          <h3 className="primary-color mt-2 line-clamp-title">
                             {dataEvent[numberEventOne]?.eventName}
                           </h3>
                           <div className="mt-3">
@@ -244,7 +244,7 @@ function Home() {
                           <span className="tag-sub px-3 py-1">
                             {dataEvent[numberEventTwo]?.eventCompetition}
                           </span>
-                          <h3 className="primary-color mt-2">
+                          <h3 className="primary-color mt-2 line-clamp-title">
                             {dataEvent[numberEventTwo]?.eventName}
                           </h3>
                           <div className="mt-3">

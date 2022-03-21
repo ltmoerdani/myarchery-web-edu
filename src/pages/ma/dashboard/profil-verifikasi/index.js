@@ -508,7 +508,7 @@ function PageProfileVerifikasiHome() {
                       className="btn float-end"
                       style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                     >
-                      Simpan
+                      Ajukan
                     </Button>
 
                     <Button
