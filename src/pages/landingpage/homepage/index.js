@@ -162,6 +162,18 @@ function LandingPage() {
     return <div>{screenLoading()}</div>;
   };
 
+  const eventStatus = () => {
+      if (eventData?.publicInformation?.eventStatus === "Before Event") {
+        return "List Peserta"
+      }
+      if (eventData?.publicInformation?.eventStatus === "Event Running") {
+        return "Live Score"
+      }
+      if (eventData?.publicInformation?.eventStatus === "After Event") {
+        return "Hasil Pertandingan"
+      }
+  }
+
   return (
     <PageWrapper>
       <Container fluid>
@@ -362,7 +374,7 @@ function LandingPage() {
                 as={Link}
                 to={`/live-score/${slug}/qualification`}
               >
-                Live Score
+                {eventStatus()}
               </ButtonOutlineBlue>
 
               <ButtonOutlineBlue
