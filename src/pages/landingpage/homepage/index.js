@@ -294,12 +294,15 @@ function LandingPage() {
                           </>
                         ) : (
                           <>
-                            <span>
-                              Mulai dari Rp{" "}
-                              {Number(eventCategori?.fee)
-                                .toFixed(2)
-                                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-                            </span>
+                            <CurrencyFormat
+                              displayType={"text"}
+                              value={eventCategori?.fee ? Number(eventCategori?.fee) : 0}
+                              prefix="Rp"
+                              thousandSeparator={"."}
+                              decimalSeparator={","}
+                              decimalScale={0}
+                              fixedDecimalScale
+                            />
                           </>
                         )}
                       </p>
