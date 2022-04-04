@@ -1,76 +1,82 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useWizardView } from "../../../hooks/wizard-view";
-import { eventCategories } from "../../../constants";
-import { EventsService } from "services";
+// import { useWizardView } from "../../../hooks/wizard-view";
+// import { eventCategories } from "../../../constants";
+import { EventsService, Landingpage } from "services";
 import { useParams, Link } from "react-router-dom";
 import Countdown from "react-countdown";
 import { Container, Row, Col, Button } from "reactstrap";
-import { WizardView, WizardViewContent, ButtonBlue, ButtonOutlineBlue } from "components/ma";
+import { ButtonBlue } from "components/ma";
 import classnames from "classnames";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
-import CurrencyFormat from "react-currency-format";
+import kalasemen from "assets/images/myachery/kalasemen.png";
+import book from "assets/images/myachery/book.png";
+// import CurrencyFormat from "react-currency-format";
 
 import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
 
-const { TEAM_CATEGORIES } = eventCategories;
+// const { TEAM_CATEGORIES } = eventCategories;
 
-const categoryTabsList = [
-  { step: 1, label: "Individu Putra", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE },
-  { step: 2, label: "Individu Putri", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE },
-  { step: 3, label: "Beregu Putra", teamCategory: TEAM_CATEGORIES.TEAM_MALE },
-  { step: 4, label: "Beregu Putri", teamCategory: TEAM_CATEGORIES.TEAM_FEMALE },
-  { step: 5, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
-];
+// const categoryTabsList = [
+//   { step: 1, label: "Individu Putra", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE },
+//   { step: 2, label: "Individu Putri", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE },
+//   { step: 3, label: "Beregu Putra", teamCategory: TEAM_CATEGORIES.TEAM_MALE },
+//   { step: 4, label: "Beregu Putri", teamCategory: TEAM_CATEGORIES.TEAM_FEMALE },
+//   { step: 5, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
+// ];
 
-function computeCategoriesByTeam(categoriesData) {
-  const categoriesByTeam = {
-    [TEAM_CATEGORIES.TEAM_INDIVIDUAL]: [],
-    [TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]: [],
-    [TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]: [],
-    [TEAM_CATEGORIES.TEAM_MALE]: [],
-    [TEAM_CATEGORIES.TEAM_FEMALE]: [],
-    [TEAM_CATEGORIES.TEAM_MIXED]: [],
-  };
+// function computeCategoriesByTeam(categoriesData) {
+//   const categoriesByTeam = {
+//     [TEAM_CATEGORIES.TEAM_INDIVIDUAL]: [],
+//     [TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]: [],
+//     [TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]: [],
+//     [TEAM_CATEGORIES.TEAM_MALE]: [],
+//     [TEAM_CATEGORIES.TEAM_FEMALE]: [],
+//     [TEAM_CATEGORIES.TEAM_MIXED]: [],
+//   };
 
-  for (const key in categoriesData) {
-    if (categoriesData.hasOwnProperty.call(categoriesData, key)) {
-      const element = categoriesData[key];
-      element.forEach((competition) => {
-        if (
-          competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL ||
-          competition?.teamCategoryId === "Individu"
-        ) {
-          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL].push(competition);
-        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE) {
-          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE].push(competition);
-        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE) {
-          categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE].push(competition);
-        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MALE) {
-          categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE].push(competition);
-        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_FEMALE) {
-          categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE].push(competition);
-        } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MIXED) {
-          categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED].push(competition);
-        }
-      });
-    }
-  }
+//   for (const key in categoriesData) {
+//     if (categoriesData.hasOwnProperty.call(categoriesData, key)) {
+//       const element = categoriesData[key];
+//       element.forEach((competition) => {
+//         if (
+//           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL ||
+//           competition?.teamCategoryId === "Individu"
+//         ) {
+//           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL].push(competition);
+//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE) {
+//           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE].push(competition);
+//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE) {
+//           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE].push(competition);
+//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MALE) {
+//           categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE].push(competition);
+//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_FEMALE) {
+//           categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE].push(competition);
+//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MIXED) {
+//           categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED].push(competition);
+//         }
+//       });
+//     }
+//   }
 
-  return categoriesByTeam;
-}
+//   return categoriesByTeam;
+// }
 
 function LandingPage() {
   const { slug } = useParams();
-  const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
+  // const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
   const [eventData, setEventData] = React.useState({});
-  const [eventPerCategoryTeamPriceData, setEventPerCategoryTeamPriceData] = React.useState([]);
-  const [category, setCategory] = React.useState({});
+  const [, setEventPerCategoryTeamPriceData] = React.useState([]);
+  const [, setCategory] = React.useState({});
   const [loading, setLoading] = React.useState(false);
-  const [loadingCategory, setLoadingCategory] = React.useState(false);
+  const [, setLoadingCategory] = React.useState(false);
+  const [selectMenu, setSelectMenu] = React.useState("desc");
+  const [selectClass, setSelectClass] = React.useState("recuver");
+  const [selectAge, setSelectAge] = React.useState("umum");
+  const [eventNew, setEventNew] = React.useState({});
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
 
@@ -99,6 +105,14 @@ function LandingPage() {
     }
   };
 
+  const getDetailEventBySlug = async () => {
+    const { data, message, errors } = await Landingpage.getEventBySlug({ slug });
+    if (message === "Success") {
+      setEventNew(data);
+    }
+    console.info(errors);
+  };
+
   const getCategoryEvent = async (id) => {
     const { data } = await EventsService.getCategory({ event_id: id });
     if (data) {
@@ -109,17 +123,18 @@ function LandingPage() {
 
   React.useEffect(() => {
     getDataEventDetail();
+    getDetailEventBySlug();
     getCategoryEvent(eventData?.id);
   }, [eventData?.id]);
 
-  const categoriesByTeam = React.useMemo(() => computeCategoriesByTeam(category), [category]);
+  // const categoriesByTeam = React.useMemo(() => computeCategoriesByTeam(category), [category]);
 
-  const dateEventStart = eventData ? parseISO(eventData?.publicInformation?.eventStart) : "";
-  const dateEventEnd = eventData ? parseISO(eventData?.publicInformation?.eventEnd) : "";
+  const dateEventStart = eventData ? parseISO(eventNew?.eventStartDatetime) : "";
+  const dateEventEnd = eventData ? parseISO(eventNew?.eventEndDatetime) : "";
 
-  const registerEventStart = eventData
-    ? parseISO(eventData?.publicInformation?.eventStartRegister)
-    : "";
+  // const registerEventStart = eventData
+  //   ? parseISO(eventData?.publicInformation?.eventStartRegister)
+  //   : "";
   const registerEventEnd = eventData
     ? parseISO(eventData?.publicInformation?.eventEndRegister)
     : "";
@@ -135,6 +150,8 @@ function LandingPage() {
   };
 
   let feeArray = [];
+
+  console.log(eventNew);
 
   const getFee = () => {
     return eventData?.eventCategories?.map((categorie) => {
@@ -158,9 +175,9 @@ function LandingPage() {
     return <React.Fragment>{screenLoading()}</React.Fragment>;
   }
 
-  const handleLoadCategory = () => {
-    return <div>{screenLoading()}</div>;
-  };
+  // const handleLoadCategory = () => {
+  //   return <div>{screenLoading()}</div>;
+  // };
 
   return (
     <PageWrapper>
@@ -168,163 +185,271 @@ function LandingPage() {
         <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel()}</BreadcrumbDashboard>
 
         <div className="event-banner">
-          <img className="event-banner-image" src={eventData?.publicInformation?.eventBanner} />
+          <img className="event-banner-image" src={eventNew?.poster} />
         </div>
 
         <Row className="mt-3">
           <Col md="8">
-            <div className="d-flex align-items-center">
-              <h1 className="event-heading me-3">{eventData?.publicInformation?.eventName}</h1>
-              <span
-                style={{
-                  backgroundColor: "#FFCF70",
-                  padding: "4px 8px",
-                  alignItems: "center",
-                  borderRadius: "10px",
-                  fontWeight: "bold",
-                }}
-              >
-                {eventData?.eventType}
-              </span>
-            </div>
-            <div>Oleh {`${eventData?.admins?.name}`}</div>
-
-            <div className="content-section mt-5">
-              {/* Optional field */}
-              <React.Fragment>
-                <h5 className="content-info-heading">Deskripsi</h5>
-                <DescriptionContent>
-                  {eventData?.publicInformation?.eventDescription}
-                </DescriptionContent>
-              </React.Fragment>
-              {/* Required fields */}
-              <h5 className="content-info-heading">Waktu &amp; Tempat</h5>
-              <table className="mb-3 content-info-time-place">
-                <tbody>
-                  <tr>
-                    <td style={{ minWidth: 120 }}>Tanggal Event</td>
-                    <td style={{ minWidth: "0.5rem" }}>:</td>
-                    <td>
-                      {eventData
-                        ? `${formatEventDate(dateEventStart)} - ${formatEventDate(dateEventEnd)}`
-                        : "tanggal tidak tersedia"}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Lokasi</td>
-                    <td>:</td>
-                    <td>{eventData?.publicInformation?.eventLocation}</td>
-                  </tr>
-                  <tr>
-                    <td>Kota</td>
-                    <td>:</td>
-                    <td>{eventData?.publicInformation?.eventCity?.nameCity}</td>
-                  </tr>
-                  <tr>
-                    <td>Lapangan</td>
-                    <td>:</td>
-                    <td>{eventData?.publicInformation?.eventLocationType}</td>
-                  </tr>
-                </tbody>
-              </table>
-              {eventData?.moreInformation?.map((information) => {
-                return (
-                  <div key={information.id}>
-                    <h5 className="content-info-heading">{information?.title}</h5>
+            <div className="event-box">
+              <div className="d-flex align-items-center">
+                <span style={{ color: "#0D47A1", fontSize: "32px" }}>{eventNew?.eventName}</span>
+                <span
+                  className="p-1"
+                  style={{ color: "#000", backgroundColor: "#FFCF70", borderRadius: "25px" }}
+                >
+                  {eventNew?.eventCompetition}
+                </span>
+              </div>
+              <div style={{ fontWeight: "600" }}>
+                {eventNew
+                  ? `${formatEventDate(dateEventStart)} - ${formatEventDate(dateEventEnd)}`
+                  : "tanggal tidak tersedia"}{" "}
+                | {eventNew?.location}
+              </div>
+              <div>oleh {eventNew?.detailAdmin?.name}</div>
+              <div>
+                <div
+                  className="d-flex justify-content-center align-content-center py-3"
+                  style={{
+                    flexWrap: "wrap",
+                    gap: "28px",
+                    backgroundColor: "#E7EDF6",
+                    borderRadius: "5px",
+                    fontSize: "18px",
+                  }}
+                >
+                  <span
+                    onClick={() => setSelectClass("recuver")}
+                    className={classnames({
+                      "filter-category-active": selectClass === "recuver",
+                      "filter-category": selectClass !== "recuver",
+                    })}
+                  >
+                    Recurve
+                  </span>
+                  <span
+                    onClick={() => setSelectClass("compound")}
+                    className={classnames({
+                      "filter-category-active": selectClass === "compound",
+                      "filter-category": selectClass !== "compound",
+                    })}
+                  >
+                    Compound
+                  </span>
+                  <span
+                    onClick={() => setSelectClass("nasional")}
+                    className={classnames({
+                      "filter-category-active": selectClass === "nasional",
+                      "filter-category": selectClass !== "nasional",
+                    })}
+                  >
+                    Nasional
+                  </span>
+                  <span
+                    onClick={() => setSelectClass("barebow")}
+                    className={classnames({
+                      "filter-category-active": selectClass === "barebow",
+                      "filter-category": selectClass !== "barebow",
+                    })}
+                  >
+                    Barebow
+                  </span>
+                </div>
+                <div>
+                  <div className="d-flex justify-content-center my-4 w-100">
+                    <span
+                      onClick={() => setSelectAge("umum")}
+                      className={classnames("p-1 me-2", {
+                        "age-filter-active": selectAge === "umum",
+                        "age-filter": selectAge !== "umum",
+                      })}
+                    >
+                      Umum - 50 Meter
+                    </span>
+                    <span
+                      onClick={() => setSelectAge("u-12")}
+                      className={classnames("p-1 me-2", {
+                        "age-filter-active": selectAge === "u-12",
+                        "age-filter": selectAge !== "u-12",
+                      })}
+                    >
+                      U-12 - 50 Meter
+                    </span>
+                  </div>
+                </div>
+                <div
+                  className="d-flex justify-content-center py-2"
+                  style={{ backgroundColor: "#F6F6F6" }}
+                >
+                  <span style={{ color: "#0D47A1", fontSize: "18px" }}>Kuota Pertandingan</span>
+                </div>
+                <div className="d-flex mt-2">
+                  <div
+                    className="px-2 py-2"
+                    style={{
+                      border: "1px solid #EEEEEE",
+                      borderRadius: "5px",
+                      textAlign: "center",
+                    }}
+                  >
                     <div>
-                      <DescriptionContent>{information?.description}</DescriptionContent>
+                      <span style={{ color: "#0D47A1", fontSize: "16px" }}>Putra</span>
+                    </div>
+                    <div
+                      className="py-1 px-2"
+                      style={{ backgroundColor: "#AEDDC2", borderRadius: "25px" }}
+                    >
+                      <span>Tersedia: 8/30</span>
                     </div>
                   </div>
-                );
-              })}
-
-              <h5 className="content-info-heading">Biaya Registrasi</h5>
-              <div>
-                {eventPerCategoryTeamPriceData.map((eventCategori) => {
-                  console.log(eventCategori);
-                  return (
-                    <>
-                      <p>
-                        <strong>{eventCategori.label}:</strong>
-                        <br />
-                        <span>
-                          {eventData && (
-                            <React.Fragment>
-                              Tanggal Registrasi{" "}
-                              {`${formatEventDate(registerEventStart)} - ${formatEventDate(
-                                registerEventEnd
-                              )}`}
-                            </React.Fragment>
-                          )}
-                        </span>
-                        <br />
-                        {eventCategori?.isEarlyBird ? (
-                          <>
-                            <span>
-                              Early Bird{" "}
-                              {`${formatEventDate(registerEventStart)} -  ${formatEventDate(
-                                eventCategori?.endDateEarlyBird
-                              )}`}
-                            </span>
-                            <br />
-                            <span>Mulai dari</span>
-
-                            <CurrencyFormat
-                              style={{ textDecoration: "line-through" }}
-                              className="mx-2"
-                              displayType={"text"}
-                              value={eventCategori?.fee ? Number(eventCategori?.fee) : 0}
-                              prefix="Rp"
-                              thousandSeparator={"."}
-                              decimalSeparator={","}
-                              decimalScale={0}
-                              fixedDecimalScale
-                            />
-                            <CurrencyFormat
-                              displayType={"text"}
-                              value={
-                                eventCategori?.earlyBird ? Number(eventCategori?.earlyBird) : 0
-                              }
-                              prefix="Rp"
-                              thousandSeparator={"."}
-                              decimalSeparator={","}
-                              decimalScale={0}
-                              fixedDecimalScale
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <CurrencyFormat
-                              displayType={"text"}
-                              value={eventCategori?.fee ? Number(eventCategori?.fee) : 0}
-                              prefix="Rp"
-                              thousandSeparator={"."}
-                              decimalSeparator={","}
-                              decimalScale={0}
-                              fixedDecimalScale
-                            />
-                          </>
-                        )}
-                      </p>
-                    </>
-                  );
-                })}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex">
+                <div
+                  onClick={() => setSelectMenu("desc")}
+                  className="py-2 pe-4 ps-3"
+                  style={{
+                    width: "204px",
+                    backgroundColor: `${selectMenu === "desc" ? "#0D47A1" : "#FFF"}`,
+                    borderRadius: "5px 5px 0 0",
+                    color: `${selectMenu === "desc" ? "#FFF" : "#000"}`,
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    boxShadow: `${
+                      selectMenu === "desc" ? "none" : "0 0.1rem 0.5rem rgb(18 38 63 / 10%)"
+                    }`,
+                  }}
+                >
+                  Deskripsi
+                </div>
+                <div
+                  onClick={() => setSelectMenu("faq")}
+                  className="ms-2 py-2 pe-4 ps-3"
+                  style={{
+                    width: "204px",
+                    backgroundColor: `${selectMenu === "faq" ? "#0D47A1" : "#FFF"}`,
+                    borderRadius: "5px 5px 0 0",
+                    color: `${selectMenu === "faq" ? "#FFF" : "#000"}`,
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    boxShadow: `${
+                      selectMenu === "faq" ? "none" : "0 0.1rem 0.5rem rgb(18 38 63 / 10%)"
+                    }`,
+                  }}
+                >
+                  FAQ
+                </div>
+              </div>
+              <div className="event-box">
+                {selectMenu === "desc" && (
+                  <div>
+                    <div>
+                      <h3>Deskripsi</h3>
+                      <DescriptionContent>{eventNew?.description}</DescriptionContent>
+                    </div>
+                    <h3>Waktu &amp; Tempat</h3>
+                    <table className="mb-3 content-info-time-place">
+                      <tbody>
+                        <tr>
+                          <td style={{ minWidth: 120 }}>Tanggal Event</td>
+                          <td style={{ minWidth: "0.5rem" }}>:</td>
+                          <td>
+                            {eventNew
+                              ? `${formatEventDate(dateEventStart)} - ${formatEventDate(
+                                  dateEventEnd
+                                )}`
+                              : "tanggal tidak tersedia"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Lokasi</td>
+                          <td>:</td>
+                          <td>{eventNew?.location}</td>
+                        </tr>
+                        <tr>
+                          <td>Kota</td>
+                          <td>:</td>
+                          <td>{eventNew?.detailCity?.name}</td>
+                        </tr>
+                        <tr>
+                          <td>Lapangan</td>
+                          <td>:</td>
+                          <td>{eventNew?.locationType}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    {eventNew?.moreInformation?.map((information) => {
+                      return (
+                        <div key={information.id}>
+                          <h5 className="content-info-heading">{information?.title}</h5>
+                          <div>
+                            <DescriptionContent>{information?.description}</DescriptionContent>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {selectMenu === "faq" && (
+                  <div>
+                    <h3>FAQ</h3>
+                  </div>
+                )}
               </div>
             </div>
           </Col>
 
           <Col md="4">
-            <div className="event-notice-find">
-              Temukan lebih banyak event panahan di{" "}
-              <Link to="/home">
-                <a className="event-preview-link">myarchery.id</a>
-              </Link>
-            </div>
-
             <div className="event-countdown-box">
               {eventData && (
                 <React.Fragment>
-                  <h5>Waktu tersisa</h5>
+                  <div style={{ textAlign: "start" }}>
+                    <h5>Biaya Pendaftaran</h5>
+                    <Row>
+                      <Col
+                        md={4}
+                        className="py-2 px-2"
+                        style={{
+                          border: "1px solid #FFB420",
+                          textAlign: "center",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        <div
+                          className="px-3 py-1"
+                          style={{
+                            backgroundColor: "#FFB420",
+                            color: "#495057",
+                            borderRadius: "5px",
+                          }}
+                        >
+                          Individu
+                        </div>
+                        <div className="mt-2 col-4">
+                          <div>
+                            <span style={{ textDecoration: "line-through" }}>Rp350.000</span>
+                          </div>
+                          <div>
+                            <span
+                              style={{ lineHeight: "24px", fontSize: "18px", color: "#0D47A1" }}
+                            >
+                              Rp350.000
+                            </span>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                    <div>
+                      <span style={{ fontWeight: "600" }}>
+                        Early Bird sampai Rabu, 25 Maret 2022
+                      </span>
+                      <span>
+                        | Segera daftarkan dirimu dan timmu pada kompetisi Pro Jakarta Open 2022
+                      </span>
+                    </div>
+                  </div>
                   <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
                 </React.Fragment>
               )}
@@ -349,15 +474,52 @@ function LandingPage() {
             </div>
 
             <div className="mt-4">
-              {eventData?.publicInformation?.handbook ? (
-                <ButtonOutlineBlue
-                  onClick={() => window.open(eventData?.publicInformation?.handbook)}
-                  className="w-100 fw-bold"
-                >
-                  Download THB
-                </ButtonOutlineBlue>
+              <div
+                style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
+                className="d-flex justify-content-between align-items-center px-1"
+              >
+                <div style={{ width: "70%" }}>
+                  <img width="100%" style={{ objectFit: "cover" }} src={kalasemen} />
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
+                    Klasemen Pertandingan
+                  </span>
+                  <br />
+                  <span style={{ fontStyle: "italic", color: "#FFF" }}>
+                    Klik untuk melihat{">"}
+                  </span>
+                </div>
+              </div>
+              {eventNew?.handbook ? (
+                <>
+                  <div
+                    onClick={() => window.open(eventNew?.handbook)}
+                    style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
+                    className="d-flex justify-content-between align-items-center px-1 mt-3"
+                  >
+                    <div style={{ width: "70%" }}>
+                      <img width="100%" style={{ objectFit: "cover" }} src={book} />
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
+                        Technical Handbook{" "}
+                      </span>
+                      <br />
+                      <span style={{ fontStyle: "italic", color: "#FFF" }}>
+                        Klik untuk unduh{">"}
+                      </span>
+                    </div>
+                  </div>
+                  {/* <ButtonOutlineBlue
+                    onClick={() => window.open(eventData?.publicInformation?.handbook)}
+                    className="w-100 fw-bold"
+                  >
+                    Download THB
+                  </ButtonOutlineBlue> */}
+                </>
               ) : null}
-              <ButtonOutlineBlue
+              {/* <ButtonOutlineBlue
                 className="w-100 fw-bold mt-2"
                 as={Link}
                 to={`/live-score/${slug}/qualification`}
@@ -371,76 +533,10 @@ function LandingPage() {
                 to={`/event-ranks/${slug}/clubs`}
               >
                 Lihat Pemeringkatan Klub
-              </ButtonOutlineBlue>
+              </ButtonOutlineBlue> */}
             </div>
           </Col>
         </Row>
-
-        <div className="mt-4" id="kategori-lomba">
-          <h5 className="text-black">Kategori Lomba</h5>
-
-          <div className="event-team-tabs mt-3 mb-4" style={{ overflowX: "auto" }}>
-            {steps.map((tabItem) => (
-              <div key={tabItem.step}>
-                <button
-                  className={classnames("event-team-item", {
-                    "team-active": currentStep === tabItem.step,
-                  })}
-                  onClick={() => goToStep(tabItem.step)}
-                >
-                  {tabItem.label}
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {!loadingCategory ? (
-            handleLoadCategory()
-          ) : (
-            <WizardView currentStep={currentStep}>
-              <WizardViewContent>
-                <EventCategoryGrid
-                  eventData={eventData}
-                  isLoggedIn={isLoggedIn}
-                  slug={slug}
-                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]}
-                />
-              </WizardViewContent>
-              <WizardViewContent>
-                <EventCategoryGrid
-                  eventData={eventData}
-                  isLoggedIn={isLoggedIn}
-                  slug={slug}
-                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]}
-                />
-              </WizardViewContent>
-              <WizardViewContent>
-                <EventCategoryGrid
-                  eventData={eventData}
-                  isLoggedIn={isLoggedIn}
-                  slug={slug}
-                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE]}
-                />
-              </WizardViewContent>
-              <WizardViewContent>
-                <EventCategoryGrid
-                  eventData={eventData}
-                  isLoggedIn={isLoggedIn}
-                  slug={slug}
-                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE]}
-                />
-              </WizardViewContent>
-              <WizardViewContent>
-                <EventCategoryGrid
-                  eventData={eventData}
-                  isLoggedIn={isLoggedIn}
-                  slug={slug}
-                  categories={categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED]}
-                />
-              </WizardViewContent>
-            </WizardView>
-          )}
-        </div>
       </Container>
     </PageWrapper>
   );
@@ -478,51 +574,87 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   );
 }
 
-function EventCategoryGrid({ eventData, categories, slug, isLoggedIn }) {
-  return (
-    <div className="event-category-grid">
-      {categories.map((category, index) => (
-        <div key={index} className="event-category-card">
-          <h5 className="heading-category-name">{category.categoryLabel}</h5>
-          <div className="mt-4 body-category-detail">
-            <div>
-              <span className="category-quota-label">
-                Tersedia: {category.quota - category.totalParticipant}/{category.quota}
-              </span>
-            </div>
-            <div>
-              {eventData?.closedRegister == false &&
-              category.quota - category.totalParticipant > 0 &&
-              category?.isOpen ? (
-                <ButtonBlue
-                  as={Link}
-                  to={`${
-                    !isLoggedIn
-                      ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
-                      : `/event-registration/${slug}?categoryId=${category?.id}`
-                  }`}
-                  corner="8"
-                  style={{ width: 120 }}
-                >
-                  Daftar
-                </ButtonBlue>
-              ) : (
-                <Button disabled style={{ width: 120 }}>
-                  {!category.isOpen ? "Belum Buka" : eventData?.closedRegister ? "Tutup" : "Full"}
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
+// function EventCategoryGrid({ eventData, categories, slug, isLoggedIn }) {
+//   return (
+//     <div className="event-category-grid">
+//       {categories.map((category, index) => (
+//         <div key={index} className="event-category-card">
+//           <h5 className="heading-category-name">{category.categoryLabel}</h5>
+//           <div className="mt-4 body-category-detail">
+//             <div>
+//               <span className="category-quota-label">
+//                 Tersedia: {category.quota - category.totalParticipant}/{category.quota}
+//               </span>
+//             </div>
+//             <div>
+//               {eventData?.closedRegister == false &&
+//               category.quota - category.totalParticipant > 0 &&
+//               category?.isOpen ? (
+//                 <ButtonBlue
+//                   as={Link}
+//                   to={`${
+//                     !isLoggedIn
+//                       ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
+//                       : `/event-registration/${slug}?categoryId=${category?.id}`
+//                   }`}
+//                   corner="8"
+//                   style={{ width: 120 }}
+//                 >
+//                   Daftar
+//                 </ButtonBlue>
+//               ) : (
+//                 <Button disabled style={{ width: 120 }}>
+//                   {!category.isOpen ? "Belum Buka" : eventData?.closedRegister ? "Tutup" : "Full"}
+//                 </Button>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
 
 const PageWrapper = styled.div`
   margin: 40px 0;
   background-color: #fff;
   font-family: "Inter";
+
+  .event-box {
+    padding: 16px 18px;
+    border-radius: 4px;
+    box-shadow: 0 0.1rem 0.5rem rgb(18 38 63 / 10%);
+    color: #000000;
+  }
+
+  .filter-category-active {
+    border-bottom: 1px solid #ffb420;
+    transform: translateY(-5px);
+    color: #0d47a1;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .filter-category {
+    color: #90aad4;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .age-filter-active {
+    border-radius: 8px;
+    border: 1px solid #ffb420;
+    background-color: #fff8e9;
+    color: #ffb420;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .age-filter {
+    color: #afafaf;
+    font-size: 18px;
+    cursor: pointer;
+  }
 
   .event-banner {
     position: relative;
