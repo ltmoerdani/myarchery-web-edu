@@ -702,7 +702,7 @@ function LandingPage() {
                 as={Link}
                 to={`/live-score/${slug}/qualification`}
               >
-                Live Score
+                {eventStatus()}
               </ButtonOutlineBlue>
 
               <ButtonOutlineBlue
