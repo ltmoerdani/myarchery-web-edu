@@ -421,10 +421,8 @@ function LandingPage() {
                           textAlign: "center",
                         }}
                       >
-                        <div className="py-2">
-                          <span style={{ color: "#0D47A1", fontSize: "16px", fontWeight: "600" }}>
-                            {convertLabel(data.teamCategoryId)}
-                          </span>
+                        <div className="py-2 text-category">
+                          <span>{convertLabel(data.teamCategoryId)}</span>
                         </div>
                         <div
                           className="py-1 px-2"
@@ -799,6 +797,12 @@ const PageWrapper = styled.div`
   margin: 40px 0;
   background-color: #fff;
   font-family: "Inter";
+
+  .text-category {
+    color: #0d47a1;
+    font-size: 16px;
+    font-weight: 600;
+  }
 
   .event-box {
     padding: 16px 18px;
