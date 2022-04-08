@@ -406,20 +406,23 @@ function LandingPage() {
                 >
                   <span style={{ color: "#0D47A1", fontSize: "18px" }}>Kuota Pertandingan</span>
                 </div>
-                <div className="d-flex mt-2 justify-content-between">
+                <div
+                  className="d-flex mt-2 justify-content-between"
+                  style={{ overflowX: "auto", gap: "5px" }}
+                >
                   {computerData.map((data, index) => {
                     return (
                       <div
                         key={index}
-                        className="px-2 py-2"
+                        className="px-3 py-2"
                         style={{
                           border: "1px solid #EEEEEE",
                           borderRadius: "5px",
                           textAlign: "center",
                         }}
                       >
-                        <div>
-                          <span style={{ color: "#0D47A1", fontSize: "16px" }}>
+                        <div className="py-2">
+                          <span style={{ color: "#0D47A1", fontSize: "16px", fontWeight: "600" }}>
                             {convertLabel(data.teamCategoryId)}
                           </span>
                         </div>
@@ -551,7 +554,7 @@ function LandingPage() {
                 <React.Fragment>
                   <div style={{ textAlign: "start" }}>
                     <h5>Biaya Pendaftaran</h5>
-                    <Row>
+                    <Row className="py-3">
                       {arrayFee?.map((data, index) => {
                         return (
                           <Col
@@ -619,7 +622,7 @@ function LandingPage() {
                         );
                       })}
                     </Row>
-                    <div>
+                    <div className="pb-3">
                       {/* <span style={{ fontWeight: "600" }}>
                         Early Bird sampai Rabu, 25 Maret 2022
                       </span> */}
@@ -631,27 +634,26 @@ function LandingPage() {
                   <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
                 </React.Fragment>
               )}
-
-              {eventData?.closedRegister ? (
-                <Button disabled style={{ width: 120 }}>
-                  Tutup
-                </Button>
-              ) : (
-                <ButtonBlue
-                  as={Link}
-                  to={`${
-                    !isLoggedIn
-                      ? `/archer/login?path=/event-registration/${slug}`
-                      : `/event-registration/${slug}`
-                  }`}
-                  style={{ width: "100%" }}
-                >
-                  Daftar
-                </ButtonBlue>
-              )}
+              <div className="pb-2">
+                {eventData?.closedRegister ? (
+                  <Button style={{ width: 120 }}>Tutup</Button>
+                ) : (
+                  <ButtonBlue
+                    as={Link}
+                    to={`${
+                      !isLoggedIn
+                        ? `/archer/login?path=/event-registration/${slug}`
+                        : `/event-registration/${slug}`
+                    }`}
+                    style={{ width: "100%", fontWeight: "600", fontSize: "16px" }}
+                  >
+                    Daftar Event
+                  </ButtonBlue>
+                )}
+              </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-4 pt-4">
               <div
                 style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
                 className="d-flex justify-content-between align-items-center px-1"
@@ -935,7 +937,7 @@ const PageWrapper = styled.div`
       .countdown-item {
         display: flex;
         flex-direction: column;
-        padding: 0.5rem;
+        padding: 1rem;
         border-radius: 4px;
         border: solid 1px #eff2f7;
         font-size: 18px;
@@ -944,7 +946,7 @@ const PageWrapper = styled.div`
         .timer-unit {
           padding: 2px 8px;
           background-color: #eff2f7;
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 400;
         }
       }
