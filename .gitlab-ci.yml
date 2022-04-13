@@ -1,4 +1,81 @@
-before_script: 
+image: docker:latest
+services:
+  - docker:dind
+#before_script: 
+#  - apt-get update -qq
+#  - apt-get install -qq git
+  # Setup SSH deploy keys
+#  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+#  - eval $(ssh-agent -s)
+#  - ssh-add <(echo "$PRIVATEKEY_ARCHERY")
+#  - mkdir -p ~/.ssh
+#  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+ 
+stages:
+  - build
+  - push
+  - update
+  - deploy
+
+stage_build:
+  #image: docker:latest
+  stage: build
+  only: 
+    - develop
+  script:
+    - rm -rf yarn.lock
+    - rm -rf package-lock.json 
+    - mv .env.example .env
+    #- git config --global url."https://".insteadOf git://
+    
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - >
+      docker build
+      --pull
+      --build-arg http_proxy=$http_proxy
+      --build-arg https_proxy=$https_proxy
+      --build-arg no_proxy=$no_proxy
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      --label "org.opencontainers.image.title=$CI_PROJECT_TITLE"
+      --label "org.opencontainers.image.url=$CI_PROJECT_URL"
+      --label "org.opencontainers.image.created=$CI_JOB_STARTED_AT"
+      --label "org.opencontainers.image.revision=$CI_COMMIT_SHA"
+      --label "org.opencontainers.image.version=$CI_COMMIT_REF_NAME"
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  
+Push latest:
+  variables:
+    GIT_STRATEGY: none
+  stage: push
+  only:
+    - develop
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+Push tag:
+  variables:
+    GIT_STRATEGY: none
+  stage: push
+  only:
+    - tags
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+stage_deploy_docker:
+  image: node:14
+  stage: deploy
+  only:
+    - develop
+  before_script:
   - apt-get update -qq
   - apt-get install -qq git
   # Setup SSH deploy keys
@@ -7,10 +84,9 @@ before_script:
   - ssh-add <(echo "$PRIVATEKEY_ARCHERY")
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
- 
-stages:
-  - update
-  - deploy
+  script:
+    - ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml pull web-myarchery-stg"
+    - ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml up -d web-myarchery-stg"
 
 update_production:
   stage: update
@@ -32,7 +108,17 @@ deploy_production:
     - master
 
 update_staging:
+  image: node:14
   stage: update
+  before_script:
+  - apt-get update -qq
+  - apt-get install -qq git
+  # Setup SSH deploy keys
+  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$PRIVATEKEY_ARCHERY")
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - echo "Updating develop"
     - ssh -p22 root@$IP_HOST "GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git checkout develop && GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git fetch origin develop && GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git reset --hard FETCH_HEAD && GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git pull origin develop"
@@ -41,7 +127,17 @@ update_staging:
     - develop
 
 deploy_staging:
+  image: node:14
   stage: deploy
+  before_script:
+  - apt-get update -qq
+  - apt-get install -qq git
+  # Setup SSH deploy keys
+  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$PRIVATEKEY_ARCHERY")
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     # - echo "Cleaning Up Modules"
     # - ssh -p22 root@$IP_HOST "rm -rf /var/www/web-archery-stg/node_modules && rm  /var/www/web-archery-stg/package-lock.json"
