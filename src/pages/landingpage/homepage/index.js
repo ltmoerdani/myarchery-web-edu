@@ -8,7 +8,7 @@ import { Container, Row, Col } from "reactstrap";
 import { SpinnerDotBlock } from "components/ma";
 import { MainCardEvent } from "./components/main-card-event";
 import { CardEventCTA } from "./components/card-event-cta";
-import { TabbedContents } from "./components/tabbed-contents";
+import { DetailInTabs } from "./components/detail-in-tabs";
 
 import kalasemen from "assets/images/myachery/kalasemen.png";
 import book from "assets/images/myachery/book.png";
@@ -35,7 +35,9 @@ function LandingPage() {
             <Col md="8">
               <MainCardEvent eventDetail={eventDetail} />
 
-              <TabbedContents eventDetail={eventDetail} dataFAQ={dataFAQ} />
+              <div className="mt-5">
+                <DetailInTabs eventDetail={eventDetail} dataFAQ={dataFAQ} />
+              </div>
             </Col>
 
             <Col md="4">
