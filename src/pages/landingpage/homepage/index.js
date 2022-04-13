@@ -65,6 +65,26 @@ const { TEAM_CATEGORIES } = eventCategories;
 //   return categoriesByTeam;
 // }
 
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return { width, height };
+}
+
+export function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
+
+  React.useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowDimensions;
+}
+
 function LandingPage() {
   const { slug } = useParams();
   // const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
@@ -80,6 +100,9 @@ function LandingPage() {
   const [eventNew, setEventNew] = React.useState({});
   const [dataFAQ, setDataFAQ] = React.useState([]);
   const [listCategory, setListCategory] = React.useState([]);
+
+  const { width } = useWindowDimensions();
+  console.log(width);
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
 
@@ -436,6 +459,159 @@ function LandingPage() {
                 </div>
               </div>
             </div>
+            {width < 768 && (
+              <Col md="4">
+                <div className="event-countdown-box">
+                  {eventData && (
+                    <React.Fragment>
+                      <div style={{ textAlign: "start" }}>
+                        <h5>Biaya Pendaftaran</h5>
+                        <Row className="py-3">
+                          {arrayFee?.map((data, index) => {
+                            return (
+                              <Col
+                                key={index}
+                                md={4}
+                                className="py-2 px-2"
+                                style={{
+                                  border: "1px solid #FFB420",
+                                  textAlign: "center",
+                                  borderRadius: "5px",
+                                }}
+                              >
+                                <div
+                                  className="px-3 py-1"
+                                  style={{
+                                    backgroundColor: "#FFB420",
+                                    color: "#495057",
+                                    borderRadius: "5px",
+                                    textTransform: "capitalize",
+                                  }}
+                                >
+                                  {feeType[index]}
+                                </div>
+                                <div className="mt-2 col-4 w-100">
+                                  {data.isEarlyBird ? (
+                                    <>
+                                      <div style={{ textAlign: "center" }}>
+                                        <CurrencyFormat
+                                          style={{ textDecoration: "line-through" }}
+                                          className="mx-2"
+                                          displayType={"text"}
+                                          value={data.price ? Number(data.price) : 0}
+                                          prefix="Rp"
+                                          thousandSeparator={"."}
+                                          decimalSeparator={","}
+                                          decimalScale={0}
+                                          fixedDecimalScale
+                                        />
+                                        <CurrencyFormat
+                                          displayType={"text"}
+                                          value={data.earlyBird ? Number(data.earlyBird) : 0}
+                                          prefix="Rp"
+                                          thousandSeparator={"."}
+                                          decimalSeparator={","}
+                                          decimalScale={0}
+                                          fixedDecimalScale
+                                        />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div>
+                                      <CurrencyFormat
+                                        displayType={"text"}
+                                        value={data.price ? Number(data.price) : 0}
+                                        prefix="Rp"
+                                        thousandSeparator={"."}
+                                        decimalSeparator={","}
+                                        decimalScale={0}
+                                        fixedDecimalScale
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              </Col>
+                            );
+                          })}
+                        </Row>
+                        <div className="pb-3">
+                          {/* <span style={{ fontWeight: "600" }}>
+                        Early Bird sampai Rabu, 25 Maret 2022
+                      </span> */}
+                          <span>
+                            Segera daftarkan dirimu dan timmu pada kompetisi {eventNew?.eventName}
+                          </span>
+                        </div>
+                      </div>
+                      <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
+                    </React.Fragment>
+                  )}
+                  <div className="pb-2">
+                    {eventData?.closedRegister ? (
+                      <Button style={{ width: 120 }}>Tutup</Button>
+                    ) : (
+                      <ButtonBlue
+                        as={Link}
+                        to={`${
+                          !isLoggedIn
+                            ? `/archer/login?path=/event-registration/${slug}`
+                            : `/event-registration/${slug}`
+                        }`}
+                        style={{ width: "100%", fontWeight: "600", fontSize: "16px" }}
+                      >
+                        Daftar Event
+                      </ButtonBlue>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4">
+                  <div
+                    style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
+                    className="d-flex justify-content-between align-items-center px-1"
+                  >
+                    <div style={{ width: "70%" }}>
+                      <img width="100%" style={{ objectFit: "cover" }} src={kalasemen} />
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
+                        Klasemen Pertandingan
+                      </span>
+                      <br />
+                      <span style={{ fontStyle: "italic", color: "#FFF" }}>
+                        Klik untuk melihat{">"}
+                      </span>
+                    </div>
+                  </div>
+                  {eventNew?.handbook ? (
+                    <>
+                      <div
+                        onClick={() => window.open(eventNew?.handbook)}
+                        style={{
+                          backgroundColor: "#0D47A1",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                        }}
+                        className="d-flex justify-content-between align-items-center px-1 mt-3"
+                      >
+                        <div style={{ width: "70%" }}>
+                          <img width="100%" style={{ objectFit: "cover" }} src={book} />
+                        </div>
+                        <div style={{ textAlign: "center" }}>
+                          <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
+                            Technical Handbook{" "}
+                          </span>
+                          <br />
+                          <span style={{ fontStyle: "italic", color: "#FFF" }}>
+                            Klik untuk unduh{">"}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </Col>
+            )}
             <div className="mt-4">
               <div className="d-flex">
                 <div
@@ -546,43 +722,66 @@ function LandingPage() {
             </div>
           </Col>
 
-          <Col md="4">
-            <div className="event-countdown-box">
-              {eventData && (
-                <React.Fragment>
-                  <div style={{ textAlign: "start" }}>
-                    <h5>Biaya Pendaftaran</h5>
-                    <Row className="py-3">
-                      {arrayFee?.map((data, index) => {
-                        return (
-                          <Col
-                            key={index}
-                            md={4}
-                            className="py-2 px-2"
-                            style={{
-                              border: "1px solid #FFB420",
-                              textAlign: "center",
-                              borderRadius: "5px",
-                            }}
-                          >
-                            <div
-                              className="px-3 py-1"
+          {width > 768 && (
+            <Col md="4">
+              <div className="event-countdown-box">
+                {eventData && (
+                  <React.Fragment>
+                    <div style={{ textAlign: "start" }}>
+                      <h5>Biaya Pendaftaran</h5>
+                      <Row className="py-3">
+                        {arrayFee?.map((data, index) => {
+                          return (
+                            <Col
+                              key={index}
+                              md={4}
+                              className="py-2 px-2"
                               style={{
-                                backgroundColor: "#FFB420",
-                                color: "#495057",
+                                border: "1px solid #FFB420",
+                                textAlign: "center",
                                 borderRadius: "5px",
-                                textTransform: "capitalize",
                               }}
                             >
-                              {feeType[index]}
-                            </div>
-                            <div className="mt-2 col-4 w-100">
-                              {data.isEarlyBird ? (
-                                <>
-                                  <div style={{ textAlign: "center" }}>
+                              <div
+                                className="px-3 py-1"
+                                style={{
+                                  backgroundColor: "#FFB420",
+                                  color: "#495057",
+                                  borderRadius: "5px",
+                                  textTransform: "capitalize",
+                                }}
+                              >
+                                {feeType[index]}
+                              </div>
+                              <div className="mt-2 col-4 w-100">
+                                {data.isEarlyBird ? (
+                                  <>
+                                    <div style={{ textAlign: "center" }}>
+                                      <CurrencyFormat
+                                        style={{ textDecoration: "line-through" }}
+                                        className="mx-2"
+                                        displayType={"text"}
+                                        value={data.price ? Number(data.price) : 0}
+                                        prefix="Rp"
+                                        thousandSeparator={"."}
+                                        decimalSeparator={","}
+                                        decimalScale={0}
+                                        fixedDecimalScale
+                                      />
+                                      <CurrencyFormat
+                                        displayType={"text"}
+                                        value={data.earlyBird ? Number(data.earlyBird) : 0}
+                                        prefix="Rp"
+                                        thousandSeparator={"."}
+                                        decimalSeparator={","}
+                                        decimalScale={0}
+                                        fixedDecimalScale
+                                      />
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div>
                                     <CurrencyFormat
-                                      style={{ textDecoration: "line-through" }}
-                                      className="mx-2"
                                       displayType={"text"}
                                       value={data.price ? Number(data.price) : 0}
                                       prefix="Rp"
@@ -591,129 +790,87 @@ function LandingPage() {
                                       decimalScale={0}
                                       fixedDecimalScale
                                     />
-                                    <CurrencyFormat
-                                      displayType={"text"}
-                                      value={data.earlyBird ? Number(data.earlyBird) : 0}
-                                      prefix="Rp"
-                                      thousandSeparator={"."}
-                                      decimalSeparator={","}
-                                      decimalScale={0}
-                                      fixedDecimalScale
-                                    />
                                   </div>
-                                </>
-                              ) : (
-                                <div>
-                                  <CurrencyFormat
-                                    displayType={"text"}
-                                    value={data.price ? Number(data.price) : 0}
-                                    prefix="Rp"
-                                    thousandSeparator={"."}
-                                    decimalSeparator={","}
-                                    decimalScale={0}
-                                    fixedDecimalScale
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </Col>
-                        );
-                      })}
-                    </Row>
-                    <div className="pb-3">
-                      {/* <span style={{ fontWeight: "600" }}>
+                                )}
+                              </div>
+                            </Col>
+                          );
+                        })}
+                      </Row>
+                      <div className="pb-3">
+                        {/* <span style={{ fontWeight: "600" }}>
                         Early Bird sampai Rabu, 25 Maret 2022
                       </span> */}
-                      <span>
-                        Segera daftarkan dirimu dan timmu pada kompetisi {eventNew?.eventName}
-                      </span>
+                        <span>
+                          Segera daftarkan dirimu dan timmu pada kompetisi {eventNew?.eventName}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
-                </React.Fragment>
-              )}
-              <div className="pb-2">
-                {eventData?.closedRegister ? (
-                  <Button style={{ width: 120 }}>Tutup</Button>
-                ) : (
-                  <ButtonBlue
-                    as={Link}
-                    to={`${
-                      !isLoggedIn
-                        ? `/archer/login?path=/event-registration/${slug}`
-                        : `/event-registration/${slug}`
-                    }`}
-                    style={{ width: "100%", fontWeight: "600", fontSize: "16px" }}
-                  >
-                    Daftar Event
-                  </ButtonBlue>
+                    <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
+                  </React.Fragment>
                 )}
+                <div className="pb-2">
+                  {eventData?.closedRegister ? (
+                    <Button style={{ width: 120 }}>Tutup</Button>
+                  ) : (
+                    <ButtonBlue
+                      as={Link}
+                      to={`${
+                        !isLoggedIn
+                          ? `/archer/login?path=/event-registration/${slug}`
+                          : `/event-registration/${slug}`
+                      }`}
+                      style={{ width: "100%", fontWeight: "600", fontSize: "16px" }}
+                    >
+                      Daftar Event
+                    </ButtonBlue>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="mt-4 pt-4">
-              <div
-                style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
-                className="d-flex justify-content-between align-items-center px-1"
-              >
-                <div style={{ width: "70%" }}>
-                  <img width="100%" style={{ objectFit: "cover" }} src={kalasemen} />
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
-                    Klasemen Pertandingan
-                  </span>
-                  <br />
-                  <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                    Klik untuk melihat{">"}
-                  </span>
-                </div>
-              </div>
-              {eventNew?.handbook ? (
-                <>
-                  <div
-                    onClick={() => window.open(eventNew?.handbook)}
-                    style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
-                    className="d-flex justify-content-between align-items-center px-1 mt-3"
-                  >
-                    <div style={{ width: "70%" }}>
-                      <img width="100%" style={{ objectFit: "cover" }} src={book} />
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                      <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
-                        Technical Handbook{" "}
-                      </span>
-                      <br />
-                      <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                        Klik untuk unduh{">"}
-                      </span>
-                    </div>
+              <div className="mt-4 pt-4">
+                <div
+                  style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
+                  className="d-flex justify-content-between align-items-center px-1"
+                >
+                  <div style={{ width: "70%" }}>
+                    <img width="100%" style={{ objectFit: "cover" }} src={kalasemen} />
                   </div>
-                  {/* <ButtonOutlineBlue
-                    onClick={() => window.open(eventData?.publicInformation?.handbook)}
-                    className="w-100 fw-bold"
-                  >
-                    Download THB
-                  </ButtonOutlineBlue> */}
-                </>
-              ) : null}
-              {/* <ButtonOutlineBlue
-                className="w-100 fw-bold mt-2"
-                as={Link}
-                to={`/live-score/${slug}/qualification`}
-              >
-                {eventStatus()}
-              </ButtonOutlineBlue>
-
-              <ButtonOutlineBlue
-                className="w-100 fw-bold mt-2"
-                as={Link}
-                to={`/event-ranks/${slug}/clubs`}
-              >
-                Lihat Pemeringkatan Klub
-              </ButtonOutlineBlue> */}
-            </div>
-          </Col>
+                  <div style={{ textAlign: "center" }}>
+                    <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
+                      Klasemen Pertandingan
+                    </span>
+                    <br />
+                    <span style={{ fontStyle: "italic", color: "#FFF" }}>
+                      Klik untuk melihat{">"}
+                    </span>
+                  </div>
+                </div>
+                {eventNew?.handbook ? (
+                  <>
+                    <div
+                      onClick={() => window.open(eventNew?.handbook)}
+                      style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
+                      className="d-flex justify-content-between align-items-center px-1 mt-3"
+                    >
+                      <div style={{ width: "70%" }}>
+                        <img width="100%" style={{ objectFit: "cover" }} src={book} />
+                      </div>
+                      <div style={{ textAlign: "center" }}>
+                        <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
+                          Technical Handbook{" "}
+                        </span>
+                        <br />
+                        <span style={{ fontStyle: "italic", color: "#FFF" }}>
+                          Klik untuk unduh{">"}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            </Col>
+          )}
         </Row>
       </Container>
     </PageWrapper>
