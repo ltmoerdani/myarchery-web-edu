@@ -1,739 +1,48 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { getAuthenticationStore } from "store/slice/authentication";
-import { EventsService, Landingpage, FagService, CategoryService } from "services";
+import { useParams } from "react-router-dom";
+import { useEventDetail } from "./hooks/event-detail";
+import { useEventFAQ } from "./hooks/event-faqs";
 
-import { Container, Row, Col, Button } from "reactstrap";
-import CurrencyFormat from "react-currency-format";
-import Countdown from "react-countdown";
-import { ButtonBlue } from "components/ma";
-
-import { eventCategories } from "../../../constants";
-import { parseISO, format } from "date-fns";
-import { id } from "date-fns/locale";
-import classnames from "classnames";
+import { Container, Row, Col } from "reactstrap";
+import { SpinnerDotBlock } from "components/ma";
+import { MainCardEvent } from "./components/main-card-event";
+import { CardEventCTA } from "./components/card-event-cta";
+import { TabbedContents } from "./components/tabbed-contents";
 
 import kalasemen from "assets/images/myachery/kalasemen.png";
 import book from "assets/images/myachery/book.png";
 
-const { TEAM_CATEGORIES } = eventCategories;
-
 function LandingPage() {
   const { slug } = useParams();
-  const [eventData, setEventData] = React.useState({});
-  const [, setEventPerCategoryTeamPriceData] = React.useState([]);
-  const [category, setCategory] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [loadingCategory, setLoadingCategory] = React.useState(false);
-  const [selectMenu, setSelectMenu] = React.useState("desc");
-  const [selectClass, setSelectClass] = React.useState("");
-  const [selectAge, setSelectAge] = React.useState("");
-  const [filteClass, setFilterClass] = React.useState({});
-  const [eventNew, setEventNew] = React.useState({});
-  const [dataFAQ, setDataFAQ] = React.useState([]);
-  const [listCategory, setListCategory] = React.useState([]);
 
-  const { width } = useWindowDimensions();
+  const { data: eventDetail } = useEventDetail(slug);
+  const { data: dataFAQ } = useEventFAQ(eventDetail?.id);
 
-  let { isLoggedIn } = useSelector(getAuthenticationStore);
-
-  const getDataEventDetail = async () => {
-    const { data } = await EventsService.getDetailEvent({ slug });
-    if (data) {
-      setEventData(data);
-      setLoading(true);
-      let fees = [];
-      let checkFees = [];
-      if (data.eventCategories && data.eventCategories.length > 0) {
-        data.eventCategories.map((eventCategori) => {
-          if (checkFees[eventCategori.teamCategoryId.id] == undefined)
-            fees.push({
-              label: eventCategori?.teamCategoryId?.label,
-              fee: eventCategori?.fee,
-              earlyBird: eventCategori?.earlyBird,
-              endDateEarlyBird: eventCategori?.endDateEarlyBird,
-              isEarlyBird: eventCategori?.isEarlyBird,
-            });
-
-          checkFees[eventCategori.teamCategoryId.id] = 1;
-        });
-      }
-      setEventPerCategoryTeamPriceData(fees);
-    }
-  };
-
-  const getDetailEventBySlug = async () => {
-    const { data } = await Landingpage.getEventBySlug({
-      slug,
-    });
-    if (data) {
-      setEventNew(data);
-    }
-  };
-
-  const getListFAQ = async (id) => {
-    const { data, message } = await FagService.getListFaq({ event_id: id, limit: 30 });
-    if (message === "Success") {
-      setDataFAQ(data);
-    }
-  };
-
-  const getCategoryEvent = async (id) => {
-    const { data } = await CategoryService.getCategoryv2({ event_id: id });
-    if (data) {
-      setCategory(data);
-      setLoadingCategory(true);
-    }
-  };
-  const getListCategoryEvent = async (id) => {
-    const { data } = await CategoryService.getCategoryv2({
-      event_id: id,
-      competition_category_id: selectClass ? selectClass : "",
-    });
-    if (data) {
-      setListCategory(data);
-      setLoadingCategory(true);
-    }
-  };
-
-  React.useEffect(() => {
-    getDataEventDetail();
-    getDetailEventBySlug();
-    getCategoryEvent(eventNew?.id);
-    getListFAQ(eventNew.id);
-    getListCategoryEvent(eventNew?.id);
-  }, [eventNew?.id, selectClass, filteClass, arrAge]);
-
-  let arrCategory = [];
-  let classCategoryList = [];
-  let firsArrayCategory = [];
-  let firtsclassCategory = [];
-
-  let classCategory = [];
-
-  for (let i = 0; i < category.length; i++) {
-    arrCategory[i] = category[i].competitionCategoryId;
+  if (!eventDetail) {
+    return <SpinnerDotBlock />;
   }
-
-  for (let i = 0; i < listCategory.length; i++) {
-    if (listCategory[i].competitionCategoryId === arrCategory[0]) {
-      firsArrayCategory.push(listCategory[i]);
-    }
-  }
-
-  let categoryArr = [...new Set(arrCategory)];
-
-  for (let i = 0; i < firsArrayCategory.length; i++) {
-    firtsclassCategory[i] = firsArrayCategory[i].classCategory;
-  }
-
-  for (let i = 0; i < listCategory.length; i++) {
-    classCategoryList[i] = listCategory[i].classCategory;
-  }
-  classCategory = selectClass ? [...new Set(classCategoryList)] : [...new Set(firtsclassCategory)];
-
-  const dateEventStart = eventNew?.eventStartDatetime ? parseISO(eventNew.eventStartDatetime) : "";
-  const dateEventEnd = eventNew?.eventEndDatetime ? parseISO(eventNew.eventEndDatetime) : "";
-  const registerEventEnd = eventNew?.registrationEndDatetime
-    ? parseISO(eventNew.registrationEndDatetime)
-    : "";
-
-  let feeArray = [];
-  let feeType = [];
-  let arrayFee = [];
-  let dateEarlyBird = [];
-
-  arrayFee = eventNew?.eventPrice ? Object.values(eventNew?.eventPrice) : [];
-  feeType = eventNew?.eventPrice ? Object.keys(eventNew?.eventPrice) : [];
-
-  for (let i = 0; i < arrayFee.length; i++) {
-    dateEarlyBird.push(arrayFee[i].endDateEarlyBird);
-  }
-
-  const getFee = () => {
-    return eventData?.eventCategories?.map((categorie) => {
-      return categorie?.fee;
-    });
-  };
-  feeArray = getFee();
-  feeArray?.sort((a, b) => a - b);
-
-  const screenLoading = () => {
-    return (
-      <div style={{ height: "50vh" }} className="d-flex justify-content-center align-items-center">
-        <div className="spinner-grow" role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-      </div>
-    );
-  };
-
-  if (!loading) {
-    return <React.Fragment>{screenLoading()}</React.Fragment>;
-  }
-
-  const handleLoadCategory = () => {
-    return <div>{screenLoading()}</div>;
-  };
-
-  const hanlderSplitString = (data) => {
-    if (data) {
-      let arr = data.split(" - ");
-      let payload = { ...filteClass };
-      payload["age_category_id"] = arr[0];
-      payload["distance_id"] = arr[1];
-      setFilterClass(payload);
-    }
-  };
-
-  let arrData = !selectClass ? firsArrayCategory : listCategory;
-  let compData = [];
-  let compDataFirst = [];
-
-  let arrAge = classCategory[0]?.split(" - ");
-
-  for (let i = 0; i < arrData.length; i++) {
-    if (filteClass.age_category_id === arrData[i].ageCategoryId) {
-      compData.push(arrData[i]);
-    }
-    if (arrAge[0] === arrData[i].ageCategoryId) {
-      compDataFirst.push(arrData[i]);
-    }
-  }
-
-  let computerData = !selectAge ? compDataFirst : compData;
-
-  const convertLabel = (label) => {
-    if (label === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE) {
-      return "Individu Putra";
-    }
-    if (label === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE) {
-      return "Individu Putri";
-    }
-    if (label === TEAM_CATEGORIES.TEAM_MALE) {
-      return "Beregu Putra";
-    }
-    if (label === TEAM_CATEGORIES.TEAM_FEMALE) {
-      return "Beregu Putri";
-    }
-    if (label === TEAM_CATEGORIES.TEAM_MIXED) {
-      return "Mixed Team";
-    }
-  };
 
   return (
     <PageWrapper>
       <Container fluid>
-        <div className="event-banner">
-          <img className="event-banner-image" src={eventNew?.poster} />
-        </div>
+        <InnerContentWrapper>
+          <div className="event-banner">
+            <img className="event-banner-image" src={eventDetail?.poster} />
+          </div>
 
-        <Row className="mt-3">
-          <Col md="8">
-            <div className="event-box">
-              <div className="d-flex align-items-center">
-                <span style={{ color: "#0D47A1", fontSize: "32px" }}>{eventNew?.eventName}</span>
-                <span
-                  className="p-1"
-                  style={{ color: "#000", backgroundColor: "#FFCF70", borderRadius: "25px" }}
-                >
-                  {eventNew?.eventCompetition}
-                </span>
-              </div>
-              <div style={{ fontWeight: "600" }}>
-                {eventNew
-                  ? `${formatEventDate(dateEventStart)} - ${formatEventDate(dateEventEnd)}`
-                  : "tanggal tidak tersedia"}{" "}
-                | {eventNew?.location}
-              </div>
-              <div>oleh {eventNew?.detailAdmin?.name}</div>
-              <div>
-                <div
-                  className="d-flex justify-content-center align-content-center py-3"
-                  style={{
-                    flexWrap: "wrap",
-                    gap: "28px",
-                    backgroundColor: "#E7EDF6",
-                    borderRadius: "5px",
-                    fontSize: "18px",
-                  }}
-                >
-                  <span
-                    onClick={() => {
-                      setSelectClass(categoryArr[0]);
-                      setSelectAge("");
-                      setFilterClass({});
-                    }}
-                    className={classnames({
-                      "filter-category-active":
-                        selectClass === "" || selectClass === categoryArr[0],
-                      "filter-category": selectClass !== "" && selectClass !== categoryArr[0],
-                    })}
-                  >
-                    {categoryArr[0]}
-                  </span>
-                  {categoryArr.map((data, index) => {
-                    if (index !== 0) {
-                      return (
-                        <span
-                          key={index}
-                          onClick={() => {
-                            setSelectClass(data);
-                            setSelectAge("");
-                            setFilterClass({});
-                          }}
-                          className={classnames({
-                            "filter-category-active": selectClass === data,
-                            "filter-category": selectClass !== data,
-                          })}
-                        >
-                          {data}
-                        </span>
-                      );
-                    }
-                  })}
-                </div>
-                <div>
-                  {!loadingCategory ? (
-                    handleLoadCategory()
-                  ) : (
-                    <div className="d-flex justify-content-center my-4 w-100">
-                      <span
-                        onClick={() => {
-                          setSelectAge(classCategory[0]);
-                          hanlderSplitString(classCategory[0]);
-                        }}
-                        className={classnames("p-1 me-2", {
-                          "age-filter-active": selectAge === "" || selectAge === classCategory[0],
-                          "age-filter": selectAge !== "" && selectAge !== classCategory[0],
-                        })}
-                      >
-                        {classCategory[0]}
-                      </span>
-                      {classCategory.map((data, index) => {
-                        if (index !== 0) {
-                          return (
-                            <span
-                              key={index}
-                              onClick={() => {
-                                setSelectAge(data);
-                                hanlderSplitString(data);
-                              }}
-                              className={classnames("p-1 me-2", {
-                                "age-filter-active": selectAge === data,
-                                "age-filter": selectAge !== data,
-                              })}
-                            >
-                              {data}
-                            </span>
-                          );
-                        }
-                      })}
-                    </div>
-                  )}
-                </div>
-                <div
-                  className="d-flex justify-content-center py-2"
-                  style={{ backgroundColor: "#F6F6F6" }}
-                >
-                  <span style={{ color: "#0D47A1", fontSize: "18px" }}>Kuota Pertandingan</span>
-                </div>
-                <div
-                  className="d-flex mt-2 justify-content-between"
-                  style={{ overflowX: "auto", gap: "5px" }}
-                >
-                  {computerData.map((data, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="px-3 py-2"
-                        style={{
-                          border: "1px solid #EEEEEE",
-                          borderRadius: "5px",
-                          textAlign: "center",
-                        }}
-                      >
-                        <div className="py-2 text-category">
-                          <span>{convertLabel(data.teamCategoryId)}</span>
-                        </div>
-                        <div
-                          className="py-1 px-2"
-                          style={{ backgroundColor: "#AEDDC2", borderRadius: "25px" }}
-                        >
-                          <span>Tersedia: {data.quota}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-            {width < 768 && (
-              <Col md="4">
-                <div className="event-countdown-box">
-                  {eventData && (
-                    <React.Fragment>
-                      <div style={{ textAlign: "start" }}>
-                        <h5>Biaya Pendaftaran</h5>
-                        <Row className="py-3">
-                          {arrayFee?.map((data, index) => {
-                            return (
-                              <Col
-                                key={index}
-                                md={4}
-                                className="py-2 px-2"
-                                style={{
-                                  border: "1px solid #FFB420",
-                                  textAlign: "center",
-                                  borderRadius: "5px",
-                                }}
-                              >
-                                <div
-                                  className="px-3 py-1"
-                                  style={{
-                                    backgroundColor: "#FFB420",
-                                    color: "#495057",
-                                    borderRadius: "5px",
-                                    textTransform: "capitalize",
-                                  }}
-                                >
-                                  {feeType[index]}
-                                </div>
-                                <div className="mt-2 col-4 w-100">
-                                  {data.isEarlyBird ? (
-                                    <>
-                                      <div style={{ textAlign: "center" }}>
-                                        <CurrencyFormat
-                                          style={{ textDecoration: "line-through" }}
-                                          className="mx-2"
-                                          displayType={"text"}
-                                          value={data.price ? Number(data.price) : 0}
-                                          prefix="Rp"
-                                          thousandSeparator={"."}
-                                          decimalSeparator={","}
-                                          decimalScale={0}
-                                          fixedDecimalScale
-                                        />
-                                        <CurrencyFormat
-                                          displayType={"text"}
-                                          value={data.earlyBird ? Number(data.earlyBird) : 0}
-                                          prefix="Rp"
-                                          thousandSeparator={"."}
-                                          decimalSeparator={","}
-                                          decimalScale={0}
-                                          fixedDecimalScale
-                                        />
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <div>
-                                      <CurrencyFormat
-                                        displayType={"text"}
-                                        value={data.price ? Number(data.price) : 0}
-                                        prefix="Rp"
-                                        thousandSeparator={"."}
-                                        decimalSeparator={","}
-                                        decimalScale={0}
-                                        fixedDecimalScale
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              </Col>
-                            );
-                          })}
-                        </Row>
-                        <div className="pb-3">
-                          <span>
-                            Segera daftarkan dirimu dan timmu pada kompetisi {eventNew?.eventName}
-                          </span>
-                        </div>
-                      </div>
-                      <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
-                    </React.Fragment>
-                  )}
-                  <div className="pb-2">
-                    {eventData?.closedRegister ? (
-                      <Button style={{ width: 120 }}>Tutup</Button>
-                    ) : (
-                      <ButtonBlue
-                        as={Link}
-                        to={`${
-                          !isLoggedIn
-                            ? `/archer/login?path=/event-registration/${slug}`
-                            : `/event-registration/${slug}`
-                        }`}
-                        style={{ width: "100%", fontWeight: "600", fontSize: "16px" }}
-                      >
-                        Daftar Event
-                      </ButtonBlue>
-                    )}
-                  </div>
-                </div>
+          <Row className="mt-3">
+            <Col md="8">
+              <MainCardEvent eventDetail={eventDetail} />
 
-                <div className="mt-4 pt-4">
-                  <div
-                    style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
-                    className="d-flex justify-content-between align-items-center px-1"
-                  >
-                    <div style={{ width: "70%" }}>
-                      <img width="100%" style={{ objectFit: "cover" }} src={kalasemen} />
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                      <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
-                        Klasemen Pertandingan
-                      </span>
-                      <br />
-                      <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                        Klik untuk melihat{">"}
-                      </span>
-                    </div>
-                  </div>
-                  {eventNew?.handbook ? (
-                    <>
-                      <div
-                        onClick={() => window.open(eventNew?.handbook)}
-                        style={{
-                          backgroundColor: "#0D47A1",
-                          borderRadius: "8px",
-                          cursor: "pointer",
-                        }}
-                        className="d-flex justify-content-between align-items-center px-1 mt-3"
-                      >
-                        <div style={{ width: "70%" }}>
-                          <img width="100%" style={{ objectFit: "cover" }} src={book} />
-                        </div>
-                        <div style={{ textAlign: "center" }}>
-                          <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
-                            Technical Handbook{" "}
-                          </span>
-                          <br />
-                          <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                            Klik untuk unduh{">"}
-                          </span>
-                        </div>
-                      </div>
-                    </>
-                  ) : null}
-                </div>
-              </Col>
-            )}
-            <div className="mt-4">
-              <div className="d-flex">
-                <div
-                  onClick={() => setSelectMenu("desc")}
-                  className="py-2 pe-4 ps-3"
-                  style={{
-                    width: "204px",
-                    backgroundColor: `${selectMenu === "desc" ? "#0D47A1" : "#FFF"}`,
-                    borderRadius: "5px 5px 0 0",
-                    color: `${selectMenu === "desc" ? "#FFF" : "#000"}`,
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    boxShadow: `${
-                      selectMenu === "desc" ? "none" : "0 0.1rem 0.5rem rgb(18 38 63 / 10%)"
-                    }`,
-                  }}
-                >
-                  Deskripsi
-                </div>
-                <div
-                  onClick={() => setSelectMenu("faq")}
-                  className="ms-2 py-2 pe-4 ps-3"
-                  style={{
-                    width: "204px",
-                    backgroundColor: `${selectMenu === "faq" ? "#0D47A1" : "#FFF"}`,
-                    borderRadius: "5px 5px 0 0",
-                    color: `${selectMenu === "faq" ? "#FFF" : "#000"}`,
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    boxShadow: `${
-                      selectMenu === "faq" ? "none" : "0 0.1rem 0.5rem rgb(18 38 63 / 10%)"
-                    }`,
-                  }}
-                >
-                  FAQ
-                </div>
-              </div>
-              <div className="event-box">
-                {selectMenu === "desc" && (
-                  <div>
-                    <div>
-                      <h3>Deskripsi</h3>
-                      <DescriptionContent>{eventNew?.description}</DescriptionContent>
-                    </div>
-                    <h3>Waktu &amp; Tempat</h3>
-                    <table className="mb-3 content-info-time-place">
-                      <tbody>
-                        <tr>
-                          <td style={{ minWidth: 120 }}>Tanggal Event</td>
-                          <td style={{ minWidth: "0.5rem" }}>:</td>
-                          <td>
-                            {eventNew
-                              ? `${formatEventDate(dateEventStart)} - ${formatEventDate(
-                                  dateEventEnd
-                                )}`
-                              : "tanggal tidak tersedia"}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Lokasi</td>
-                          <td>:</td>
-                          <td>{eventNew?.location}</td>
-                        </tr>
-                        <tr>
-                          <td>Kota</td>
-                          <td>:</td>
-                          <td>{eventNew?.detailCity?.name}</td>
-                        </tr>
-                        <tr>
-                          <td>Lapangan</td>
-                          <td>:</td>
-                          <td>{eventNew?.locationType}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    {eventNew?.moreInformation?.map((information) => {
-                      return (
-                        <div key={information.id}>
-                          <h5 className="content-info-heading">{information?.title}</h5>
-                          <div>
-                            <DescriptionContent>{information?.description}</DescriptionContent>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                {selectMenu === "faq" && (
-                  <div>
-                    <h3>FAQ</h3>
-                    {dataFAQ.map((data) => {
-                      if (!data?.isHide) {
-                        return (
-                          <div className="mb-2">
-                            <span style={{ fontSize: "16px", fontWeight: "600", color: "#1C1C1C" }}>
-                              {data?.question}
-                            </span>
-                            <br />
-                            <span>{data?.answer}</span>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          </Col>
+              <TabbedContents eventDetail={eventDetail} dataFAQ={dataFAQ} />
+            </Col>
 
-          {width > 768 && (
             <Col md="4">
-              <div className="event-countdown-box">
-                {eventData && (
-                  <React.Fragment>
-                    <div style={{ textAlign: "start" }}>
-                      <h5>Biaya Pendaftaran</h5>
-                      <Row className="py-3">
-                        {arrayFee?.map((data, index) => {
-                          return (
-                            <Col
-                              key={index}
-                              md={4}
-                              className="py-2 px-2"
-                              style={{
-                                border: "1px solid #FFB420",
-                                textAlign: "center",
-                                borderRadius: "5px",
-                              }}
-                            >
-                              <div
-                                className="px-3 py-1"
-                                style={{
-                                  backgroundColor: "#FFB420",
-                                  color: "#495057",
-                                  borderRadius: "5px",
-                                  textTransform: "capitalize",
-                                }}
-                              >
-                                {feeType[index]}
-                              </div>
-                              <div className="mt-2 col-4 w-100">
-                                {data.isEarlyBird ? (
-                                  <>
-                                    <div style={{ textAlign: "center" }}>
-                                      <CurrencyFormat
-                                        style={{ textDecoration: "line-through" }}
-                                        className="mx-2"
-                                        displayType={"text"}
-                                        value={data.price ? Number(data.price) : 0}
-                                        prefix="Rp"
-                                        thousandSeparator={"."}
-                                        decimalSeparator={","}
-                                        decimalScale={0}
-                                        fixedDecimalScale
-                                      />
-                                      <CurrencyFormat
-                                        displayType={"text"}
-                                        value={data.earlyBird ? Number(data.earlyBird) : 0}
-                                        prefix="Rp"
-                                        thousandSeparator={"."}
-                                        decimalSeparator={","}
-                                        decimalScale={0}
-                                        fixedDecimalScale
-                                      />
-                                    </div>
-                                  </>
-                                ) : (
-                                  <div>
-                                    <CurrencyFormat
-                                      displayType={"text"}
-                                      value={data.price ? Number(data.price) : 0}
-                                      prefix="Rp"
-                                      thousandSeparator={"."}
-                                      decimalSeparator={","}
-                                      decimalScale={0}
-                                      fixedDecimalScale
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            </Col>
-                          );
-                        })}
-                      </Row>
-                      <div className="pb-3">
-                        <span>
-                          Segera daftarkan dirimu dan timmu pada kompetisi {eventNew?.eventName}
-                        </span>
-                      </div>
-                    </div>
-                    <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
-                  </React.Fragment>
-                )}
-                <div className="pb-2">
-                  {eventData?.closedRegister ? (
-                    <Button style={{ width: 120 }}>Tutup</Button>
-                  ) : (
-                    <ButtonBlue
-                      as={Link}
-                      to={`${
-                        !isLoggedIn
-                          ? `/archer/login?path=/event-registration/${slug}`
-                          : `/event-registration/${slug}`
-                      }`}
-                      style={{ width: "100%", fontWeight: "600", fontSize: "16px" }}
-                    >
-                      Daftar Event
-                    </ButtonBlue>
-                  )}
-                </div>
-              </div>
+              <CardEventCTA eventDetail={eventDetail} />
 
               <div className="mt-4 pt-4">
+                {/* Klasemen */}
                 <div
                   style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
                   className="d-flex justify-content-between align-items-center px-1"
@@ -741,83 +50,65 @@ function LandingPage() {
                   <div style={{ width: "70%" }}>
                     <img width="100%" style={{ objectFit: "cover" }} src={kalasemen} />
                   </div>
+
                   <div style={{ textAlign: "center" }}>
                     <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
                       Klasemen Pertandingan
                     </span>
+
                     <br />
+
                     <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                      Klik untuk melihat{">"}
+                      Klik untuk melihat {">"}
                     </span>
                   </div>
                 </div>
-                {eventNew?.handbook ? (
-                  <>
-                    <div
-                      onClick={() => window.open(eventNew?.handbook)}
-                      style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
-                      className="d-flex justify-content-between align-items-center px-1 mt-3"
-                    >
-                      <div style={{ width: "70%" }}>
-                        <img width="100%" style={{ objectFit: "cover" }} src={book} />
-                      </div>
-                      <div style={{ textAlign: "center" }}>
-                        <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
-                          Technical Handbook{" "}
-                        </span>
-                        <br />
-                        <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                          Klik untuk unduh{">"}
-                        </span>
-                      </div>
+
+                {/*  Handbook */}
+                {Boolean(eventDetail?.handbook) && (
+                  <div
+                    onClick={() => window.open(eventDetail?.handbook)}
+                    style={{
+                      backgroundColor: "#0D47A1",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                    }}
+                    className="d-flex justify-content-between align-items-center px-1 mt-3"
+                  >
+                    <div style={{ width: "70%" }}>
+                      <img width="100%" style={{ objectFit: "cover" }} src={book} />
                     </div>
-                  </>
-                ) : null}
+
+                    <div style={{ textAlign: "center" }}>
+                      <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
+                        Technical Handbook{" "}
+                      </span>
+
+                      <br />
+
+                      <span style={{ fontStyle: "italic", color: "#FFF" }}>
+                        Klik untuk unduh {">"}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </Col>
-          )}
-        </Row>
+          </Row>
+        </InnerContentWrapper>
       </Container>
     </PageWrapper>
   );
 }
 
-function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
-  if (completed) {
-    return (
-      <div>
-        <span>Berakhir</span>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="countdown-timer">
-        <div className="countdown-item">
-          {days}
-          <span className="timer-unit">Hari</span>
-        </div>
-        <div className="countdown-item">
-          {hours}
-          <span className="timer-unit">Jam</span>
-        </div>
-        <div className="countdown-item">
-          {minutes}
-          <span className="timer-unit">Menit</span>
-        </div>
-        <div className="countdown-item">
-          {seconds}
-          <span className="timer-unit">Detik</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+const InnerContentWrapper = styled.div`
+  max-width: 75rem;
+  margin: 0 auto;
+`;
 
 const PageWrapper = styled.div`
-  margin: 40px 0;
-  background-color: #fff;
+  margin: 2.5rem 0;
+  background-color: #f8f8fa;
   font-family: "Inter";
 
   .text-category {
@@ -830,6 +121,7 @@ const PageWrapper = styled.div`
     padding: 16px 18px;
     border-radius: 4px;
     box-shadow: 0 0.1rem 0.5rem rgb(18 38 63 / 10%);
+    background-color: #ffffff;
     color: #000000;
   }
 
@@ -945,6 +237,7 @@ const PageWrapper = styled.div`
     border-radius: 4px;
     box-shadow: 0 0.1rem 0.5rem rgb(18 38 63 / 10%);
     text-align: center;
+    background-color: #ffffff;
     color: #000000;
 
     h5 {
@@ -1050,35 +343,5 @@ const PageWrapper = styled.div`
     }
   }
 `;
-
-const DescriptionContent = styled.p`
-  white-space: pre-wrap;
-`;
-
-// util
-function formatEventDate(date) {
-  let dateObject = typeof date === "string" ? parseISO(date) : date;
-  return format(dateObject, "d MMMM yyyy", { locale: id });
-}
-
-function getWindowDimensions() {
-  const { innerWidth: width, innerHeight: height } = window;
-  return { width, height };
-}
-
-function useWindowDimensions() {
-  const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
-
-  React.useEffect(() => {
-    function handleResize() {
-      setWindowDimensions(getWindowDimensions());
-    }
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return windowDimensions;
-}
 
 export default LandingPage;
