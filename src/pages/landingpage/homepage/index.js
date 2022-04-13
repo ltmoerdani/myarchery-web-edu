@@ -1,93 +1,27 @@
 import * as React from "react";
 import styled from "styled-components";
-// import { useWizardView } from "../../../hooks/wizard-view";
-import { eventCategories } from "../../../constants";
-import { EventsService, Landingpage, FagService, CategoryService } from "services";
 import { useParams, Link } from "react-router-dom";
-import Countdown from "react-countdown";
-import { Container, Row, Col, Button } from "reactstrap";
-import { ButtonBlue } from "components/ma";
-import classnames from "classnames";
-import { BreadcrumbDashboard } from "./components/breadcrumb";
 import { useSelector } from "react-redux";
 import { getAuthenticationStore } from "store/slice/authentication";
-import kalasemen from "assets/images/myachery/kalasemen.png";
-import book from "assets/images/myachery/book.png";
-import CurrencyFormat from "react-currency-format";
+import { EventsService, Landingpage, FagService, CategoryService } from "services";
 
+import { Container, Row, Col, Button } from "reactstrap";
+import CurrencyFormat from "react-currency-format";
+import Countdown from "react-countdown";
+import { ButtonBlue } from "components/ma";
+
+import { eventCategories } from "../../../constants";
 import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
+import classnames from "classnames";
+
+import kalasemen from "assets/images/myachery/kalasemen.png";
+import book from "assets/images/myachery/book.png";
 
 const { TEAM_CATEGORIES } = eventCategories;
 
-// const categoryTabsList = [
-//   { step: 1, label: "Individu Putra", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE },
-//   { step: 2, label: "Individu Putri", teamCategory: TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE },
-//   { step: 3, label: "Beregu Putra", teamCategory: TEAM_CATEGORIES.TEAM_MALE },
-//   { step: 4, label: "Beregu Putri", teamCategory: TEAM_CATEGORIES.TEAM_FEMALE },
-//   { step: 5, label: "Mixed Team", teamCategory: TEAM_CATEGORIES.TEAM_MIXED },
-// ];
-
-// function computeCategoriesByTeam(categoriesData) {
-//   const categoriesByTeam = {
-//     [TEAM_CATEGORIES.TEAM_INDIVIDUAL]: [],
-//     [TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE]: [],
-//     [TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE]: [],
-//     [TEAM_CATEGORIES.TEAM_MALE]: [],
-//     [TEAM_CATEGORIES.TEAM_FEMALE]: [],
-//     [TEAM_CATEGORIES.TEAM_MIXED]: [],
-//   };
-
-//   for (const key in categoriesData) {
-//     if (categoriesData.hasOwnProperty.call(categoriesData, key)) {
-//       const element = categoriesData[key];
-//       element.forEach((competition) => {
-//         if (
-//           competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL ||
-//           competition?.teamCategoryId === "Individu"
-//         ) {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL].push(competition);
-//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE) {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_MALE].push(competition);
-//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE) {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_INDIVIDUAL_FEMALE].push(competition);
-//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MALE) {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_MALE].push(competition);
-//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_FEMALE) {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_FEMALE].push(competition);
-//         } else if (competition?.teamCategoryId === TEAM_CATEGORIES.TEAM_MIXED) {
-//           categoriesByTeam[TEAM_CATEGORIES.TEAM_MIXED].push(competition);
-//         }
-//       });
-//     }
-//   }
-
-//   return categoriesByTeam;
-// }
-
-function getWindowDimensions() {
-  const { innerWidth: width, innerHeight: height } = window;
-  return { width, height };
-}
-
-export function useWindowDimensions() {
-  const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
-
-  React.useEffect(() => {
-    function handleResize() {
-      setWindowDimensions(getWindowDimensions());
-    }
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return windowDimensions;
-}
-
 function LandingPage() {
   const { slug } = useParams();
-  // const { steps, currentStep, goToStep } = useWizardView(categoryTabsList);
   const [eventData, setEventData] = React.useState({});
   const [, setEventPerCategoryTeamPriceData] = React.useState([]);
   const [category, setCategory] = React.useState([]);
@@ -102,7 +36,6 @@ function LandingPage() {
   const [listCategory, setListCategory] = React.useState([]);
 
   const { width } = useWindowDimensions();
-  console.log(width);
 
   let { isLoggedIn } = useSelector(getAuthenticationStore);
 
@@ -132,21 +65,19 @@ function LandingPage() {
   };
 
   const getDetailEventBySlug = async () => {
-    const { data, errors } = await Landingpage.getEventBySlug({
+    const { data } = await Landingpage.getEventBySlug({
       slug,
     });
     if (data) {
       setEventNew(data);
     }
-    console.info(errors);
   };
 
   const getListFAQ = async (id) => {
-    const { data, message, errors } = await FagService.getListFaq({ event_id: id, limit: 30 });
+    const { data, message } = await FagService.getListFaq({ event_id: id, limit: 30 });
     if (message === "Success") {
       setDataFAQ(data);
     }
-    console.info(errors);
   };
 
   const getCategoryEvent = async (id) => {
@@ -160,8 +91,6 @@ function LandingPage() {
     const { data } = await CategoryService.getCategoryv2({
       event_id: id,
       competition_category_id: selectClass ? selectClass : "",
-      // age_category_id: filteClass ? filteClass?.age_category_id : null,
-      // distance_id: filteClass ? filteClass?.distance_id : null
     });
     if (data) {
       setListCategory(data);
@@ -205,25 +134,11 @@ function LandingPage() {
   }
   classCategory = selectClass ? [...new Set(classCategoryList)] : [...new Set(firtsclassCategory)];
 
-  // const categoriesByTeam = React.useMemo(() => computeCategoriesByTeam(category), [category]);
-
-  const dateEventStart = eventNew ? parseISO(eventNew?.eventStartDatetime) : "";
-  const dateEventEnd = eventNew ? parseISO(eventNew?.eventEndDatetime) : "";
-
-  // const registerEventStart = eventData
-  //   ? parseISO(eventData?.publicInformation?.eventStartRegister)
-  //   : "";
-  const registerEventEnd = eventNew ? parseISO(eventNew?.registrationEndDatetime) : "";
-
-  const breadcrumpCurrentPageLabel = () => {
-    return (
-      <>
-        <span style={{ color: "#0d47a1" }}>Beranda</span>
-        <span> / </span>
-        <span style={{ color: "#000" }}>{eventNew?.eventName}</span>
-      </>
-    );
-  };
+  const dateEventStart = eventNew?.eventStartDatetime ? parseISO(eventNew.eventStartDatetime) : "";
+  const dateEventEnd = eventNew?.eventEndDatetime ? parseISO(eventNew.eventEndDatetime) : "";
+  const registerEventEnd = eventNew?.registrationEndDatetime
+    ? parseISO(eventNew.registrationEndDatetime)
+    : "";
 
   let feeArray = [];
   let feeType = [];
@@ -236,8 +151,6 @@ function LandingPage() {
   for (let i = 0; i < arrayFee.length; i++) {
     dateEarlyBird.push(arrayFee[i].endDateEarlyBird);
   }
-
-  // let earlyBirdDate = [...new Set(dateEarlyBird)];
 
   const getFee = () => {
     return eventData?.eventCategories?.map((categorie) => {
@@ -313,8 +226,6 @@ function LandingPage() {
   return (
     <PageWrapper>
       <Container fluid>
-        <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel()}</BreadcrumbDashboard>
-
         <div className="event-banner">
           <img className="event-banner-image" src={eventNew?.poster} />
         </div>
@@ -535,9 +446,6 @@ function LandingPage() {
                           })}
                         </Row>
                         <div className="pb-3">
-                          {/* <span style={{ fontWeight: "600" }}>
-                        Early Bird sampai Rabu, 25 Maret 2022
-                      </span> */}
                           <span>
                             Segera daftarkan dirimu dan timmu pada kompetisi {eventNew?.eventName}
                           </span>
@@ -798,9 +706,6 @@ function LandingPage() {
                         })}
                       </Row>
                       <div className="pb-3">
-                        {/* <span style={{ fontWeight: "600" }}>
-                        Early Bird sampai Rabu, 25 Maret 2022
-                      </span> */}
                         <span>
                           Segera daftarkan dirimu dan timmu pada kompetisi {eventNew?.eventName}
                         </span>
@@ -881,10 +786,11 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   if (completed) {
     return (
       <div>
-        <span>Expired</span>
+        <span>Berakhir</span>
       </div>
     );
   }
+
   return (
     <div>
       <div className="countdown-timer">
@@ -908,47 +814,6 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
     </div>
   );
 }
-
-// function EventCategoryGrid({ eventData, categories, slug, isLoggedIn }) {
-//   return (
-//     <div className="event-category-grid">
-//       {categories.map((category, index) => (
-//         <div key={index} className="event-category-card">
-//           <h5 className="heading-category-name">{category.categoryLabel}</h5>
-//           <div className="mt-4 body-category-detail">
-//             <div>
-//               <span className="category-quota-label">
-//                 Tersedia: {category.quota - category.totalParticipant}/{category.quota}
-//               </span>
-//             </div>
-//             <div>
-//               {eventData?.closedRegister == false &&
-//               category.quota - category.totalParticipant > 0 &&
-//               category?.isOpen ? (
-//                 <ButtonBlue
-//                   as={Link}
-//                   to={`${
-//                     !isLoggedIn
-//                       ? `/archer/login?path=/event-registration/${slug}?categoryId=${category?.id}`
-//                       : `/event-registration/${slug}?categoryId=${category?.id}`
-//                   }`}
-//                   corner="8"
-//                   style={{ width: 120 }}
-//                 >
-//                   Daftar
-//                 </ButtonBlue>
-//               ) : (
-//                 <Button disabled style={{ width: 120 }}>
-//                   {!category.isOpen ? "Belum Buka" : eventData?.closedRegister ? "Tutup" : "Full"}
-//                 </Button>
-//               )}
-//             </div>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
 
 const PageWrapper = styled.div`
   margin: 40px 0;
@@ -1194,6 +1059,26 @@ const DescriptionContent = styled.p`
 function formatEventDate(date) {
   let dateObject = typeof date === "string" ? parseISO(date) : date;
   return format(dateObject, "d MMMM yyyy", { locale: id });
+}
+
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return { width, height };
+}
+
+function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
+
+  React.useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowDimensions;
 }
 
 export default LandingPage;
