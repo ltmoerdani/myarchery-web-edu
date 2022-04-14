@@ -11,28 +11,45 @@ import {
   Row,
   Col,
 } from "reactstrap";
+import { useSelector } from "react-redux";
 import { BreadcrumbDashboard } from "./components/breadcrumb";
 import MetaTags from "react-meta-tags";
 import classNames from "classnames";
 import { OrderEventService } from "services";
 import { useParams, useHistory, Link } from "react-router-dom";
 import styled from "styled-components";
+import { Button, ButtonBlue } from "components/ma";
+import SweetAlert from "react-bootstrap-sweetalert";
+import * as AuthStore from "store/slice/authentication";
+import logoBuatAkun from "assets/images/myachery/Illustration.png";
 
 import event_img from "assets/images/myachery/a-1.jpg";
 
 import "./components/sass/sytles.scss";
 import Avatar from "./components/Avatar";
-import { ButtonBlue } from "components/ma";
+
+import { parseISO, format } from "date-fns";
+import { id } from "date-fns/locale";
 
 function PageTransactionDetail() {
   const [activeTab, setActiveTab] = useState("1");
   const [dataDetail, setDataDetail] = useState({});
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
   const { orderId } = useParams();
   // eslint-disable-next-line no-unused-vars
   const { push } = useHistory();
 
   const breadcrumpCurrentPageLabel = "Kembali";
+
+  const onConfirm = () => {
+    push("/dashboard/profile/verifikasi");
+  };
+
+  const onCancel = () => {
+    setIsAlertOpen(false);
+  };
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
@@ -54,13 +71,20 @@ function PageTransactionDetail() {
       return "di-ikuti";
     }
   };
+
+  useEffect(() => {
+    if (userProfile?.verifyStatus != 3) {
+      setIsAlertOpen(true);
+    }
+  }, []);
+
   useEffect(() => {
     const getOrderEventBySlug = async () => {
       const { data, message, errors } = await OrderEventService.get({ id: orderId });
 
       if (data) {
         setDataDetail(data);
-        if (dataDetail?.transactionInfo?.statusId == 4) {
+        if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
           handleClickPayment();
         }
         console.log(message);
@@ -104,27 +128,144 @@ function PageTransactionDetail() {
     });
   };
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const dateEventStart = dataDetail?.archeryEvent?.eventStartDatetime
+    ? parseISO(dataDetail?.archeryEvent?.eventStartDatetime)
+    : "";
+  const dateEventEnd = dataDetail?.archeryEvent?.eventStartDatetime
+    ? parseISO(dataDetail?.archeryEvent?.eventEndDatetime)
+    : "";
 
-  const dateEventStart = new Date(dataDetail?.archeryEvent?.eventStartDatetime);
-  const dateEventEnd = new Date(dataDetail?.archeryEvent?.eventEndDatetime);
-
-  const handlerEvenDate = (date) => {
-    const dateEvent = `${date?.getDate()} ${months[date?.getMonth()]} ${date?.getFullYear()}`;
-    return dateEvent;
+  const verifiedAlert = () => {
+    if (userProfile?.verifyStatus == 1) {
+      return null;
+    }
+    if (userProfile?.verifyStatus == 2) {
+      return (
+        <>
+          <SweetAlert
+            show={isAlertOpen}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={onConfirm}
+            style={{ padding: "1.25rem" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
+                  Nanti Saja
+                </Button>
+                <ButtonBlue onClick={onConfirm}>Ya, lengkapi data</ButtonBlue>
+              </span>
+            }
+          >
+            <div className="d-flex justify-content-center flex-column">
+              <div style={{ width: "60%", margin: "0 auto" }}>
+                <div style={{ width: "214px", height: "145px" }}>
+                  <img
+                    src={logoBuatAkun}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+              <span
+                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
+                className="mt-3"
+              >
+                Verifikasi Akun
+              </span>
+              <p>
+                Proses verifikasi Anda hampir selesai,
+                <br />
+                <span>{userProfile?.reasonRejected}</span>
+              </p>
+            </div>
+          </SweetAlert>
+        </>
+      );
+    }
+    if (userProfile?.verifyStatus == 3) {
+      return (
+        <>
+          <SweetAlert
+            show={isAlertOpen}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={() => push("/dashboard")}
+            style={{ padding: "1.25rem" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <Button onClick={onCancel}>Lihat Detail Event</Button>
+              </span>
+            }
+          >
+            <div className="d-flex justify-content-center flex-column">
+              <div style={{ width: "60%", margin: "0 auto" }}>
+                <div style={{ width: "214px", height: "145px" }}>
+                  <img
+                    src={logoBuatAkun}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+              <p>
+                Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.
+                proses pembayaran akan bisa dilakukan setelah akun terverifikasi
+              </p>
+            </div>
+          </SweetAlert>
+        </>
+      );
+    }
+    if (userProfile?.verifyStatus == 4) {
+      return (
+        <>
+          <SweetAlert
+            show={isAlertOpen}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={onConfirm}
+            style={{ padding: "1.25rem" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
+                  Nanti Saja
+                </Button>
+                <ButtonBlue onClick={onConfirm}>Ya, lengkapi data</ButtonBlue>
+              </span>
+            }
+          >
+            <div className="d-flex justify-content-center flex-column">
+              <div style={{ width: "60%", margin: "0 auto" }}>
+                <div style={{ width: "214px", height: "145px" }}>
+                  <img
+                    src={logoBuatAkun}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+              <span
+                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
+                className="mt-3"
+              >
+                Verifikasi Akun
+              </span>
+              <p>
+                Event yang Anda ikuti mewajibkan user untuk melengkapi data. Silakan lengkapi data
+                untuk dapat mengikuti berbagai event panahan.
+              </p>
+            </div>
+          </SweetAlert>
+        </>
+      );
+    }
   };
 
   return (
@@ -140,12 +281,20 @@ function PageTransactionDetail() {
 
         <div className="mt-5">
           <Nav style={{ backgroundColor: "#EEE" }}>
-            <NavItem>
+            {/* <NavItem>
               <NavLink
                 className={classNames({ activate: activeTab === "1" })}
                 onClick={() => toggleTab("1")}
               >
                 Event
+              </NavLink>
+            </NavItem> */}
+            <NavItem>
+              <NavLink
+                className={classNames({ activate: activeTab === "4" })}
+                onClick={() => toggleTab("4")}
+              >
+                Pembayaran
               </NavLink>
             </NavItem>
             <NavItem>
@@ -164,14 +313,6 @@ function PageTransactionDetail() {
                 Pertandingan
               </NavLink>
             </NavItem> */}
-            <NavItem>
-              <NavLink
-                className={classNames({ activate: activeTab === "4" })}
-                onClick={() => toggleTab("4")}
-              >
-                Pembayaran
-              </NavLink>
-            </NavItem>
           </Nav>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="1">
@@ -194,32 +335,40 @@ function PageTransactionDetail() {
                       </Col>
                       <Col md={10}>
                         <table>
-                          <tr>
-                            <td>Nama Event</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>: {dataDetail?.archeryEvent?.eventName}</td>
-                            <hr />
-                          </tr>
-                          <tr>
-                            <td>Jenis Event</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>: {dataDetail?.archeryEvent?.eventType}</td>
-                            <hr />
-                          </tr>
-                          <tr>
-                            <td>Lokasi</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>: {dataDetail?.archeryEvent?.location}</td>
-                            <hr />
-                          </tr>
-                          <tr>
-                            <td>Tanggal</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>
-                              : {handlerEvenDate(dateEventStart)} - {handlerEvenDate(dateEventEnd)}
-                            </td>
-                            <hr />
-                          </tr>
+                          <tbody>
+                            <tr>
+                              <td>Nama Event</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>: {dataDetail?.archeryEvent?.eventName}</td>
+                              <hr />
+                            </tr>
+                            <tr>
+                              <td>Jenis Event</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>: {dataDetail?.archeryEvent?.eventType}</td>
+                              <hr />
+                            </tr>
+                            <tr>
+                              <td>Lokasi</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>: {dataDetail?.archeryEvent?.location}</td>
+                              <hr />
+                            </tr>
+                            <tr>
+                              <td>Tanggal</td>
+                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>
+                                :{" "}
+                                {dataDetail?.archeryEvent?.eventStartDatetime && (
+                                  <React.Fragment>
+                                    {formatFullDate(dateEventStart)} -{" "}
+                                    {formatFullDate(dateEventEnd)}
+                                  </React.Fragment>
+                                )}
+                              </td>
+                              <hr />
+                            </tr>
+                          </tbody>
                         </table>
                       </Col>
                     </Row>
@@ -232,24 +381,26 @@ function PageTransactionDetail() {
                 <CardBody>
                   <div>
                     <table>
-                      <tr>
-                        <td>Nama Pendaftar</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.name}</td>
-                        <hr />
-                      </tr>
-                      <tr>
-                        <td>Email</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.email}</td>
-                        <hr />
-                      </tr>
-                      <tr>
-                        <td>No. Telpon</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.phoneNumber}</td>
-                        <hr />
-                      </tr>
+                      <tbody>
+                        <tr>
+                          <td>Nama Pendaftar</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.name}</td>
+                          <hr />
+                        </tr>
+                        <tr>
+                          <td>Email</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.email}</td>
+                          <hr />
+                        </tr>
+                        <tr>
+                          <td>No. Telpon</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.phoneNumber}</td>
+                          <hr />
+                        </tr>
+                      </tbody>
                     </table>
                     <div style={{ backgroundColor: "#E7EDF6" }}>
                       <p className="p-2 font-size-16">Peserta</p>
@@ -279,22 +430,24 @@ function PageTransactionDetail() {
                 <CardBody>
                   <div>
                     <table>
-                      <tr>
-                        <td>Jenis Regu</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>: {dataDetail?.participant?.teamCategoryId}</td>
-                        <hr />
-                      </tr>
-                      <tr>
-                        <td>Detal Katogri</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>
-                          : {dataDetail?.participant?.ageCategoryId} -{" "}
-                          {dataDetail?.participant?.competitionCategoryId} -{" "}
-                          {dataDetail?.participant?.distanceId}m
-                        </td>
-                        <hr />
-                      </tr>
+                      <tbody>
+                        <tr>
+                          <td>Jenis Regu</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>: {dataDetail?.participant?.teamCategoryId}</td>
+                          <hr />
+                        </tr>
+                        <tr>
+                          <td>Detal Katogri</td>
+                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>
+                            : {dataDetail?.participant?.ageCategoryId} -{" "}
+                            {dataDetail?.participant?.competitionCategoryId} -{" "}
+                            {dataDetail?.participant?.distanceId}m
+                          </td>
+                          <hr />
+                        </tr>
+                      </tbody>
                     </table>
                     <hr />
                     <div>
@@ -438,28 +591,30 @@ function PageTransactionDetail() {
                       </Col>
                       <Col md={10}>
                         <table>
-                          <tr>
-                            <td>
-                              <h5>{dataDetail?.archeryEvent?.eventName}</h5>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div className="mb-3">{dataDetail?.archeryEvent?.location}</div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <WrapperPaymentStatus>
-                                <span
-                                  style={{ borderRadius: "10px", padding: "8px" }}
-                                  className={statusPayment(dataDetail?.transactionInfo?.statusId)}
-                                >
-                                  {dataDetail?.transactionInfo?.status}
-                                </span>
-                              </WrapperPaymentStatus>
-                            </td>
-                          </tr>
+                          <tbody>
+                            <tr>
+                              <td>
+                                <h5>{dataDetail?.archeryEvent?.eventName}</h5>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div className="mb-3">{dataDetail?.archeryEvent?.location}</div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <WrapperPaymentStatus>
+                                  <span
+                                    style={{ borderRadius: "10px", padding: "8px" }}
+                                    className={statusPayment(dataDetail?.transactionInfo?.statusId)}
+                                  >
+                                    {dataDetail?.transactionInfo?.status}
+                                  </span>
+                                </WrapperPaymentStatus>
+                              </td>
+                            </tr>
+                          </tbody>
                         </table>
                       </Col>
                     </Row>
@@ -498,13 +653,19 @@ function PageTransactionDetail() {
                               {dataDetail?.transactionInfo?.statusId == 4 ? (
                                 <>
                                   <button
-                                    onClick={handleClickPayment}
+                                    onClick={
+                                      userProfile?.verifyStatus != 1
+                                        ? () => setIsAlertOpen(true)
+                                        : handleClickPayment
+                                    }
                                     className="btn"
                                     style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                                   >
                                     Bayar Sekarang
                                   </button>
-                                  <p style={{textAlign:"center"}}>code : {dataDetail?.transactionInfo?.orderId}</p>
+                                  <p style={{ textAlign: "center" }}>
+                                    code : {dataDetail?.transactionInfo?.orderId}
+                                  </p>
                                 </>
                               ) : (
                                 <>
@@ -530,6 +691,7 @@ function PageTransactionDetail() {
           </TabContent>
         </div>
       </Container>
+      {verifiedAlert()}
     </React.Fragment>
   );
 }
@@ -555,5 +717,11 @@ const WrapperPaymentStatus = styled.div`
     color: #000;
   }
 `;
+
+// util
+function formatFullDate(date) {
+  const dateObject = typeof date === "string" ? parseISO(date) : date;
+  return format(dateObject, "d MMMM yyyy", { locale: id });
+}
 
 export default PageTransactionDetail;

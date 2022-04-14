@@ -35,7 +35,7 @@ const menuItems = [
     id: 4,
     icon: shoppingBag,
     title: "Transaksi",
-    description: "Daftar klub yang Anda ikuti. Temukan berbagai klub panahan di myarchery.id",
+    description: "Daftar event yang Anda ikuti. Temukan berbagai event panahan di myarchery.id",
     computeLink: () => "/dashboard/list-transaction",
   },
 ];
@@ -58,8 +58,8 @@ function DashboardMenus() {
     <React.Fragment>
       <MenuGridWrapperTop>
         <UserProfileCard to="/dashboard/profile" />
-        <MenuItemCard menu={menuItems[0]} href={menuItems[0].computeLink?.()} />
-        <MenuItemCard menu={menuItems[1]} href={menuItems[1].computeLink?.()} />
+        <MenuItemCard menu={menuItems[0]} href="/dashboard/certificates" />
+        <MenuItemCard menu={menuItems[1]} href="/dashboard/clubs" />
       </MenuGridWrapperTop>
 
       <MenuGridWrapper>

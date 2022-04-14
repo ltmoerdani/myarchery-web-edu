@@ -7,3 +7,6 @@ export { default as archerRouters } from "./archer";
 export { default as routerDasboardArcher } from "./dashboardArcher";
 export { default as dashboardRoutes } from "./dashboard";
 export { default as clubRoutes } from "./club";
+export { default as liveScoreRoutes } from "./live-score";
+export { default as seriesRoutes } from "./series";
+export { default as ranksRoutes } from "./ranks";

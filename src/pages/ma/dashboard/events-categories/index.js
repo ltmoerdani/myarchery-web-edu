@@ -6,26 +6,40 @@ import { OrderEventService } from "services";
 import MetaTags from "react-meta-tags";
 import CurrencyFormat from "react-currency-format";
 import { Container } from "reactstrap";
-import { ButtonBlue } from "components/ma";
+import { ButtonBlue, ButtonOutline, ButtonOutlineBlue, ButtonRed } from "components/ma";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 
 import IconUsers from "components/ma/icons/mono/users";
 import IconUser from "components/ma/icons/mono/user";
 
+import { shouldDisableEditing } from "./utils";
+
 function PageEventCategories() {
   const { event_id } = useParams();
   const eventId = parseInt(event_id);
 
-  const { event, eventCategories, categoriesState } = usePageData(eventId);
+  const { event: eventDetail, eventCategories, categoriesState } = usePageData(eventId);
 
   const isLoadingEvents = categoriesState.status === "loading";
   const isErrorEvents = categoriesState.status === "error";
+  const editIsDisabled = shouldDisableEditing(eventDetail?.publicInformation.eventEnd);
+
+  const setSerieCategory = async (memberId, categoryId, status) => {
+    const result = await OrderEventService.setSerieCategory({
+      member_id: memberId,
+      category_id: categoryId,
+      status,
+    });
+    if (result.success) {
+      window.location = "";
+    }
+  };
 
   return (
     <PageWrapper>
       <MetaTags>
-        {event ? (
-          <title>{event.eventName} | MyArchery.id</title>
+        {eventDetail ? (
+          <title>{eventDetail.eventName} | MyArchery.id</title>
         ) : (
           <title>Event Saya | MyArchery.id</title>
         )}
@@ -33,7 +47,7 @@ function PageEventCategories() {
 
       <Container fluid>
         <BreadcrumbDashboard to="/dashboard/events">
-          {event?.publicInformation.eventName || "Event"}
+          {eventDetail?.publicInformation.eventName || "Event"}
         </BreadcrumbDashboard>
 
         {!eventCategories && isLoadingEvents ? (
@@ -65,18 +79,14 @@ function PageEventCategories() {
                       </TeamTypeLabel>
                     )}
 
-                    <InvoiceNo>
-                      {eventCategory.detailParticipant.orderId || (
-                        <React.Fragment>Data ID transaksi/invoice (?)</React.Fragment>
-                      )}
-                    </InvoiceNo>
+                    <InvoiceNo>{eventCategory.detailParticipant.orderId || ""}</InvoiceNo>
                   </ItemHeader>
 
                   <ItemMediaObject>
                     <div>
-                      {event.publicInformation.eventBanner ? (
+                      {eventDetail.publicInformation.eventBanner ? (
                         <PosterThumb>
-                          <img src={event.publicInformation.eventBanner} />
+                          <img src={eventDetail.publicInformation.eventBanner} />
                         </PosterThumb>
                       ) : (
                         <PosterThumb>&nbsp;</PosterThumb>
@@ -119,7 +129,59 @@ function PageEventCategories() {
                           </DetailItem>
                         </DetailCol>
                       </DetailBar>
-
+                      {eventCategory?.haveSeries == 1 ? (
+                        <div>
+                          {eventCategory.canUpdateSeries == 1 &&
+                          eventCategory.canJoinSeries == 1 &&
+                          (eventCategory.joinSerieCategoryId == 0 ||
+                            eventCategory.joinSerieCategoryId == eventCategory.id) ? (
+                            eventCategory.joinSerieCategoryId == eventCategory.id ? (
+                              <ButtonRed
+                                disabled={editIsDisabled}
+                                onClick={() => {
+                                  setSerieCategory(
+                                    eventCategory.detailParticipant.memberId,
+                                    eventCategory.id,
+                                    0
+                                  );
+                                }}
+                              >
+                                batalkan sebagai pemeringkatan series
+                              </ButtonRed>
+                            ) : (
+                              <ButtonOutlineBlue
+                                disabled={editIsDisabled}
+                                onClick={() => {
+                                  setSerieCategory(
+                                    eventCategory.detailParticipant.memberId,
+                                    eventCategory.id,
+                                    1
+                                  );
+                                }}
+                              >
+                                pilih sebagai pemeringkatan series
+                              </ButtonOutlineBlue>
+                            )
+                          ) : (
+                            <ButtonOutline disabled={editIsDisabled}>
+                              {eventCategory.joinSerieCategoryId == eventCategory.id
+                                ? "pemeringkatan series dikuti"
+                                : "pilih sebagai pemeringkatan series"}
+                            </ButtonOutline>
+                          )}
+                          <br></br>
+                          <label style={{ color: "red" }}>
+                            {eventCategory.canJoinSeries != 1
+                              ? "*domisili tidak memenuhi syarat untuk mengikuti pemeringkatan series"
+                              : eventCategory.canUpdateSeries != 1
+                              ? "*penentuan kategori untuk series sudah ditutup"
+                              : eventCategory.joinSerieCategoryId != 0 &&
+                                eventCategory.joinSerieCategoryId != eventCategory.id
+                              ? "*hanya bisa memilih 1 kategori untuk pemeringkatan"
+                              : ""}
+                          </label>
+                        </div>
+                      ) : null}
                       <ItemFooter>
                         <StatusList></StatusList>
 
@@ -229,13 +291,22 @@ const DetailBar = styled.div`
   justify-content: space-between;
   gap: 1rem;
   background-color: var(--ma-gray-100);
+
+  > *:first-child {
+    flex-grow: 1;
+  }
 `;
 
 const DetailCol = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   gap: 1.5rem;
   padding: 0.5rem 1.25rem;
+
+  > * {
+    flex-basis: auto;
+  }
 `;
 
 const DetailItem = styled.div`

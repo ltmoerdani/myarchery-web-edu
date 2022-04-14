@@ -2,29 +2,18 @@ import React from "react";
 import { Row, Col, Card, CardBody } from "reactstrap";
 import { Link } from "react-router-dom";
 
-function CardTransaction({ eventName, poster, location, eventType, eventStart, eventEnd, idEvent }) {
-  const startEvent = new Date(eventStart)
-  const endEvent = new Date(eventEnd)
+import { parseISO, format } from "date-fns";
+import { id } from "date-fns/locale";
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const getDate = (date) => {
-      return `${date?.getDate()} - ${months[date?.getMonth()]} - ${date?.getFullYear()}`
-  }
-
+function CardTransaction({
+  eventName,
+  poster,
+  location,
+  eventType,
+  eventStart,
+  eventEnd,
+  idEvent,
+}) {
   return (
     <React.Fragment>
       <Card>
@@ -48,20 +37,19 @@ function CardTransaction({ eventName, poster, location, eventType, eventStart, e
                 <span>{location}</span>
                 <br />
                 <span>
-                  {getDate(startEvent)} - {getDate(endEvent)}
+                  {formatFullDate(eventStart)} - {formatFullDate(eventEnd)}
                 </span>
               </div>
             </Col>
             <Col md={4}>
               <div className="float-end">
-                <Link>
-                  <button
-                    className="btn me-2"
-                    style={{ backgroundColor: "#FFF", color: "#0D47A1", borderColor: "#0D47A1" }}
-                  >
-                    Leader Board
-                  </button>
-                </Link>
+                <button
+                  className="btn me-2"
+                  style={{ backgroundColor: "#FFF", color: "#0D47A1", borderColor: "#0D47A1" }}
+                  disabled
+                >
+                  Leader Board
+                </button>
                 <Link to={`/dashboard/transactions/${idEvent}`}>
                   <button className="btn" style={{ backgroundColor: "#0D47A1", color: "#FFF" }}>
                     Lihat Detail
@@ -74,6 +62,12 @@ function CardTransaction({ eventName, poster, location, eventType, eventStart, e
       </Card>
     </React.Fragment>
   );
+}
+
+// util
+function formatFullDate(date) {
+  const dateObject = typeof date === "string" ? parseISO(date) : date;
+  return format(dateObject, "d MMMM yyyy", { locale: id });
 }
 
 export default CardTransaction;

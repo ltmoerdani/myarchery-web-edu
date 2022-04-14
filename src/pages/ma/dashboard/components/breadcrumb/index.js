@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import IconChevronLeft from "components/ma/icons/mono/chevron-left";
 
 function BreadcrumbDashboard({ children, label, to = "#" }) {
   return (
     <StyledBreadcrumb>
       <Link to={to}>
         <div className="button-back">
-          <span>&lsaquo;</span>
+          <IconChevronLeft size="16" />
         </div>
       </Link>
       <div className="label">
@@ -28,8 +29,8 @@ const StyledBreadcrumb = styled.div`
     justify-content: center;
     align-items: center;
 
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 50%;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
     background-color: #ffffff;

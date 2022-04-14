@@ -27,24 +27,22 @@ const RegisterArcher = (props) => {
     let payload = { ...values };
     payload["gender"] = gender;
     payload["date_of_birth"] = dateOfBirth;
-    console.log(payload);
-    const { data, errors, message, success } = await ArcherService.register(payload);
+    const { data, errors, success } = await ArcherService.register(payload);
     if (success) {
       if (data) {
         dispatch(AuthenticationStore.login(data));
       }
     } else {
-      console.log(errors);
-      console.log(message);
       const err = Object.keys(errors).map((err) => err);
-      console.log(err);
+
       if (err[0] == "email") {
         toastr.error(errors?.email[0]);
       }
       if (err[1] == "password" || err[0] == "password" || err[2] == "password") {
         toastr.error(errors?.password[0]);
-      }if (err[1] == "gender" || err[0] == "gender") {
-        toastr.error(errors?.gender[0])
+      }
+      if (err[1] == "gender" || err[0] == "gender") {
+        toastr.error(errors?.gender[0]);
       }
     }
   };
@@ -78,7 +76,9 @@ const RegisterArcher = (props) => {
             className="position-absolute d-md-block d-none"
             style={{ zIndex: "1", width: "50%", height: "100vh" }}
           >
-            <img className="img-circle" src={login_background} />
+            <Link to="/">
+              <img className="img-circle" src={login_background} />
+            </Link>
           </div>
           <div className="circle-blue d-md-block d-none"></div>
           <div className="circle-yellow d-md-block d-none"></div>
@@ -87,14 +87,13 @@ const RegisterArcher = (props) => {
             <Col md={7} sm={12} xs={12}>
               <div className="position-relative">
                 <div className="w-50 mx-auto responsive-form">
-                  <div className="text-center">
-                    <h2 style={{ color: "#0D47A1", fontSize: "32px", lineHeight: "38.4px" }}>
+                  <div className="text-center mb-4">
+                    <h2 className="fw-bold" style={{ color: "var(--ma-blue)" }}>
                       Buat Akun MyArchery
                     </h2>
-                    <span style={{ fontSize: "20px", lineHeight: "28px" }}>
-                      Satu akun untuk daftar berbagai event
-                    </span>
+                    <p className="fs-5">Satu akun untuk daftar berbagai event</p>
                   </div>
+
                   <AvForm
                     className="form-horizontal"
                     onValidSubmit={(e, v) => {
@@ -207,14 +206,13 @@ const RegisterArcher = (props) => {
                     </div>
                     <div className="mt-5 text-center">
                       <p>
-                        Sudah memiliki akun masuk ?{" "}
+                        Sudah punya akun?{" "}
                         <Link
                           to={path != null ? "/archer/login?path=" + path : "/archer/login"}
                           className="fw-medium text-primary"
                         >
-                          {" "}
-                          Disini{" "}
-                        </Link>{" "}
+                          Masuk di sini
+                        </Link>
                       </p>
                     </div>
                   </AvForm>

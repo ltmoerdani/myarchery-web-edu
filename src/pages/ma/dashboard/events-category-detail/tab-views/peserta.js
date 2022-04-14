@@ -7,7 +7,13 @@ import { EventsService } from "services";
 import { Table } from "reactstrap";
 import { LoadingScreen } from "components";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
-import { FieldSelectEmailMember } from "pages/ma/event-registration/components";
+import { AlertSubmitError } from "../../components/alert-submit-error";
+import { AlertSubmitSuccess } from "../../components/alert-submit-success";
+import {
+  FieldSelectEmailMember,
+  FieldSelectClub,
+  FieldInputText,
+} from "pages/ma/event-registration/components";
 
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
@@ -26,7 +32,8 @@ function TabPeserta({ eventState, participantMembersState }) {
   const isUserParticipant = participantMembers.participant.userId === userProfile.id;
 
   const dayBefore = subDays(parseISO(event.publicInformation.eventStart), 1);
-  const shouldAllowEdit = isBefore(new Date(), dayBefore);
+  // TODO: masih lepas syarat enable, kembalikan kapan-kapan...(?)
+  const shouldAllowEdit = true || isBefore(new Date(), dayBefore);
 
   return (
     <PanelContainer>
@@ -69,7 +76,11 @@ function TabPeserta({ eventState, participantMembersState }) {
                 refetch={refetchParticipantMembers}
               />
             ) : (
-              <ParticipantEditorIndividual participantMembers={participantMembers} />
+              <ParticipantEditorIndividual
+                shouldAllowEdit={shouldAllowEdit}
+                participantMembers={participantMembers}
+                refetch={refetchParticipantMembers}
+              />
             )}
           </React.Fragment>
         )
@@ -85,23 +96,99 @@ const PanelContainer = styled.div`
   }
 `;
 
-function ParticipantEditorIndividual({ participantMembers }) {
+function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refetch }) {
+  const [editMode, setEditMode] = React.useState({ isOpen: false, previousData: null });
+  const [{ club }, dispatchForm] = React.useReducer(clubPickerReducer, {
+    club: transformClubDataForPicker(participantMembers.club),
+  });
+  const [submitStatus, dispatchSubmitStatus] = React.useReducer(
+    (state, action) => ({ ...state, ...action }),
+    { status: "idle", errors: null }
+  );
+
+  React.useEffect(() => {
+    dispatchForm({ type: "RESET_FORM", payload: { club } });
+  }, [participantMembers, club]);
+
+  const handleClickSave = async () => {
+    dispatchSubmitStatus({ status: "loading", errors: null });
+    const payload = {
+      participant_id: participantMembers.participant.participantId,
+      club_id: club?.detail?.id || 0,
+    };
+    const result = await EventsService.updateEventParticipantMembers(payload);
+    if (result.success) {
+      dispatchSubmitStatus({ status: "success" });
+      setEditMode({ isOpen: false, previousData: null });
+      refetch();
+    } else {
+      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
+    }
+  };
+
   return (
     <React.Fragment>
-      <TeamInfoEditor>
-        {participantMembers.club?.name && (
-          <DisplayTeamClub>
-            <div>Nama Klub</div>
-            <div className="display-value">{participantMembers.club.name}</div>
-          </DisplayTeamClub>
-        )}
-      </TeamInfoEditor>
+      <EditToolbar>
+        {/* <NoticeBar>
+          Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
+        </NoticeBar> */}
+
+        {shouldAllowEdit &&
+          (editMode.isOpen ? (
+            <ToolbarActionButtons>
+              <Button
+                onClick={() => {
+                  dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
+                  setEditMode({ isOpen: false, previousData: null });
+                }}
+              >
+                Batal
+              </Button>
+
+              <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
+            </ToolbarActionButtons>
+          ) : (
+            <ToolbarActionButtons>
+              <ButtonOutlineBlue
+                onClick={() => setEditMode({ isOpen: true, previousData: { club } })}
+              >
+                Ubah Peserta
+              </ButtonOutlineBlue>
+            </ToolbarActionButtons>
+          ))}
+      </EditToolbar>
+
+      {shouldAllowEdit && editMode.isOpen ? (
+        <ShortFieldWrapper>
+          <FieldSelectClub
+            value={club || null}
+            onChange={(clubValue) => dispatchForm({ name: "club", payload: clubValue })}
+          >
+            Nama Klub
+          </FieldSelectClub>
+        </ShortFieldWrapper>
+      ) : (
+        <TeamInfoEditor>
+          {participantMembers.club?.name && (
+            <DisplayTeamClub>
+              <div>Nama Klub</div>
+              <div className="display-value">{participantMembers.club.name}</div>
+            </DisplayTeamClub>
+          )}
+        </TeamInfoEditor>
+      )}
 
       <div>
         {Boolean(participantMembers.member.length) && (
           <ParticipantMemberInfo participant={participantMembers.member[0]} />
         )}
       </div>
+
+      <LoadingScreen loading={submitStatus.status === "loading"} />
+      <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
+      <AlertSubmitSuccess isSuccess={submitStatus.status === "success"}>
+        Data peserta berhasil disimpan
+      </AlertSubmitSuccess>
     </React.Fragment>
   );
 }
@@ -113,6 +200,10 @@ function ParticipantEditorTeam({
   shouldAllowEdit,
 }) {
   const [editMode, setEditMode] = React.useState({ isOpen: false, previousData: null });
+  const [teamName, setTeamName] = React.useState(participantMembers.participant.teamName || "");
+  const [{ club }, dispatchClub] = React.useReducer(clubPickerReducer, {
+    club: transformClubDataForPicker(participantMembers.club),
+  });
   const [form, dispatchForm] = React.useReducer(
     emailFormReducer,
     mapMembersToState(participantMembers.member)
@@ -126,16 +217,29 @@ function ParticipantEditorTeam({
     dispatchForm({ type: "RESET_FORM", payload: mapMembersToState(participantMembers.member) });
   }, [participantMembers]);
 
+  React.useEffect(() => {
+    setTeamName(participantMembers.participant.teamName || "");
+  }, [participantMembers]);
+
+  React.useEffect(() => {
+    dispatchClub({ type: "RESET_FORM", payload: { club } });
+  }, [participantMembers, club]);
+
   const handleClickSave = async () => {
-    setEditMode({ isOpen: false, previousData: null });
     dispatchSubmitStatus({ status: "loading", errors: null });
-    const payload = makeSavePayoad(participantMembers.participant.participantId, form);
+    const payload = makeSavePayoad(
+      participantMembers.participant.participantId,
+      form,
+      teamName,
+      club?.detail?.id
+    );
     const result = await EventsService.updateEventParticipantMembers(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
+      setEditMode({ isOpen: false, previousData: null });
       refetch();
     } else {
-      dispatchSubmitStatus({ status: "error", errors: result.errors });
+      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
     }
   };
 
@@ -143,16 +247,21 @@ function ParticipantEditorTeam({
     <React.Fragment>
       {isUserParticipant && (
         <EditToolbar>
-          <NoticeBar>
+          {/* <NoticeBar>
             Batas edit <strong>daftar peserta</strong> maksimal H-1 event dilaksanakan
-          </NoticeBar>
+          </NoticeBar> */}
 
           {shouldAllowEdit &&
             (editMode.isOpen ? (
               <ToolbarActionButtons>
                 <Button
                   onClick={() => {
-                    dispatchForm({ type: "RESET_FORM", payload: editMode.previousData });
+                    dispatchForm({ type: "RESET_FORM", payload: editMode.previousData.form });
+                    dispatchClub({
+                      type: "RESET_FORM",
+                      payload: { club: editMode.previousData.club },
+                    });
+                    setTeamName(editMode.previousData.teamName);
                     setEditMode({ isOpen: false, previousData: null });
                   }}
                 >
@@ -164,7 +273,9 @@ function ParticipantEditorTeam({
             ) : (
               <ToolbarActionButtons>
                 <ButtonOutlineBlue
-                  onClick={() => setEditMode({ isOpen: true, previousData: form })}
+                  onClick={() => {
+                    setEditMode({ isOpen: true, previousData: { form, club, teamName } });
+                  }}
                 >
                   Ubah Peserta
                 </ButtonOutlineBlue>
@@ -173,32 +284,59 @@ function ParticipantEditorTeam({
         </EditToolbar>
       )}
 
-      <TeamInfoEditor>
-        <DisplayTeamClub>
-          <div>Nama Tim</div>
-          <div className="display-value">{participantMembers.participant.teamName}</div>
-        </DisplayTeamClub>
+      {shouldAllowEdit && editMode.isOpen ? (
+        <TeamInfoEditor>
+          <DisplayTeamClub>
+            <FieldInputText
+              placeholder="Masukkan Nama Tim"
+              value={teamName}
+              onChange={(value) => setTeamName(value)}
+            >
+              Nama Tim
+            </FieldInputText>
+          </DisplayTeamClub>
 
-        <DisplayTeamClub>
-          <div>Nama Klub</div>
-          <div className="display-value">{participantMembers.club.name}</div>
-        </DisplayTeamClub>
+          <DisplayTeamClub>
+            <FieldSelectClub
+              value={club}
+              onChange={(clubValue) => dispatchClub({ name: "club", payload: clubValue })}
+            >
+              Nama Klub
+            </FieldSelectClub>
+          </DisplayTeamClub>
+        </TeamInfoEditor>
+      ) : (
+        <TeamInfoEditor>
+          <DisplayTeamClub>
+            <div>Nama Tim</div>
+            <div className="display-value">
+              {participantMembers.participant.teamName || <React.Fragment>&mdash;</React.Fragment>}
+            </div>
+          </DisplayTeamClub>
 
-        <DisplayJumlahPeserta>
-          <div>Jumlah Peserta</div>
-          <div className="display-value">
-            {participantMembers.member.length || <React.Fragment>&ndash;</React.Fragment>} dari 5
-          </div>
-        </DisplayJumlahPeserta>
-      </TeamInfoEditor>
+          <DisplayTeamClub>
+            <div>Nama Klub</div>
+            <div className="display-value">
+              {participantMembers.club?.name || <React.Fragment>&mdash;</React.Fragment>}
+            </div>
+          </DisplayTeamClub>
 
-      {editMode.isOpen ? (
+          <DisplayJumlahPeserta>
+            <div>Jumlah Peserta</div>
+            <div className="display-value">
+              {participantMembers.member.length || <React.Fragment>&ndash;</React.Fragment>} dari 5
+            </div>
+          </DisplayJumlahPeserta>
+        </TeamInfoEditor>
+      )}
+
+      {shouldAllowEdit && editMode.isOpen ? (
         <EmailFieldsList
           form={form}
           dispatchForm={dispatchForm}
           formData={{
             category: { id: participantMembers.eventCategoryDetail.id },
-            club: { detail: { id: participantMembers.club.id } },
+            club: participantMembers.club ? { detail: { id: participantMembers.club?.id } } : null,
           }}
         />
       ) : (
@@ -215,6 +353,10 @@ function ParticipantEditorTeam({
       )}
 
       <LoadingScreen loading={submitStatus.status === "loading"} />
+      <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
+      <AlertSubmitSuccess isSuccess={submitStatus.status === "success"}>
+        Data peserta berhasil disimpan
+      </AlertSubmitSuccess>
     </React.Fragment>
   );
 }
@@ -223,6 +365,10 @@ const EditToolbar = styled.div`
   display: flex;
   align-items: center;
   gap: 1.5rem;
+
+  > *:first-child {
+    flex-grow: 1;
+  }
 `;
 
 const ToolbarActionButtons = styled.div`
@@ -234,7 +380,7 @@ const ToolbarActionButtons = styled.div`
 
 const TeamInfoEditor = styled.div`
   display: flex;
-  gap: 1.75rem;
+  gap: 1.25rem;
 `;
 
 function EmailFieldsList({ form, dispatchForm, formData }) {
@@ -265,7 +411,7 @@ const GridInputEmailMember = styled.div`
 `;
 
 const DisplayTeamClub = styled.div`
-  flex-grow: 1;
+  flex: 1 1 0%;
 
   > .display-value {
     font-weight: 600;
@@ -278,6 +424,7 @@ const DisplayJumlahPeserta = styled.div`
   }
 `;
 
+// eslint-disable-next-line no-unused-vars
 function NoticeBar({ children }) {
   return (
     <StyledNoticeBar>
@@ -394,6 +541,10 @@ const RowedLabel = styled.div`
   gap: 1.5rem;
 `;
 
+const ShortFieldWrapper = styled.div`
+  max-width: 30rem;
+`;
+
 function LabelWithIcon({ icon, children }) {
   return (
     <StyledLabelWithIcon>
@@ -413,6 +564,20 @@ const StyledLabelWithIcon = styled.p`
   }
 `;
 
+function transformClubDataForPicker(initialClubData) {
+  if (!initialClubData?.id) {
+    return null;
+  }
+  return { detail: { name: initialClubData.name, id: initialClubData.id } };
+}
+
+function clubPickerReducer(state, action) {
+  if (action.type === "RESET_FORM") {
+    return { ...action.payload };
+  }
+  return { ...state, [action.name]: action.payload };
+}
+
 function emailFormReducer(state, action) {
   if (action.type === "RESET_FORM") {
     return { ...action.payload };
@@ -428,13 +593,15 @@ function mapMembersToState(participantMembers) {
   return state;
 }
 
-function makeSavePayoad(participantId, membersForm) {
+function makeSavePayoad(participantId, membersForm, teamName, clubId) {
   const userIds = Object.keys(membersForm)
     .map((name) => membersForm[name]?.userId || membersForm[name]?.id) // nama key gak konsisten cok, cok
     .filter((id) => Boolean(id));
 
   return {
     participant_id: participantId,
+    team_name: teamName,
+    club_id: clubId,
     user_id: userIds,
   };
 }
