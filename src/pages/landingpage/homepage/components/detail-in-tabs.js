@@ -34,93 +34,117 @@ function DetailInTabs({ eventDetail, dataFAQ }) {
         </TabItem>
       </Tabs>
 
-      {selectedTab === "desc" && (
-        <ContentSheet>
-          <SectionContent>
-            <SectionHeading>Deskripsi</SectionHeading>
-            <DescriptionContent>{eventDetail?.description}</DescriptionContent>
-          </SectionContent>
+      <TabContent>
+        <div>
+          <ContentSheetHeader>
+            <span>
+              <IconFile size="20" />
+            </span>
+            <span>Deskripsi</span>
+          </ContentSheetHeader>
 
-          <SectionContent>
-            <SectionHeading>Waktu &amp; Tempat</SectionHeading>
-            <table>
-              <tbody>
-                <tr>
-                  <td style={{ minWidth: 120 }}>Tanggal Event</td>
-                  <td style={{ minWidth: "0.5rem" }}>:</td>
-                  <td>
-                    {eventDetail ? (
-                      <React.Fragment>
-                        {dateEventStart} &ndash; {dateEventEnd}
-                      </React.Fragment>
-                    ) : (
-                      "tanggal tidak tersedia"
-                    )}
-                  </td>
-                </tr>
+          <ContentSheetBody className={classnames({ "tab-active": selectedTab === "desc" })}>
+            <SectionContent>
+              <SectionHeading>Deskripsi</SectionHeading>
+              <DescriptionContent>{eventDetail?.description}</DescriptionContent>
+            </SectionContent>
 
-                <tr>
-                  <td>Lokasi</td>
-                  <td>:</td>
-                  <td>{eventDetail?.location}</td>
-                </tr>
+            <SectionContent>
+              <SectionHeading>Waktu &amp; Tempat</SectionHeading>
+              <table>
+                <tbody>
+                  <tr>
+                    <td style={{ minWidth: 120 }}>Tanggal Event</td>
+                    <td style={{ minWidth: "0.5rem" }}>:</td>
+                    <td>
+                      {eventDetail ? (
+                        <React.Fragment>
+                          {dateEventStart} &ndash; {dateEventEnd}
+                        </React.Fragment>
+                      ) : (
+                        "tanggal tidak tersedia"
+                      )}
+                    </td>
+                  </tr>
 
-                <tr>
-                  <td>Kota</td>
-                  <td>:</td>
-                  <td>{eventDetail?.detailCity?.name}</td>
-                </tr>
+                  <tr>
+                    <td>Lokasi</td>
+                    <td>:</td>
+                    <td>{eventDetail?.location}</td>
+                  </tr>
 
-                <tr>
-                  <td>Lapangan</td>
-                  <td>:</td>
-                  <td>{eventDetail?.locationType}</td>
-                </tr>
-              </tbody>
-            </table>
-          </SectionContent>
+                  <tr>
+                    <td>Kota</td>
+                    <td>:</td>
+                    <td>{eventDetail?.detailCity?.name}</td>
+                  </tr>
 
-          {Boolean(eventDetail?.moreInformation?.length) &&
-            eventDetail?.moreInformation?.map((information) => {
-              return (
-                <SectionContent key={information.id}>
-                  <SectionHeading>{information?.title}</SectionHeading>
-                  <DescriptionContent>{information?.description}</DescriptionContent>
-                </SectionContent>
-              );
-            })}
-        </ContentSheet>
-      )}
+                  <tr>
+                    <td>Lapangan</td>
+                    <td>:</td>
+                    <td>{eventDetail?.locationType}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </SectionContent>
 
-      {selectedTab === "faq" && (
-        <ContentSheet>
-          <SectionContent>
-            <SectionHeading>FAQ</SectionHeading>
+            {Boolean(eventDetail?.moreInformation?.length) &&
+              eventDetail?.moreInformation?.map((information) => {
+                return (
+                  <SectionContent key={information.id}>
+                    <SectionHeading>{information?.title}</SectionHeading>
+                    <DescriptionContent>{information?.description}</DescriptionContent>
+                  </SectionContent>
+                );
+              })}
+          </ContentSheetBody>
+        </div>
 
-            {dataFAQShowOnly?.length ? (
-              <QuestionsList>
-                {dataFAQShowOnly.map((data) => (
-                  <li key={data.id}>
-                    <SectionContent>
-                      <QuestionHeading>{data?.question}</QuestionHeading>
-                      <AnswerContent>{data?.answer}</AnswerContent>
-                    </SectionContent>
-                  </li>
-                ))}
-              </QuestionsList>
-            ) : (
-              <EmptyFAQ>Penyelengara tidak menyediakan FAQ.</EmptyFAQ>
-            )}
-          </SectionContent>
-        </ContentSheet>
-      )}
+        {dataFAQ ? (
+          <div>
+            <ContentSheetHeader>
+              <span>
+                <IconFile size="20" />
+              </span>
+              <span>FAQ</span>
+            </ContentSheetHeader>
+
+            <ContentSheetBody className={classnames({ "tab-active": selectedTab === "faq" })}>
+              <SectionContent>
+                <SectionHeading>FAQ</SectionHeading>
+
+                {dataFAQShowOnly?.length ? (
+                  <QuestionsList>
+                    {dataFAQShowOnly.map((data) => (
+                      <li key={data.id}>
+                        <SectionContent>
+                          <QuestionHeading>{data?.question}</QuestionHeading>
+                          <AnswerContent>{data?.answer}</AnswerContent>
+                        </SectionContent>
+                      </li>
+                    ))}
+                  </QuestionsList>
+                ) : (
+                  <EmptyFAQ>Penyelengara tidak menyediakan FAQ.</EmptyFAQ>
+                )}
+              </SectionContent>
+            </ContentSheetBody>
+          </div>
+        ) : (
+          <div>Data FAQ belum tersedia.</div>
+        )}
+      </TabContent>
     </div>
   );
 }
 
 const Tabs = styled.div`
-  display: flex;
-  gap: 0.75rem;
+  display: none;
+
+  @media (min-width: 562px) {
+    display: flex;
+    gap: 0.75rem;
+  }
 `;
 
 const TabItem = styled.button`
@@ -150,16 +174,58 @@ const DescriptionContent = styled.p`
   white-space: pre-wrap;
 `;
 
-const ContentSheet = styled.div`
+const TabContent = styled.div`
+  > * + * {
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: 562px) {
+    > * + * {
+      margin: 0;
+    }
+  }
+`;
+
+const ContentSheetHeader = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+
+  padding: 1rem 1.5rem;
+  padding-bottom: 0;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background-color: #ffffff;
+
+  color: var(--ma-gray-500);
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  @media (min-width: 562px) {
+    display: none;
+  }
+`;
+
+const ContentSheetBody = styled.div`
   padding: 2rem;
-  border-radius: 0.5rem;
-  border-top-left-radius: 0;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.12);
   background-color: #ffffff;
   color: var(--ma-text-black);
 
   > * + * {
     margin-top: 1.75rem;
+  }
+
+  @media (min-width: 562px) {
+    display: none;
+    border-top-right-radius: 0.5rem;
+
+    &.tab-active {
+      display: block;
+    }
   }
 `;
 
