@@ -43,7 +43,7 @@ function DetailInTabs({ eventDetail, dataFAQ }) {
 
           <SectionContent>
             <SectionHeading>Waktu &amp; Tempat</SectionHeading>
-            <table className="mb-3 content-info-time-place">
+            <table>
               <tbody>
                 <tr>
                   <td style={{ minWidth: 120 }}>Tanggal Event</td>
@@ -129,7 +129,7 @@ const TabItem = styled.button`
   align-items: center;
 
   min-width: 12.75rem;
-  min-height: 3rem;
+  min-height: 3.25rem;
   padding: 1rem;
   border: none;
   border-top-left-radius: 0.5rem;

@@ -4,11 +4,11 @@ import { useParams } from "react-router-dom";
 import { useEventDetail } from "./hooks/event-detail";
 import { useEventFAQ } from "./hooks/event-faqs";
 
-import { Container, Row, Col } from "reactstrap";
 import { SpinnerDotBlock } from "components/ma";
 import { MainCardEvent } from "./components/main-card-event";
 import { CardEventCTA } from "./components/card-event-cta";
 import { DetailInTabs } from "./components/detail-in-tabs";
+import { SecondaryCTAItem } from "./components/secondary-cta-item";
 
 import kalasemen from "assets/images/myachery/kalasemen.png";
 import book from "assets/images/myachery/book.png";
@@ -25,271 +25,121 @@ function LandingPage() {
 
   return (
     <PageWrapper>
-      <Container fluid>
-        <InnerContentWrapper>
-          <div className="event-banner">
-            <img className="event-banner-image" src={eventDetail?.poster} />
-          </div>
+      <InnerContentWrapper>
+        <EventBanner>
+          <img className="event-banner-image" src={eventDetail?.poster} />
+        </EventBanner>
 
-          <Row className="mt-4">
-            <Col md="7">
-              <MainCardEvent eventDetail={eventDetail} />
+        <MainContent>
+          <LayoutTop>
+            <MainCardEvent eventDetail={eventDetail} />
 
-              <div className="mt-4">
-                <DetailInTabs eventDetail={eventDetail} dataFAQ={dataFAQ} />
-              </div>
-            </Col>
-
-            <Col md="5">
+            <div>
               <CardEventCTA eventDetail={eventDetail} />
+            </div>
+          </LayoutTop>
 
-              <div className="mt-4 pt-4">
-                {/* Klasemen */}
-                <div
-                  style={{ backgroundColor: "#0D47A1", borderRadius: "8px", cursor: "pointer" }}
-                  className="d-flex justify-content-between align-items-center px-1"
-                >
-                  <div style={{ width: "70%" }}>
-                    <img width="100%" style={{ objectFit: "cover" }} src={kalasemen} />
-                  </div>
+          <LayoutBottom>
+            <div>
+              <DetailInTabs eventDetail={eventDetail} dataFAQ={dataFAQ} />
+            </div>
 
-                  <div style={{ textAlign: "center" }}>
-                    <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
-                      Klasemen Pertandingan
-                    </span>
+            <SecondaryCTA>
+              <SecondaryCTAItem
+                bgImg={kalasemen}
+                heading="Klasemen Pertandingan"
+                subheading="Klik untuk melihat"
+              />
 
-                    <br />
-
-                    <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                      Klik untuk melihat {">"}
-                    </span>
-                  </div>
-                </div>
-
-                {/*  Handbook */}
-                {Boolean(eventDetail?.handbook) && (
-                  <div
-                    onClick={() => window.open(eventDetail?.handbook)}
-                    style={{
-                      backgroundColor: "#0D47A1",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                    }}
-                    className="d-flex justify-content-between align-items-center px-1 mt-3"
-                  >
-                    <div style={{ width: "70%" }}>
-                      <img width="100%" style={{ objectFit: "cover" }} src={book} />
-                    </div>
-
-                    <div style={{ textAlign: "center" }}>
-                      <span style={{ fontWeight: "600", fontSize: "18px", color: "#FFF" }}>
-                        Technical Handbook{" "}
-                      </span>
-
-                      <br />
-
-                      <span style={{ fontStyle: "italic", color: "#FFF" }}>
-                        Klik untuk unduh {">"}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Col>
-          </Row>
-        </InnerContentWrapper>
-      </Container>
+              {Boolean(eventDetail?.handbook) && (
+                <SecondaryCTAItem
+                  bgImg={book}
+                  heading="Technical Handbook"
+                  subheading="Klik untuk unduh"
+                />
+              )}
+            </SecondaryCTA>
+          </LayoutBottom>
+        </MainContent>
+      </InnerContentWrapper>
     </PageWrapper>
   );
 }
 
 const InnerContentWrapper = styled.div`
-  max-width: 75rem;
+  max-width: 79rem;
   margin: 0 auto;
+
+  @media (min-width: 769px) {
+    margin: 0 0.75rem;
+  }
+
+  @media (min-width: 1264px) {
+    margin: 0 auto;
+  }
 `;
 
 const PageWrapper = styled.div`
   margin: 2.5rem 0;
   background-color: #f8f8fa;
   font-family: "Inter";
+`;
 
-  .text-category {
-    color: #0d47a1;
-    font-size: 16px;
-    font-weight: 600;
-  }
+const EventBanner = styled.div`
+  position: relative;
+  width: 100%;
+  padding-top: 42%;
+  background-color: var(--ma-gray-600);
 
-  .event-box {
-    padding: 16px 18px;
-    border-radius: 4px;
-    box-shadow: 0 0.1rem 0.5rem rgb(18 38 63 / 10%);
-    background-color: #ffffff;
-    color: #000000;
-  }
-
-  .event-banner {
-    position: relative;
+  .event-banner-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    object-fit: cover;
     width: 100%;
-    padding-top: 42%;
-    background-color: var(--ma-gray-600);
+    height: 100%;
+  }
+`;
 
-    .event-banner-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      object-fit: cover;
-      width: 100%;
-      height: 100%;
-    }
+const SecondaryCTA = styled.div`
+  margin: 0 1rem;
+
+  > * + * {
+    margin-top: 1rem;
   }
 
-  .event-heading {
-    margin-bottom: 0;
-    color: var(--ma-blue);
+  @media (min-width: 769px) {
+    margin: 0;
+    margin-top: 3.25rem;
   }
+`;
 
-  .content-section {
-    color: #000000;
-
-    .content-info-heading {
-      margin-top: 2rem;
-      color: #000000;
-    }
-
-    .content-info-time-place td {
-      cursor: initial;
-    }
+const MainContent = styled.div`
+  > * {
+    margin-top: 1.5rem;
   }
+`;
 
-  .event-preview-link {
-    color: var(--ma-blue);
+const LayoutTop = styled.div`
+  display: grid;
+  gap: 1.5rem;
+
+  @media (min-width: 769px) {
+    grid-template-columns: 3fr 2fr;
   }
+`;
 
-  .button-preview {
-    transition: all 0.2s;
+const LayoutBottom = styled.div`
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 1.5rem;
 
-    &:hover {
-      box-shadow: none;
-      opacity: 0.4;
-    }
-  }
-
-  .button-preview-outline {
-    transition: all 0.2s;
-
-    &:disabled {
-      background-color: #0d47a1;
-      border: solid 1px var(--ma-gray-200) !important;
-      color: #fff;
-    }
-
-    &:hover {
-      box-shadow: none;
-      opacity: 0.7;
-    }
-  }
-
-  .button-leaderboard {
-    width: 100%;
-    text-align: center;
-  }
-
-  .event-notice-find {
-    margin-bottom: 20px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background-color: #f3f3f3;
-    color: #000000;
-  }
-
-  .event-countdown-box {
-    padding: 16px 18px;
-    border-radius: 4px;
-    box-shadow: 0 0.1rem 0.5rem rgb(18 38 63 / 10%);
-    text-align: center;
-    background-color: #ffffff;
-    color: #000000;
-
-    h5 {
-      color: #000000;
-    }
-
-    > *:not(:first-child) {
-      margin-top: 1rem;
-    }
-  }
-
-  .event-team-tabs {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    gap: 0.75rem;
-
-    .event-team-item {
-      display: inline-block;
-      padding: 0.8rem 1.5rem;
-      border-radius: 2rem;
-      border: solid 1px #0d47a1;
-      background-color: transparent;
-      color: #0d47a1;
-
-      &.team-active {
-        background-color: #0d47a1;
-        color: #ffffff;
-      }
-    }
-  }
-
-  .event-category-grid {
+  @media (min-width: 769px) {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-
-    @media screen and (max-width: 600px) {
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      height: 245px;
-      overflow-y: auto;
-    }
-
-    .event-category-card {
-      padding: 12px 1rem;
-      border-radius: 4px;
-      background-color: #ffffff;
-      transition: box-shadow 0.5s, transform 0.25s;
-
-      &:hover {
-        box-shadow: 0 0.3rem 0.75rem rgb(18 38 63 / 10%);
-        transform: translateY(-0.75px);
-
-        .button-card-regist {
-          border-color: var(--ma-blue);
-          background-color: var(--ma-blue);
-
-          &:hover {
-            border-color: var(--ma-gray-400);
-            background-color: var(--ma-gray-400);
-          }
-        }
-      }
-
-      .heading-category-name {
-        color: var(--ma-blue);
-      }
-
-      .body-category-detail {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        .category-quota-label {
-          padding: 4px 8px;
-          border-radius: 1em;
-          background-color: #aeddc2;
-        }
-      }
-    }
+    grid-template-columns: 3fr 2fr;
+    gap: 1.5rem;
   }
 `;
 

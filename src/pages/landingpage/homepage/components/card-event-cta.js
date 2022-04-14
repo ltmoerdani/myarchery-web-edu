@@ -29,7 +29,7 @@ function CardEventCTA({ eventDetail }) {
         <RegistrationHeading>Biaya Pendaftaran</RegistrationHeading>
 
         <RegistrationPriceGrid>
-          {["Individu", "Beregu", "Mix"].map((teamCategory, index) => (
+          {["Individu", "Beregu", "Campuran"].map((teamCategory, index) => (
             <RegistrationPriceItem key={teamCategory}>
               <PriceTeamCategoryLabel>{teamCategory}</PriceTeamCategoryLabel>
               <PriceGroup>
@@ -124,8 +124,24 @@ const PriceGroup = styled.div`
 
 const MainPriceLabel = styled.div`
   color: var(--ma-blue);
-  font-size: 1.25rem;
+  font-size: 0.75rem;
   font-weight: 600;
+
+  @media (min-width: 455px) {
+    font-size: 1.25rem;
+  }
+
+  @media (min-width: 769px) {
+    font-size: 0.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 1rem;
+  }
+
+  @media (min-width: 1264px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const EarlyBirdPriceLabel = styled.div`

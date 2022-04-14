@@ -210,37 +210,17 @@ function MainCardEvent({ eventDetail }) {
           </AgeCategoryBar>
         )}
 
-        <div>
+        <QuotaBar>
           <QuotaHeading>Kuota Pertandingan</QuotaHeading>
-
-          <div
-            className="d-flex mt-2 justify-content-between"
-            style={{ overflowX: "auto", gap: "5px" }}
-          >
-            {[1, 2, 3, 4].map((id) => (
-              <div
-                key={id}
-                className="px-3 py-2"
-                style={{
-                  border: "1px solid #EEEEEE",
-                  borderRadius: "5px",
-                  textAlign: "center",
-                }}
-              >
-                <div className="py-2 text-category">
-                  <span>{"Label Kategori"}</span>
-                </div>
-
-                <div
-                  className="py-1 px-2"
-                  style={{ backgroundColor: "#AEDDC2", borderRadius: "25px" }}
-                >
-                  <span>Tersedia: {"10"}</span>
-                </div>
-              </div>
+          <QuotaGrid>
+            {["Putra", "Putri", "Beregu Putra", "Beregu Putri", "Beregu Campuran"].map((label) => (
+              <QuotaItem key={label}>
+                <TeamCategoryLabel>{label}</TeamCategoryLabel>
+                <QuotaAmount>Tersedia: {"10/40"}</QuotaAmount>
+              </QuotaItem>
             ))}
-          </div>
-        </div>
+          </QuotaGrid>
+        </QuotaBar>
       </VerticalSpaced>
     </ContentSheet>
   );
@@ -262,35 +242,75 @@ const VerticalSpaced = styled.div`
 
 const EventHeadingGroup = styled.div`
   display: flex;
+  flex-direction: column-reverse;
   align-items: flex-start;
   gap: 1rem;
 
   > *:last-child {
     flex-shrink: 0;
   }
+
+  @media (min-width: 562px) {
+    flex-direction: row;
+  }
+
+  @media (min-width: 769px) {
+    flex-direction: column-reverse;
+  }
+
+  @media (min-width: 1024px) {
+    flex-direction: row;
+  }
 `;
 
 const EventNameHeading = styled.h1`
   color: var(--ma-blue);
-  font-size: 1.875rem;
+  font-size: 1.125rem;
   font-weight: 600;
+
+  @media (min-width: 426px) {
+    font-size: 1.875rem;
+  }
 `;
 
 const CompetitionTypeLabel = styled.div`
-  margin-top: 0.5rem;
   min-width: max-content;
   padding: 0.125rem 0.75rem;
   color: var(--ma-text-black);
   background-color: #ffcf70;
   border-radius: 1.5rem;
+
+  @media (min-width: 562px) {
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: 769px) {
+    margin-top: 0;
+  }
+
+  @media (min-width: 1024px) {
+    margin-top: 0.5rem;
+  }
 `;
 
 const SubHeadingInfo = styled.div`
-  font-size: 1.125rem;
+  font-size: 0.8125rem;
   font-weight: 600;
 
   > * + * {
     margin-left: 0.625rem;
+  }
+
+  @media (min-width: 562px) {
+    font-size: 1.125rem;
+  }
+
+  @media (min-width: 769px) {
+    font-size: 0.8125rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 1.125rem;
   }
 `;
 
@@ -355,6 +375,12 @@ const AgeCategoryItem = styled.button`
   }
 `;
 
+const QuotaBar = styled.div`
+  > * + * {
+    margin-top: 0.75rem;
+  }
+`;
+
 const QuotaHeading = styled.div`
   display: flex;
   justify-content: center;
@@ -364,6 +390,38 @@ const QuotaHeading = styled.div`
   color: var(--ma-blue);
   font-size: 1.125rem;
   font-weight: 600;
+`;
+
+const QuotaGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: 0.625rem;
+`;
+
+const QuotaItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #eeeeee;
+  border-radius: 0.5rem;
+  text-align: center;
+`;
+
+const TeamCategoryLabel = styled.div`
+  color: var(--ma-blue);
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
+const QuotaAmount = styled.div`
+  padding: 0.125rem 0.5rem;
+  background-color: #aeddc2;
+  border-radius: 1.5rem;
+  font-size: 0.75rem;
 `;
 
 export { MainCardEvent };
