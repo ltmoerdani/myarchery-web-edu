@@ -1,9 +1,9 @@
 import * as React from "react";
+import styled from "styled-components";
 import { CategoryService } from "services";
 
 import classnames from "classnames";
-import { parseISO, format } from "date-fns";
-import { id } from "date-fns/locale";
+import { datetime } from "utils";
 
 function MainCardEvent({ eventDetail }) {
   const [loadingCategory, setLoadingCategory] = React.useState(false);
@@ -47,10 +47,8 @@ function MainCardEvent({ eventDetail }) {
 
   //
 
-  const dateEventStart = eventDetail?.eventStartDatetime
-    ? parseISO(eventDetail.eventStartDatetime)
-    : "";
-  const dateEventEnd = eventDetail?.eventEndDatetime ? parseISO(eventDetail.eventEndDatetime) : "";
+  const dateEventStart = datetime.formatFullDateLabel(eventDetail?.eventStartDatetime);
+  const dateEventEnd = datetime.formatFullDateLabel(eventDetail?.eventEndDatetime);
 
   //
 
@@ -122,39 +120,37 @@ function MainCardEvent({ eventDetail }) {
   };
 
   return (
-    <div className="event-box">
-      <div className="d-flex align-items-center">
-        <span style={{ color: "#0D47A1", fontSize: "32px" }}>{eventDetail?.eventName}</span>
+    <ContentSheet>
+      <VerticalSpaced>
+        <div>
+          <EventHeadingGroup>
+            <div>
+              <EventNameHeading>{eventDetail?.eventName}</EventNameHeading>
+            </div>
+            <div>
+              <CompetitionTypeLabel>{eventDetail?.eventCompetition}</CompetitionTypeLabel>
+            </div>
+          </EventHeadingGroup>
 
-        <span
-          className="p-1"
-          style={{ color: "#000", backgroundColor: "#FFCF70", borderRadius: "25px" }}
-        >
-          {eventDetail?.eventCompetition}
-        </span>
-      </div>
+          <SubHeadingInfo>
+            <span>
+              {eventDetail ? (
+                <React.Fragment>
+                  {dateEventStart} &ndash; {dateEventEnd}
+                </React.Fragment>
+              ) : (
+                "tanggal tidak tersedia"
+              )}
+            </span>
+            <span>|</span>
+            <span>{eventDetail?.location}</span>
+          </SubHeadingInfo>
 
-      <div style={{ fontWeight: "600" }}>
-        {eventDetail
-          ? `${formatEventDate(dateEventStart)} - ${formatEventDate(dateEventEnd)}`
-          : "tanggal tidak tersedia"}{" "}
-        | {eventDetail?.location}
-      </div>
+          <div>oleh {eventDetail?.detailAdmin?.name}</div>
+        </div>
 
-      <div>oleh {eventDetail?.detailAdmin?.name}</div>
-
-      <div>
-        <div
-          className="d-flex justify-content-center align-content-center py-3"
-          style={{
-            flexWrap: "wrap",
-            gap: "28px",
-            backgroundColor: "#E7EDF6",
-            borderRadius: "5px",
-            fontSize: "18px",
-          }}
-        >
-          <span
+        <CompetitionCategoryBar>
+          <CompetitionCategoryItem
             onClick={() => {
               setSelectClass(categoryArr[0]);
               setSelectAge("");
@@ -166,99 +162,208 @@ function MainCardEvent({ eventDetail }) {
             })}
           >
             {categoryArr[0]}
-          </span>
+          </CompetitionCategoryItem>
 
-          {[2, 3, 4].map((id) => (
-            <span
-              key={id}
+          {["Recurve", "Nasional", "Barebow"].map((busur) => (
+            <CompetitionCategoryItem
+              key={busur}
               onClick={() => {
                 setSelectAge("");
                 setFilterClass({});
               }}
+              className="filter-category"
             >
-              Jenis Busur {id}
-            </span>
+              {busur}
+            </CompetitionCategoryItem>
           ))}
-        </div>
+        </CompetitionCategoryBar>
+
+        {!loadingCategory ? (
+          handleLoadCategory()
+        ) : (
+          <AgeCategoryBar>
+            <AgeCategoryItem
+              onClick={() => {
+                setSelectAge(classCategory[0]);
+                hanlderSplitString(classCategory[0]);
+              }}
+              className="age-filter-active"
+            >
+              Umum - 50 Meter
+            </AgeCategoryItem>
+
+            {["U12 - 50 Meter"].map((age) => (
+              <AgeCategoryItem
+                key={age}
+                onClick={() => {
+                  setSelectAge(age);
+                  hanlderSplitString(age);
+                }}
+                className={classnames("p-1 me-2", {
+                  "age-filter-active": selectAge === age,
+                  "age-filter": selectAge !== age,
+                })}
+              >
+                {age}
+              </AgeCategoryItem>
+            ))}
+          </AgeCategoryBar>
+        )}
 
         <div>
-          {!loadingCategory ? (
-            handleLoadCategory()
-          ) : (
-            <div className="d-flex justify-content-center my-4 w-100">
-              <span
-                onClick={() => {
-                  setSelectAge(classCategory[0]);
-                  hanlderSplitString(classCategory[0]);
-                }}
-                className="p-1 me-2 age-filter"
-              >
-                Label Umur 1
-              </span>
+          <QuotaHeading>Kuota Pertandingan</QuotaHeading>
 
-              {[2, 3, 4].map((id) => (
-                <span
-                  key={id}
-                  onClick={() => {
-                    setSelectAge(id);
-                    hanlderSplitString(id);
-                  }}
-                  className={classnames("p-1 me-2", {
-                    "age-filter-active": selectAge === id,
-                    "age-filter": selectAge !== id,
-                  })}
-                >
-                  Label Umur {id}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="d-flex justify-content-center py-2" style={{ backgroundColor: "#F6F6F6" }}>
-          <span style={{ color: "#0D47A1", fontSize: "18px" }}>Kuota Pertandingan</span>
-        </div>
-
-        <div
-          className="d-flex mt-2 justify-content-between"
-          style={{ overflowX: "auto", gap: "5px" }}
-        >
-          {[1, 2, 3, 4].map((id) => (
-            <div
-              key={id}
-              className="px-3 py-2"
-              style={{
-                border: "1px solid #EEEEEE",
-                borderRadius: "5px",
-                textAlign: "center",
-              }}
-            >
-              <div className="py-2 text-category">
-                <span>{"Label Kategori"}</span>
-              </div>
-
+          <div
+            className="d-flex mt-2 justify-content-between"
+            style={{ overflowX: "auto", gap: "5px" }}
+          >
+            {[1, 2, 3, 4].map((id) => (
               <div
-                className="py-1 px-2"
-                style={{ backgroundColor: "#AEDDC2", borderRadius: "25px" }}
+                key={id}
+                className="px-3 py-2"
+                style={{
+                  border: "1px solid #EEEEEE",
+                  borderRadius: "5px",
+                  textAlign: "center",
+                }}
               >
-                <span>Tersedia: {"data.quota"}</span>
+                <div className="py-2 text-category">
+                  <span>{"Label Kategori"}</span>
+                </div>
+
+                <div
+                  className="py-1 px-2"
+                  style={{ backgroundColor: "#AEDDC2", borderRadius: "25px" }}
+                >
+                  <span>Tersedia: {"10"}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    </div>
+      </VerticalSpaced>
+    </ContentSheet>
   );
 }
 
-// util
-function formatEventDate(date) {
-  try {
-    let dateObject = typeof date === "string" ? parseISO(date) : date;
-    return format(dateObject, "d MMMM yyyy", { locale: id });
-  } catch {
-    return "Tanggal Invalid";
+const ContentSheet = styled.div`
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.12);
+  background-color: #ffffff;
+  color: var(--ma-text-black);
+`;
+
+const VerticalSpaced = styled.div`
+  > * + * {
+    margin-top: 1.5rem;
   }
-}
+`;
+
+const EventHeadingGroup = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+
+  > *:last-child {
+    flex-shrink: 0;
+  }
+`;
+
+const EventNameHeading = styled.h1`
+  color: var(--ma-blue);
+  font-size: 1.875rem;
+  font-weight: 600;
+`;
+
+const CompetitionTypeLabel = styled.div`
+  margin-top: 0.5rem;
+  min-width: max-content;
+  padding: 0.125rem 0.75rem;
+  color: var(--ma-text-black);
+  background-color: #ffcf70;
+  border-radius: 1.5rem;
+`;
+
+const SubHeadingInfo = styled.div`
+  font-size: 1.125rem;
+  font-weight: 600;
+
+  > * + * {
+    margin-left: 0.625rem;
+  }
+`;
+
+const CompetitionCategoryBar = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+
+  padding: 0.75rem;
+  background-color: var(--ma-primary-blue-50);
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+`;
+
+const CompetitionCategoryItem = styled.button`
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+
+  color: #90aad4;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: all 0.5s;
+
+  &.filter-category-active {
+    border-bottom: 2px solid #ffb420;
+
+    color: var(--ma-blue);
+    font-weight: 600;
+    cursor: pointer;
+
+    transform: translateY(-0.25rem);
+  }
+`;
+
+const AgeCategoryBar = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+`;
+
+const AgeCategoryItem = styled.button`
+  background-color: transparent;
+  border: none;
+  padding: 0.125rem 0.625rem;
+  color: var(--ma-gray);
+  font-size: 1.125rem;
+  font-weight: 600;
+
+  &.age-filter-active {
+    border-radius: 0.5rem;
+    border: 1px solid #ffb420;
+    background-color: #fff8e9;
+    color: #ffb420;
+    font-size: 18px;
+  }
+`;
+
+const QuotaHeading = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 0.375rem;
+  background-color: var(--ma-gray-50);
+
+  color: var(--ma-blue);
+  font-size: 1.125rem;
+  font-weight: 600;
+`;
 
 export { MainCardEvent };

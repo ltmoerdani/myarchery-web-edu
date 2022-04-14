@@ -31,16 +31,16 @@ function LandingPage() {
             <img className="event-banner-image" src={eventDetail?.poster} />
           </div>
 
-          <Row className="mt-3">
-            <Col md="8">
+          <Row className="mt-4">
+            <Col md="7">
               <MainCardEvent eventDetail={eventDetail} />
 
-              <div className="mt-5">
+              <div className="mt-4">
                 <DetailInTabs eventDetail={eventDetail} dataFAQ={dataFAQ} />
               </div>
             </Col>
 
-            <Col md="4">
+            <Col md="5">
               <CardEventCTA eventDetail={eventDetail} />
 
               <div className="mt-4 pt-4">
@@ -125,36 +125,6 @@ const PageWrapper = styled.div`
     box-shadow: 0 0.1rem 0.5rem rgb(18 38 63 / 10%);
     background-color: #ffffff;
     color: #000000;
-  }
-
-  .filter-category-active {
-    border-bottom: 1px solid #ffb420;
-    transform: translateY(-5px);
-    color: #0d47a1;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.5s;
-  }
-
-  .filter-category {
-    color: #90aad4;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .age-filter-active {
-    border-radius: 8px;
-    border: 1px solid #ffb420;
-    background-color: #fff8e9;
-    color: #ffb420;
-    font-size: 18px;
-    cursor: pointer;
-  }
-
-  .age-filter {
-    color: #afafaf;
-    font-size: 18px;
-    cursor: pointer;
   }
 
   .event-banner {
@@ -248,29 +218,6 @@ const PageWrapper = styled.div`
 
     > *:not(:first-child) {
       margin-top: 1rem;
-    }
-
-    .countdown-timer {
-      display: flex;
-      justify-content: space-evenly;
-      gap: 0.5rem;
-
-      .countdown-item {
-        display: flex;
-        flex-direction: column;
-        padding: 1rem;
-        border-radius: 4px;
-        border: solid 1px #eff2f7;
-        font-size: 18px;
-        font-weight: 600;
-
-        .timer-unit {
-          padding: 2px 8px;
-          background-color: #eff2f7;
-          font-size: 12px;
-          font-weight: 400;
-        }
-      }
     }
   }
 

@@ -87,7 +87,7 @@ const variantStyles = {
   // TODO: button link (?)
 };
 
-function ButtonBase({ corner, color, style, flexible = false, ...props }) {
+function ButtonBase({ corner, color, style, flexible = false, block = false, ...props }) {
   const withPx = (number) => {
     return number ? `${number}px` : undefined;
   };
@@ -103,6 +103,10 @@ function ButtonBase({ corner, color, style, flexible = false, ...props }) {
 
   if (flexible) {
     propsNew.style = { ...propsNew.style, "--button-width": 0 };
+  }
+
+  if (block) {
+    propsNew.style = { ...propsNew.style, "--button-width": "100%" };
   }
 
   return <ButtonWrapper {...propsNew} />;
