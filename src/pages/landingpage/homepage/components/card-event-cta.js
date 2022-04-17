@@ -100,7 +100,7 @@ function CardEventCTA({ eventDetail }) {
         <div>
           {earlyBird ? (
             <React.Fragment>
-              <strong>Early Bird sampai {earlyBird.earlyBirdExpirationDateLabel}</strong> &#10072;{" "}
+              <strong>Early Bird sampai {earlyBird.earlyBirdExpirationDateLabel}</strong> &#124;{" "}
               <span>
                 {captionCopy} {eventDetail.eventName}
               </span>

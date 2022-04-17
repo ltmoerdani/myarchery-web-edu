@@ -3,9 +3,18 @@ import styled from "styled-components";
 
 import IconChevronRight from "components/ma/icons/mono/chevron-right";
 
-function SecondaryCTAItem({ bgImg, heading, subheading }) {
+function SecondaryCTAItem({ bgImg, heading, subheading, onClick }) {
   return (
-    <SecondaryCTAItemWrapper style={{ "--bg-image": `url(${bgImg})` }}>
+    <SecondaryCTAItemWrapper
+      title={heading}
+      style={{
+        "--bg-image": `url(${bgImg})`,
+        "--cursor-clickable": onClick ? "pointer" : undefined,
+      }}
+      onClick={() => {
+        onClick?.();
+      }}
+    >
       <SecondaryCTAContent>
         <SecondaryCTAHeading>{heading}</SecondaryCTAHeading>
         <SecondaryCTASub>
@@ -29,7 +38,7 @@ const SecondaryCTAItemWrapper = styled.div`
   background-repeat: no-repeat;
   background-position: -2.5rem center;
   background-size: contain;
-  cursor: pointer;
+  cursor: var(--cursor-clickable);
 
   @media (min-width: 455px) {
     background-position: left center;

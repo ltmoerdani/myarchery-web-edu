@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useEventDetail } from "./hooks/event-detail";
 import { useEventFAQ } from "./hooks/event-faqs";
 
@@ -10,11 +10,14 @@ import { CardEventCTA } from "./components/card-event-cta";
 import { DetailInTabs } from "./components/detail-in-tabs";
 import { SecondaryCTAItem } from "./components/secondary-cta-item";
 
+import { url } from "utils";
+
 import kalasemen from "assets/images/myachery/kalasemen.png";
 import book from "assets/images/myachery/book.png";
 
 function LandingPage() {
   const { slug } = useParams();
+  const history = useHistory();
 
   const { data: eventDetail } = useEventDetail(slug);
   const { data: dataFAQ } = useEventFAQ(eventDetail?.id);
@@ -45,10 +48,13 @@ function LandingPage() {
             </div>
 
             <SecondaryCTA>
+              {/* TODO: banner pendaftaran official */}
+
               <SecondaryCTAItem
                 bgImg={kalasemen}
                 heading="Klasemen Pertandingan"
                 subheading="Klik untuk melihat"
+                onClick={() => history.push(`/live-score/${slug}/qualification`)}
               />
 
               {Boolean(eventDetail?.handbook) && (
@@ -56,6 +62,7 @@ function LandingPage() {
                   bgImg={book}
                   heading="Technical Handbook"
                   subheading="Klik untuk unduh"
+                  onClick={() => url.openUrlOnNewTab(eventDetail?.handbook)}
                 />
               )}
             </SecondaryCTA>
