@@ -27,9 +27,13 @@ const SecondaryCTAItemWrapper = styled.div`
   background-color: var(--ma-blue);
   background-image: var(--bg-image);
   background-repeat: no-repeat;
-  background-position: left center;
+  background-position: -2.5rem center;
   background-size: contain;
   cursor: pointer;
+
+  @media (min-width: 455px) {
+    background-position: left center;
+  }
 
   @media (min-width: 769px) {
     background-position: -2.5rem center;
