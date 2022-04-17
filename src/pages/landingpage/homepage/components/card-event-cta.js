@@ -7,8 +7,7 @@ import { getAuthenticationStore } from "store/slice/authentication";
 import { ButtonCTABig } from "./button-cta-big";
 
 import Countdown from "react-countdown";
-// TODO:
-// import CurrencyFormat from "react-currency-format";
+import CurrencyFormat from "react-currency-format";
 
 import { isAfter } from "date-fns";
 import { datetime } from "utils";
@@ -16,8 +15,53 @@ import { datetime } from "utils";
 function CardEventCTA({ eventDetail }) {
   const { isLoggedIn } = useSelector(getAuthenticationStore);
 
+  const captionCopy = "Segera daftarkan dirimu dan timmu pada kompetisi";
   const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
   const isRegistrationClosed = registerEventEnd ? isAfter(new Date(), registerEventEnd) : true;
+
+  const eventPriceOptions = React.useMemo(() => {
+    if (!eventDetail?.eventPrice) {
+      return [];
+    }
+    return Object.keys(eventDetail.eventPrice).map((teamCategory) => {
+      const priceByTeam = eventDetail.eventPrice[teamCategory];
+      const hasEarlyBirdPrice = priceByTeam.isEarlyBird || Boolean(priceByTeam.endDateEarlyBird);
+      return {
+        teamCategoryId: teamCategory,
+        teamLabel: _getTeamLabelFromTeamId(teamCategory),
+        amount: Number(priceByTeam.price),
+        isEarlyBird: hasEarlyBirdPrice,
+        amountEarlyBird: Number(priceByTeam.earlyBird),
+        endDateEarlyBird: hasEarlyBirdPrice
+          ? datetime.parseServerDatetime(priceByTeam.endDateEarlyBird)
+          : null,
+      };
+    });
+  }, [eventDetail]);
+
+  const earlyBird = React.useMemo(() => {
+    if (!eventPriceOptions?.length) {
+      return null;
+    }
+
+    const earlyBirdData = eventPriceOptions.reduce((earlyBirdData, option) => {
+      if (
+        !option.isEarlyBird ||
+        earlyBirdData.earlyBirdExpirationDate ||
+        earlyBirdData.earlyBirdExpirationDateLabel
+      ) {
+        return earlyBirdData;
+      }
+      earlyBirdData.earlyBirdExpirationDate = option.endDateEarlyBird;
+      earlyBirdData.earlyBirdExpirationDateLabel = datetime.formatFullDateLabel(
+        option.endDateEarlyBird,
+        { withDay: true }
+      );
+      return earlyBirdData;
+    }, {});
+
+    return earlyBirdData;
+  }, [eventPriceOptions]);
 
   if (!eventDetail) {
     return <ContentSheet>Sedang memuat data event...</ContentSheet>;
@@ -29,19 +73,43 @@ function CardEventCTA({ eventDetail }) {
         <RegistrationHeading>Biaya Pendaftaran</RegistrationHeading>
 
         <RegistrationPriceGrid>
-          {["Individu", "Beregu", "Campuran"].map((teamCategory, index) => (
-            <RegistrationPriceItem key={teamCategory}>
-              <PriceTeamCategoryLabel>{teamCategory}</PriceTeamCategoryLabel>
+          {eventPriceOptions.map((option) => (
+            <RegistrationPriceItem key={option.teamCategoryId}>
+              <PriceTeamCategoryLabel>{option.teamLabel}</PriceTeamCategoryLabel>
               <PriceGroup>
-                {index === 0 && <EarlyBirdPriceLabel>Rp370.000</EarlyBirdPriceLabel>}
-                <MainPriceLabel>Rp370.000</MainPriceLabel>
+                {option.isEarlyBird ? (
+                  <React.Fragment>
+                    <EarlyBirdPriceLabel>
+                      <AmountWithCurrency amount={option.amount} />
+                    </EarlyBirdPriceLabel>
+
+                    <MainPriceLabel>
+                      <AmountWithCurrency amount={option.amountEarlyBird} />
+                    </MainPriceLabel>
+                  </React.Fragment>
+                ) : (
+                  <MainPriceLabel>
+                    <AmountWithCurrency amount={option.amount} />
+                  </MainPriceLabel>
+                )}
               </PriceGroup>
             </RegistrationPriceItem>
           ))}
         </RegistrationPriceGrid>
 
         <div>
-          <span>Segera daftarkan dirimu dan timmu pada kompetisi {eventDetail?.eventName}</span>
+          {earlyBird ? (
+            <React.Fragment>
+              <strong>Early Bird sampai {earlyBird.earlyBirdExpirationDateLabel}</strong> &#10072;{" "}
+              <span>
+                {captionCopy} {eventDetail.eventName}
+              </span>
+            </React.Fragment>
+          ) : (
+            <span>
+              {captionCopy} {eventDetail.eventName}
+            </span>
+          )}
         </div>
 
         <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
@@ -54,8 +122,8 @@ function CardEventCTA({ eventDetail }) {
               as={Link}
               to={`${
                 !isLoggedIn
-                  ? `/archer/login?path=/event-registration/${eventDetail?.eventSlug}`
-                  : `/event-registration/${eventDetail?.eventSlug}`
+                  ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
+                  : `/event-registration/${eventDetail.eventSlug}`
               }`}
             >
               Daftar Event
@@ -151,6 +219,22 @@ const EarlyBirdPriceLabel = styled.div`
 
 /* ============================================= */
 
+function AmountWithCurrency({ amount }) {
+  return (
+    <CurrencyFormat
+      displayType={"text"}
+      value={amount}
+      prefix="Rp"
+      thousandSeparator={"."}
+      decimalSeparator={","}
+      decimalScale={0}
+      fixedDecimalScale
+    />
+  );
+}
+
+/* ============================================= */
+
 function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   if (completed) {
     return (
@@ -210,5 +294,17 @@ const TimerUnit = styled.span`
   font-size: 12px;
   font-weight: 400;
 `;
+
+/* =========================================== */
+// utils
+
+function _getTeamLabelFromTeamId(teamCategory) {
+  const labels = {
+    individu: "Individu",
+    team: "Beregu",
+    mix: "Campuran",
+  };
+  return labels[teamCategory];
+}
 
 export { CardEventCTA };

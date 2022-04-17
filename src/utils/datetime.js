@@ -25,9 +25,12 @@ function formatServerDate(date) {
   }
 }
 
-function formatFullDateLabel(date) {
+function formatFullDateLabel(date, { withDay = false } = {}) {
   const dateObject = typeof date === "string" ? parseISO(date) : date;
   try {
+    if (withDay) {
+      return format(dateObject, "EEEE, d MMMM yyyy", { locale: id });
+    }
     return format(dateObject, "d MMMM yyyy", { locale: id });
   } catch {
     return "Tanggal tidak valid";

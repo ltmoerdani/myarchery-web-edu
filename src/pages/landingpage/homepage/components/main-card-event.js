@@ -46,7 +46,7 @@ function MainCardEvent({ eventDetail }) {
                 "tanggal tidak tersedia"
               )}
             </span>
-            <span>|</span>
+            <span>&#10072;</span>
             <span>{eventDetail?.location}</span>
           </SubHeadingInfo>
 
