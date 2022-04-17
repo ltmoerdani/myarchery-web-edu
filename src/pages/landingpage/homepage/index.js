@@ -124,10 +124,13 @@ const MainContent = styled.div`
 
 const LayoutTop = styled.div`
   display: grid;
+  /* fix untuk konten yang overflowing kalau pakai grid 1fr pakai minmax */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.5rem;
 
   @media (min-width: 769px) {
-    grid-template-columns: 3fr 2fr;
+    /* fix untuk konten yang overflowing kalau pakai grid 1fr pakai minmax */
+    grid-template-columns: minmax(0, 3fr) 2fr;
   }
 `;
 

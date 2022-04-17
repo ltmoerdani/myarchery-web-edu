@@ -150,63 +150,67 @@ function MainCardEvent({ eventDetail }) {
         </div>
 
         <CompetitionCategoryBar>
-          <CompetitionCategoryItem
-            onClick={() => {
-              setSelectClass(categoryArr[0]);
-              setSelectAge("");
-              setFilterClass({});
-            }}
-            className={classnames({
-              "filter-category-active": selectClass === "" || selectClass === categoryArr[0],
-              "filter-category": selectClass !== "" && selectClass !== categoryArr[0],
-            })}
-          >
-            {categoryArr[0]}
-          </CompetitionCategoryItem>
-
-          {["Recurve", "Nasional", "Barebow"].map((busur) => (
+          <ScrollableCategoryBar>
             <CompetitionCategoryItem
-              key={busur}
               onClick={() => {
+                setSelectClass(categoryArr[0]);
                 setSelectAge("");
                 setFilterClass({});
               }}
-              className="filter-category"
+              className={classnames({
+                "filter-category-active": selectClass === "" || selectClass === categoryArr[0],
+                "filter-category": selectClass !== "" && selectClass !== categoryArr[0],
+              })}
             >
-              {busur}
+              <span>{"Compound"}</span>
             </CompetitionCategoryItem>
-          ))}
+
+            {["Recurve", "Nasional", "Barebow"].map((busur) => (
+              <CompetitionCategoryItem
+                key={busur}
+                onClick={() => {
+                  setSelectAge("");
+                  setFilterClass({});
+                }}
+                className="filter-category"
+              >
+                <span>{busur}</span>
+              </CompetitionCategoryItem>
+            ))}
+          </ScrollableCategoryBar>
         </CompetitionCategoryBar>
 
         {!loadingCategory ? (
           handleLoadCategory()
         ) : (
           <AgeCategoryBar>
-            <AgeCategoryItem
-              onClick={() => {
-                setSelectAge(classCategory[0]);
-                hanlderSplitString(classCategory[0]);
-              }}
-              className="age-filter-active"
-            >
-              Umum - 50 Meter
-            </AgeCategoryItem>
-
-            {["U12 - 50 Meter"].map((age) => (
+            <ScrollableAgeCategoryBar>
               <AgeCategoryItem
-                key={age}
                 onClick={() => {
-                  setSelectAge(age);
-                  hanlderSplitString(age);
+                  setSelectAge(classCategory[0]);
+                  hanlderSplitString(classCategory[0]);
                 }}
-                className={classnames("p-1 me-2", {
-                  "age-filter-active": selectAge === age,
-                  "age-filter": selectAge !== age,
-                })}
+                className="age-filter-active"
               >
-                {age}
+                Umum - 50 Meter
               </AgeCategoryItem>
-            ))}
+
+              {["U12 - 50 Meter"].map((age) => (
+                <AgeCategoryItem
+                  key={age}
+                  onClick={() => {
+                    setSelectAge(age);
+                    hanlderSplitString(age);
+                  }}
+                  className={classnames({
+                    "age-filter-active": selectAge === age,
+                    "age-filter": selectAge !== age,
+                  })}
+                >
+                  {age}
+                </AgeCategoryItem>
+              ))}
+            </ScrollableAgeCategoryBar>
           </AgeCategoryBar>
         )}
 
@@ -315,63 +319,122 @@ const SubHeadingInfo = styled.div`
 `;
 
 const CompetitionCategoryBar = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1.75rem;
-
-  padding: 0.75rem;
+  overflow-x: auto;
+  padding: 0 0.875rem;
   background-color: var(--ma-primary-blue-50);
   border-radius: 0.5rem;
-  font-size: 1.125rem;
+`;
+
+const ScrollableCategoryBar = styled.div`
+  margin: 0 auto;
+  width: max-content;
+  display: flex;
+
+  @media (min-width: 562px) {
+    margin: 0;
+    width: auto;
+
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
 `;
 
 const CompetitionCategoryItem = styled.button`
   border: none;
   background-color: transparent;
-  padding: 0;
+  padding: 1.125rem 1.125rem;
   margin: 0;
 
   color: #90aad4;
   font-weight: 600;
-  cursor: pointer;
+  font-size: 0.875rem;
 
-  transition: all 0.5s;
+  transition: all 0.2s;
+
+  @media (min-width: 562px) {
+    font-size: 1.125rem;
+  }
+
+  &:hover {
+    > span {
+      transition: all 0.2s;
+      border-bottom: 2px solid #ffb420;
+    }
+  }
+
+  > span {
+    border-bottom: 2px solid transparent;
+  }
 
   &.filter-category-active {
-    border-bottom: 2px solid #ffb420;
-
     color: var(--ma-blue);
     font-weight: 600;
     cursor: pointer;
 
-    transform: translateY(-0.25rem);
+    > span {
+      display: inline-block;
+      border-bottom: 2px solid #ffb420;
+      transform: translateY(-0.25rem);
+      transition: all 0.2s;
+    }
+  }
+
+  @media (min-width: 562px) {
+    padding: 0.75rem 1.125rem;
   }
 `;
 
 const AgeCategoryBar = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
+  overflow-x: auto;
   padding: 0.75rem;
+
+  @media (min-width: 562px) {
+    overflow-x: visible;
+  }
+`;
+
+const ScrollableAgeCategoryBar = styled.div`
+  margin: 0 auto;
+  width: max-content;
+  display: flex;
+  gap: 0.5rem;
+
+  @media (min-width: 562px) {
+    margin: 0;
+    width: auto;
+
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
 `;
 
 const AgeCategoryItem = styled.button`
+  padding: 0.625rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
   background-color: transparent;
-  border: none;
-  padding: 0.125rem 0.625rem;
+
   color: var(--ma-gray);
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   font-weight: 600;
 
+  transition: all 0.2s;
+
+  &:hover {
+    border: 1px solid var(--ma-gray);
+  }
+
+  @media (min-width: 562px) {
+    padding: 0.125rem 0.625rem;
+    font-size: 1.125rem;
+  }
+
   &.age-filter-active {
-    border-radius: 0.5rem;
     border: 1px solid #ffb420;
     background-color: #fff8e9;
     color: #ffb420;
-    font-size: 18px;
   }
 `;
 
