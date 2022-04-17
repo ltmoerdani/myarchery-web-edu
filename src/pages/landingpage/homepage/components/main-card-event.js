@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useCategoryDetails } from "../hooks/category-details";
 import { useCategoriesWithFilters } from "../hooks/category-filters";
 
+import { SpinnerDotBlock } from "components/ma";
+
 import classnames from "classnames";
 import { datetime } from "utils";
 
@@ -10,6 +12,7 @@ function MainCardEvent({ eventDetail }) {
   const { data: eventCategories, isLoading } = useCategoryDetails(eventDetail?.id);
 
   const {
+    activeCategoryDetails,
     optionsCompetitionCategory,
     optionsAgeCategory,
     selectOptionCompetitionCategory,
@@ -19,20 +22,6 @@ function MainCardEvent({ eventDetail }) {
   const isPreparingCategories = !eventCategories && isLoading;
   const dateEventStart = datetime.formatFullDateLabel(eventDetail?.eventStartDatetime);
   const dateEventEnd = datetime.formatFullDateLabel(eventDetail?.eventEndDatetime);
-
-  const screenLoading = () => {
-    return (
-      <div style={{ height: "50vh" }} className="d-flex justify-content-center align-items-center">
-        <div className="spinner-grow" role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-      </div>
-    );
-  };
-
-  const handleLoadCategory = () => {
-    return <div>{screenLoading()}</div>;
-  };
 
   return (
     <ContentSheet>
@@ -65,7 +54,7 @@ function MainCardEvent({ eventDetail }) {
         </div>
 
         {isPreparingCategories ? (
-          screenLoading()
+          <SpinnerDotBlock />
         ) : !eventCategories ? (
           <div>Tidak ada data kategori</div>
         ) : (
@@ -89,40 +78,42 @@ function MainCardEvent({ eventDetail }) {
               </ScrollableCategoryBar>
             </CompetitionCategoryBar>
 
-            {!eventCategories ? (
-              handleLoadCategory()
-            ) : (
-              <AgeCategoryBar>
-                <ScrollableAgeCategoryBar>
-                  {optionsAgeCategory.map((filter) => (
-                    <AgeCategoryItem
-                      key={filter.ageCategory}
-                      onClick={() => {
-                        if (filter.isActive) {
-                          return;
-                        }
-                        selectOptionAgeCategory(filter.ageCategory);
-                      }}
-                      className={classnames({ "age-filter-active": filter.isActive })}
-                    >
-                      {filter.ageCategory}
-                    </AgeCategoryItem>
-                  ))}
-                </ScrollableAgeCategoryBar>
-              </AgeCategoryBar>
-            )}
+            <AgeCategoryBar>
+              <ScrollableAgeCategoryBar>
+                {optionsAgeCategory.map((filter) => (
+                  <AgeCategoryItem
+                    key={filter.ageCategory}
+                    onClick={() => {
+                      if (filter.isActive) {
+                        return;
+                      }
+                      selectOptionAgeCategory(filter.ageCategory);
+                    }}
+                    className={classnames({ "age-filter-active": filter.isActive })}
+                  >
+                    {filter.ageCategory}
+                  </AgeCategoryItem>
+                ))}
+              </ScrollableAgeCategoryBar>
+            </AgeCategoryBar>
 
             <QuotaBar>
               <QuotaHeading>Kuota Pertandingan</QuotaHeading>
               <QuotaGrid>
-                {["Putra", "Putri", "Beregu Putra", "Beregu Putri", "Beregu Campuran"].map(
-                  (label) => (
-                    <QuotaItem key={label}>
-                      <TeamCategoryLabel>{label}</TeamCategoryLabel>
-                      <QuotaAmount>Tersedia: {"10/40"}</QuotaAmount>
-                    </QuotaItem>
-                  )
-                )}
+                {activeCategoryDetails.map((categoryDetail) => (
+                  <QuotaItem key={categoryDetail.categoryDetailId}>
+                    <TeamCategoryLabel>{categoryDetail.teamCategoryLabel}</TeamCategoryLabel>
+                    {!categoryDetail.quota ? (
+                      <QuotaAmountMuted>Kuota tidak tersedia</QuotaAmountMuted>
+                    ) : !categoryDetail.remainingQuota ? (
+                      <QuotaAmountMuted>Penuh</QuotaAmountMuted>
+                    ) : (
+                      <QuotaAmount>
+                        Tersedia: {categoryDetail.remainingQuota}/{categoryDetail.quota}
+                      </QuotaAmount>
+                    )}
+                  </QuotaItem>
+                ))}
               </QuotaGrid>
             </QuotaBar>
           </React.Fragment>
@@ -387,6 +378,13 @@ const TeamCategoryLabel = styled.div`
 const QuotaAmount = styled.div`
   padding: 0.125rem 0.5rem;
   background-color: #aeddc2;
+  border-radius: 1.5rem;
+  font-size: 0.75rem;
+`;
+
+const QuotaAmountMuted = styled.div`
+  padding: 0.125rem 0.5rem;
+  background-color: var(--ma-gray-200);
   border-radius: 1.5rem;
   font-size: 0.75rem;
 `;

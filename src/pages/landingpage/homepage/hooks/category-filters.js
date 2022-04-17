@@ -1,21 +1,27 @@
 import * as React from "react";
 
 function useCategoriesWithFilters(eventCategories) {
-  const [filters, dispatch] = React.useReducer(filtersReducer, {
+  const [filters, dispatch] = React.useReducer(_filtersReducer, {
     competitionCategory: null,
     ageCategories: {},
     categoryDetails: null,
   });
 
-  const { competitionCategory: activeCompetitionCategory, ageCategories } = filters;
-  const activeAgeCategory = ageCategories[activeCompetitionCategory];
-
   React.useEffect(() => {
     if (!eventCategories) {
       return;
     }
-    dispatch({ type: "INIT", payload: makeFilteringState(eventCategories) });
+    dispatch({ type: "INIT", payload: _makeFilteringState(eventCategories) });
   }, [eventCategories]);
+
+  const {
+    competitionCategory: activeCompetitionCategory,
+    ageCategories,
+    categoryDetails,
+  } = filters;
+  const activeAgeCategory = ageCategories[activeCompetitionCategory];
+  const activeCategoryDetails =
+    categoryDetails?.[activeCompetitionCategory]?.[activeAgeCategory] || [];
 
   const optionsCompetitionCategory = React.useMemo(() => {
     if (!filters.competitionCategory) {
@@ -50,16 +56,17 @@ function useCategoriesWithFilters(eventCategories) {
   };
 
   return {
-    activeCompetitionCategory: activeCompetitionCategory,
-    activeAgeCategory: activeAgeCategory,
-    optionsCompetitionCategory: optionsCompetitionCategory,
-    optionsAgeCategory: optionsAgeCategory,
+    activeCompetitionCategory,
+    activeAgeCategory,
+    activeCategoryDetails,
+    optionsCompetitionCategory,
+    optionsAgeCategory,
     selectOptionCompetitionCategory,
     selectOptionAgeCategory,
   };
 }
 
-function filtersReducer(state, action) {
+function _filtersReducer(state, action) {
   if (action.type === "INIT") {
     if (!action.payload) {
       return state;
@@ -84,26 +91,40 @@ function filtersReducer(state, action) {
   return state;
 }
 
-function makeFilteringState(eventCategories) {
-  if (!eventCategories?.length) {
+function _makeFilteringState(categoryDetails) {
+  if (!categoryDetails?.length) {
     return;
   }
 
-  const groupedCategories = {};
-  for (const categoryDetail of eventCategories) {
+  const categoryDetailsSortedByID = categoryDetails.sort((first, then) => first.id - then.id);
+
+  const groupedCategories = categoryDetailsSortedByID.reduce((groupingResult, categoryDetail) => {
+    if (!categoryDetail.isShow) {
+      return groupingResult;
+    }
+
     const competitionCategoryId = categoryDetail.competitionCategoryId;
     const classCategory = categoryDetail.classCategory;
 
-    if (!groupedCategories[competitionCategoryId]) {
-      groupedCategories[competitionCategoryId] = {};
+    if (!groupingResult[competitionCategoryId]) {
+      groupingResult[competitionCategoryId] = {};
     }
 
-    if (!groupedCategories[competitionCategoryId][classCategory]) {
-      groupedCategories[competitionCategoryId][classCategory] = [];
+    if (!groupingResult[competitionCategoryId][classCategory]) {
+      groupingResult[competitionCategoryId][classCategory] = [];
     }
 
-    groupedCategories[competitionCategoryId][classCategory].push(categoryDetail);
-  }
+    groupingResult[competitionCategoryId][classCategory].push({
+      originalCategoryDetail: categoryDetail,
+      categoryDetailId: categoryDetail.id,
+      teamCategoryLabel: _getTeamLabelFromCategoryLabel(categoryDetail.labelCategory),
+      quota: categoryDetail.quota,
+      totalParticipant: categoryDetail.totalParticipant,
+      remainingQuota: categoryDetail.quota - categoryDetail.totalParticipant,
+    });
+
+    return groupingResult;
+  }, {});
 
   const competitionCategories = Object.keys(groupedCategories);
   return {
@@ -114,6 +135,14 @@ function makeFilteringState(eventCategories) {
     }, {}),
     categoryDetails: groupedCategories,
   };
+}
+
+/* ================================ */
+// utils
+function _getTeamLabelFromCategoryLabel(labelCategoryDetail) {
+  const fragments = labelCategoryDetail.split(" - ");
+  const lastIndex = fragments.length - 1;
+  return fragments[lastIndex];
 }
 
 export { useCategoriesWithFilters };
