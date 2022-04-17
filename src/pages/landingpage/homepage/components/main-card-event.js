@@ -1,99 +1,24 @@
 import * as React from "react";
 import styled from "styled-components";
-import { CategoryService } from "services";
+import { useCategoryDetails } from "../hooks/category-details";
+import { useCategoriesWithFilters } from "../hooks/category-filters";
 
 import classnames from "classnames";
 import { datetime } from "utils";
 
 function MainCardEvent({ eventDetail }) {
-  const [loadingCategory, setLoadingCategory] = React.useState(false);
+  const { data: eventCategories, isLoading } = useCategoryDetails(eventDetail?.id);
 
-  const [category, setCategory] = React.useState([]);
-  const [listCategory, setListCategory] = React.useState([]);
-  const [selectClass, setSelectClass] = React.useState("");
-  const [filteClass, setFilterClass] = React.useState({});
-  const [selectAge, setSelectAge] = React.useState("");
+  const {
+    optionsCompetitionCategory,
+    optionsAgeCategory,
+    selectOptionCompetitionCategory,
+    selectOptionAgeCategory,
+  } = useCategoriesWithFilters(eventCategories);
 
-  //
-
-  React.useEffect(() => {
-    const getCategoryEvent = async (id) => {
-      const { data } = await CategoryService.getCategoryv2({ event_id: id });
-      if (data) {
-        setCategory(data);
-        setLoadingCategory(true);
-      }
-    };
-
-    getCategoryEvent(eventDetail?.id);
-  }, [eventDetail?.id]);
-
-  //
-
-  React.useEffect(() => {
-    const getListCategoryEvent = async (id) => {
-      const { data } = await CategoryService.getCategoryv2({
-        event_id: id,
-        competition_category_id: selectClass ? selectClass : "",
-      });
-      if (data) {
-        setListCategory(data);
-        setLoadingCategory(true);
-      }
-    };
-
-    getListCategoryEvent(eventDetail?.id);
-  }, [eventDetail?.id]);
-
-  //
-
+  const isPreparingCategories = !eventCategories && isLoading;
   const dateEventStart = datetime.formatFullDateLabel(eventDetail?.eventStartDatetime);
   const dateEventEnd = datetime.formatFullDateLabel(eventDetail?.eventEndDatetime);
-
-  //
-
-  let classCategory = [];
-  let classCategoryList = [];
-  let firsArrayCategory = [];
-  let firtsclassCategory = [];
-
-  classCategory = selectClass ? [...new Set(classCategoryList)] : [...new Set(firtsclassCategory)];
-
-  for (let i = 0; i < firsArrayCategory.length; i++) {
-    firtsclassCategory[i] = firsArrayCategory[i].classCategory;
-  }
-
-  for (let i = 0; i < listCategory.length; i++) {
-    classCategoryList[i] = listCategory[i].classCategory;
-  }
-
-  let arrCategory = [];
-
-  for (let i = 0; i < category.length; i++) {
-    arrCategory[i] = category[i].competitionCategoryId;
-  }
-
-  for (let i = 0; i < listCategory.length; i++) {
-    if (listCategory[i].competitionCategoryId === arrCategory[0]) {
-      firsArrayCategory.push(listCategory[i]);
-    }
-  }
-
-  let categoryArr = [...new Set(arrCategory)];
-  let arrData = !selectClass ? firsArrayCategory : listCategory;
-  let computeData = [];
-  let computeDataFirst = [];
-
-  let arrAge = classCategory[0]?.split(" - ") || [];
-
-  for (let i = 0; i < arrData.length; i++) {
-    if (filteClass.age_category_id === arrData[i].ageCategoryId) {
-      computeData.push(arrData[i]);
-    }
-    if (arrAge[0] === arrData[i].ageCategoryId) {
-      computeDataFirst.push(arrData[i]);
-    }
-  }
 
   const screenLoading = () => {
     return (
@@ -107,16 +32,6 @@ function MainCardEvent({ eventDetail }) {
 
   const handleLoadCategory = () => {
     return <div>{screenLoading()}</div>;
-  };
-
-  const hanlderSplitString = (data) => {
-    if (data) {
-      let arr = data.split(" - ");
-      let payload = { ...filteClass };
-      payload["age_category_id"] = arr[0];
-      payload["distance_id"] = arr[1];
-      setFilterClass(payload);
-    }
   };
 
   return (
@@ -146,89 +61,78 @@ function MainCardEvent({ eventDetail }) {
             <span>{eventDetail?.location}</span>
           </SubHeadingInfo>
 
-          <div>oleh {eventDetail?.detailAdmin?.name}</div>
+          <div>Oleh {eventDetail?.detailAdmin?.name}</div>
         </div>
 
-        <CompetitionCategoryBar>
-          <ScrollableCategoryBar>
-            <CompetitionCategoryItem
-              onClick={() => {
-                setSelectClass(categoryArr[0]);
-                setSelectAge("");
-                setFilterClass({});
-              }}
-              className={classnames({
-                "filter-category-active": selectClass === "" || selectClass === categoryArr[0],
-                "filter-category": selectClass !== "" && selectClass !== categoryArr[0],
-              })}
-            >
-              <span>{"Compound"}</span>
-            </CompetitionCategoryItem>
-
-            {["Recurve", "Nasional", "Barebow"].map((busur) => (
-              <CompetitionCategoryItem
-                key={busur}
-                onClick={() => {
-                  setSelectAge("");
-                  setFilterClass({});
-                }}
-                className="filter-category"
-              >
-                <span>{busur}</span>
-              </CompetitionCategoryItem>
-            ))}
-          </ScrollableCategoryBar>
-        </CompetitionCategoryBar>
-
-        {!loadingCategory ? (
-          handleLoadCategory()
+        {isPreparingCategories ? (
+          screenLoading()
+        ) : !eventCategories ? (
+          <div>Tidak ada data kategori</div>
         ) : (
-          <AgeCategoryBar>
-            <ScrollableAgeCategoryBar>
-              <AgeCategoryItem
-                onClick={() => {
-                  setSelectAge(classCategory[0]);
-                  hanlderSplitString(classCategory[0]);
-                }}
-                className="age-filter-active"
-              >
-                Umum - 50 Meter
-              </AgeCategoryItem>
+          <React.Fragment>
+            <CompetitionCategoryBar>
+              <ScrollableCategoryBar>
+                {optionsCompetitionCategory.map((filter) => (
+                  <CompetitionCategoryItem
+                    key={filter.competitionCategory}
+                    onClick={() => {
+                      if (filter.isActive) {
+                        return;
+                      }
+                      selectOptionCompetitionCategory(filter.competitionCategory);
+                    }}
+                    className={classnames({ "filter-category-active": filter.isActive })}
+                  >
+                    <span>{filter.competitionCategory}</span>
+                  </CompetitionCategoryItem>
+                ))}
+              </ScrollableCategoryBar>
+            </CompetitionCategoryBar>
 
-              {["U12 - 50 Meter"].map((age) => (
-                <AgeCategoryItem
-                  key={age}
-                  onClick={() => {
-                    setSelectAge(age);
-                    hanlderSplitString(age);
-                  }}
-                  className={classnames({
-                    "age-filter-active": selectAge === age,
-                    "age-filter": selectAge !== age,
-                  })}
-                >
-                  {age}
-                </AgeCategoryItem>
-              ))}
-            </ScrollableAgeCategoryBar>
-          </AgeCategoryBar>
+            {!eventCategories ? (
+              handleLoadCategory()
+            ) : (
+              <AgeCategoryBar>
+                <ScrollableAgeCategoryBar>
+                  {optionsAgeCategory.map((filter) => (
+                    <AgeCategoryItem
+                      key={filter.ageCategory}
+                      onClick={() => {
+                        if (filter.isActive) {
+                          return;
+                        }
+                        selectOptionAgeCategory(filter.ageCategory);
+                      }}
+                      className={classnames({ "age-filter-active": filter.isActive })}
+                    >
+                      {filter.ageCategory}
+                    </AgeCategoryItem>
+                  ))}
+                </ScrollableAgeCategoryBar>
+              </AgeCategoryBar>
+            )}
+
+            <QuotaBar>
+              <QuotaHeading>Kuota Pertandingan</QuotaHeading>
+              <QuotaGrid>
+                {["Putra", "Putri", "Beregu Putra", "Beregu Putri", "Beregu Campuran"].map(
+                  (label) => (
+                    <QuotaItem key={label}>
+                      <TeamCategoryLabel>{label}</TeamCategoryLabel>
+                      <QuotaAmount>Tersedia: {"10/40"}</QuotaAmount>
+                    </QuotaItem>
+                  )
+                )}
+              </QuotaGrid>
+            </QuotaBar>
+          </React.Fragment>
         )}
-
-        <QuotaBar>
-          <QuotaHeading>Kuota Pertandingan</QuotaHeading>
-          <QuotaGrid>
-            {["Putra", "Putri", "Beregu Putra", "Beregu Putri", "Beregu Campuran"].map((label) => (
-              <QuotaItem key={label}>
-                <TeamCategoryLabel>{label}</TeamCategoryLabel>
-                <QuotaAmount>Tersedia: {"10/40"}</QuotaAmount>
-              </QuotaItem>
-            ))}
-          </QuotaGrid>
-        </QuotaBar>
       </VerticalSpaced>
     </ContentSheet>
   );
 }
+
+/* Styled components */
 
 const ContentSheet = styled.div`
   padding: 1.5rem;
@@ -359,7 +263,7 @@ const CompetitionCategoryItem = styled.button`
   &:hover {
     > span {
       transition: all 0.2s;
-      border-bottom: 2px solid #ffb420;
+      color: var(--ma-blue);
     }
   }
 
@@ -374,7 +278,7 @@ const CompetitionCategoryItem = styled.button`
 
     > span {
       display: inline-block;
-      border-bottom: 2px solid #ffb420;
+      border-color: var(--ma-secondary);
       transform: translateY(-0.25rem);
       transition: all 0.2s;
     }
@@ -432,9 +336,9 @@ const AgeCategoryItem = styled.button`
   }
 
   &.age-filter-active {
-    border: 1px solid #ffb420;
+    border: 1px solid var(--ma-secondary);
     background-color: #fff8e9;
-    color: #ffb420;
+    color: var(--ma-secondary);
   }
 `;
 
