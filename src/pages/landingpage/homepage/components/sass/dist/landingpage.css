@@ -1,9 +1,0 @@
-.h-landing {
-  height: auto !important;
-}
-
-@media screen and (max-width: 600px) {
-  .h-landing {
-    height: auto !important;
-  }
-}

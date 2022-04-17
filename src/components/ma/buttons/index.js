@@ -6,15 +6,15 @@ const ButtonWrapper = styled.button`
   &,
   &:focus,
   &:active {
-    border: solid 1px var(--button-outline-color, var(--ma-gray-100));
-    border-radius: var(--button-corner, 0.25rem);
-    background-color: var(--button-bg-color, var(--ma-gray-100));
-    color: var(--button-font-color, var(--ma-blue));
-
     display: inline-block;
+    min-width: var(--button-width, 6.5rem);
     padding: 0.47rem 0.75rem;
+    border: solid 1px var(--button-outline-color, var(--ma-gray-100));
+    border-radius: var(--button-corner, 0.5rem);
     box-shadow: none;
+    background-color: var(--button-bg-color, var(--ma-gray-100));
 
+    color: var(--button-font-color, var(--ma-blue));
     text-decoration: none;
     line-height: 1.5;
     font-weight: 400;
@@ -29,17 +29,22 @@ const ButtonWrapper = styled.button`
 
   &:hover {
     background-color: var(--button-bg-color-hover, var(--ma-gray-50));
-    border: solid 1px var(--button-outline-color, var(--ma-gray-100));
+    border: solid 1px
+      var(var(--button-outline-color-hover, --button-outline-color), var(--ma-gray-100));
+    box-shadow: 0 1px 1px var(--button-shadow-color-hover, rgba(0, 0, 0, 0.15));
     color: var(--button-font-color-hover, var(--ma-blue));
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+    text-decoration: var(--button-underline-hover, none) !important;
   }
 
   &:disabled {
-    background-color: var(--ma-gray-400);
-    border-color: var(--ma-gray-400);
-    box-shadow: none;
-    color: var(--ma-gray-100);
-    cursor: not-allowed;
+    cursor: default;
+    background-color: var(--ma-gray-200);
+    border: solid 1px var(--ma-gray-200);
+    color: var(--ma-gray-400);
+
+    &:hover {
+      box-shadow: none;
+    }
   }
 `;
 
@@ -71,13 +76,19 @@ const variantStyles = {
     "--button-font-color": "var(--ma-blue)",
     "--button-font-color-hover": "#ffffff",
   },
+  "ghost-blue": {
+    "--button-bg-color": "none",
+    "--button-bg-color-hover": "var(--ma-blue)",
+    "--button-outline-color": "none",
+    "--button-outline-color-hover": "var(--ma-blue)",
+    "--button-font-color": "var(--ma-blue)",
+    "--button-font-color-hover": "#ffffff",
+  },
+  // TODO: button link (?)
 };
 
-function ButtonBase({ rounded, corner, color, style, ...props }) {
-  const withUnit = (number) => {
-    if (rounded) {
-      return "2em";
-    }
+function ButtonBase({ corner, color, style, flexible = false, block = false, ...props }) {
+  const withPx = (number) => {
     return number ? `${number}px` : undefined;
   };
 
@@ -85,10 +96,18 @@ function ButtonBase({ rounded, corner, color, style, ...props }) {
     ...props,
     style: {
       ...variantStyles[color],
-      "--button-corner": withUnit(corner),
+      "--button-corner": withPx(corner),
       ...style,
     },
   };
+
+  if (flexible) {
+    propsNew.style = { ...propsNew.style, "--button-width": 0 };
+  }
+
+  if (block) {
+    propsNew.style = { ...propsNew.style, "--button-width": "100%" };
+  }
 
   return <ButtonWrapper {...propsNew} />;
 }
@@ -113,8 +132,16 @@ function ButtonOutlineBlue(props) {
   return <ButtonBase color="outline-blue" {...props} />;
 }
 
+function ButtonGhostBlue(props) {
+  return <ButtonBase color="ghost-blue" {...props} />;
+}
+
 function ButtonSmallBlue(props) {
   return <ButtonBase color="blue" {...props} style={{ padding: "0.2rem 0.5rem" }} />;
+}
+
+function ButtonSmallOutlineBlue(props) {
+  return <ButtonBase color="outline-blue" {...props} style={{ padding: "0.2rem 0.5rem" }} />;
 }
 
 const ButtonBlueOutline = styled(BSButton)`
@@ -141,5 +168,7 @@ export {
   ButtonBlueOutline,
   ButtonOutline,
   ButtonOutlineBlue,
+  ButtonGhostBlue,
   ButtonSmallBlue,
+  ButtonSmallOutlineBlue,
 };
