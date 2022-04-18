@@ -36,10 +36,7 @@ function LandingPage() {
         <MainContent>
           <LayoutTop>
             <MainCardEvent eventDetail={eventDetail} />
-
-            <div>
-              <CardEventCTA eventDetail={eventDetail} />
-            </div>
+            <CardEventCTA eventDetail={eventDetail} />
           </LayoutTop>
 
           <LayoutBottom>

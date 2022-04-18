@@ -53,71 +53,73 @@ function MainCardEvent({ eventDetail }) {
           <div>Oleh {eventDetail?.detailAdmin?.name}</div>
         </div>
 
-        {isPreparingCategories ? (
-          <SpinnerDotBlock />
-        ) : !eventCategories ? (
-          <div>Tidak ada data kategori</div>
-        ) : (
-          <React.Fragment>
-            <CompetitionCategoryBar>
-              <ScrollableCategoryBar>
-                {optionsCompetitionCategory.map((filter) => (
-                  <CompetitionCategoryItem
-                    key={filter.competitionCategory}
-                    onClick={() => {
-                      if (filter.isActive) {
-                        return;
-                      }
-                      selectOptionCompetitionCategory(filter.competitionCategory);
-                    }}
-                    className={classnames({ "filter-category-active": filter.isActive })}
-                  >
-                    <span>{filter.competitionCategory}</span>
-                  </CompetitionCategoryItem>
-                ))}
-              </ScrollableCategoryBar>
-            </CompetitionCategoryBar>
+        <BlockCategories>
+          {isPreparingCategories ? (
+            <SpinnerDotBlock />
+          ) : !eventCategories ? (
+            <div>Tidak ada data kategori</div>
+          ) : (
+            <React.Fragment>
+              <CompetitionCategoryBar>
+                <ScrollableCategoryBar>
+                  {optionsCompetitionCategory.map((filter) => (
+                    <CompetitionCategoryItem
+                      key={filter.competitionCategory}
+                      onClick={() => {
+                        if (filter.isActive) {
+                          return;
+                        }
+                        selectOptionCompetitionCategory(filter.competitionCategory);
+                      }}
+                      className={classnames({ "filter-category-active": filter.isActive })}
+                    >
+                      <span>{filter.competitionCategory}</span>
+                    </CompetitionCategoryItem>
+                  ))}
+                </ScrollableCategoryBar>
+              </CompetitionCategoryBar>
 
-            <AgeCategoryBar>
-              <ScrollableAgeCategoryBar>
-                {optionsAgeCategory.map((filter) => (
-                  <AgeCategoryItem
-                    key={filter.ageCategory}
-                    onClick={() => {
-                      if (filter.isActive) {
-                        return;
-                      }
-                      selectOptionAgeCategory(filter.ageCategory);
-                    }}
-                    className={classnames({ "age-filter-active": filter.isActive })}
-                  >
-                    {filter.ageCategory}
-                  </AgeCategoryItem>
-                ))}
-              </ScrollableAgeCategoryBar>
-            </AgeCategoryBar>
+              <AgeCategoryBar>
+                <ScrollableAgeCategoryBar>
+                  {optionsAgeCategory.map((filter) => (
+                    <AgeCategoryItem
+                      key={filter.ageCategory}
+                      onClick={() => {
+                        if (filter.isActive) {
+                          return;
+                        }
+                        selectOptionAgeCategory(filter.ageCategory);
+                      }}
+                      className={classnames({ "age-filter-active": filter.isActive })}
+                    >
+                      {filter.ageCategory}
+                    </AgeCategoryItem>
+                  ))}
+                </ScrollableAgeCategoryBar>
+              </AgeCategoryBar>
 
-            <QuotaBar>
-              <QuotaHeading>Kuota Pertandingan</QuotaHeading>
-              <QuotaGrid>
-                {activeCategoryDetails.map((categoryDetail) => (
-                  <QuotaItem key={categoryDetail.categoryDetailId}>
-                    <TeamCategoryLabel>{categoryDetail.teamCategoryLabel}</TeamCategoryLabel>
-                    {!categoryDetail.quota ? (
-                      <QuotaAmountMuted>Kuota tidak tersedia</QuotaAmountMuted>
-                    ) : !categoryDetail.remainingQuota ? (
-                      <QuotaAmountMuted>Penuh</QuotaAmountMuted>
-                    ) : (
-                      <QuotaAmount>
-                        Tersedia: {categoryDetail.remainingQuota}/{categoryDetail.quota}
-                      </QuotaAmount>
-                    )}
-                  </QuotaItem>
-                ))}
-              </QuotaGrid>
-            </QuotaBar>
-          </React.Fragment>
-        )}
+              <QuotaBar>
+                <QuotaHeading>Kuota Pertandingan</QuotaHeading>
+                <QuotaGrid>
+                  {activeCategoryDetails.map((categoryDetail) => (
+                    <QuotaItem key={categoryDetail.categoryDetailId}>
+                      <TeamCategoryLabel>{categoryDetail.teamCategoryLabel}</TeamCategoryLabel>
+                      {!categoryDetail.quota ? (
+                        <QuotaAmountMuted>Kuota tidak tersedia</QuotaAmountMuted>
+                      ) : !categoryDetail.remainingQuota ? (
+                        <QuotaAmountMuted>Penuh</QuotaAmountMuted>
+                      ) : (
+                        <QuotaAmount>
+                          Tersedia: {categoryDetail.remainingQuota}/{categoryDetail.quota}
+                        </QuotaAmount>
+                      )}
+                    </QuotaItem>
+                  ))}
+                </QuotaGrid>
+              </QuotaBar>
+            </React.Fragment>
+          )}
+        </BlockCategories>
       </VerticalSpaced>
     </ContentSheet>
   );
@@ -213,6 +215,12 @@ const SubHeadingInfo = styled.div`
   }
 `;
 
+const BlockCategories = styled.div`
+  > * + * {
+    margin-top: 0.75rem;
+  }
+`;
+
 const CompetitionCategoryBar = styled.div`
   overflow-x: auto;
   padding: 0 0.875rem;
@@ -225,7 +233,7 @@ const ScrollableCategoryBar = styled.div`
   width: max-content;
   display: flex;
 
-  @media (min-width: 562px) {
+  @media (min-width: 1024px) {
     margin: 0;
     width: auto;
 
@@ -284,7 +292,7 @@ const AgeCategoryBar = styled.div`
   overflow-x: auto;
   padding: 0.75rem;
 
-  @media (min-width: 562px) {
+  @media (min-width: 1024px) {
     overflow-x: visible;
   }
 `;
@@ -295,7 +303,7 @@ const ScrollableAgeCategoryBar = styled.div`
   display: flex;
   gap: 0.5rem;
 
-  @media (min-width: 562px) {
+  @media (min-width: 1024px) {
     margin: 0;
     width: auto;
 
