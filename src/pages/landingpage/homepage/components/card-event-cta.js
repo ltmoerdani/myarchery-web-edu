@@ -19,13 +19,21 @@ function CardEventCTA({ eventDetail }) {
   const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
   const isRegistrationClosed = registerEventEnd ? isAfter(new Date(), registerEventEnd) : true;
 
+  // TODO: ekstrak custom hook sendiri (?)
   const eventPriceOptions = React.useMemo(() => {
     if (!eventDetail?.eventPrice) {
       return [];
     }
-    return Object.keys(eventDetail.eventPrice).map((teamCategory) => {
+
+    // Kategori tim yang gak dibuka nilainya akan `null`.
+    // Filter dulu yang ada nilainya aja sebelum di-map.
+    const visiblePrices = Object.keys(eventDetail.eventPrice).filter((teamCategory) => {
+      return Boolean(eventDetail.eventPrice[teamCategory]);
+    });
+
+    const priceOptions = visiblePrices.map((teamCategory) => {
       const priceByTeam = eventDetail.eventPrice[teamCategory];
-      const hasEarlyBirdPrice = priceByTeam.isEarlyBird || Boolean(priceByTeam.endDateEarlyBird);
+      const hasEarlyBirdPrice = Boolean(priceByTeam.endDateEarlyBird);
       return {
         teamCategoryId: teamCategory,
         teamLabel: _getTeamLabelFromTeamId(teamCategory),
@@ -37,8 +45,11 @@ function CardEventCTA({ eventDetail }) {
           : null,
       };
     });
+
+    return priceOptions;
   }, [eventDetail]);
 
+  // TODO: ekstrak custom hook sendiri (?)
   const earlyBird = React.useMemo(() => {
     if (!eventPriceOptions?.length) {
       return null;
@@ -115,7 +126,9 @@ function CardEventCTA({ eventDetail }) {
             </span>
           )}
         </div>
+      </VerticalSpaced>
 
+      <VerticalSpaced>
         <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
 
         <div>
@@ -140,6 +153,11 @@ function CardEventCTA({ eventDetail }) {
 }
 
 const ContentSheet = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+
   padding: 1.5rem;
   border-radius: 0.5rem;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.12);
@@ -159,10 +177,14 @@ const RegistrationHeading = styled.h5`
 `;
 
 const RegistrationPriceGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
-  gap: 0.75rem;
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.125rem 0.75rem;
+
+  > * {
+    flex-grow: 1;
+    min-height: 6rem;
+  }
 `;
 
 const RegistrationPriceItem = styled.div`
@@ -204,14 +226,6 @@ const MainPriceLabel = styled.div`
   }
 
   @media (min-width: 769px) {
-    font-size: 0.75rem;
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1rem;
-  }
-
-  @media (min-width: 1264px) {
     font-size: 1.25rem;
   }
 `;
@@ -251,23 +265,23 @@ function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
   return (
     <CountdownWrapper>
       <CounterItem>
-        <span>{days}</span>
-        <TimerUnit>Hari</TimerUnit>
+        <CounterNumber>{days}</CounterNumber>
+        <CounterUnit>Hari</CounterUnit>
       </CounterItem>
 
       <CounterItem>
-        <span>{hours}</span>
-        <TimerUnit>Jam</TimerUnit>
+        <CounterNumber>{hours}</CounterNumber>
+        <CounterUnit>Jam</CounterUnit>
       </CounterItem>
 
       <CounterItem>
-        <span>{minutes}</span>
-        <TimerUnit>Menit</TimerUnit>
+        <CounterNumber>{minutes}</CounterNumber>
+        <CounterUnit>Menit</CounterUnit>
       </CounterItem>
 
       <CounterItem>
-        <span>{seconds}</span>
-        <TimerUnit>Detik</TimerUnit>
+        <CounterNumber>{seconds}</CounterNumber>
+        <CounterUnit>Detik</CounterUnit>
       </CounterItem>
     </CountdownWrapper>
   );
@@ -284,18 +298,33 @@ const CounterItem = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
+  min-height: 6rem;
   border-radius: 0.25rem;
   border: solid 1px #eff2f7;
 
+  > *:first-child {
+    flex-grow: 1;
+  }
+
+  > *:last-child {
+    flex-shrink: 0;
+  }
+`;
+
+const CounterNumber = styled.span`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   color: var(--ma-text-black);
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 600;
 `;
 
-const TimerUnit = styled.span`
-  padding: 2px 8px;
+const CounterUnit = styled.span`
+  padding: 0.25rem 0.5rem;
   background-color: #eff2f7;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 400;
 `;
 
