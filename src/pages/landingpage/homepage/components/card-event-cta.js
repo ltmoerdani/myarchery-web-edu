@@ -60,6 +60,10 @@ function CardEventCTA({ eventDetail }) {
       return earlyBirdData;
     }, {});
 
+    if (!earlyBirdData.earlyBirdExpirationDate) {
+      return null;
+    }
+
     return earlyBirdData;
   }, [eventPriceOptions]);
 
@@ -98,7 +102,7 @@ function CardEventCTA({ eventDetail }) {
         </RegistrationPriceGrid>
 
         <div>
-          {earlyBird ? (
+          {earlyBird?.earlyBirdExpirationDateLabel ? (
             <React.Fragment>
               <strong>Early Bird sampai {earlyBird.earlyBirdExpirationDateLabel}</strong> &#124;{" "}
               <span>
