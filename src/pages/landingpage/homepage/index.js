@@ -14,6 +14,9 @@ import { url } from "utils";
 
 import kalasemen from "assets/images/myachery/kalasemen.png";
 import book from "assets/images/myachery/book.png";
+import clubRank from "assets/images/myachery/club-rank.png";
+// TODO:
+// import official from "assets/images/myachery/official.png";
 
 function LandingPage() {
   const { slug } = useParams();
@@ -46,6 +49,14 @@ function LandingPage() {
 
             <SecondaryCTA>
               {/* TODO: banner pendaftaran official */}
+              {/* {false && (
+                <SecondaryCTAItem
+                  bgImg={official}
+                  heading="Official Pertandingan"
+                  subheading="Klik untuk daftar"
+                  onClick={() => history.push(`/event-ranks/${slug}/clubs`)}
+                />
+              )} */}
 
               <SecondaryCTAItem
                 bgImg={kalasemen}
@@ -62,6 +73,13 @@ function LandingPage() {
                   onClick={() => url.openUrlOnNewTab(eventDetail?.handbook)}
                 />
               )}
+
+              <SecondaryCTAItem
+                bgImg={clubRank}
+                heading="Pemeringkatan Klub"
+                subheading="Klik untuk melihat"
+                onClick={() => history.push(`/event-ranks/${slug}/clubs`)}
+              />
             </SecondaryCTA>
           </LayoutBottom>
         </MainContent>
