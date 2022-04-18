@@ -11,4 +11,8 @@ function getWebAdminURL() {
 // eslint-disable-next-line no-unused-vars
 function getAppArcherURL() {}
 
-export default { getWebAdminURL };
+function openUrlOnNewTab(url) {
+  return window.open(url, "_blank");
+}
+
+export default { getWebAdminURL, openUrlOnNewTab };

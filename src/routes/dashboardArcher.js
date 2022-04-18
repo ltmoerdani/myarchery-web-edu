@@ -14,7 +14,7 @@ import { Redirect } from "react-router-dom";
 const routerDasboardArcher = [
   { path: "/event/register/process/:slug", component: RegisterFullday, exact: true },
   { path: "/fullday/register-done", component: RegisterDone },
-  { path: "/", exact: true, component: () => <Redirect to="/dashboard" /> },
+  { path: "/", exact: true, component: () => <Redirect to="/home" /> },
 
   { path: "/marathon", component: MarathonLandingPage },
   { path: "/marathon/register", component: RegisterMarathon },
@@ -24,7 +24,7 @@ const routerDasboardArcher = [
   { path: "/checkout-event/:id", component: CheckoutEvent, exact: true },
   // TODO: Hapus nanti ketika sudah waktunya khusus benerin routing.
   // Sementara redirect dari url aslinya ke url dashboard baru
-  { path: "/archer/dashboard", component: () => <Redirect to="/dashboard" />, exact: true },
+  { path: "/archer/dashboard", component: () => <Redirect to="/home" />, exact: true },
   { path: "/archer/logout", component: ArcherLogout },
 
   { path: "/archer/dashboard/profile", component: ProfileArcher },
