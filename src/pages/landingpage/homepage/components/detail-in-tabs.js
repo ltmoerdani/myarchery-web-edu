@@ -113,7 +113,7 @@ function DetailInTabs({ eventDetail, dataFAQ }) {
                   ))}
                 </QuestionsList>
               ) : (
-                <EmptyFAQ>Penyelengara tidak menyediakan FAQ.</EmptyFAQ>
+                <EmptyFAQ>Penyelengara tidak menyediakan informasi FAQ.</EmptyFAQ>
               )}
             </SectionContent>
           ) : (
