@@ -9,16 +9,11 @@ stages:
   - deploy
 
 stage_build:
-  #image: docker:latest
   stage: build
-  only: 
-    - develop
   script:
     - rm -rf yarn.lock
     - rm -rf package-lock.json 
     - mv .env.example .env
-    #- git config --global url."https://".insteadOf git://
-    
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - >
@@ -41,8 +36,6 @@ Push latest:
   variables:
     GIT_STRATEGY: none
   stage: push
-  only:
-    - develop
   script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
@@ -64,12 +57,9 @@ Push tag:
 stage_deploy_docker:
   image: node:14
   stage: deploy
-  only:
-    - develop
   before_script:
   - apt-get update -qq
   - apt-get install -qq git
-  
   # Setup SSH deploy keys
   - 'which ssh-agent || ( apt-get install -qq openssh-client )'
   - eval $(ssh-agent -s)
@@ -78,29 +68,8 @@ stage_deploy_docker:
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh -p22 root@103.31.38.37 "/root/deployment/$CI_COMMIT_BRANCH-docker-web-deploy.sh"
-    #- ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml pull web-myarchery-stg"
-    #- ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml up -d web-myarchery-stg"
 
-update_production:
-  stage: update
-  script:
-    - echo "Updating develop"
-    - ssh -p22 root@$IP_HOST "GIT_DIR=/var/www/web-archery/.git GIT_WORK_TREE=/var/www/web-archery git checkout master && GIT_DIR=/var/www/web-archery/.git GIT_WORK_TREE=/var/www/web-archery git fetch origin master && GIT_DIR=/var/www/web-archery/.git GIT_WORK_TREE=/var/www/web-archery git reset --hard FETCH_HEAD && GIT_DIR=/var/www/web-archery/.git GIT_WORK_TREE=/var/www/web-archery git pull origin master"
-    - echo "Code Updated"
-  only:
-    - master
-
-deploy_production:
-  stage: deploy
-  script:
-    - echo "Cleaning Up Modules"
-    - ssh -p22 root@$IP_HOST "rm -rf /var/www/web-archery/node_modules && rm  /var/www/web-archery/package-lock.json"
-    - ssh -p22 root@$IP_HOST "sudo npm install --prefix /var/www/web-archery && sudo npm run build --prefix /var/www/web-archery"
-    - echo "Build Success, Apps running for Production"
-  only:
-    - master
-
-update_staging:
+update:
   image: node:14
   stage: update
   before_script:
@@ -114,13 +83,8 @@ update_staging:
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh -p22 root@$HOST_IP "/root/deployment_bf_docker/$CI_COMMIT_BRANCH-web-update.sh"
-    #- echo "Updating develop"
-    #- ssh -p22 root@$IP_HOST "GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git checkout develop && GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git fetch origin develop && GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git reset --hard FETCH_HEAD && GIT_DIR=/var/www/web-archery-stg/.git GIT_WORK_TREE=/var/www/web-archery-stg git pull origin develop"
-    #- echo "Code Updated"
-  only:
-    - develop
 
-deploy_staging:
+deploy:
   image: node:14
   stage: deploy
   before_script:
@@ -134,37 +98,3 @@ deploy_staging:
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh -p22 root@$HOST_IP "/root/deployment_bf_docker/$CI_COMMIT_BRANCH-web-deploy.sh"
-    # - echo "Cleaning Up Modules"
-    # - ssh -p22 root@$IP_HOST "rm -rf /var/www/web-archery-stg/node_modules && rm  /var/www/web-archery-stg/package-lock.json"
-    #- ssh -p22 root@$IP_HOST "sudo rm /var/www/web-archery-stg/package-lock.json && sudo npm install --prefix /var/www/web-archery-stg && sudo npm run build --prefix /var/www/web-archery-stg"
-    #- echo "Build Success, Apps running for Staging"
-  only:
-    - develop
-
-
-
-####New Deployment######
-# image: tetraweb/php
-
-# before_script:
-#   - apt-get update
-#   - apt-get install zip unzip
-#   - npm install
-#   - npm run build
-#   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-#   - mkdir -p ~/.ssh
-#   - eval $(ssh-agent -s)
-#   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-
-# stage_deploy:
-#   artifacts:
-#     paths:
-#       - build/
-#   # only:
-#   #   - dev
-#   script:
-#     - ssh-add <(echo "$PRIVATEKEY_ARCHERY")
-#     - ssh -p22 root@IP_HOST "mkdir /opt/archery-web/_tmp"
-#     - scp -P22 -r build/* root@IP_HOST:/opt/archery-web/_tmp
-#     - ssh -p22 root@IP_HOST "mv /opt/archery-web/live /opt/archery-web/_old && mv /opt/archery-web/_tmp /opt/archery-web/live"
-#     - ssh -p22 root@IP_HOST "rm -rf /opt/archery-web/_old"
