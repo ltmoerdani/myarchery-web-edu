@@ -299,6 +299,7 @@ const QuestionHeading = styled.h4`
 
 const AnswerContent = styled.p`
   margin-bottom: 0;
+  white-space: pre-wrap;
 `;
 
 const QuestionsList = styled.ol`
