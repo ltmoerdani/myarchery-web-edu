@@ -77,8 +77,9 @@ stage_deploy_docker:
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml pull web-myarchery-stg"
-    - ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml up -d web-myarchery-stg"
+    - ssh -p22 root@103.31.38.37 "/root/deployment/$CI_COMMIT_BRANCH-docker-web-deploy.sh"
+    #- ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml pull web-myarchery-stg"
+    #- ssh -p22 root@103.31.38.37 "docker-compose -f /root/deployment/web-myarchery-stg.yml up -d web-myarchery-stg"
 
 update_production:
   stage: update
