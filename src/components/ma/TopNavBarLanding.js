@@ -68,7 +68,7 @@ function TopNavBarLanding() {
         </div>
       </div>
 
-      <Dropdown isOpen={menu} toggle={() => setMenu(!menu)} className="d-inline-block d-lg-none">
+      <Dropdown isOpen={menu} toggle={() => setMenu(!menu)} className="d-inline-block d-md-none">
         <DropdownToggle className="btn header-item " id="page-header-user-dropdown" tag="button">
           <span className="bx bx-menu"></span>
         </DropdownToggle>
