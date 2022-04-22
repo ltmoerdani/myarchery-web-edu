@@ -22,5 +22,5 @@ RUN npm run build #--threshold 10
 
 RUN rm -f config/.env
 
-CMD npm start # >> log/stdout.log 2>> log/stderr.log
+CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
 
