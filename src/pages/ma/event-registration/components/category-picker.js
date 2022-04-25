@@ -275,10 +275,12 @@ const TeamFilterBadge = styled.label`
   border: solid 1px var(--ma-blue);
   color: var(--ma-blue);
   text-align: center;
+  cursor: pointer;
 
   .filter-item-radio:checked + & {
     background-color: var(--ma-blue);
     color: #ffffff;
+    cursor: default;
   }
 `;
 
@@ -310,6 +312,7 @@ const CategoryItemLabel = styled.label`
   padding: 1rem;
   border: solid 1px var(--ma-gray-100);
   border-radius: 0.25rem;
+  cursor: pointer;
 
   .category-name {
     font-weight: 600;
@@ -326,6 +329,7 @@ const CategoryItemLabel = styled.label`
   .category-item-radio:checked + & {
     border-color: var(--ma-blue-primary-50);
     background-color: var(--ma-blue-primary-50);
+    cursor: default;
 
     .category-name {
       color: var(--ma-blue);
