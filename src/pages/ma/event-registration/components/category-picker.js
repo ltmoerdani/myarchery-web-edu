@@ -115,16 +115,19 @@ function PickerControl({
   );
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
-  const getGenderFromCategory = (teamCategoryId) => {
-    const isMaleCategory = ["individu male", "male_team", "mix_team"].some(
-      (team) => team === teamCategoryId
-    );
-    const isFemaleCategory = ["individu female", "female_team", "mix_team"].some(
-      (team) => team === teamCategoryId
-    );
+  const _checkIsGenderMatchesCategory = (teamCategoryId, userGender) => {
+    if (teamCategoryId === "mix_team") {
+      return true;
+    }
 
-    if (isMaleCategory) return "male";
-    if (isFemaleCategory) return "female";
+    const gendersByCategoryId = {
+      "individu male": "male",
+      male_team: "male",
+      "individu female": "female",
+      female_team: "female",
+    };
+
+    return gendersByCategoryId[teamCategoryId] === userGender;
   };
 
   const handleSelectCategory = (category) => onChange?.(category);
@@ -163,8 +166,10 @@ function PickerControl({
             {groupedCategories[selectedFilter].map((category) => {
               const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
               const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
-              const categoryMatchesUser =
-                userProfile?.gender === getGenderFromCategory(category.teamCategoryId);
+              const categoryMatchesUser = _checkIsGenderMatchesCategory(
+                category.teamCategoryId,
+                userProfile?.gender
+              );
               return (
                 <CategoryItem key={category.id}>
                   <input
@@ -270,10 +275,12 @@ const TeamFilterBadge = styled.label`
   border: solid 1px var(--ma-blue);
   color: var(--ma-blue);
   text-align: center;
+  cursor: pointer;
 
   .filter-item-radio:checked + & {
     background-color: var(--ma-blue);
     color: #ffffff;
+    cursor: default;
   }
 `;
 
@@ -305,6 +312,7 @@ const CategoryItemLabel = styled.label`
   padding: 1rem;
   border: solid 1px var(--ma-gray-100);
   border-radius: 0.25rem;
+  cursor: pointer;
 
   .category-name {
     font-weight: 600;
@@ -321,6 +329,7 @@ const CategoryItemLabel = styled.label`
   .category-item-radio:checked + & {
     border-color: var(--ma-blue-primary-50);
     background-color: var(--ma-blue-primary-50);
+    cursor: default;
 
     .category-name {
       color: var(--ma-blue);
