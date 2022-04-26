@@ -31,6 +31,7 @@ import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
 import { stringUtil, errorsUtil } from "utils";
+import AdsBanner from "./components/ads-banner";
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
@@ -646,6 +647,7 @@ function PageEventRegistration() {
             )}
           </div>
         </SplitDisplay>
+        <AdsBanner/>
       </Container>
       <LoadingScreen loading={isLoadingSubmit} />
     </StyledPageWrapper>
