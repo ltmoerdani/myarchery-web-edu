@@ -82,7 +82,7 @@ update:
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -p22 root@$HOST_IP "/root/deployment_bf_docker/$CI_COMMIT_BRANCH-web-update.sh"
+    - ssh -p22 root@103.31.38.37 "/root/deployment_bf_docker/$CI_COMMIT_BRANCH-web-update.sh"
 
 deploy:
   image: node:14
@@ -97,4 +97,4 @@ deploy:
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -p22 root@$HOST_IP "/root/deployment_bf_docker/$CI_COMMIT_BRANCH-web-deploy.sh"
+    - ssh -p22 root@103.31.38.37 "/root/deployment_bf_docker/$CI_COMMIT_BRANCH-web-deploy.sh"
