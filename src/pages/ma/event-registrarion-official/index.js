@@ -1,112 +1,97 @@
-import React from "react";
+import * as React from "react";
+import { useParams, useLocation, useHistory } from "react-router-dom";
 import styled from "styled-components";
-import MetaTags from "react-meta-tags";
-import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { Container as BSContainer, Table as BSTable, Input } from "reactstrap";
-import classnames from "classnames";
-import { useWizardView } from "hooks/wizard-view";
-import { WizardView, WizardViewContent, ButtonBlue, Button, AvatarDefault } from "components/ma";
+import queryString from "query-string";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
-import { FieldInputText, FieldSelectClub } from "./components";
-import SweetAlert from "react-bootstrap-sweetalert";
-import CurrencyFormat from "react-currency-format";
-import { OrderEventService } from "services";
-import { useParams, useHistory } from "react-router-dom";
+import { useWizardView } from "hooks/wizard-view";
+import { EventsService, OrderEventService } from "services";
 
-// import ImgEvent from "assets/images/myachery/a-1.jpg";
+
 import IconInfo from "components/ma/icons/mono/info";
-import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
+import MetaTags from "react-meta-tags";
+import { Container as BSContainer, Table as BSTable } from "reactstrap";
+import CurrencyFormat from "react-currency-format";
+import SweetAlert from "react-bootstrap-sweetalert";
+import { LoadingScreen } from "components";
+import {
+  WizardView,
+  WizardViewContent,
+  Button,
+  ButtonBlue,
+  AvatarDefault,
+  AlertSubmitError,
+} from "components/ma";
+import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
+import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
+
 import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
 import IconMail from "components/ma/icons/mono/mail";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
+import classnames from "classnames";
+import { stringUtil, errorsUtil } from "utils";
+import AdsBanner from "./components/ads-banner";
+
 const tabList = [
   { step: 1, label: "Pendaftaran" },
   { step: 2, label: "Pemesanan" },
 ];
 
-const PageEventRegistration = () => {
-  const [club, setClub] = React.useState({});
-  const [detailEvent, setDetailEvent] = React.useState({});
-  const [official, setOfficial] = React.useState({});
-  const [customLabel, setCustomLabel] = React.useState("")
-  const [name, setName] = React.useState("")
+const initialFormState = {
+  data: {
+    category: null,
+    teamName: "",
+    club: null,
+    participants: [
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
+      { name: `member-email-${stringUtil.createRandom()}`, data: null },
+    ],
+  },
+  errors: {},
+};
 
-  const breadcrumpCurrentPageLabel = `Pendaftaran ${""}`;
-  const { event_id } = useParams();
+function PageEventRegistration() {
+  const { slug } = useParams();
+  const { search } = useLocation();
+  const { categoryId } = queryString.parse(search);
   const history = useHistory();
 
-  const { currentStep, goToStep, goToNextStep, goToPreviousStep } = useWizardView(tabList);
+  const { currentStep, goToNextStep, goToPreviousStep, goToStep } = useWizardView(tabList);
+  const [eventDetail, updateEventDetail] = React.useReducer(eventDetailReducer, {
+    status: "idle",
+    data: null,
+    errors: null,
+  });
+  const [eventCategories, updateEventCategories] = React.useReducer(eventCategoriesReducer, {
+    status: "idle",
+    data: null,
+    errors: null,
+  });
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const [formData, updateFormData] = React.useReducer(formReducer, initialFormState);
   const [submitStatus, dispatchSubmitStatus] = React.useReducer(
     (state, action) => ({ ...state, ...action }),
     { status: "idle", errors: null }
   );
 
-  const getEventBySlug = async () => {
-    const { data, message, errors } = await OrderEventService.getDetailOfficial({
-      event_id: event_id,
-    });
-    if (data) {
-      setDetailEvent(data);
-      console.log(message);
-      console.log(errors);
-    } else {
-      console.log(message);
-      console.log(errors);
-    }
-  };
-
-  // const getListOfficial = async () => {
-  //   const { data, errors, message } = await OrderEventService.listOfficial();
-  //   if (data) {
-  //     setOfficial(data);
-  //     console.log(errors);
-  //     console.log(message);
-  //   }
-  // };
-
-  React.useEffect(() => {
-    getEventBySlug();
-    // getListOfficial();
-  }, [event_id]);
-
-  console.log(detailEvent);
-
+  const { category, teamName, club, participants } = formData.data;
+  const formErrors = formData.errors;
+  const eventDetailData = eventDetail?.data;
+  const isLoadingEventDetail = eventDetail.status === "loading";
+  const eventId = eventDetailData?.id;
+  const breadcrumpCurrentPageLabel = `Pendaftaran ${
+    eventDetailData?.publicInformation.eventName || ""
+  }`;
+  const isLoadingSubmit = submitStatus.status === "loading";
   const isErrorSubmit = submitStatus.status === "error";
+  const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
 
-  const handleSubmitOrder = async () => {
-    dispatchSubmitStatus({ status: "loading", errors: null });
-
-    let label = official?.value != 0 ? official?.label : customLabel
-
-    // payload kategory individual
-    const payload = {
-      event_id: event_id,
-      relation_id: official?.value ? official?.value : 1,
-      club_id: club?.detail?.id || 0,
-      label: label || "Pelatih"
-    };
-
-    const result = await OrderEventService.registerOfficial(payload);
-    if (result.data) {
-      dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
-    } else {
-      const makeErrorData = () => {
-        // handle errors berupa [] / array kosongan
-        // dan ketika null
-        if (!result.errors?.length) {
-          return result.message;
-        }
-        return result.errors;
-      };
-      dispatchSubmitStatus({ status: "error", errors: makeErrorData() });
-    }
-  };
+  const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
+  const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
 
   const getLandingPagePath = (url) => {
     if (!url) {
@@ -120,32 +105,115 @@ const PageEventRegistration = () => {
     return path;
   };
 
-  const getClub = (clubValue) => {
-    const payload = { ...club };
-    payload["club"] = clubValue;
-    setClub(payload);
-  };
-
   const handleClickNext = () => {
-    goToNextStep();
+    let validationErrors = {};
+    if (!category?.id) {
+      validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
+    }
+
+    // Kategori tim secara umum
+    if (
+      category?.id &&
+      ["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)
+    ) {
+      if (!club?.detail.id) {
+        validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
+      }
+    }
+
+    updateFormData({ type: "FORM_INVALID", errors: validationErrors });
+
+    const isValid = !Object.keys(validationErrors)?.length;
+    if (isValid) {
+      goToNextStep();
+    }
   };
 
-  console.log(club);
-  console.log(detailEvent);
-  console.log(official)
+  const handleSubmitOrder = async () => {
+    dispatchSubmitStatus({ status: "loading", errors: null });
+
+    const payload = {
+      event_category_id: category.id,
+      club_id: club?.detail.id || 0,
+      team_name: teamName || undefined,
+    };
+
+    const result = await OrderEventService.register(payload);
+    if (result.success) {
+      dispatchSubmitStatus({ status: "success" });
+      history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
+    } else {
+      const errorData = errorsUtil.interpretServerErrors(result);
+      dispatchSubmitStatus({ status: "error", errors: errorData });
+    }
+  };
+
+  React.useEffect(() => {
+    const getEventDetail = async () => {
+      updateEventDetail({ status: "loading", errors: null });
+      const result = await EventsService.getDetailEvent({ slug });
+      if (result.success) {
+        updateEventDetail({ status: "success", data: result.data });
+      } else {
+        updateEventDetail({ status: "error", errors: result.errors });
+      }
+    };
+
+    getEventDetail();
+  }, []);
+
+  React.useEffect(() => {
+    if (!eventId) {
+      return;
+    }
+    const getCategories = async () => {
+      updateEventCategories({ status: "loading", errors: null });
+      const result = await EventsService.getCategory({ event_id: eventId });
+      if (result.success) {
+        updateEventCategories({ status: "success", data: result.data });
+      } else {
+        updateEventCategories({ status: "error", errors: result.errors });
+      }
+    };
+    getCategories();
+  }, [eventId]);
+
+  React.useEffect(() => {
+    if (!eventCategories.data) {
+      return;
+    }
+
+    let category;
+    for (const group in eventCategories.data) {
+      const targetCategory = eventCategories.data[group].find(
+        (category) => parseInt(category.id) === parseInt(categoryId)
+      );
+      if (targetCategory) {
+        category = targetCategory;
+        break;
+      }
+    }
+
+    category && updateFormData({ category });
+  }, [eventCategories]);
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentStep]);
+
   return (
     <StyledPageWrapper>
       <MetaTags>
-        <title>Pendaftaran Official | MyArchery.id</title>
+        <title>
+          Pendaftaran {eventDetailData?.publicInformation.eventName || ""} | MyArchery.id
+        </title>
       </MetaTags>
-      <Container>
-        <BreadcrumbDashboard
-          to={getLandingPagePath(
-            detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation?.eventUrl
-          )}
-        >
+
+      <Container fluid>
+        <BreadcrumbDashboard to={getLandingPagePath(eventDetailData?.publicInformation.eventUrl)}>
           {breadcrumpCurrentPageLabel}
         </BreadcrumbDashboard>
+
         <StepIndicator>
           <Step
             className={classnames({
@@ -163,7 +231,7 @@ const PageEventRegistration = () => {
         <SplitDisplay>
           <div>
             <WizardView currentStep={currentStep}>
-              <WizardViewContent noContainer>
+            <WizardViewContent noContainer>
                 <ContentCard>
                   <MainCardHeader>
                     <WrappedIcon>
@@ -171,6 +239,16 @@ const PageEventRegistration = () => {
                     </WrappedIcon>
                     <MainCardHeaderText>Detail Pendaftaran</MainCardHeaderText>
                   </MainCardHeader>
+
+                  <SplitFieldItem>
+                    <FieldInputText
+                      placeholder="Kategori"
+                      value="Official"
+                      onChange={() => {}}
+                    >
+                      Kategori
+                    </FieldInputText>
+                  </SplitFieldItem>
 
                   {userProfile ? (
                     <React.Fragment>
@@ -210,71 +288,30 @@ const PageEventRegistration = () => {
                   ) : (
                     <div>Sedang memuat data pengguna...</div>
                   )}
-                  <div className="mb-3">
-                    <h4 className="mt-3">Data Official</h4>
-                    <span className="font-size-14">
-                      Masukkan email pendaftar yang telah terdaftar
-                    </span>
-                  </div>
                   <NoticeBar>Kartu ID Official tidak bisa dipindahtangankan</NoticeBar>
-                  <FieldInputText
-                    required={true}
-                    value={name}
-                    placeholder="Nama lengkap sesuai KTP/KK"
-                    onChange={(e) => {setName(e)}}
-                  >
-                    Nama Official
-                  </FieldInputText>
+                  <h4 className="mt-3">Data Official</h4>
+
                   <FieldSelectClub value={club?.club} onChange={(clubValue) => getClub(clubValue)}>
                     Nama Klub
                   </FieldSelectClub>
-                  <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
-                  <div className="mt-3">
-                    <label htmlFor="relation" className="form-label">
-                      Hubungan dengan peserta
-                    </label>
-                    <Input
-                      type="select"
-                      id="relation"
-                      className="form-select"
-                      onChange={(e) => {
-                        setOfficial({
-                          ...official,
-                          value: e.target.value,
-                          label:
-                            e.target.value == 0
-                              ? e.target[4].label
-                              : e.target[e.target.value - 1].label,
-                        });
-                      }}
-                    >
-                      <option label="Pelatih" value={1}>
-                        Pelatih
-                      </option>
-                      <option label="Manager Club/Tim" value={2}>
-                        Maneger Klub/Tim
-                      </option>
-                      <option label="Orang Tua" value={3}>
-                        Orang Tua
-                      </option>
-                      <option label="Saudara" value={4}>
-                        Saudara
-                      </option>
-                      <option label="Lainya" value={0}>
-                        Lainya
-                      </option>
-                    </Input>
-                  </div>
-                  <FieldInputText
-                    disabled={official?.value != 0 ? true : false}
-                    placeholder="Lainya..."
-                    value={customLabel}
-                    onChange={(e) => {
-                      setCustomLabel(e)
+
+                  <FieldSelectCategory
+                    required
+                    groupedOptions={eventCategories?.data}
+                    value={category}
+                    onChange={(category) => {
+                      updateFormData({ type: "FORM_INVALID", errors: {} });
+                      updateFormData({
+                        type: "CHANGE_CATEGORY",
+                        default: userProfile,
+                        payload: category,
+                      });
                     }}
+                    errors={formErrors.category}
                   >
-                    Lainnya
-                  </FieldInputText>
+                    Kategori Lomba
+                  </FieldSelectCategory>
+                  
                 </ContentCard>
               </WizardViewContent>
 
@@ -316,142 +353,234 @@ const PageEventRegistration = () => {
                   )}
                 </ContentCard>
 
-                <ParticipantCard>
-                  <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
+                {club && (
+                  <ContentCard>
+                    <SplitFields>
+                      <SplitFieldItem>
+                        <ClubDetailLabel>Nama Klub</ClubDetailLabel>
+                        <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
+                      </SplitFieldItem>
+                    </SplitFields>
+                  </ContentCard>
+                )}
 
-                  <ParticipantMediaObject>
-                    <MediaParticipantAvatar>
-                      <ParticipantAvatar>
-                        {userProfile?.avatar ? (
-                          <img className="club-logo-img" src={userProfile?.avatar} />
-                        ) : (
-                          <AvatarDefault fullname={userProfile?.name} />
-                        )}
-                      </ParticipantAvatar>
-                    </MediaParticipantAvatar>
+                {isCategoryIndividu && (
+                  <ParticipantCard>
+                    <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
 
-                    <MediaParticipantContent>
-                      <ParticipantName>
-                        <span>{userProfile?.name}</span>
-                        <span>
-                          <IconBadgeVerified />
-                        </span>
-                      </ParticipantName>
+                    <ParticipantMediaObject>
+                      <MediaParticipantAvatar>
+                        <ParticipantAvatar>
+                          {userProfile?.avatar ? (
+                            <img className="club-logo-img" src={userProfile?.avatar} />
+                          ) : (
+                            <AvatarDefault fullname={userProfile?.name} />
+                          )}
+                        </ParticipantAvatar>
+                      </MediaParticipantAvatar>
 
-                      <LabelWithIcon icon={<IconMail size="20" />}>
-                        {userProfile?.email}
-                      </LabelWithIcon>
+                      <MediaParticipantContent>
+                        <ParticipantName>
+                          <span>{userProfile?.name}</span>
+                          <span>
+                            <IconBadgeVerified />
+                          </span>
+                        </ParticipantName>
 
-                      <RowedLabel>
-                        <LabelWithIcon icon={<IconGender size="20" />}>
-                          {(userProfile?.gender === "male" && "Laki-laki") ||
-                            (userProfile?.gender === "female" && "Perempuan")}
+                        <LabelWithIcon icon={<IconMail size="20" />}>
+                          {userProfile?.email}
                         </LabelWithIcon>
 
-                        <LabelWithIcon icon={<IconAge size="20" />}>
-                          {userProfile?.age} Tahun
-                        </LabelWithIcon>
-                      </RowedLabel>
-                    </MediaParticipantContent>
-                  </ParticipantMediaObject>
-                </ParticipantCard>
+                        <RowedLabel>
+                          <LabelWithIcon icon={<IconGender size="20" />}>
+                            {(userProfile?.gender === "male" && "Laki-laki") ||
+                              (userProfile?.gender === "female" && "Perempuan")}
+                          </LabelWithIcon>
+
+                          <LabelWithIcon icon={<IconAge size="20" />}>
+                            {userProfile?.age} Tahun
+                          </LabelWithIcon>
+                        </RowedLabel>
+                      </MediaParticipantContent>
+                    </ParticipantMediaObject>
+                  </ParticipantCard>
+                )}
+
+                {participants
+                  .filter((member) => Boolean(member.data))
+                  .map((participant) => (
+                    <ParticipantCard key={participant.name}>
+                      <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
+
+                      <ParticipantMediaObject>
+                        <MediaParticipantAvatar>
+                          <ParticipantAvatar>
+                            {participant.data.avatar ? (
+                              <img className="club-logo-img" src={participant.data.avatar} />
+                            ) : (
+                              <AvatarDefault fullname={participant.data.name} />
+                            )}
+                          </ParticipantAvatar>
+                        </MediaParticipantAvatar>
+
+                        <MediaParticipantContent>
+                          <ParticipantName>
+                            <span>{participant.data.name}</span>
+                            <span>
+                              <IconBadgeVerified />
+                            </span>
+                          </ParticipantName>
+
+                          <LabelWithIcon icon={<IconMail size="20" />}>
+                            {participant.data.email}
+                          </LabelWithIcon>
+
+                          <RowedLabel>
+                            <LabelWithIcon icon={<IconGender size="20" />}>
+                              {(participant.data.gender === "male" && "Laki-laki") ||
+                                (participant.data.gender === "female" && "Perempuan")}
+                            </LabelWithIcon>
+
+                            <LabelWithIcon icon={<IconAge size="20" />}>
+                              {participant.data.age} Tahun
+                            </LabelWithIcon>
+                          </RowedLabel>
+                        </MediaParticipantContent>
+                      </ParticipantMediaObject>
+                    </ParticipantCard>
+                  ))}
               </WizardViewContent>
             </WizardView>
           </div>
+
           <div>
-            <TicketCard>
-              <h4 className="mb-3">Tiket Lomba</h4>
-              <EventMediaObject>
-                <div>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      overflow: "hidden",
-                      width: 60,
-                      height: 60,
-                      borderRadius: 4,
-                    }}
-                  >
-                    <img
-                      src={
-                        detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation
-                          ?.eventBanner
-                      }
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  </span>
+            {isLoadingEventDetail ? (
+              <TicketCard>Sedang memuat data event...</TicketCard>
+            ) : eventDetailData ? (
+              <TicketCard>
+                <h4 className="mb-3">Tiket Lomba</h4>
+
+                <EventMediaObject>
+                  <div>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        overflow: "hidden",
+                        width: 60,
+                        height: 60,
+                        borderRadius: 4,
+                      }}
+                    >
+                      <img
+                        src={eventDetailData?.publicInformation.eventBanner}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </span>
+                  </div>
+
+                  <EventMediaObjectContent>
+                    <h5>{eventDetailData?.publicInformation.eventName}</h5>
+                    <p className="mb-0">{eventDetailData?.publicInformation.eventLocation}</p>
+                  </EventMediaObjectContent>
+                </EventMediaObject>
+
+                <TicketDivider />
+
+                <TicketSectionDetail>
+                  <div>
+                    <DetailLabel>Jenis Regu</DetailLabel>
+                    <DetailValue>
+                      {category?.teamCategoryDetail?.label || category?.teamCategoryId || (
+                        <React.Fragment>&ndash;</React.Fragment>
+                      )}
+                    </DetailValue>
+                  </div>
+
+                  <div>
+                    <DetailLabel>Jumlah Peserta</DetailLabel>
+                    {isCategoryIndividu ? (
+                      <DetailValue>1 Orang</DetailValue>
+                    ) : participantCounts > 0 ? (
+                      <DetailValue>{participantCounts} Orang</DetailValue>
+                    ) : (
+                      <DetailValue muted>&mdash;</DetailValue>
+                    )}
+                  </div>
+                </TicketSectionDetail>
+
+                <div className="d-flex flex-column justify-content-between">
+                  <TicketSectionTotal>
+                    <div>
+                      <LabelTotal>Total Pembayaran</LabelTotal>
+                    </div>
+                    <div>
+                      {category?.isEarlyBird ? (
+                        <>
+                          <CurrencyFormat
+                            style={{ textDecoration: "line-through" }}
+                            className="me-2"
+                            displayType={"text"}
+                            value={category?.fee ? Number(category?.fee) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={0}
+                            fixedDecimalScale
+                          />
+                          <TotalWithCurrency
+                            displayType={"text"}
+                            value={category ? Number(category?.earlyBird) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={0}
+                            fixedDecimalScale
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <TotalWithCurrency
+                            displayType={"text"}
+                            value={category ? Number(category?.fee) : 0}
+                            prefix="Rp"
+                            thousandSeparator={"."}
+                            decimalSeparator={","}
+                            decimalScale={0}
+                            fixedDecimalScale
+                          />
+                        </>
+                      )}
+                    </div>
+                  </TicketSectionTotal>
+
+                  {currentStep === 1 ? (
+                    <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
+                  ) : (
+                    <React.Fragment>
+                      <ButtonConfirmPayment
+                        onConfirm={() => handleSubmitOrder()}
+                        onCancel={() => goToPreviousStep()}
+                      />
+                      <AlertSubmitError
+                        isError={isErrorSubmit}
+                        errors={submitStatus.errors}
+                        onConfirm={() => dispatchSubmitStatus({ status: "idle" })}
+                      />
+                    </React.Fragment>
+                  )}
                 </div>
-
-                <EventMediaObjectContent>
-                  <h5>
-                    {detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation?.eventName}
-                  </h5>
-                  <p className="mb-0">
-                    {
-                      detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation
-                        ?.eventLocation
-                    }{" "}
-                    -{" "}
-                    {
-                      detailEvent?.eventOfficialDetail?.detailEvent?.publicInformation?.eventCity
-                        ?.nameCity
-                    }
-                  </p>
-                </EventMediaObjectContent>
-              </EventMediaObject>
-
-              <TicketDivider />
-
-              <TicketSectionDetail>
-                <div>
-                  <DetailLabel>Jenis Regu</DetailLabel>
-                  <DetailValue>
-                    <React.Fragment>Official</React.Fragment>
-                  </DetailValue>
-                </div>
-
-                <div>
-                  <DetailLabel>Jumlah Peserta</DetailLabel>
-                  <DetailValue>1 Orang</DetailValue>
-                </div>
-              </TicketSectionDetail>
-              <div className="d-flex flex-column justify-content-between">
-                <TicketSectionTotal>
-                  <LabelTotal>Total Pembayaran</LabelTotal>
-                  <TotalWithCurrency
-                    displayType={"text"}
-                    value={detailEvent?.eventOfficialDetail?.fee}
-                    prefix="Rp"
-                    thousandSeparator={"."}
-                    decimalSeparator={","}
-                    decimalScale={2}
-                    fixedDecimalScale
-                  />
-                </TicketSectionTotal>
-
-                {currentStep === 1 ? (
-                  <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
-                ) : (
-                  <React.Fragment>
-                    <ButtonConfirmPayment
-                      onConfirm={() => handleSubmitOrder()}
-                      onCancel={() => goToPreviousStep()}
-                    />
-                    <AlertSubmitError
-                      isError={isErrorSubmit}
-                      errors={submitStatus.errors}
-                      onConfirm={() => dispatchSubmitStatus({ status: "idle" })}
-                    />
-                  </React.Fragment>
-                )}
-              </div>
-            </TicketCard>
+              </TicketCard>
+            ) : (
+              <TicketCard>Ada kesalahan dalam memuat data.</TicketCard>
+            )}
           </div>
         </SplitDisplay>
+        <AdsBanner/>
       </Container>
+      <LoadingScreen loading={isLoadingSubmit} />
     </StyledPageWrapper>
   );
-};
+}
 
 const StyledPageWrapper = styled.div`
   font-family: "Inter", sans-serif;
@@ -506,6 +635,7 @@ const SplitDisplay = styled.div`
 const ContentCard = styled.div`
   margin-bottom: 1rem;
   padding: 1.5rem;
+  padding-bottom: 2.5rem;
   border-radius: 0.5rem;
   background-color: #ffffff;
 `;
@@ -538,82 +668,6 @@ const SplitFields = styled.div`
 
 const SplitFieldItem = styled.div`
   flex: 1 1 13.75rem;
-`;
-
-const TicketCard = styled(ContentCard)`
-  box-shadow: 0px 7.84391px 15.6878px rgba(18, 38, 63, 0.0313726);
-`;
-
-const SubtleFieldNote = styled.div`
-  color: var(--ma-gray-400);
-`;
-
-function NoticeBar({ children }) {
-  return (
-    <StyledNoticeBar>
-      <span>
-        <IconInfo />
-      </span>
-      <span>{children}</span>
-    </StyledNoticeBar>
-  );
-}
-
-const StyledNoticeBar = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: var(--ma-blue-primary-50);
-  color: var(--ma-blue);
-`;
-
-const EventMediaObject = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
-
-const EventMediaObjectContent = styled.div`
-  flex: 1 1 0%;
-  margin: auto;
-`;
-
-const TicketDivider = styled.hr`
-  margin: 2rem 0;
-`;
-
-const TicketSectionDetail = styled.div`
-  margin-bottom: 4rem;
-`;
-
-const DetailLabel = styled.h6`
-  font-weight: 400;
-`;
-
-const DetailValue = styled.p`
-  font-size: 15px;
-  font-weight: 600;
-  text-transform: capitalize;
-`;
-
-const TicketSectionTotal = styled.div`
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-`;
-
-const LabelTotal = styled.span`
-  font-weight: 600;
-  font-size: 15px;
-`;
-
-const TotalWithCurrency = styled(CurrencyFormat)`
-  color: var(--ma-blue);
-  font-size: 18px;
-  font-weight: 600;
 `;
 
 const ParticipantCard = styled.div`
@@ -684,6 +738,92 @@ const StyledLabelWithIcon = styled.p`
   }
 `;
 
+const ClubDetailLabel = styled.h6`
+  font-size: 12px;
+  font-weight: 400;
+`;
+
+const ClubDetailValue = styled.p`
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+`;
+
+const EventMediaObject = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
+const EventMediaObjectContent = styled.div`
+  flex: 1 1 0%;
+  margin: auto;
+`;
+
+const TicketCard = styled(ContentCard)`
+  box-shadow: 0px 7.84391px 15.6878px rgba(18, 38, 63, 0.0313726);
+`;
+
+const TicketDivider = styled.hr`
+  margin: 2rem 0;
+`;
+
+const TicketSectionDetail = styled.div`
+  margin-bottom: 4rem;
+`;
+
+const DetailLabel = styled.h6`
+  font-weight: 400;
+`;
+
+const isTextMuted = ({ muted }) => (muted ? "color: var(--ma-gray-400);" : "");
+
+const DetailValue = styled.p`
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: capitalize;
+  ${isTextMuted}
+`;
+
+const TicketSectionTotal = styled.div`
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+`;
+
+const LabelTotal = styled.span`
+  font-weight: 600;
+  font-size: 15px;
+`;
+
+const TotalWithCurrency = styled(CurrencyFormat)`
+  color: var(--ma-blue);
+  font-size: 18px;
+  font-weight: 600;
+`;
+
+const StyledNoticeBar = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--ma-blue-primary-50);
+  color: var(--ma-blue);
+`;
+
+function NoticeBar({ children }) {
+  return (
+    <StyledNoticeBar>
+      <span>
+        <IconInfo />
+      </span>
+      <span>{children}</span>
+    </StyledNoticeBar>
+  );
+}
+
 function ButtonConfirmPayment({ onConfirm, onCancel }) {
   const [isAlertOpen, setAlertOpen] = React.useState(false);
 
@@ -722,69 +862,71 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
   );
 }
 
-function AlertSubmitError({ isError, errors, onConfirm }) {
-  const [isAlertOpen, setAlertOpen] = React.useState(false);
+function eventDetailReducer(state, action) {
+  if (action) {
+    return { ...state, ...action };
+  }
+  return state;
+}
 
-  const renderErrorMessages = () => {
-    if (errors && typeof errors === "string") {
-      return errors;
-    }
+function eventCategoriesReducer(state, action) {
+  if (action) {
+    return { ...state, ...action };
+  }
+  return state;
+}
 
-    if (errors) {
-      const fields = Object.keys(errors);
-      const messages = fields.map(
-        (field) => `${errors[field].map((message) => `- ${message}\n`).join("")}`
-      );
-      if (messages.length) {
-        return `${messages.join("")}`;
+function formReducer(state, action) {
+  if (action.type === "CHANGE_CATEGORY") {
+    // Kasih default user profile hanya kalau kategorinya individual
+    // selain itu reset ke kosongan semua
+    const nextParticipantsState = state.data.participants.map((member) => ({
+      ...member,
+      data: null,
+    }));
+
+    return {
+      ...state,
+      data: {
+        ...state.data,
+        category: action.payload,
+        // reset field-field data peserta
+        teamName: "",
+        club: null,
+        participants: nextParticipantsState,
+      },
+    };
+  }
+
+  if (action.type === "FIELD_MEMBER_EMAIL") {
+    const nextParticipantsState = state.data.participants.map((member) => {
+      if (member.name === action.name) {
+        return { ...member, data: action.payload };
       }
-    }
+      return member;
+    });
 
-    return "Error tidak diketahui.";
-  };
+    return {
+      ...state,
+      data: { ...state.data, participants: nextParticipantsState },
+    };
+  }
 
-  const handleConfirm = () => {
-    setAlertOpen(false);
-    onConfirm?.();
-  };
+  if (action.type === "FORM_INVALID") {
+    return {
+      ...state,
+      errors: action.errors,
+    };
+  }
 
-  React.useEffect(() => {
-    if (!isError) {
-      return;
-    }
-    setAlertOpen(true);
-  }, [isError]);
+  if (action) {
+    return {
+      ...state,
+      data: { ...state.data, ...action },
+    };
+  }
 
-  return (
-    <React.Fragment>
-      <SweetAlert
-        show={isAlertOpen}
-        title=""
-        custom
-        btnSize="md"
-        style={{ padding: "30px 40px", width: "720px" }}
-        onConfirm={handleConfirm}
-        customButtons={
-          <span className="d-flex flex-column w-100">
-            <ButtonBlue onClick={handleConfirm}>Tutup</ButtonBlue>
-          </span>
-        }
-      >
-        <h4>
-          <IconAlertTriangle />
-        </h4>
-        <div className="text-start">
-          <p>
-            Terdapat kendala teknis dalam memproses data. Coba kembali beberapa saat lagi, atau
-            silakan berikan pesan error berikut kepada technical support:
-          </p>
-          <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
-            {renderErrorMessages()}
-          </pre>
-        </div>
-      </SweetAlert>
-    </React.Fragment>
-  );
+  return state;
 }
 
 export default PageEventRegistration;
