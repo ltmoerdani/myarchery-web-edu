@@ -105,7 +105,21 @@ function Home() {
         swipeScrollTolerance={5}
         interval={2000}
         showStatus={false}
-      >
+      > 
+        <div
+          className="position-relative"
+          style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
+        >
+          <img src={banner_dua_hero} />
+          <div className="text-box-partner">
+            <a href="https://wa.me/6281212241633" target="_blank" rel="noreferrer" className="btn btn-hero">
+              <span className="btn-hero-text" style={{ fontWeight: "bold" }}>
+                Informasi Partnership
+              </span>
+            </a>
+          </div>
+        </div>
+
         <div
           className="position-relative"
           style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
@@ -126,13 +140,6 @@ function Home() {
               </a>
             </div>
           </div>
-        </div>
-
-        <div
-          className="position-relative"
-          style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
-        >
-          <img src={banner_dua_hero} />
         </div>
 
         <div
