@@ -16,7 +16,7 @@ import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
 
 import banner_satu from "../../../assets/images/myachery/banner6 1.svg";
-import banner_dua_hero from "../../../assets/images/myachery/banner7 2.png";
+import banner_dua_hero from "../../../assets/images/myachery/banner6 2.svg";
 import banner_tiga_hero from "../../../assets/images/myachery/banner6 3.svg";
 import img_target from "../../../assets/images/myachery/target-landing-1.svg";
 import ases_satu from "../../../assets/images/myachery/ases-satu.svg";
@@ -105,18 +105,26 @@ function Home() {
         swipeScrollTolerance={5}
         interval={2000}
         showStatus={false}
-      > 
+      >
         <div
           className="position-relative"
           style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
         >
-          <img src={banner_dua_hero} />
-          <div className="text-box-partner">
-            <a href="https://wa.me/6281212241633" target="_blank" rel="noreferrer" className="btn btn-hero">
-              <span className="btn-hero-text" style={{ fontWeight: "bold" }}>
-                Informasi Partnership
-              </span>
-            </a>
+          <img src={banner_satu} />
+          <div className="text-box">
+            <span className="title-sub">
+              selamat datang di
+              <br />
+            </span>
+            <span className="title-hero">myarchery</span>
+            <div className="content">
+              <p>Temukan dan Ikuti berbagai macam Event Panahan di MyArchery</p>
+              <a href="#list-event" className="btn btn-hero">
+                <span className="btn-hero-text" style={{ fontWeight: "bold" }}>
+                  Lihat Event
+                </span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -124,7 +132,7 @@ function Home() {
           className="position-relative"
           style={{ minHeight: "50vh", backgroundColor: "var(--ma-blue)", transition: "all 0.3s" }}
         >
-          <img src={banner_satu} />
+          <img src={banner_dua_hero} />
           <div className="text-box">
             <span className="title-sub">
               selamat datang di
