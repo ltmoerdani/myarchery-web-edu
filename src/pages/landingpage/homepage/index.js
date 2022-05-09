@@ -11,12 +11,16 @@ import { DetailInTabs } from "./components/detail-in-tabs";
 import { SecondaryCTAItem } from "./components/secondary-cta-item";
 
 import { url } from "utils";
+// import { useSelector } from "react-redux";
+// import * as AuthStore from "store/slice/authentication";
+
 
 import kalasemen from "assets/images/myachery/kalasemen.png";
 import book from "assets/images/myachery/book.png";
 import clubRank from "assets/images/myachery/club-rank.png";
-// TODO:
-// import official from "assets/images/myachery/official.png";
+import official from "assets/images/myachery/official.png";
+
+
 
 function LandingPage() {
   const { slug } = useParams();
@@ -28,6 +32,8 @@ function LandingPage() {
   if (!eventDetail) {
     return <SpinnerDotBlock />;
   }
+
+  // const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
 
   return (
     <PageWrapper>
@@ -48,15 +54,18 @@ function LandingPage() {
             </div>
 
             <SecondaryCTA>
-              {/* TODO: banner pendaftaran official */}
-              {/* {false && (
-                <SecondaryCTAItem
-                  bgImg={official}
-                  heading="Official Pertandingan"
-                  subheading="Klik untuk daftar"
-                  onClick={() => history.push(`/event-ranks/${slug}/clubs`)}
-                />
-              )} */}
+              <SecondaryCTAItem
+                bgImg={official}
+                heading="Official Pertandingan"
+                subheading="Klik untuk daftar"
+                onClick={() => {
+                  // if (isLoggedIn) {
+                  //   history.push(`/event-registration-official/${slug}`)
+                  // } else {
+                  //   history.push('/archer/login');
+                  // }}
+                  history.push(`/event-registration-official/${slug}`)
+              }}/> 
 
               <SecondaryCTAItem
                 bgImg={kalasemen}

@@ -26,18 +26,18 @@ import logoBuatAkun from "assets/images/myachery/Illustration.png";
 import event_img from "assets/images/myachery/a-1.jpg";
 
 import "./components/sass/sytles.scss";
-import Avatar from "./components/Avatar";
+// import Avatar from "./components/Avatar";
 
 import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
 
-function PageTransactionDetail() {
+function PageTransactionDetailOfficial() {
   const [activeTab, setActiveTab] = useState("1");
   const [dataDetail, setDataDetail] = useState({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
-  const { orderId } = useParams();
+  const { slug } = useParams();
   // eslint-disable-next-line no-unused-vars
   const { push } = useHistory();
 
@@ -70,6 +70,7 @@ function PageTransactionDetail() {
     if (status == 1) {
       return "di-ikuti";
     }
+
   };
 
   useEffect(() => {
@@ -78,9 +79,12 @@ function PageTransactionDetail() {
     }
   }, []);
 
+  console.log(slug);
   useEffect(() => {
     const getOrderEventBySlug = async () => {
-      const { data, message, errors } = await OrderEventService.get({ id: orderId });
+      const { data, message, errors } = await OrderEventService.getDetailOrderOfficial({event_official_id: slug});
+
+    //   const { data, message, errors } = await OrderEventService.get({id: orderId});
 
       if (data) {
         setDataDetail(data);
@@ -127,13 +131,6 @@ function PageTransactionDetail() {
       },
     });
   };
-
-  const dateEventStart = dataDetail?.archeryEvent?.eventStartDatetime
-    ? parseISO(dataDetail?.archeryEvent?.eventStartDatetime)
-    : "";
-  const dateEventEnd = dataDetail?.archeryEvent?.eventStartDatetime
-    ? parseISO(dataDetail?.archeryEvent?.eventEndDatetime)
-    : "";
 
   const verifiedAlert = () => {
     if (userProfile?.verifyStatus == 1) {
@@ -329,7 +326,7 @@ function PageTransactionDetail() {
                               height: "100%",
                               borderRadius: "10px",
                             }}
-                            src={dataDetail?.archeryEvent?.poster || event_img}
+                            src={dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventBanner || event_img}
                           />
                         </div>
                       </Col>
@@ -339,19 +336,19 @@ function PageTransactionDetail() {
                             <tr>
                               <td>Nama Event</td>
                               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                              <td>: {dataDetail?.archeryEvent?.eventName}</td>
+                              <td>: {dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventName}</td>
                               <hr />
                             </tr>
                             <tr>
                               <td>Jenis Event</td>
                               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                              <td>: {dataDetail?.archeryEvent?.eventType}</td>
+                              <td>: {dataDetail?.eventOfficialDetail?.detailEvent?.eventType}</td>
                               <hr />
                             </tr>
                             <tr>
                               <td>Lokasi</td>
                               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                              <td>: {dataDetail?.archeryEvent?.location}</td>
+                              <td>: {dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventLocation}</td>
                               <hr />
                             </tr>
                             <tr>
@@ -359,12 +356,12 @@ function PageTransactionDetail() {
                               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                               <td>
                                 :{" "}
-                                {dataDetail?.archeryEvent?.eventStartDatetime && (
+                                {/* {dataDetail?.archeryEvent?.eventStartDatetime && ( */}
                                   <React.Fragment>
-                                    {formatFullDate(dateEventStart)} -{" "}
-                                    {formatFullDate(dateEventEnd)}
+                                    {dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventStart} -{" "}
+                                    {dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventEnd}
                                   </React.Fragment>
-                                )}
+                                {/* )} */}
                               </td>
                               <hr />
                             </tr>
@@ -385,24 +382,24 @@ function PageTransactionDetail() {
                         <tr>
                           <td>Nama Pendaftar</td>
                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                          <td>: {dataDetail?.participant?.name}</td>
+                          <td>: {dataDetail?.detailUser?.name}</td>
                           <hr />
                         </tr>
                         <tr>
                           <td>Email</td>
                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                          <td>: {dataDetail?.participant?.email}</td>
+                          <td>: {dataDetail?.detailUser?.email}</td>
                           <hr />
                         </tr>
                         <tr>
                           <td>No. Telpon</td>
                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                          <td>: {dataDetail?.participant?.phoneNumber}</td>
+                          <td>: {dataDetail?.detailUser?.phoneNumber}</td>
                           <hr />
                         </tr>
                       </tbody>
                     </table>
-                    <div style={{ backgroundColor: "#E7EDF6" }}>
+                    {/* <div style={{ backgroundColor: "#E7EDF6" }}>
                       <p className="p-2 font-size-16">Peserta</p>
                     </div>
                     {dataDetail?.participant?.members.map((member) => {
@@ -420,7 +417,7 @@ function PageTransactionDetail() {
                           </div>
                         </div>
                       );
-                    })}
+                    })} */}
                   </div>
                 </CardBody>
               </Card>
@@ -434,16 +431,14 @@ function PageTransactionDetail() {
                         <tr>
                           <td>Jenis Regu</td>
                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                          <td>: {dataDetail?.participant?.teamCategoryId}</td>
+                          <td>: Official</td>
                           <hr />
                         </tr>
                         <tr>
                           <td>Detal Kategori</td>
                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                           <td>
-                            : {dataDetail?.participant?.ageCategoryId} -{" "}
-                            {dataDetail?.participant?.competitionCategoryId} -{" "}
-                            {dataDetail?.participant?.distanceId}m
+                            : {dataDetail?.detailEventOfficial?.categoryLabel}
                           </td>
                           <hr />
                         </tr>
@@ -585,7 +580,7 @@ function PageTransactionDetail() {
                               height: "100%",
                               borderRadius: "10px",
                             }}
-                            src={dataDetail?.archeryEvent?.poster || event_img}
+                            src={dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventBanner || event_img}
                           />
                         </div>
                       </Col>
@@ -594,12 +589,12 @@ function PageTransactionDetail() {
                           <tbody>
                             <tr>
                               <td>
-                                <h5>{dataDetail?.archeryEvent?.eventName}</h5>
+                                <h5>{dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventName}</h5>
                               </td>
                             </tr>
                             <tr>
                               <td>
-                                <div className="mb-3">{dataDetail?.archeryEvent?.location}</div>
+                                <div className="mb-3">{dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventLocation}</div>
                               </td>
                             </tr>
                             <tr>
@@ -623,25 +618,23 @@ function PageTransactionDetail() {
                       <Col md={2}>
                         <span>Jenis Regu</span>
                         <div>
-                          <h5>{dataDetail?.participant?.teamCategoryId}</h5>
+                          <h5>{dataDetail?.detailEventOfficial?.teamCategoryId}</h5>
                         </div>
                       </Col>
                       <Col md={3}>
                         <span>Kategori</span>
                         <div>
                           <h5>
-                            {dataDetail?.participant?.ageCategoryId} -{" "}
-                            {dataDetail?.participant?.competitionCategoryId} -{" "}
-                            {dataDetail?.participant?.distanceId}m
+                            {dataDetail?.detailEventOfficial?.categoryLabel}
                           </h5>
                         </div>
                       </Col>
-                      <Col md={2}>
+                      {/* <Col md={2}>
                         <span>Jumlah Peserta</span>
                         <div>
                           <h5>{dataDetail?.participant?.members.length} Orang</h5>
                         </div>
-                      </Col>
+                      </Col> */}
                       <Col md={5}>
                         <div style={{ float: "right" }}>
                           <span>Biaya Pendaftaran</span>
@@ -671,7 +664,7 @@ function PageTransactionDetail() {
                                 <>
                                   <ButtonBlue
                                     as={Link}
-                                    to={`/event-registration/${dataDetail?.archeryEvent?.eventSlug}?categoryId=${dataDetail?.participant?.eventCategoryId}`}
+                                    to={`/event-registration/${dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventSlug}?categoryId=${dataDetail?.detailEventOfficial?.eventOfficialId}`}
                                     className="btn"
                                     style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                                   >
@@ -719,9 +712,9 @@ const WrapperPaymentStatus = styled.div`
 `;
 
 // util
-function formatFullDate(date) {
-  const dateObject = typeof date === "string" ? parseISO(date) : date;
-  return format(dateObject, "d MMMM yyyy", { locale: id });
-}
+// function formatFullDate(date) {
+//   const dateObject = typeof date === "string" ? parseISO(date) : date;
+//   return format(dateObject, "d MMMM yyyy", { locale: id });
+// }
 
-export default PageTransactionDetail;
+export default PageTransactionDetailOfficial;
