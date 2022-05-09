@@ -26,10 +26,6 @@ import logoBuatAkun from "assets/images/myachery/Illustration.png";
 import event_img from "assets/images/myachery/a-1.jpg";
 
 import "./components/sass/sytles.scss";
-// import Avatar from "./components/Avatar";
-
-import { parseISO, format } from "date-fns";
-import { id } from "date-fns/locale";
 
 function PageTransactionDetailOfficial() {
   const [activeTab, setActiveTab] = useState("1");
