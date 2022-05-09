@@ -10,7 +10,11 @@ import DashboardMenus from "./components/menus";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { useHistory, Link } from "react-router-dom";
 import { Button, ButtonBlue } from "components/ma";
+
+import { misc } from "utils";
+
 import logoBuatAkun from "assets/images/myachery/Illustration.png";
+import illustrationWarningAlert from "assets/images/alert-publication.svg";
 import icon from "assets/images/myachery/icon.svg";
 
 const DashboardWrapper = styled.div`
@@ -185,7 +189,9 @@ function PageDashboard() {
             <img width="100%" height="100%" src={icon} />
           </div>
           <div className="ms-2">
-            <span style={{ fontWeight: "600" }}>Proses verifikasi ditolak karena {userProfile?.reasonRejected}, silahkan ajukan lagi.</span>
+            <span style={{ fontWeight: "600" }}>
+              Proses verifikasi ditolak karena {userProfile?.reasonRejected}, silahkan ajukan lagi.
+            </span>
           </div>
           <div style={{ width: "70%" }}>
             <Link className="float-end" to="/dashboard/profile/verifikasi">
@@ -196,7 +202,7 @@ function PageDashboard() {
       );
     }
   };
-  
+
   return (
     <DashboardWrapper>
       <MetaTags>
@@ -207,9 +213,7 @@ function PageDashboard() {
         <div className="mb-2">
           <GreetingUserText>{userProfile}</GreetingUserText>
           <p className="subheading">Selamat datang di myarchery.id</p>
-          <div className="mt-3">
-            {statusVerifikasi()}
-          </div>
+          <div className="mt-3">{statusVerifikasi()}</div>
         </div>
 
         <DashboardMenus />
@@ -222,10 +226,68 @@ function PageDashboard() {
         </LatestEventsHeader>
         <LatestEventsList />
       </Container>
+
       {verifiedAlert()}
+      <PromptPhotoUpload />
     </DashboardWrapper>
   );
 }
+
+function PromptPhotoUpload() {
+  const history = useHistory();
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const [isPromptOpen, setIsPromptOpen] = React.useState(false);
+
+  useEffect(() => {
+    const openPromptAfterDelay = async () => {
+      if (userProfile && parseInt(userProfile.verifyStatus) === 1 && !userProfile.avatar) {
+        await misc.sleep(750); // 0.75 detik
+        setIsPromptOpen(true);
+      }
+    };
+
+    openPromptAfterDelay();
+
+    // `userProfile` jarang berubah nilainya, akan
+    // seringnya dipanggil cuma sekali: waktu pertama render aja.
+    // Ini expected.
+  }, [userProfile]);
+
+  const handleClickCancel = () => setIsPromptOpen(false);
+
+  const handleClickConfirm = async () => {
+    setIsPromptOpen(false);
+    await misc.sleep(100);
+    history.push("/dashboard/profile/");
+  };
+
+  return (
+    <SweetAlert
+      show={isPromptOpen}
+      title=""
+      custom
+      btnSize="md"
+      onConfirm={handleClickConfirm}
+      onCancel={handleClickCancel}
+      style={{ width: 700, padding: "1.5rem 2rem", borderRadius: "1.25rem" }}
+      customButtons={
+        <PromptButtonsWrapper>
+          <Button onClick={handleClickCancel}>Nanti saja, kembali ke Dashboard</Button>
+          <ButtonBlue onClick={handleClickConfirm}>Ya, Lengkapi Data</ButtonBlue>
+        </PromptButtonsWrapper>
+      }
+    >
+      <IllustationAlertPrompt />
+      <h4>Verifikasi Akun</h4>
+      <p className="text-muted">
+        Terdapat pembaharuan dalam ketentuan foto profil, lihat ketentuan lebih lanjut
+      </p>
+    </SweetAlert>
+  );
+}
+
+/* ========================================= */
+// Styles
 
 const LatestEventsHeader = styled.div`
   .events-heading {
@@ -237,6 +299,28 @@ const LatestEventsHeader = styled.div`
     font-size: 0.875rem;
     color: var(--ma-gray-500);
   }
+`;
+
+const PromptButtonsWrapper = styled.span`
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+
+  > button {
+    flex-grow: 1;
+    flex-basis: 100%;
+  }
+`;
+
+const IllustationAlertPrompt = styled.div`
+  margin-bottom: 2rem;
+  width: 100%;
+  min-height: 188px;
+  background-image: url(${illustrationWarningAlert});
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 `;
 
 export default PageDashboard;
