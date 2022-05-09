@@ -8,7 +8,7 @@ import queen from "../../../../assets/images/partners/queen.png"
 
 const TitleAds = styled.h3`
     font-weight: 800;
-    font-size: 40px;
+    font-size: 36px;
     color: #0D47A1;
     line-height: 110%;
     text-align: center;
@@ -17,7 +17,7 @@ const TitleAds = styled.h3`
 
 const TextAds = styled.p`
     font-weight: 400;
-    font-size: 24px;
+    font-size: 16px;
     line-height: 120%;
     color: #545454;
     align-items: center;

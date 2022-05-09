@@ -28,6 +28,9 @@ export default {
   getDetailOfficial(qs = null) {
     return API.get("/app/v1/archery-event-official/event-official-detail", qs);
   },
+  getDetailOrderOfficial(qs = null) {
+    return API. get("/app/v1/archery-event-official/detail-order", qs);
+  },
   listOfficial(qs = null) {
     return API.get("/api/general/list-official", qs);
   },

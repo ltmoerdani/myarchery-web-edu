@@ -26,9 +26,6 @@ import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
 
 import IconAddress from "components/ma/icons/mono/address";
-import IconGender from "components/ma/icons/mono/gender";
-import IconAge from "components/ma/icons/mono/age";
-import IconMail from "components/ma/icons/mono/mail";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
@@ -43,7 +40,6 @@ const tabList = [
 const initialFormState = {
   data: {
     category: null,
-    teamName: "",
     club: null,
     participants: [
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -78,7 +74,7 @@ function PageEventRegistration() {
     { status: "idle", errors: null }
   );
 
-  const { category, teamName, club, participants } = formData.data;
+  const { category, club, participants } = formData.data;
   const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
   const isLoadingEventDetail = eventDetail.status === "loading";
@@ -133,15 +129,18 @@ function PageEventRegistration() {
     dispatchSubmitStatus({ status: "loading", errors: null });
 
     const payload = {
-      event_category_id: category.id,
+      team_category_id : category.teamCategoryId,
+      age_category_id : category.ageCategoryId,
+      competition_category_id : category.competitionCategoryId,
+      distance_id : category.distanceId,
       club_id: club?.detail.id || 0,
-      team_name: teamName || undefined,
+      event_id: category.eventId,
     };
 
-    const result = await OrderEventService.register(payload);
+    const result = await OrderEventService.registerOfficial(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
+      history.push(`/dashboard/transactions-official/${result.data.archeryEventofficial.eventOfficialDetailId}`);
     } else {
       const errorData = errorsUtil.interpretServerErrors(result);
       dispatchSubmitStatus({ status: "error", errors: errorData });
@@ -291,10 +290,17 @@ function PageEventRegistration() {
                   <NoticeBar>Kartu ID Official tidak bisa dipindahtangankan</NoticeBar>
                   <h4 className="mt-3">Data Official</h4>
 
-                  <FieldSelectClub value={club?.club} onChange={(clubValue) => getClub(clubValue)}>
+                  <FieldSelectClub
+                    required={category?.id && !isCategoryIndividu}
+                    value={club}
+                    onChange={(clubValue) => updateFormData({ club: clubValue })}
+                    errors={formErrors.club}
+                  >
                     Nama Klub
                   </FieldSelectClub>
-
+                  {isCategoryIndividu && (
+                    <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
+                  )}
                   <FieldSelectCategory
                     required
                     groupedOptions={eventCategories?.data}
@@ -353,20 +359,9 @@ function PageEventRegistration() {
                   )}
                 </ContentCard>
 
-                {club && (
-                  <ContentCard>
-                    <SplitFields>
-                      <SplitFieldItem>
-                        <ClubDetailLabel>Nama Klub</ClubDetailLabel>
-                        <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
-                      </SplitFieldItem>
-                    </SplitFields>
-                  </ContentCard>
-                )}
-
                 {isCategoryIndividu && (
                   <ParticipantCard>
-                    <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
+                    <ParticipantHeadingLabel>Data Official</ParticipantHeadingLabel>
 
                     <ParticipantMediaObject>
                       <MediaParticipantAvatar>
@@ -387,68 +382,15 @@ function PageEventRegistration() {
                           </span>
                         </ParticipantName>
 
-                        <LabelWithIcon icon={<IconMail size="20" />}>
-                          {userProfile?.email}
+                        <LabelWithIcon >
+                          {club?.detail.name}
                         </LabelWithIcon>
 
-                        <RowedLabel>
-                          <LabelWithIcon icon={<IconGender size="20" />}>
-                            {(userProfile?.gender === "male" && "Laki-laki") ||
-                              (userProfile?.gender === "female" && "Perempuan")}
-                          </LabelWithIcon>
-
-                          <LabelWithIcon icon={<IconAge size="20" />}>
-                            {userProfile?.age} Tahun
-                          </LabelWithIcon>
-                        </RowedLabel>
                       </MediaParticipantContent>
                     </ParticipantMediaObject>
                   </ParticipantCard>
                 )}
 
-                {participants
-                  .filter((member) => Boolean(member.data))
-                  .map((participant) => (
-                    <ParticipantCard key={participant.name}>
-                      <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
-
-                      <ParticipantMediaObject>
-                        <MediaParticipantAvatar>
-                          <ParticipantAvatar>
-                            {participant.data.avatar ? (
-                              <img className="club-logo-img" src={participant.data.avatar} />
-                            ) : (
-                              <AvatarDefault fullname={participant.data.name} />
-                            )}
-                          </ParticipantAvatar>
-                        </MediaParticipantAvatar>
-
-                        <MediaParticipantContent>
-                          <ParticipantName>
-                            <span>{participant.data.name}</span>
-                            <span>
-                              <IconBadgeVerified />
-                            </span>
-                          </ParticipantName>
-
-                          <LabelWithIcon icon={<IconMail size="20" />}>
-                            {participant.data.email}
-                          </LabelWithIcon>
-
-                          <RowedLabel>
-                            <LabelWithIcon icon={<IconGender size="20" />}>
-                              {(participant.data.gender === "male" && "Laki-laki") ||
-                                (participant.data.gender === "female" && "Perempuan")}
-                            </LabelWithIcon>
-
-                            <LabelWithIcon icon={<IconAge size="20" />}>
-                              {participant.data.age} Tahun
-                            </LabelWithIcon>
-                          </RowedLabel>
-                        </MediaParticipantContent>
-                      </ParticipantMediaObject>
-                    </ParticipantCard>
-                  ))}
               </WizardViewContent>
             </WizardView>
           </div>
@@ -646,6 +588,10 @@ const MainCardHeader = styled.div`
   gap: 1.5rem;
 `;
 
+const SubtleFieldNote = styled.div`
+  color: var(--ma-gray-400);
+`;
+
 const MainCardHeaderText = styled.h4`
   margin: 0;
 `;
@@ -714,11 +660,6 @@ const ParticipantName = styled.h5`
   gap: 0.5rem;
 `;
 
-const RowedLabel = styled.div`
-  display: flex;
-  gap: 1.5rem;
-`;
-
 function LabelWithIcon({ icon, children }) {
   return (
     <StyledLabelWithIcon>
@@ -736,17 +677,6 @@ const StyledLabelWithIcon = styled.p`
   .label-icon {
     margin-right: 0.5rem;
   }
-`;
-
-const ClubDetailLabel = styled.h6`
-  font-size: 12px;
-  font-weight: 400;
-`;
-
-const ClubDetailValue = styled.p`
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
 `;
 
 const EventMediaObject = styled.div`
@@ -892,7 +822,7 @@ function formReducer(state, action) {
         category: action.payload,
         // reset field-field data peserta
         teamName: "",
-        club: null,
+        // club: null,
         participants: nextParticipantsState,
       },
     };

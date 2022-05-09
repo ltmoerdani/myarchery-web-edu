@@ -11,6 +11,7 @@ import ListTransactionPage from "pages/ma/dashboard/list-transaction";
 import PageTransactionDetail from "pages/ma/dashboard/transaction/detail";
 import PageProfileHome from "pages/ma/dashboard/profile";
 import PageProfileVerifikasiHome from "pages/ma/dashboard/profil-verifikasi";
+import PageTransactionDetailOfficial from "pages/ma/dashboard/transaction/detail/official";
 
 const dashboardRoutes = [
   { path: "/dashboard", exact: true, component: PageDashboard },
@@ -28,6 +29,7 @@ const dashboardRoutes = [
   { path: "/dashboard/certificates", exact: true, component: PageCertificates },
   { path: "/dashboard/list-transaction", exact: true, component: ListTransactionPage },
   { path: "/dashboard/transactions/:orderId", exact: true, component: PageTransactionDetail },
+  { path: "/dashboard/transactions-official/:slug", exact: true, component: PageTransactionDetailOfficial },
   { path: "/dashboard/profile", exact: true, component: PageProfileHome },
   { path: "/dashboard/profile/verifikasi", exact: true, component: PageProfileVerifikasiHome },
 ];
