@@ -14,6 +14,12 @@ const AvatarWrapper = styled.div`
   justify-content: center;
   align-items: center;
 
+  .avatar-image {
+    object-fit: cover;
+    width: var(--thumbnail-radius, 96px);
+    height: var(--thumbnail-radius, 96px);
+  }
+
   .avatar-empty-container {
     width: 52px;
     height: 52px;
@@ -26,12 +32,20 @@ const AvatarWrapper = styled.div`
 `;
 
 function Avatar({ size = "96px", imageSrc }) {
-  // TODO: kondisional render foto user atau fallback ke icon avatar
-  // ...
+  if (!imageSrc) {
+    return (
+      <AvatarWrapper style={{ "--thumbnail-radius": size }}>
+        <div className="avatar-empty-container">
+          <img className="avatar-empty-icon" src={user} />
+        </div>
+      </AvatarWrapper>
+    );
+  }
+
   return (
     <AvatarWrapper style={{ "--thumbnail-radius": size }}>
-      <div className="avatar-empty-container">
-        <img className="avatar-empty-icon" src={imageSrc || user} />
+      <div>
+        <img className="avatar-image" src={imageSrc} />
       </div>
     </AvatarWrapper>
   );

@@ -4,10 +4,13 @@ import { BreadcrumbDashboard } from "../components/breadcrumb";
 import styled from "styled-components";
 import IconCamera from "components/ma/icons/mono/camera";
 import { DateInput, TextInput, NumberInput, TextareaInput } from "components";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
 import { ArcherService } from "services";
 import { useHistory, Link } from "react-router-dom";
+
+import { LoadingScreen } from "components/ma";
+
 import icon_white from "assets/images/myachery/icon-white.svg";
 import icon_green from "assets/images/myachery/success-icon.svg";
 import toastr from "toastr";
@@ -28,12 +31,20 @@ async function imageToBase64(imageFileRaw) {
 
 function PageProfileHome() {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const dispatch = useDispatch();
   const history = useHistory();
 
   const [profileData, setProfileData] = useState({});
   const [dataUpdate, setUpdateData] = useState({});
   const [toggle, setToggle] = useState(userProfile?.gender);
   const [imgAvatar, setImgAvatar] = useState(userProfile?.avatar);
+  const [avatarFetching, dispatchAvatarFetching] = React.useReducer(
+    (state, action) => ({
+      ...state,
+      ...action,
+    }),
+    { status: "idle" }
+  );
 
   const handleChooseImage = async (field, ev) => {
     if (!ev.target.files?.[0]) {
@@ -48,18 +59,34 @@ function PageProfileHome() {
     });
   };
 
-  const updateAvatar = async () => {
-    const { message, data, errors } = await ArcherService.updateAvatar(
-      {
-        avatar: profileData?.avatar?.base64,
-      },
-      { user_id: userProfile?.id }
-    );
-    if (!data) {
-      console.log(message);
-      console.log(errors);
+  React.useEffect(() => {
+    const avatarFile = profileData?.avatar?.base64;
+    if (!avatarFile) {
+      return;
     }
-  };
+
+    const updateAvatar = async () => {
+      dispatchAvatarFetching({ status: "loading" });
+      const { success: successUpdateAvatar } = await ArcherService.updateAvatar(
+        { avatar: avatarFile },
+        { user_id: userProfile?.id }
+      );
+
+      if (successUpdateAvatar) {
+        const { data, success: successRefetchAvatar } = await ArcherService.profile();
+        if (successRefetchAvatar) {
+          dispatch(AuthStore.profile(data));
+          dispatchAvatarFetching({ status: "success" });
+        } else {
+          dispatchAvatarFetching({ status: "error" });
+        }
+      } else {
+        dispatchAvatarFetching({ status: "error" });
+      }
+    };
+
+    updateAvatar();
+  }, [profileData?.avatar?.base64]);
 
   const hanleSubmitData = async () => {
     const { message, errors } = await ArcherService.updateProfile(
@@ -80,22 +107,21 @@ function PageProfileHome() {
       },
       { user_id: userProfile?.id }
     );
-    if (message === 'Success') {
+    if (message === "Success") {
       console.log(message);
       console.log(errors);
       history.push("/dashboard");
-    }else{
+    } else {
       const err = Object.keys(errors).map((err) => err);
-      if(err[0] == "address"){
-        toastr.error("Alamat belum diisi")
+      if (err[0] == "address") {
+        toastr.error("Alamat belum diisi");
       }
-      if(err[0] == 'placeOfBirth' || err[1] == 'placeOfBirth' || err[2] == 'placeOfBirth'){
-        toastr.error("Tempat lahir belum diisi")
+      if (err[0] == "placeOfBirth" || err[1] == "placeOfBirth" || err[2] == "placeOfBirth") {
+        toastr.error("Tempat lahir belum diisi");
       }
-      if(err[0] == 'phoneNumber' || err[1] == 'phoneNumber' || err[2] == 'phoneNumber') {
-        toastr.error("No Handphone belum diisi")
+      if (err[0] == "phoneNumber" || err[1] == "phoneNumber" || err[2] == "phoneNumber") {
+        toastr.error("No Handphone belum diisi");
       }
-
     }
   };
 
@@ -202,8 +228,10 @@ function PageProfileHome() {
   };
 
   const breadcrumpCurrentPageLabel = "Profil";
+
   return (
     <ProfileWrapper>
+      <LoadingScreen loading={avatarFetching.status === "loading"} />
       <React.Fragment>
         <MetaTags>
           <title>Profil Archer | MyArchery.id</title>
@@ -216,9 +244,11 @@ function PageProfileHome() {
               <Row>
                 <Col md={3}>
                   <h3 className="ps-4">Data Pribadi</h3>
+
                   <div className="my-2">{statusVerifikasi()}</div>
+
                   <ClubImagesWrapper>
-                    <div className="mt-4" style={{ height: "200px" }}>
+                    <div className="my-4">
                       <div className="club-image-bottom">
                         <label
                           htmlFor="field-image-logoImage"
@@ -233,20 +263,30 @@ function PageProfileHome() {
                             onChange={(ev) => handleChooseImage("avatar", ev)}
                           />
                           {profileData?.avatar?.preview || imgAvatar ? (
-                            <img className="club-logo-image" src={imgAvatar} />
+                            <img
+                              key={imgAvatar || undefined}
+                              className="club-logo-image"
+                              src={imgAvatar}
+                            />
                           ) : (
                             <div className="picker-empty-placeholder">
                               <div className="picker-empty-placeholder-icon">
                                 <IconCamera size="40" />
                               </div>
-                              <div>Foto Profil</div>
+                              <div>Unggah Foto</div>
                             </div>
                           )}
                         </label>
                       </div>
                     </div>
+
+                    <div className="note-caption">
+                      Unggah foto Anda dengan ukuran 4x3, min. besar file 500kb, format PNG/JPEG
+                      untuk keperluan berkas cetak (ID card, dsb).
+                    </div>
                   </ClubImagesWrapper>
                 </Col>
+
                 <Col md={9}>
                   <TextInput
                     disabled={userProfile?.verifyStatus != 1 ? false : true}
@@ -325,7 +365,7 @@ function PageProfileHome() {
                       onChange={(e) => handleInputPlaceOfBirth(e)}
                     />
                   </div>
-                  
+
                   <div className="mt-4">
                     <TextareaInput
                       onChange={(e) => hanleAddress(e)}
@@ -347,7 +387,6 @@ function PageProfileHome() {
                   <div className="mt-4">
                     <Button
                       onClick={() => {
-                        updateAvatar();
                         hanleSubmitData();
                       }}
                       className="btn float-end"
@@ -452,14 +491,9 @@ const ClubImagesWrapper = styled.div`
   .club-image-bottom {
     position: relative;
     width: 100%;
-    min-height: 90px;
   }
 
   .club-logo {
-    position: absolute;
-    left: 0;
-    top: -10%;
-
     width: 180px;
     height: 180px;
     border-radius: 50%;
@@ -472,6 +506,14 @@ const ClubImagesWrapper = styled.div`
       width: 100%;
       height: 100%;
     }
+  }
+
+  .note-caption {
+    padding: 0.75rem;
+    max-width: 180px;
+    border-radius: 0.5rem;
+    background-color: var(--ma-gray-50);
+    color: #757575;
   }
 `;
 
