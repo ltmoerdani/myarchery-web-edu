@@ -17,8 +17,6 @@ import {
 } from "./components";
 
 import classnames from "classnames";
-import { isAfter } from "date-fns";
-import { datetime } from "utils";
 import { getQualificationScorePageUrl, makeCategoryOptions, getTabNameFromKey } from "./utils";
 
 function PageScoreElimination() {
@@ -26,7 +24,6 @@ function PageScoreElimination() {
   const { slug } = useParams();
   const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
   const eventId = eventDetail?.id;
-  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
 
   const {
     data: categories,
@@ -51,8 +48,7 @@ function PageScoreElimination() {
   }, [currentTeamFilterName]);
 
   const { data: matchTemplate, status: statusMatchTemplate } = useMatchTemplate(
-    categorySelected?.[currentTeamFilterName]?.id,
-    isEventEnded
+    categorySelected?.[currentTeamFilterName]?.id
   );
 
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
@@ -323,16 +319,5 @@ const SettingsNotApplied = styled.div`
     color: var(--ma-gray-400);
   }
 `;
-
-/* ================================= */
-// utils
-
-function _checkIsEventEnded(dateString) {
-  if (!dateString) {
-    return false;
-  }
-  const endDate = datetime.parseServerDatetime(dateString);
-  return isAfter(new Date(), endDate);
-}
 
 export default PageScoreElimination;

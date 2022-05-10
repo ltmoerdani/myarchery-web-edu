@@ -438,7 +438,7 @@ function PageTransactionDetail() {
                           <hr />
                         </tr>
                         <tr>
-                          <td>Detal Katogri</td>
+                          <td>Detal Kategori</td>
                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                           <td>
                             : {dataDetail?.participant?.ageCategoryId} -{" "}
