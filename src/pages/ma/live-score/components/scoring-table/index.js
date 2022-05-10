@@ -4,10 +4,11 @@ import { useParticipantScorings } from "../../hooks/participant-scorings";
 
 import { SessionCellsDataHeading, SessionCellsData, FullPageLoadingIndicator } from "../index";
 
-function ScoringTable({ categoryDetail }) {
+function ScoringTable({ categoryDetail, isEventEnded }) {
   const { data: scorings, isLoading } = useParticipantScorings(
     categoryDetail?.id,
-    categoryDetail?.type
+    categoryDetail?.type,
+    isEventEnded
   );
 
   if (!categoryDetail || !scorings) {

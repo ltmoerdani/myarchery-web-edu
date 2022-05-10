@@ -150,7 +150,7 @@ const ButtonBlueOutline = styled(BSButton)`
   &:active {
     background-color: #ffffff;
     border: solid 1px var(--ma-blue);
-    border-radius: 5px;
+    border-radius: 2rem;
     color: var(--ma-blue) !important;
     box-shadow: none;
   }

@@ -53,6 +53,7 @@ const ProfileMenu = (props) => {
         <ListInlineItem className="d-flex justify-content-center align-items-center">
           <Link to="/dashboard">
             <img
+              key={userProfile?.avatar || user1}
               className="rounded-circle header-profile-user"
               src={userProfile?.avatar || user1}
               alt="Header Avatar"
@@ -75,6 +76,7 @@ const ProfileMenu = (props) => {
       <Dropdown isOpen={menu} toggle={() => setMenu(!menu)} className="d-inline-block d-md-none">
         <DropdownToggle className="btn header-item " id="page-header-user-dropdown" tag="button">
           <img
+            key={userProfile?.avatar || user1}
             className="rounded-circle header-profile-user"
             src={userProfile?.avatar || user1}
             alt="Header Avatar"
