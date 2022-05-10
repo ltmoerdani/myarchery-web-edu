@@ -3,9 +3,11 @@ import { Container } from "reactstrap";
 import CardTransaction from "./components/CardTransaction";
 import { OrderEventService } from "services";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
+import CardTransactionOfficial from "./components/CardTransactionOfficial";
 
 function ListTransactionPage() {
   const [dataEvent, setDataEvent] = useState();
+  const [dataOfficial, setDataOfficial] = useState();
 
   const breadcrumpCurrentPageLabel = "Dashboard";
 
@@ -18,10 +20,21 @@ function ListTransactionPage() {
     console.log(errors);
   };
 
+  const getAllOfficialEvent = async () => {
+    const { data, message, errors } = await OrderEventService.getAllOfficial();
+    if (data) {
+      setDataOfficial(data);
+    }
+    console.log(message);
+    console.log(errors);
+  };
+
+
   useEffect(() => {
     getAllOrderEvent();
+    getAllOfficialEvent();
   }, []);
-
+  console.log(dataOfficial, 'off');
   return (
     <React.Fragment>
       <Container fluid>
@@ -37,6 +50,19 @@ function ListTransactionPage() {
               poster={event?.archeryEvent?.poster}
               location={event?.archeryEvent?.location}
               idEvent={event?.participant?.id}
+            />
+          ))}
+          
+          {dataOfficial && dataOfficial?.map((event, index) => (
+            <CardTransactionOfficial
+              key={index}
+              eventName={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventName}
+              eventType={event?.archeryEventOfficialDetail?.eventType}
+              eventStart={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventStart}
+              eventEnd={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventEnd}
+              poster={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventBanner}
+              location={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventLocation}
+              idEvent={event?.archeryEventOfficialDetail?.eventOfficialDetailId}
             />
           ))}
         </div>
