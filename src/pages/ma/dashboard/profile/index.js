@@ -228,6 +228,7 @@ function PageProfileHome() {
   };
 
   const breadcrumpCurrentPageLabel = "Profil";
+
   return (
     <ProfileWrapper>
       <LoadingScreen loading={avatarFetching.status === "loading"} />
@@ -243,9 +244,11 @@ function PageProfileHome() {
               <Row>
                 <Col md={3}>
                   <h3 className="ps-4">Data Pribadi</h3>
+
                   <div className="my-2">{statusVerifikasi()}</div>
+
                   <ClubImagesWrapper>
-                    <div className="mt-4" style={{ height: "200px" }}>
+                    <div className="my-4">
                       <div className="club-image-bottom">
                         <label
                           htmlFor="field-image-logoImage"
@@ -270,14 +273,20 @@ function PageProfileHome() {
                               <div className="picker-empty-placeholder-icon">
                                 <IconCamera size="40" />
                               </div>
-                              <div>Foto Profil</div>
+                              <div>Unggah Foto</div>
                             </div>
                           )}
                         </label>
                       </div>
                     </div>
+
+                    <div className="note-caption">
+                      Unggah foto Anda dengan ukuran 4x3, min. besar file 500kb, format PNG/JPEG
+                      untuk keperluan berkas cetak (ID card, dsb).
+                    </div>
                   </ClubImagesWrapper>
                 </Col>
+
                 <Col md={9}>
                   <TextInput
                     disabled={userProfile?.verifyStatus != 1 ? false : true}
@@ -482,14 +491,9 @@ const ClubImagesWrapper = styled.div`
   .club-image-bottom {
     position: relative;
     width: 100%;
-    min-height: 90px;
   }
 
   .club-logo {
-    position: absolute;
-    left: 0;
-    top: -10%;
-
     width: 180px;
     height: 180px;
     border-radius: 50%;
@@ -502,6 +506,14 @@ const ClubImagesWrapper = styled.div`
       width: 100%;
       height: 100%;
     }
+  }
+
+  .note-caption {
+    padding: 0.75rem;
+    max-width: 180px;
+    border-radius: 0.5rem;
+    background-color: var(--ma-gray-50);
+    color: #757575;
   }
 `;
 
