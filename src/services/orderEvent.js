@@ -25,6 +25,9 @@ export default {
   registerOfficial(data = null, qs = null) {
     return API.post("/app/v1/archery-event-official/order", data, qs, true);
   },
+  getAllOfficial(qs = null) {
+    return API.get("/app/v1/archery-event-official/order-official", qs);
+  },
   getDetailOfficial(qs = null) {
     return API.get("/app/v1/archery-event-official/event-official-detail", qs);
   },

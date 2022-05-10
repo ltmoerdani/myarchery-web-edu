@@ -660,7 +660,7 @@ function PageTransactionDetailOfficial() {
                                 <>
                                   <ButtonBlue
                                     as={Link}
-                                    to={`/event-registration/${dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventSlug}?categoryId=${dataDetail?.detailEventOfficial?.eventOfficialId}`}
+                                    to={`/event-registration-official/${dataDetail?.eventOfficialDetail?.detailEvent?.publicInformation?.eventSlug}?categoryId=${dataDetail?.detailEventOfficial?.eventOfficialId}`}
                                     className="btn"
                                     style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                                   >
