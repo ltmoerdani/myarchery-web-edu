@@ -11,8 +11,6 @@ import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { CategoryFilterChooser, LiveIndicator, ScoringTable } from "./components";
 
 import classnames from "classnames";
-import { isAfter } from "date-fns";
-import { datetime } from "utils";
 import { makeCategoryOptions, getLandingPagePath } from "./utils";
 
 const teamFilterLabels = {
@@ -27,8 +25,6 @@ function PageScoreQualification() {
   const { slug } = useParams();
   const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
   const eventId = eventDetail?.id;
-
-  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
 
   const {
     data: categories,
@@ -134,7 +130,6 @@ function PageScoreQualification() {
                     // ! Penting: wajib kasih prop key unik di komponen ini
                     key={categorySelected[currentTeamFilterName]?.id || "table-00"}
                     categoryDetail={categorySelected[currentTeamFilterName]}
-                    isEventEnded={isEventEnded}
                   />
                 </ScrollX>
               </div>
@@ -312,16 +307,5 @@ const ButtonTeamFilter = styled.button`
     background-color: var(--ma-secondary);
   }
 `;
-
-/* ================================= */
-// utils
-
-function _checkIsEventEnded(dateString) {
-  if (!dateString) {
-    return false;
-  }
-  const endDate = datetime.parseServerDatetime(dateString);
-  return isAfter(new Date(), endDate);
-}
 
 export default PageScoreQualification;

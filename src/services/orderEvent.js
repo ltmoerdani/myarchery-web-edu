@@ -5,7 +5,7 @@ export default {
     return API.post("/app/v1/archery/event-order", data, qs, true);
   },
   get(qs = null) {
-    return API.get("/app/v1/archery/event-order/1?id="+qs.id, qs);
+    return API.get("/app/v1/archery/event-order/1?id=" + qs.id, qs);
   },
   getAll(qs = null) {
     return API.get("/app/v1/archery/event-order", qs);
@@ -21,5 +21,20 @@ export default {
   },
   getEventCategoriesByAuthUser(qs = null) {
     return API.get("/app/v1/archery-event/my-category-event", qs);
+  },
+  registerOfficial(data = null, qs = null) {
+    return API.post("/app/v1/archery-event-official/order", data, qs, true);
+  },
+  getAllOfficial(qs = null) {
+    return API.get("/app/v1/archery-event-official/order-official", qs);
+  },
+  getDetailOfficial(qs = null) {
+    return API.get("/app/v1/archery-event-official/event-official-detail", qs);
+  },
+  getDetailOrderOfficial(qs = null) {
+    return API. get("/app/v1/archery-event-official/detail-order", qs);
+  },
+  listOfficial(qs = null) {
+    return API.get("/api/general/list-official", qs);
   },
 };
