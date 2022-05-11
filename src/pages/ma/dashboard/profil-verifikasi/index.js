@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import MetaTags from "react-meta-tags";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import styled from "styled-components";
-import { DateInput, TextInput, TextareaInput, LoadingScreen } from "components";
-import { useSelector } from "react-redux";
+import { DateInput, TextInput, TextareaInput } from "components";
+import { useSelector, useDispatch } from "react-redux";
 import toastr from "toastr";
 import * as AuthStore from "store/slice/authentication";
 import { ArcherService, ArcheryClubService } from "services";
@@ -12,16 +12,14 @@ import { FieldSelect } from "./components";
 import SweetAlert from "react-bootstrap-sweetalert";
 import "./components/sass/styles.scss";
 import logoBuatAkun from "assets/images/myachery/tungu-verifiakasi.svg";
-import logoWarning from "assets/images/myachery/warning.png"
-import logoSuccess from "assets/images/myachery/success.png"
+import logoWarning from "assets/images/myachery/warning.png";
+import logoSuccess from "assets/images/myachery/success.png";
 
 import { Container, Row, Col, Label, Input, Button } from "reactstrap";
-import {
-  AlertSubmitError,
-  AlertConfirmAction,
-  ButtonBlue,
-} from "components/ma";
+import { AlertSubmitError, AlertConfirmAction, ButtonBlue, LoadingScreen } from "components/ma";
 import VerifikasiResume from "./components/VerifikasiResume";
+
+import IconCamera from "components/ma/icons/mono/camera";
 
 import { filesUtil, errorsUtil } from "utils";
 
@@ -249,43 +247,39 @@ function PageProfileVerifikasiHome() {
 
   const verifiedAlert = () => {
     return (
-      <>
-        <SweetAlert
-          show={isAlertOpen}
-          title=""
-          custom
-          btnSize="md"
-          onConfirm={onConfirm}
-          style={{ padding: "1.25rem" }}
-          customButtons={
-            <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
-              <ButtonBlue onClick={onConfirm}>Kembali ke Dashboard</ButtonBlue>
-            </span>
-          }
-        >
-          <div className="d-flex justify-content-center flex-column">
-            <div style={{ width: "60%", margin: "0 auto" }}>
-              <div style={{ width: "214px", height: "145px" }}>
-                <img src={logoBuatAkun} width="100%" height="100%" style={{ objectFit: "cover" }} />
-              </div>
+      <SweetAlert
+        show={isAlertOpen}
+        title=""
+        custom
+        btnSize="md"
+        onConfirm={onConfirm}
+        style={{ padding: "1.25rem" }}
+        customButtons={
+          <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+            <ButtonBlue onClick={onConfirm}>Kembali ke Dashboard</ButtonBlue>
+          </span>
+        }
+      >
+        <div className="d-flex justify-content-center flex-column">
+          <div style={{ width: "60%", margin: "0 auto" }}>
+            <div style={{ width: "214px", height: "145px" }}>
+              <img src={logoBuatAkun} width="100%" height="100%" style={{ objectFit: "cover" }} />
             </div>
-            <p>Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.</p>
           </div>
-        </SweetAlert>
-      </>
+          <p>Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.</p>
+        </div>
+      </SweetAlert>
     );
   };
 
   if (userProfile?.verifyStatus == 1) {
     return (
-      <React.Fragment>
-        <VerifikasiResume
-          nik={detailData?.nik}
-          photoID={detailData?.ktpKk}
-          selfieID={detailData?.selfieKtpKk}
-          {...userProfile}
-        />
-      </React.Fragment>
+      <VerifikasiResume
+        nik={detailData?.nik}
+        photoID={detailData?.ktpKk}
+        selfieID={detailData?.selfieKtpKk}
+        {...userProfile}
+      />
     );
   }
 
@@ -295,6 +289,7 @@ function PageProfileVerifikasiHome() {
         <MetaTags>
           <title>Profil Archer Verifikasi | MyArchery.id</title>
         </MetaTags>
+
         <Container fluid>
           <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
 
@@ -303,223 +298,240 @@ function PageProfileVerifikasiHome() {
               <p style={{ color: "#fa402a" }}>
                 {userProfile.verifyStatus == 2 ? "(!) " + userProfile.reasonRejected : ""}
               </p>
+
               <div className="pb-3">
                 <span className="font-font-size-18" style={{ fontWeight: "600" }}>
                   Data Pribadi
                 </span>
               </div>
+
               <Row>
-                <Col md={12}>
-                  <TextInput
-                    label="Nama Lengkap"
-                    value={updateFormData?.name}
-                    defaultValue={userProfile?.name}
-                    name="name"
-                    onChange={(e) => handleInputName(e)}
-                    disabled
-                  />
-                  <div className="d-flex mt-4">
-                    <div className="w-50">
-                      <DateInput
-                        value={userProfile?.dateOfBirth || updateFormData?.date_of_birth}
-                        name="date_of_birth"
-                        onChange={(e) => handleInputDate(e)}
-                        label="Tanggal Lahir"
+                <Col md={3}>
+                  <AvatarPicker />
+                </Col>
+
+                <Col md={9}>
+                  <Row>
+                    <Col md={12}>
+                      <TextInput
+                        label="Nama Lengkap"
+                        value={updateFormData?.name}
+                        defaultValue={userProfile?.name}
+                        name="name"
+                        onChange={(e) => handleInputName(e)}
                         disabled
                       />
-                    </div>
+                      <div className="d-flex mt-4">
+                        <div className="w-50">
+                          <DateInput
+                            value={userProfile?.dateOfBirth || updateFormData?.date_of_birth}
+                            name="date_of_birth"
+                            onChange={(e) => handleInputDate(e)}
+                            label="Tanggal Lahir"
+                            disabled
+                          />
+                        </div>
 
-                    <div className="w-50 ms-4">
-                      <div>
-                        <Label>Gender</Label>
-                      </div>
-                      <div
-                        className={`form-check form-radio-primary`}
-                        style={{ display: "inline-block", marginRight: 10 }}
-                      >
-                        <Input
-                          disabled
-                          type="radio"
-                          name="gender"
-                          value="male"
-                          onChange={(e) => {
-                            handleRadio(e);
-                            toggleChange(e);
-                          }}
-                          checked={gender == "male" ? true : false}
-                          className="form-check-Input"
-                        />
-                        <Label className="form-check-label" htmlFor="male">
-                          Pria
-                        </Label>
-                      </div>
-
-                      <div
-                        className={`form-check form-radio-primary`}
-                        style={{ display: "inline-block", marginRight: 10 }}
-                      >
-                        <Input
-                          disabled
-                          type="radio"
-                          name="gender"
-                          value="female"
-                          className="form-check-Input"
-                          checked={gender == "female" ? true : false}
-                          onChange={(e) => {
-                            handleRadio(e);
-                            toggleChange(e);
-                          }}
-                        />
-                        <Label className="form-check-label" htmlFor="female">
-                          Wanita
-                        </Label>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <TextareaInput
-                      onChange={(e) => hanleAddress(e)}
-                      label="Alamat (Sesuai dengan KTP/KK)"
-                      name="address"
-                      defaultValue={userProfile?.address}
-                      value={updateFormData?.address}
-                    />
-                  </div>
-                  <div className="mt-3">
-                    <div>
-                      <Label>NIK</Label>
-                    </div>
-                    <div>
-                      <Input
-                        value={updateFormData?.nik || detailData?.nik || ""}
-                        name="nik"
-                        onChange={(e) => handleNIK(e)}
-                        required
-                        type="text"
-                        onKeyPress={(event) => {
-                          if (!/[0-9]/.test(event.key)) {
-                            event.preventDefault();
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <FieldSelect
-                      name="addressProvince"
-                      placeholder="Pilih provinsi &#47; wilayah(Sesuai dengan KTP)"
-                      required
-                      options={provinceOptions}
-                      value={updateFormData.addressProvince || valueProvincie()}
-                      onChange={(value) => handleInputProvince("addressProvince", value)}
-                    >
-                      Provinsi&#47;Wilayah(Sesuai dengan KTP/KK)
-                    </FieldSelect>
-                  </div>
-
-                  <div className="mt4">
-                    <FieldSelect
-                      name="addressCity"
-                      placeholder={
-                        updateFormData.addressProvince
-                          ? "Pilih kota"
-                          : "Pilih provinsi terlebih dulu"
-                      }
-                      required
-                      options={cityOptions}
-                      value={
-                        updateFormData.addressProvince
-                          ? updateFormData.addressCity || null
-                          : valueCity()
-                      }
-                      onChange={(value) => handleInputCity("addressCity", value)}
-                    >
-                      Kota (Sesuai dengan KTP/KK)
-                    </FieldSelect>
-                  </div>
-
-                  <div className="mt-3">
-                    <div>
-                      <Label>Foto KTP/KK</Label>
-                    </div>
-                    <div className="box-upload d-flex justify-content-center align-items-center">
-                      <div>
-                        <div className="d-block" style={{ textAlign: "center" }}>
-                          <div className="py-2">
-                            {userProfile?.verifyStatus === 4 ? (
-                              <span className="font-size-14" style={{ fontWeight: "500" }}>
-                                {displayImage?.raw?.name || "Unggah gambar png/jpg"}
-                              </span>
-                            ) : (
-                              <span className="font-size-14" style={{ fontWeight: "500" }}>
-                                {displayImage?.raw?.name || "Klik lihat untuk memunculkan gambar"}
-                              </span>
-                            )}
+                        <div className="w-50 ms-4">
+                          <div>
+                            <Label>Gender</Label>
                           </div>
-                          {detailData?.ktpKk || displayImage?.raw ? (
-                            <div>
-                              <Button
-                                onClick={toggleIsOpenKTP}
-                                className="btn me-2"
-                                style={{ color: "#FFF", backgroundColor: '#0D47A1"' }}
-                              >
-                                Lihat
-                              </Button>
+                          <div
+                            className={`form-check form-radio-primary`}
+                            style={{ display: "inline-block", marginRight: 10 }}
+                          >
+                            <Input
+                              disabled
+                              type="radio"
+                              name="gender"
+                              value="male"
+                              onChange={(e) => {
+                                handleRadio(e);
+                                toggleChange(e);
+                              }}
+                              checked={gender == "male" ? true : false}
+                              className="form-check-Input"
+                            />
+                            <Label className="form-check-label" htmlFor="male">
+                              Pria
+                            </Label>
+                          </div>
 
-                              <label className="custom-file-upload" onClick={showTemporaryLoading}>
-                                <input
-                                  accept="image/*"
-                                  onChange={(e) => handleKTP(e)}
-                                  name="ktp"
-                                  type="file"
-                                />
-                                <span>Ubah</span>
-                              </label>
-                            </div>
-                          ) : (
-                            <div>
-                              <label className="custom-file-upload" onClick={showTemporaryLoading}>
-                                <input
-                                  accept="image/*"
-                                  onChange={(e) => handleKTP(e)}
-                                  name="ktp"
-                                  type="file"
-                                />
-                                <span>Unggah</span>
-                              </label>
-                            </div>
-                          )}
+                          <div
+                            className={`form-check form-radio-primary`}
+                            style={{ display: "inline-block", marginRight: 10 }}
+                          >
+                            <Input
+                              disabled
+                              type="radio"
+                              name="gender"
+                              value="female"
+                              className="form-check-Input"
+                              checked={gender == "female" ? true : false}
+                              onChange={(e) => {
+                                handleRadio(e);
+                                toggleChange(e);
+                              }}
+                            />
+                            <Label className="form-check-label" htmlFor="female">
+                              Wanita
+                            </Label>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                      <div className="mt-4">
+                        <TextareaInput
+                          onChange={(e) => hanleAddress(e)}
+                          label="Alamat (Sesuai dengan KTP/KK)"
+                          name="address"
+                          defaultValue={userProfile?.address}
+                          value={updateFormData?.address}
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <div>
+                          <Label>NIK</Label>
+                        </div>
+                        <div>
+                          <Input
+                            value={updateFormData?.nik || detailData?.nik || ""}
+                            name="nik"
+                            onChange={(e) => handleNIK(e)}
+                            required
+                            type="text"
+                            onKeyPress={(event) => {
+                              if (!/[0-9]/.test(event.key)) {
+                                event.preventDefault();
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
 
-                  <div className="mt-4">
-                    <Button
-                      disabled={isUpdateFormClean}
-                      onClick={() => {
-                        if (userProfile?.verifyStatus == 3 || userProfile?.verifyStatus == 2) {
-                          hanleSubmitDataUpdate();
-                        } else {
-                          hanleSubmitData();
-                        }
-                      }}
-                      className="btn float-end"
-                      style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
-                    >
-                      Ajukan
-                    </Button>
+                      <div className="mt-4">
+                        <FieldSelect
+                          name="addressProvince"
+                          placeholder="Pilih provinsi &#47; wilayah(Sesuai dengan KTP)"
+                          required
+                          options={provinceOptions}
+                          value={updateFormData.addressProvince || valueProvincie()}
+                          onChange={(value) => handleInputProvince("addressProvince", value)}
+                        >
+                          Provinsi&#47;Wilayah(Sesuai dengan KTP/KK)
+                        </FieldSelect>
+                      </div>
 
-                    <Button
-                      disabled={isUpdateFormClean}
-                      onClick={() => setPromptCancelOpen(true)}
-                      className="btn float-end me-2"
-                      style={{ color: "#0D47A1" }}
-                    >
-                      Batal
-                    </Button>
-                  </div>
+                      <div className="mt4">
+                        <FieldSelect
+                          name="addressCity"
+                          placeholder={
+                            updateFormData.addressProvince
+                              ? "Pilih kota"
+                              : "Pilih provinsi terlebih dulu"
+                          }
+                          required
+                          options={cityOptions}
+                          value={
+                            updateFormData.addressProvince
+                              ? updateFormData.addressCity || null
+                              : valueCity()
+                          }
+                          onChange={(value) => handleInputCity("addressCity", value)}
+                        >
+                          Kota (Sesuai dengan KTP/KK)
+                        </FieldSelect>
+                      </div>
+
+                      <div className="mt-3">
+                        <div>
+                          <Label>Foto KTP/KK</Label>
+                        </div>
+                        <div className="box-upload d-flex justify-content-center align-items-center">
+                          <div>
+                            <div className="d-block" style={{ textAlign: "center" }}>
+                              <div className="py-2">
+                                {userProfile?.verifyStatus === 4 ? (
+                                  <span className="font-size-14" style={{ fontWeight: "500" }}>
+                                    {displayImage?.raw?.name || "Unggah gambar png/jpg"}
+                                  </span>
+                                ) : (
+                                  <span className="font-size-14" style={{ fontWeight: "500" }}>
+                                    {displayImage?.raw?.name ||
+                                      "Klik lihat untuk memunculkan gambar"}
+                                  </span>
+                                )}
+                              </div>
+                              {detailData?.ktpKk || displayImage?.raw ? (
+                                <div>
+                                  <Button
+                                    onClick={toggleIsOpenKTP}
+                                    className="btn me-2"
+                                    style={{ color: "#FFF", backgroundColor: '#0D47A1"' }}
+                                  >
+                                    Lihat
+                                  </Button>
+
+                                  <label
+                                    className="custom-file-upload"
+                                    onClick={showTemporaryLoading}
+                                  >
+                                    <input
+                                      accept="image/*"
+                                      onChange={(e) => handleKTP(e)}
+                                      name="ktp"
+                                      type="file"
+                                    />
+                                    <span>Ubah</span>
+                                  </label>
+                                </div>
+                              ) : (
+                                <div>
+                                  <label
+                                    className="custom-file-upload"
+                                    onClick={showTemporaryLoading}
+                                  >
+                                    <input
+                                      accept="image/*"
+                                      onChange={(e) => handleKTP(e)}
+                                      name="ktp"
+                                      type="file"
+                                    />
+                                    <span>Unggah</span>
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <Button
+                          disabled={isUpdateFormClean}
+                          onClick={() => {
+                            if (userProfile?.verifyStatus == 3 || userProfile?.verifyStatus == 2) {
+                              hanleSubmitDataUpdate();
+                            } else {
+                              hanleSubmitData();
+                            }
+                          }}
+                          className="btn float-end"
+                          style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                        >
+                          Ajukan
+                        </Button>
+
+                        <Button
+                          disabled={isUpdateFormClean}
+                          onClick={() => setPromptCancelOpen(true)}
+                          className="btn float-end me-2"
+                          style={{ color: "#0D47A1" }}
+                        >
+                          Batal
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
             </div>
@@ -560,7 +572,9 @@ function PageProfileVerifikasiHome() {
       <LoadingScreen loading={formSubmit.status === "loading"} />
       <AlertSubmitError isError={formSubmit.status === "error"} errors={formSubmit.errors} />
       <AlertConfirmAction
-        shouldConfirm={formSubmit.status === "success" ? formSubmit.status === "success" : isPromptSendOpen}
+        shouldConfirm={
+          formSubmit.status === "success" ? formSubmit.status === "success" : isPromptSendOpen
+        }
         labelConfirm="Sudah Benar"
         labelCancel="Cek Kembali"
         onClose={() => setPromptSendOpen(false)}
@@ -568,7 +582,7 @@ function PageProfileVerifikasiHome() {
           setIsAlertOpen(true);
         }}
       >
-         <div className="mt-2">
+        <div className="mt-2">
           <img src={logoSuccess} />
         </div>
         Apakah data Anda sudah benar?
@@ -587,10 +601,109 @@ function PageProfileVerifikasiHome() {
         </div>
         Anda belum menyelesaikan pengisian data, yakin akan membatalkan pengisian data?
       </AlertConfirmAction>
+
       {verifiedAlert()}
     </ProfileWrapper>
   );
 }
+
+function AvatarPicker() {
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const dispatch = useDispatch();
+  const [avatarImage, setAvatarImage] = useState(null);
+  const [avatarFetching, dispatchAvatarFetching] = React.useReducer(
+    (state, action) => ({
+      ...state,
+      ...action,
+    }),
+    { status: "idle" }
+  );
+
+  React.useEffect(() => {
+    const avatarFile = avatarImage?.base64;
+    if (!avatarFile) {
+      return;
+    }
+
+    const updateAvatar = async () => {
+      dispatchAvatarFetching({ status: "loading" });
+      const { success: successUpdateAvatar } = await ArcherService.updateAvatar(
+        { avatar: avatarFile },
+        { user_id: userProfile?.id }
+      );
+
+      if (successUpdateAvatar) {
+        const { data, success: successRefetchAvatar } = await ArcherService.profile();
+        if (successRefetchAvatar) {
+          dispatch(AuthStore.profile(data));
+          dispatchAvatarFetching({ status: "success" });
+        } else {
+          dispatchAvatarFetching({ status: "error" });
+        }
+      } else {
+        dispatchAvatarFetching({ status: "error" });
+      }
+    };
+
+    updateAvatar();
+  }, [avatarImage?.base64]);
+
+  const handleChooseImage = async (ev) => {
+    if (!ev.target.files?.[0]) {
+      return;
+    }
+
+    const imageRawData = ev.target.files[0];
+    const stringAv = await filesUtil.imageToBase64(imageRawData);
+    const imagePreviewUrl = URL.createObjectURL(imageRawData);
+
+    setAvatarImage({ preview: imagePreviewUrl, raw: imageRawData, base64: stringAv });
+  };
+
+  return (
+    <AvatarImageWrapper>
+      <LoadingScreen loading={avatarFetching.status === "loading"} />
+
+      <div className="my-4">
+        <div className="avatar-image-picker">
+          <label htmlFor="field-image-logoImage" className="avatar-image picker-input-control">
+            <input
+              className="picker-file-input"
+              id="field-image-logoImage"
+              name="avatar"
+              type="file"
+              accept="image/jpg,image/jpeg,image/png"
+              onChange={handleChooseImage}
+            />
+
+            {avatarImage?.preview || userProfile?.avatar ? (
+              <img
+                key={avatarImage?.preview || userProfile?.avatar || "no-avatar"}
+                src={avatarImage?.preview || userProfile?.avatar}
+                className="img-avatar"
+              />
+            ) : (
+              <div className="picker-empty-placeholder">
+                <div className="picker-empty-placeholder-icon">
+                  <IconCamera size="40" />
+                </div>
+                <div>Unggah Foto</div>
+              </div>
+            )}
+          </label>
+        </div>
+      </div>
+
+      <div className="note-caption">
+        Unggah foto Anda dengan ukuran 4x3, min. besar file 500kb, format PNG/JPEG untuk keperluan
+        berkas cetak (ID card, dsb).
+      </div>
+    </AvatarImageWrapper>
+  );
+}
+
+/* ============================ */
+// styles
 
 const ProfileWrapper = styled.div`
   margin: 40px 0;
@@ -616,6 +729,68 @@ const ProfileWrapper = styled.div`
         padding-right: 2rem;
       }
     }
+  }
+`;
+
+const AvatarImageWrapper = styled.div`
+  .picker-input-control {
+    position: relative;
+    margin: 0;
+
+    .picker-file-input {
+      visibility: hidden;
+      position: absolute;
+      top: 0;
+      left: -2000px;
+    }
+
+    .picker-empty-placeholder {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ma-gray-400);
+
+      &-icon {
+        margin-bottom: 0.75rem;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .avatar-image-picker {
+    position: relative;
+    width: 100%;
+  }
+
+  .avatar-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: solid 5px #efefef;
+    background-color: var(--ma-gray-200);
+
+    .img-avatar {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .note-caption {
+    padding: 0.75rem;
+    max-width: 180px;
+    border-radius: 0.5rem;
+    background-color: var(--ma-gray-50);
+    color: #757575;
   }
 `;
 
