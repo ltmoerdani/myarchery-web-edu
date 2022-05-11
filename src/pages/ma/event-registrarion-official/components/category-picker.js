@@ -182,23 +182,6 @@ function PickerControl({
                     })}
                   >
                     <h5 className="category-name">{category.categoryLabel}</h5>
-                    <div>
-                      {!category.isOpen ? (
-                        <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
-                      ) : isQuotaAvailable ? (
-                        categoryMatchesUser ? (
-                          <QuotaLabel>
-                            {category.totalParticipant}&#47;{category.quota}
-                          </QuotaLabel>
-                        ) : (
-                          <QuotaLabelMuted>
-                            {category.totalParticipant}&#47;{category.quota}
-                          </QuotaLabelMuted>
-                        )
-                      ) : (
-                        <QuotaLabelMuted>Habis</QuotaLabelMuted>
-                      )}
-                    </div>
                   </CategoryItemLabel>
                 </CategoryItem>
               );
@@ -315,23 +298,6 @@ const CategoryItemLabel = styled.label`
       color: var(--ma-blue);
     }
   }
-`;
-
-const QuotaLabel = styled.span`
-  margin: 0;
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 2rem;
-  background-color: #aeddc2;
-`;
-
-const QuotaLabelMuted = styled.span`
-  margin: 0;
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 2rem;
-  background-color: var(--ma-gray-50);
-  color: var(--ma-gray-400);
 `;
 
 function makeTeamCategoriesFilters(data) {

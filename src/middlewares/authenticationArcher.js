@@ -34,7 +34,7 @@ const AuthenticationArcherMiddleware = ({
           return (
             <Redirect
               to={{
-                pathname: "/home",
+                pathname: "/archer/login",
                 state: { from: props.location },
               }}
             />
