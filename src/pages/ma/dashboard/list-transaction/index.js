@@ -57,7 +57,7 @@ function ListTransactionPage() {
             <CardTransactionOfficial
               key={index}
               eventName={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventName}
-              eventType={event?.archeryEventOfficialDetail?.eventType}
+              eventType={event?.archeryEventOfficialDetail?.detailEvent?.eventType}
               eventStart={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventStart}
               eventEnd={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventEnd}
               poster={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventBanner}

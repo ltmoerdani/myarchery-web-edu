@@ -432,7 +432,7 @@ function PageEventRegistration() {
                   <div>
                     <DetailLabel>Jenis Regu</DetailLabel>
                     <DetailValue>
-                      Official {category?.teamCategoryDetail?.label || category?.teamCategoryId || (
+                      Official {category?.categoryLabel || category?.teamCategoryId || (
                         <React.Fragment>&ndash;</React.Fragment>
                       )}
                     </DetailValue>

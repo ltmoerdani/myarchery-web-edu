@@ -8,6 +8,7 @@ import fileText from "assets/icons/event-menu-file-text.svg";
 import panah from "assets/icons/event-menu-panah.svg";
 import target from "assets/icons/target-club.svg";
 import shoppingBag from "assets/icons/shopping-bag.svg";
+// import userProfilePlus from "assets/icons/user-plus.svg";
 
 const menuItems = [
   {
@@ -38,6 +39,13 @@ const menuItems = [
     description: "Daftar event yang Anda ikuti. Temukan berbagai event panahan di myarchery.id",
     computeLink: () => "/dashboard/list-transaction",
   },
+  // {
+  //   id: 5,
+  //   icon: userProfilePlus,
+  //   title: "Pengaturan Acara",
+  //   description: "Bantalan, Run Down, BIB, Dokumen (ID Card dan Sertifikat), FAQ, Official",
+  //   computeLink: () => "/dashboard/list-transaction",
+  // },
 ];
 
 const MenuGridWrapperTop = styled.div`
@@ -63,6 +71,7 @@ function DashboardMenus() {
       </MenuGridWrapperTop>
 
       <MenuGridWrapper>
+        {/* <MenuItemCard menu={menuItems[4]} href="/dashboard/clubs" /> */}
         <MenuItemCard
           menu={{
             id: 3,

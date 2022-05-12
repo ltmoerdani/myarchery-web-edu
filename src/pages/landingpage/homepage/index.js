@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useParams, useHistory } from "react-router-dom";
 import { useEventDetail } from "./hooks/event-detail";
 import { useEventFAQ } from "./hooks/event-faqs";
+import { useDetailEventBySlug } from "./hooks/detail-by-slug";
 
 import { SpinnerDotBlock } from "components/ma";
 import { MainCardEvent } from "./components/main-card-event";
@@ -28,6 +29,7 @@ function LandingPage() {
 
   const { data: eventDetail } = useEventDetail(slug);
   const { data: dataFAQ } = useEventFAQ(eventDetail?.id);
+  const { data: eventDetailBySlug } = useDetailEventBySlug(slug);
 
   if (!eventDetail) {
     return <SpinnerDotBlock />;
@@ -54,18 +56,15 @@ function LandingPage() {
             </div>
 
             <SecondaryCTA>
-              <SecondaryCTAItem
+              {eventDetailBySlug?.officialStatus == 1 ? (
+                <SecondaryCTAItem
                 bgImg={official}
                 heading="Official Pertandingan"
                 subheading="Klik untuk daftar"
                 onClick={() => {
-                  // if (isLoggedIn) {
-                  //   history.push(`/event-registration-official/${slug}`)
-                  // } else {
-                  //   history.push('/archer/login');
-                  // }}
                   history.push(`/event-registration-official/${slug}`)
-              }}/> 
+                }}/> 
+                ) : null}
 
               <SecondaryCTAItem
                 bgImg={kalasemen}
