@@ -11,6 +11,10 @@ import IconMapPin from "components/ma/icons/mono/map-pin";
 
 import { datetime } from "utils";
 
+import pro from "assets/images/partners/pro.png";
+import monster from "assets/images/partners/monster.png";
+import queen from "assets/images/partners/queen.png";
+
 function PageEventsList() {
   const { data: events, isSettled } = useEventsList();
 
@@ -48,14 +52,14 @@ function PageEventsList() {
           </LatestEventCTABar>
         </LatestEventWrapper>
 
-        <ContentSectionBlock>
+        <HeadingSectionBlock>
           <HeadingAllEventSection>Semua Event</HeadingAllEventSection>
           <HrBlue />
           <PageDescription>
             Rangkaian pertandingan panahan sebagai wadah atlet untuk mengumpulkan skor dan menjadi
             pemain inti dalam pertandingan bertaraf nasional.
           </PageDescription>
-        </ContentSectionBlock>
+        </HeadingSectionBlock>
 
         <ContentSectionBlock>
           <EventsGrid>
@@ -122,6 +126,29 @@ function PageEventsList() {
           </EventsGrid>
         </ContentSectionBlock>
       </InnerContentWrapper>
+
+      <PartnershipContentWrapper>
+        <PartnershipHeading>Partner MyArchery</PartnershipHeading>
+
+        <PartnershipDescription>
+          Bersama berbagai komunitas, klub, organisasi, dan toko perlengkapan panah, MyArchery
+          memastikan kegiatan panahan selalu nyaman dan menyenangkan untuk berbagai kalangan.
+        </PartnershipDescription>
+
+        <PartnersLogosGrid>
+          <div>
+            <img src={pro} className="img-fluid" />
+          </div>
+
+          <div>
+            <img src={monster} className="img-fluid" />
+          </div>
+
+          <div>
+            <img src={queen} className="img-fluid" />
+          </div>
+        </PartnersLogosGrid>
+      </PartnershipContentWrapper>
     </PageWrapper>
   );
 }
@@ -187,6 +214,15 @@ const ContentSectionBlock = styled.div`
   padding: 2rem;
 `;
 
+const HeadingSectionBlock = styled.div`
+  padding: 2rem;
+  transform: translateY(2rem);
+
+  @media (min-width: 768px) {
+    transform: none;
+  }
+`;
+
 const LatestEventWrapper = styled.div`
   padding: 0;
   @media (min-width: 768px) {
@@ -225,10 +261,9 @@ const LatestEventCTABar = styled.div`
   background-color: #ffffff;
   box-shadow: 0px -8px 36px 0px rgba(0, 0, 0, 0.17);
 
-  transform: translateY(-2rem);
-
   @media (min-width: 768px) {
     max-width: 40rem;
+    transform: translateY(-2rem);
   }
 
   @media (min-width: 1024px) {
@@ -260,9 +295,13 @@ const LatestEventCTAButtonsGroup = styled.div`
 
 const HeadingAllEventSection = styled.h1`
   color: var(--ma-blue);
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 800;
   text-align: center;
+
+  @media (min-width: 768px) {
+    font-size: 3rem;
+  }
 `;
 
 const HrBlue = styled.hr`
@@ -272,11 +311,15 @@ const HrBlue = styled.hr`
 const PageDescription = styled.p`
   margin-left: auto;
   margin-right: auto;
-  max-width: 1024px;
+  max-width: 960px;
 
   color: var(--ma-gray-600);
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   text-align: center;
+
+  @media (min-width: 768px) {
+    font-size: 1.375rem;
+  }
 `;
 
 const EventsGrid = styled.div`
@@ -431,6 +474,61 @@ const CounterUnit = styled.span`
   background-color: #eff2f7;
   font-size: 0.75rem;
   font-weight: 400;
+`;
+
+const PartnershipContentWrapper = styled.div`
+  max-width: 83rem;
+  margin: 5rem auto;
+  padding: 0 2rem;
+
+  @media (min-width: 768px) {
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+`;
+
+const PartnershipHeading = styled.h3`
+  margin-bottom: 1.5rem;
+  color: var(--ma-blue);
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+  }
+`;
+
+const PartnershipDescription = styled.p`
+  max-width: 55rem;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.125rem;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    font-size: 1.25rem;
+  }
+`;
+
+const PartnersLogosGrid = styled.div`
+  margin-top: 2.75rem;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
 `;
 
 /* ============================== */
