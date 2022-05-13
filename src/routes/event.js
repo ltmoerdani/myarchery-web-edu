@@ -1,7 +1,8 @@
-import EventFormUmum from "../pages/event/form/general"
+import PageEventsList from "pages/ma/events";
 
 const eventRouters = [
-    { path: "/event/form/umum", component: EventFormUmum}
-]
+  // path objects:
+  { path: "/events", component: PageEventsList },
+];
 
-export default eventRouters
+export default eventRouters;
