@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
 
 import { ButtonBlue } from "components/ma";
+import { LatestEvents } from "./components/latest-events";
 
 import { url } from "utils";
 
@@ -32,24 +33,16 @@ function PageHome() {
 
       <SectionWhite>
         <InnerContainer>
-          <PaddedWrapper>
+          <SectionLatestEvents>
             <SectionHeader>
               <SectionHeading>Event Terbaru</SectionHeading>
               <SectionDescription>
-                Temukan dan Ikuti berbagai macam Event Panahan di MyArchery
+                Temukan dan ikuti berbagai macam event panahan di MyArchery
               </SectionDescription>
             </SectionHeader>
 
-            <div>
-              <div>grid latest events</div>
-
-              <div>
-                <ButtonToEventsPage as={Link} to="/events">
-                  Lihat semua event
-                </ButtonToEventsPage>
-              </div>
-            </div>
-          </PaddedWrapper>
+            <LatestEvents />
+          </SectionLatestEvents>
         </InnerContainer>
       </SectionWhite>
 
@@ -245,6 +238,14 @@ const SectionDescription = styled.p`
   font-size: 1.125rem;
 `;
 
+const SectionLatestEvents = styled.div`
+  padding: 5.625rem 0;
+
+  > * + * {
+    margin-top: 2rem;
+  }
+`;
+
 const SeriesWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -322,24 +323,6 @@ const SectionAboutWrapper = styled.div`
 const EndorsementHeading = styled.h4`
   color: var(--ma-txt-black);
   font-weight: 600;
-`;
-
-const ButtonToEventsPage = styled.a`
-  display: block;
-  padding: 1.25rem 0;
-  border-radius: 0.5rem;
-  color: var(--ma-blue);
-  font-size: 1.25rem;
-  font-weight: 600;
-  text-align: center;
-
-  transition: all 0.15s;
-
-  &:hover {
-    color: var(--ma-blue);
-    text-decoration: underline !important;
-    background-color: #fafafa;
-  }
 `;
 
 /* ========================== */
