@@ -28,7 +28,9 @@ function Footer() {
                 <br />
                 Infiniti Office MTH Square GF A4/A
                 <br />
-                Jl. Letjen M.T. Haryono No.Kav 10,Cawang, Jakarta Timur 13330
+                Jl. Letjen M.T. Haryono No. Kav 10, Cawang, Jakarta Timur, 13330
+                <br />
+                Telepon/WA: +62 812-1224-1633
               </div>
             </FooterContent>
           </Col>
