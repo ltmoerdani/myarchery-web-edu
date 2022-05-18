@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Redirect, Switch } from "react-router-dom";
-import { AuthLayout, DashboardEventUmum, LandingPageLayout, LayoutArcher } from "./layouts";
+import { AuthLayout, LandingPageLayout, LayoutArcher } from "./layouts";
 import { AuthenticationArcherMiddleware } from "./middlewares";
 import {
   workingRoutes,
@@ -45,11 +45,10 @@ const App = () => {
             />
           ))}
 
-          {/* TODO: hapus juga? */}
           {eventRouters.map((route, idx) => (
             <AuthenticationArcherMiddleware
               path={route.path}
-              layout={DashboardEventUmum}
+              layout={LayoutLandingPage}
               component={route.component}
               key={idx}
               isAuthProtected={false}

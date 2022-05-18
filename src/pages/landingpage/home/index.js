@@ -268,28 +268,31 @@ function Home() {
                     </>
                   )}
                 </Card>
-                <div className="look-event card-effect">
-                  <div className="w-100">
-                    <img src={img_target} className="target-landing" />
+
+                <Link to="/events">
+                  <div className="look-event card-effect">
+                    <div className="w-100">
+                      <img src={img_target} className="target-landing" />
+                    </div>
+                    <div className="ases-satu">
+                      <img style={{ width: "65%" }} src={ases_satu} />
+                    </div>
+                    <div className="ases-dua">
+                      <img style={{ width: "60%" }} src={ases_dua} />
+                    </div>
+                    <div className="ases-tiga">
+                      <a href="#">
+                        <img style={{ width: "60%" }} src={ases_tiga} />
+                      </a>
+                    </div>
+                    <div className="text">
+                      <h3 style={{ color: "white" }}>
+                        Lihat Event <br />
+                        Lainnya
+                      </h3>
+                    </div>
                   </div>
-                  <div className="ases-satu">
-                    <img style={{ width: "65%" }} src={ases_satu} />
-                  </div>
-                  <div className="ases-dua">
-                    <img style={{ width: "60%" }} src={ases_dua} />
-                  </div>
-                  <div className="ases-tiga">
-                    <a href="#">
-                      <img style={{ width: "60%" }} src={ases_tiga} />
-                    </a>
-                  </div>
-                  <div className="text">
-                    <h3 style={{ color: "white" }}>
-                      Lihat Event <br />
-                      Lainnya
-                    </h3>
-                  </div>
-                </div>
+                </Link>
               </Col>
             </Row>
           </div>
