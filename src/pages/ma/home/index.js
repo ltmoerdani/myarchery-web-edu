@@ -14,11 +14,12 @@ import imgSectionSeries from "assets/images/home/section-series.png";
 import imgManageEvent from "assets/images/home/section-activity-illustration-manage-event.svg";
 import imgClub from "assets/images/home/section-activity-illustration-club.svg";
 import imgPro from "assets/images/partners/pro.png";
-import imgMonster from "assets/images/partners/monster.png";
+import imgHammam from "assets/images/partners/hammam.jpg";
 import imgQueen from "assets/images/partners/queen.png";
 import imgEndorsePro from "assets/images/home/endorsement-pro-shop.png";
 import imgEndorseHub from "assets/images/home/endorsement-hub.png";
 import imgEndorseKarawang from "assets/images/home/endorsement-barebow-karawang.png";
+import imgEndorsePerpaniJkt from "assets/images/home/endorsement-perpani-jkt.jpg";
 import imgFeaturesMac from "assets/images/home/features-illustration-mac.png";
 import imgFeaturesCircle from "assets/images/home/features-circle.svg";
 import imgFeatureItemEvent from "assets/images/home/feature-item-event.svg";
@@ -133,17 +134,17 @@ function PageHome() {
             </SectionHeader>
 
             <PartnersLogosGrid>
-              <div>
+              <PartnerItem>
                 <img src={imgPro} className="img-fluid" />
-              </div>
+              </PartnerItem>
 
-              <div>
-                <img src={imgMonster} className="img-fluid" />
-              </div>
+              <PartnerItem>
+                <img src={imgHammam} className="img-fluid" />
+              </PartnerItem>
 
-              <div>
+              <PartnerItem>
                 <img src={imgQueen} className="img-fluid" />
-              </div>
+              </PartnerItem>
             </PartnersLogosGrid>
           </PaddedWrapper>
         </InnerContainer>
@@ -176,7 +177,7 @@ function PageHome() {
                   <FeatureItemLeft
                     icon={imgFeatureItemLeaderboard}
                     title="Leaderboard"
-                    description="Pantau pergerakan skor peserta melalui leaderboard yang diupdate secara"
+                    description="Pantau pergerakan skor peserta dan peringkat medali klub, melalui leaderboard yang diupdate secara live"
                   />
                 </FeaturesListLeft>
 
@@ -206,6 +207,10 @@ function PageHome() {
               </EndorsementHeading>
 
               <PartnersLogosGrid>
+                <PartnerPerpani>
+                  <img src={imgEndorsePerpaniJkt} className="img-fluid" />
+                </PartnerPerpani>
+
                 <div>
                   <img src={imgEndorsePro} className="img-fluid" />
                 </div>
@@ -449,6 +454,20 @@ const PartnersLogosGrid = styled.div`
     flex-direction: row;
     margin-left: 0;
     margin-right: 0;
+  }
+`;
+
+const PartnerItem = styled.div`
+  img {
+    max-height: 90px;
+  }
+`;
+
+const PartnerPerpani = styled.div`
+  margin: 0 1.5rem;
+
+  > img {
+    max-height: 122px;
   }
 `;
 
