@@ -19,6 +19,14 @@ import imgQueen from "assets/images/partners/queen.png";
 import imgEndorsePro from "assets/images/home/endorsement-pro-shop.png";
 import imgEndorseHub from "assets/images/home/endorsement-hub.png";
 import imgEndorseKarawang from "assets/images/home/endorsement-barebow-karawang.png";
+import imgFeaturesMac from "assets/images/home/features-illustration-mac.png";
+import imgFeaturesCircle from "assets/images/home/features-circle.svg";
+import imgFeatureItemEvent from "assets/images/home/feature-item-event.svg";
+import imgFeatureItemFeatureRich from "assets/images/home/feature-item-feature-rich.svg";
+import imgFeatureItemLeaderboard from "assets/images/home/feature-item-leaderboard.svg";
+import imgFeatureItemClub from "assets/images/home/feature-item-club.svg";
+import imgFeatureItemSeries from "assets/images/home/feature-item-series.svg";
+import imgFeatureItemLiveScore from "assets/images/home/feature-item-live-score.svg";
 
 function PageHome() {
   const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
@@ -152,7 +160,49 @@ function PageHome() {
               </SectionDescription>
             </SectionHeader>
 
-            <div>layout fitur app</div>
+            <FeaturesContainerOuter>
+              <FeaturesContainer>
+                <div>
+                  <FeaturesListLeft>
+                    <FeatureItemLeft
+                      icon={imgFeatureItemEvent}
+                      title="Banyak Event"
+                      description="Menyediakan berbagai informasi mengenai event panahan"
+                    />
+                    <FeatureItemLeft
+                      icon={imgFeatureItemFeatureRich}
+                      title="Berbagai Fitur"
+                      description="Fitur yang memudahkan peserta dan penyelenggara event"
+                    />
+                    <FeatureItemLeft
+                      icon={imgFeatureItemLeaderboard}
+                      title="Leaderboard"
+                      description="Pantau pergerakan skor peserta melalui leaderboard yang diupdate secara"
+                    />
+                  </FeaturesListLeft>
+                </div>
+
+                <div>
+                  <FeaturesListRight>
+                    <FeatureItemRight
+                      icon={imgFeatureItemClub}
+                      title="Klub"
+                      description="Berkumpul bersama klub secara virtual dan ikuti berbagai event panahan"
+                    />
+                    <FeatureItemRight
+                      icon={imgFeatureItemSeries}
+                      title="Series"
+                      description="Event Series untuk menyeleksi peserta dan atlet panahan"
+                    />
+                    <FeatureItemRight
+                      icon={imgFeatureItemLiveScore}
+                      title="Live Score"
+                      description="Skoring event secara live yang diupdate ke Leaderboard"
+                    />
+                  </FeaturesListRight>
+                </div>
+              </FeaturesContainer>
+            </FeaturesContainerOuter>
 
             <SectionHeader>
               <EndorsementHeading>
@@ -177,6 +227,28 @@ function PageHome() {
         </InnerContainer>
       </SectionWhite>
     </PageWrapper>
+  );
+}
+
+function FeatureItemLeft({ icon, title, description }) {
+  return (
+    <FeatureItemLeftWrapper style={{ "--feature-item-icon": `url(${icon})` }}>
+      <FeatureItemContent>
+        <FeatureItemHeading>{title}</FeatureItemHeading>
+        <FeatureItemDescription>{description}</FeatureItemDescription>
+      </FeatureItemContent>
+    </FeatureItemLeftWrapper>
+  );
+}
+
+function FeatureItemRight({ icon, title, description }) {
+  return (
+    <FeatureItemRightWrapper style={{ "--feature-item-icon": `url(${icon})` }}>
+      <FeatureItemContent>
+        <FeatureItemHeading>{title}</FeatureItemHeading>
+        <FeatureItemDescription>{description}</FeatureItemDescription>
+      </FeatureItemContent>
+    </FeatureItemRightWrapper>
   );
 }
 
@@ -312,8 +384,91 @@ const SectionAboutWrapper = styled.div`
   padding: 5.625rem 0;
 
   > * + * {
-    margin-top: 3.75rem;
+    margin-top: 5.625rem;
   }
+`;
+
+const FeaturesContainerOuter = styled.div`
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-image: url("${imgFeaturesCircle}");
+`;
+
+const FeaturesContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 31.5rem;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-image: url("${imgFeaturesMac}");
+`;
+
+const FeaturesListLeft = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
+
+  > * + * {
+    margin-top: 2.25rem;
+  }
+`;
+
+const FeaturesListRight = styled(FeaturesListLeft)`
+  text-align: left;
+`;
+
+const FeatureItemLeftWrapper = styled.li`
+  display: flex;
+  gap: 0.875rem;
+  justify-content: flex-end;
+
+  &::after {
+    content: " ";
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    background-image: var(--feature-item-icon);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+`;
+
+const FeatureItemRightWrapper = styled.li`
+  display: flex;
+  gap: 0.875rem;
+  justify-content: flex-end;
+
+  &::before {
+    content: " ";
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    background-image: var(--feature-item-icon);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+`;
+
+const FeatureItemContent = styled.div`
+  max-width: 208px;
+`;
+
+const FeatureItemHeading = styled.h5`
+  color: var(--ma-blue);
+  font-size: 1.25rem;
+  font-weight: 600;
+`;
+
+const FeatureItemDescription = styled.p`
+  color: var(--ma-gray-900);
+  font-size: 1rem;
 `;
 
 const EndorsementHeading = styled.h4`
