@@ -96,9 +96,13 @@ const EventsGrid = styled.div`
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
 
   @media (min-width: 769px) {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    margin-left: 0;
+    margin-right: 0;
   }
 `;
 

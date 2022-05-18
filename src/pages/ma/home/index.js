@@ -287,13 +287,17 @@ const PaddedWrapper = styled.div`
 
 const SectionHeader = styled.div`
   max-width: 55rem;
-  margin: 0 auto;
+  margin: 0 1.5rem;
   text-align: center;
+
+  @media (min-width: 768px) {
+    margin: 0 auto;
+  }
 `;
 
 const SectionHeading = styled.h2`
   color: var(--ma-blue);
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 800;
 
   @media (min-width: 768px) {
@@ -316,32 +320,97 @@ const SectionLatestEvents = styled.div`
 
 const SeriesWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  min-height: calc(32.5rem + 5.625rem);
 
-  min-height: calc(45rem + 5.625rem);
+  margin-left: 1rem;
+  margin-right: 1rem;
+
   background-image: url(${imgSectionSeries});
   background-repeat: no-repeat;
-  background-position-x: right;
-  background-position-y: center;
+  background-size: 17.5rem;
+  background-position-x: center;
+  background-position-y: 3.75rem;
+
+  @media (min-width: 520px) {
+    min-height: calc(45rem + 5.625rem);
+    background-size: 70vw;
+    background-position-y: 5.625rem;
+  }
+
+  @media (min-width: 720px) {
+    min-height: calc(32.5rem + 5.625rem);
+    align-items: center;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    background-size: 50vw;
+    background-position-x: right;
+    background-position-y: center;
+  }
+
+  @media (min-width: 1180px) {
+    min-height: calc(45rem + 5.625rem);
+    margin-left: 0;
+    margin-right: 0;
+    background-size: auto;
+  }
 `;
 
 const SeriesFloatingContent = styled.div`
-  max-width: 23.75rem;
-  margin: auto 0;
+  max-width: 20rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 3.75rem;
+  text-align: center;
+
+  @media (min-width: 520px) {
+    margin-bottom: 5.625rem;
+  }
+
+  @media (min-width: 720px) {
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    text-align: left;
+  }
+
+  @media (min-width: 960px) {
+    max-width: 23.75rem;
+  }
+
+  @media (min-width: 1180px) {
+    max-width: 23.75rem;
+  }
 `;
 
 const ActivitiesGrid = styled.div`
   margin-top: 3.75rem;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  gap: 2rem;
+  gap: 4rem 2rem;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
 `;
 
 const ActivityItem = styled.div`
   text-align: center;
-  padding-top: 17.5rem;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+
+  padding-top: 12rem;
   background-repeat: no-repeat;
   background-position: top center;
+  background-size: 10rem;
+
+  @media (min-width: 768px) {
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 17.5rem;
+    background-size: auto;
+  }
 `;
 
 const ActivityItemManage = styled(ActivityItem)`
@@ -354,11 +423,13 @@ const ActivityItemClub = styled(ActivityItem)`
 
 const ActivityItemFloatingContent = styled.div`
   max-width: 27.5rem;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 const ActivityItemHeading = styled.h3`
   color: var(--ma-txt-black);
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 600;
 
   @media (min-width: 768px) {
@@ -368,8 +439,11 @@ const ActivityItemHeading = styled.h3`
 
 const PartnersLogosGrid = styled.div`
   margin-top: 2.75rem;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+
   display: flex;
-  gap: 1rem;
+  gap: 3rem 1rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -377,6 +451,8 @@ const PartnersLogosGrid = styled.div`
 
   @media (min-width: 768px) {
     flex-direction: row;
+    margin-left: 0;
+    margin-right: 0;
   }
 `;
 
