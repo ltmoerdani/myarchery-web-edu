@@ -32,7 +32,7 @@ import imgFeatureItemLiveScore from "assets/images/home/feature-item-live-score.
 function PageHome() {
   const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
   // TODO: masih hardcoded, ubah dinamis kalau series udah ready
-  const linkToJakartaSeriesLeaderboard = `/series/2/leaderboard`;
+  const linkToJakartaSeriesLeaderboard = `/series/1/leaderboard`;
   return (
     <PageWrapper>
       <SectionWhite>
