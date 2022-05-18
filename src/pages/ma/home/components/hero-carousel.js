@@ -106,10 +106,11 @@ const CarouselIndicator = styled.li`
 `;
 
 const CarouselItemWrapper = styled.div`
+  overflow: hidden;
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 600px;
+  min-height: 10vh;
 
   > * {
     width: 100%;
@@ -131,6 +132,10 @@ const CarouselItemWrapper = styled.div`
     background-size: 20%;
     background-repeat: no-repeat;
     background-position: center;
+  }
+
+  @media (min-width: 768px) {
+    min-height: 600px;
   }
 `;
 
@@ -157,56 +162,121 @@ const ButtonCTA = styled.a`
 `;
 
 const SlidePartnership = styled.div`
+  position: relative;
+  background-repeat: no-repeat;
   background-image: url("${bannerPartnership}");
+  background-size: contain;
+  background-position: center;
 
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: center;
+
+  @media (max-width: 767px) {
+    &::before {
+      content: " ";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: rgba(255, 255, 255, 0.75);
+    }
+  }
+
+  @media (min-width: 768px) {
+    background-size: cover;
+    background-position: center;
+
+    justify-content: flex-start;
+    align-items: flex-end;
+  }
 `;
 
 const PartnershipCTAContainer = styled.div`
-  margin-left: 2.75rem;
-  margin-bottom: 3rem;
+  position: relative;
+
+  @media (min-width: 768px) {
+    margin-left: 2.75rem;
+    margin-bottom: 3rem;
+  }
 `;
 
 const SlideWelcomeWrapper = styled.div`
+  position: relative;
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   background-image: var(--welcome-bg-url);
 
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
+
+  padding: 4rem 2rem;
+
+  @media (max-width: 767px) {
+    &::before {
+      content: " ";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: rgba(13, 71, 161, 0.75);
+    }
+  }
+
+  @media (min-width: 768px) {
+    background-position: center;
+
+    justify-content: flex-end;
+    align-items: center;
+
+    padding: 0;
+  }
 `;
 
 const SlideFloatingContainer = styled.div`
-  max-width: 30rem;
-  margin-right: 5rem;
-  text-align: left;
+  position: relative;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    max-width: 30rem;
+    margin-right: 5rem;
+    text-align: left;
+  }
 `;
 
 const WelcomeHeading = styled.h2`
   color: #ffffff;
-  font-size: 2.5rem;
+  font-size: 1rem;
   font-weight: 600;
   text-transform: uppercase;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+  }
 `;
 
 const MyArcheryHeroName = styled.h2`
   color: var(--ma-secondary);
-  font-size: 4.25rem;
+  font-size: 2.25rem;
   font-weight: 800;
   text-transform: uppercase;
   font-style: italic;
+
+  @media (min-width: 768px) {
+    font-size: 4.25rem;
+  }
 `;
 
 const WelcomeDescription = styled.div`
   color: #ffffff;
-  font-size: 1.5rem;
+  font-size: 0.875rem;
 
-  p {
-    line-height: 2rem;
+  @media (min-width: 768px) {
+    font-size: 1.5rem;
   }
 `;
 
