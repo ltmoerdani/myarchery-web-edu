@@ -6,6 +6,7 @@ import * as AuthStore from "store/slice/authentication";
 
 import { ButtonBlue } from "components/ma";
 import { LatestEvents } from "./components/latest-events";
+import { HeroCarousel } from "./components/hero-carousel";
 
 import { url } from "utils";
 
@@ -27,11 +28,11 @@ function PageHome() {
     <PageWrapper>
       <SectionWhite>
         <InnerContainer>
-          <CarouselWrapper>heading carousel</CarouselWrapper>
+          <HeroCarousel />
         </InnerContainer>
       </SectionWhite>
 
-      <SectionWhite>
+      <SectionWhite id="events-list">
         <InnerContainer>
           <SectionLatestEvents>
             <SectionHeader>
@@ -210,11 +211,6 @@ const SectionGray = styled.section`
 
 const PaddedWrapper = styled.div`
   padding: 5.625rem 0;
-`;
-
-const CarouselWrapper = styled.div`
-  min-height: 300px;
-  background-color: var(--ma-gray-50);
 `;
 
 const SectionHeader = styled.div`

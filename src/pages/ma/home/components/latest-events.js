@@ -111,7 +111,7 @@ const CardEventItem = styled.div`
   border: solid 1px var(--ma-gray-100);
   border-radius: 0.25rem;
 
-  transition: all 0.15s;
+  transition: all 0.5s;
 
   &:hover {
     box-shadow: 0 0.25rem 0.5rem rgb(18 38 63 / 7.5%);
