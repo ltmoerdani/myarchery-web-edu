@@ -162,45 +162,41 @@ function PageHome() {
 
             <FeaturesContainerOuter>
               <FeaturesContainer>
-                <div>
-                  <FeaturesListLeft>
-                    <FeatureItemLeft
-                      icon={imgFeatureItemEvent}
-                      title="Banyak Event"
-                      description="Menyediakan berbagai informasi mengenai event panahan"
-                    />
-                    <FeatureItemLeft
-                      icon={imgFeatureItemFeatureRich}
-                      title="Berbagai Fitur"
-                      description="Fitur yang memudahkan peserta dan penyelenggara event"
-                    />
-                    <FeatureItemLeft
-                      icon={imgFeatureItemLeaderboard}
-                      title="Leaderboard"
-                      description="Pantau pergerakan skor peserta melalui leaderboard yang diupdate secara"
-                    />
-                  </FeaturesListLeft>
-                </div>
+                <FeaturesListLeft>
+                  <FeatureItemLeft
+                    icon={imgFeatureItemEvent}
+                    title="Banyak Event"
+                    description="Menyediakan berbagai informasi mengenai event panahan"
+                  />
+                  <FeatureItemLeft
+                    icon={imgFeatureItemFeatureRich}
+                    title="Berbagai Fitur"
+                    description="Fitur yang memudahkan peserta dan penyelenggara event"
+                  />
+                  <FeatureItemLeft
+                    icon={imgFeatureItemLeaderboard}
+                    title="Leaderboard"
+                    description="Pantau pergerakan skor peserta melalui leaderboard yang diupdate secara"
+                  />
+                </FeaturesListLeft>
 
-                <div>
-                  <FeaturesListRight>
-                    <FeatureItemRight
-                      icon={imgFeatureItemClub}
-                      title="Klub"
-                      description="Berkumpul bersama klub secara virtual dan ikuti berbagai event panahan"
-                    />
-                    <FeatureItemRight
-                      icon={imgFeatureItemSeries}
-                      title="Series"
-                      description="Event Series untuk menyeleksi peserta dan atlet panahan"
-                    />
-                    <FeatureItemRight
-                      icon={imgFeatureItemLiveScore}
-                      title="Live Score"
-                      description="Skoring event secara live yang diupdate ke Leaderboard"
-                    />
-                  </FeaturesListRight>
-                </div>
+                <FeaturesListRight>
+                  <FeatureItemRight
+                    icon={imgFeatureItemClub}
+                    title="Klub"
+                    description="Berkumpul bersama klub secara virtual dan ikuti berbagai event panahan"
+                  />
+                  <FeatureItemRight
+                    icon={imgFeatureItemSeries}
+                    title="Series"
+                    description="Event Series untuk menyeleksi peserta dan atlet panahan"
+                  />
+                  <FeatureItemRight
+                    icon={imgFeatureItemLiveScore}
+                    title="Live Score"
+                    description="Skoring event secara live yang diupdate ke Leaderboard"
+                  />
+                </FeaturesListRight>
               </FeaturesContainer>
             </FeaturesContainerOuter>
 
@@ -460,37 +456,99 @@ const SectionAboutWrapper = styled.div`
   padding: 5.625rem 0;
 
   > * + * {
-    margin-top: 5.625rem;
+    margin-top: 3.75rem;
+
+    @media (min-width: 1024px) {
+      margin-top: 5.625rem;
+    }
   }
 `;
 
 const FeaturesContainerOuter = styled.div`
   background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-position: top center;
+  background-size: 60vw;
   background-image: url("${imgFeaturesCircle}");
+
+  @media (min-width: 425px) {
+    background-size: 60vw;
+  }
+
+  @media (min-width: 580px) {
+    background-size: 40vw;
+  }
+
+  @media (min-width: 768px) {
+    background-position-y: top;
+    background-size: 30vw;
+  }
+
+  @media (min-width: 1024px) {
+    background-position-y: center;
+  }
+
+  @media (min-width: 1180px) {
+    background-size: contain;
+  }
 `;
 
 const FeaturesContainer = styled.div`
+  padding-top: 15rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 2.25rem 2rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   min-height: 31.5rem;
 
   background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-position: top center;
+  background-size: 80vw;
   background-image: url("${imgFeaturesMac}");
+
+  @media (min-width: 425px) {
+    padding-top: 20rem;
+  }
+
+  @media (min-width: 580px) {
+    flex-direction: row;
+    background-position-y: -2rem;
+    background-size: 60vw;
+  }
+
+  @media (min-width: 768px) {
+    background-size: 50vw;
+  }
+
+  @media (min-width: 1024px) {
+    padding-top: 0;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    background-position: center;
+  }
+
+  @media (min-width: 1180px) {
+    background-size: contain;
+  }
 `;
 
 const FeaturesListLeft = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
-  text-align: right;
+  text-align: left;
 
   > * + * {
     margin-top: 2.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    text-align: right;
   }
 `;
 
@@ -503,7 +561,8 @@ const FeatureItemLeftWrapper = styled.li`
   gap: 0.875rem;
   justify-content: flex-end;
 
-  &::after {
+  &::before {
+    flex-shrink: 0;
     content: " ";
     display: block;
     width: 3rem;
@@ -513,6 +572,10 @@ const FeatureItemLeftWrapper = styled.li`
     background-position: center;
     background-size: contain;
   }
+
+  @media (min-width: 1024px) {
+    flex-direction: row-reverse;
+  }
 `;
 
 const FeatureItemRightWrapper = styled.li`
@@ -521,6 +584,7 @@ const FeatureItemRightWrapper = styled.li`
   justify-content: flex-end;
 
   &::before {
+    flex-shrink: 0;
     content: " ";
     display: block;
     width: 3rem;
@@ -533,7 +597,11 @@ const FeatureItemRightWrapper = styled.li`
 `;
 
 const FeatureItemContent = styled.div`
-  max-width: 208px;
+  flex-grow: 1;
+
+  @media (min-width: 580px) {
+    max-width: 208px;
+  }
 `;
 
 const FeatureItemHeading = styled.h5`
