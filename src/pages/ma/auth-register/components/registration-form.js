@@ -2,6 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import toastr from "toastr";
 import { ArcherService } from "services";
 import * as AuthenticationStore from "store/slice/authentication";
 
@@ -11,26 +12,47 @@ import { DateInput } from "components";
 import { ButtonBlue } from "components/ma";
 
 const LOGIN_ROUTE_DEFAULT = "/archer/login";
-const LOGIN_ROUTE_WITH_REDIRECT_PARAM = "/archer/login?path=";
+const LOGIN_ROUTE_WITH_REDIRECT_PARAM = LOGIN_ROUTE_DEFAULT + "?path=";
 
 // ! Legacy, need refactoring...
 function RegistrationForm() {
   const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
   const dispatch = useDispatch();
   const history = useHistory();
-  const { search } = useLocation();
-  const redirectPath = new URLSearchParams(search).get("path");
+  const location = useLocation();
+  const redirectPath = new URLSearchParams(location.search).get("path");
 
   const [gender, setGender] = React.useState("");
   const [dateOfBirth, setDateOfBirth] = React.useState("");
 
+  React.useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+
+    const path = location.state?.from?.pathname || redirectPath;
+
+    if (!path) {
+      history.push("/archer/dashboard");
+    } else {
+      history.push(path);
+    }
+  }, [isLoggedIn]);
+
+  const getValueRadio = (e) => setGender(e.target.value);
+  const getValueDateOfBirth = (e) => setDateOfBirth(e.value);
+
   const handleValidSubmit = async (event, values) => {
-    let payload = { ...values };
-    payload["gender"] = gender;
-    payload["date_of_birth"] = dateOfBirth;
+    const payload = {
+      ...values,
+      gender: gender,
+      date_of_birth: dateOfBirth,
+    };
+
     const { data, errors, success } = await ArcherService.register(payload);
+
     if (success) {
-      if (data) {
+      if (!data) {
         dispatch(AuthenticationStore.login(data));
       }
     } else {
@@ -39,32 +61,16 @@ function RegistrationForm() {
       if (err[0] == "email") {
         toastr.error(errors?.email[0]);
       }
+
       if (err[1] == "password" || err[0] == "password" || err[2] == "password") {
         toastr.error(errors?.password[0]);
       }
+
       if (err[1] == "gender" || err[0] == "gender") {
         toastr.error(errors?.gender[0]);
       }
     }
   };
-
-  React.useEffect(() => {
-    if (isLoggedIn) {
-      path =
-        props.location.state && props.location.state.from && props.location.state.from.pathname
-          ? props.location.state.from.pathname
-          : path;
-
-      if (path == null) {
-        history.push("/archer/dashboard");
-      } else {
-        history.push(path);
-      }
-    }
-  }, [isLoggedIn]);
-
-  const getValueRadio = (e) => setGender(e.target.value);
-  const getValueDateOfBirth = (e) => setDateOfBirth(e.value);
 
   return (
     <AvForm

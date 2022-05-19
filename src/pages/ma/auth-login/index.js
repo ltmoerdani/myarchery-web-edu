@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 
 import MetaTags from "react-meta-tags";
-import { RegistrationForm } from "./components/registration-form";
+import { LoginForm } from "./components/login-form";
 
 import bgAbstractTop from "assets/images/auth/auth-illustration-abstract-top.png";
 import bgAbstractBottom from "assets/images/auth/auth-illustration-abstract-bottom.png";
@@ -21,9 +21,9 @@ function ContentLayoutWrapper({ children, pageTitle }) {
   );
 }
 
-function PageAuthRegister() {
+function PageAuthLogin() {
   return (
-    <ContentLayoutWrapper pageTitle="Buat Akun MyArchery">
+    <ContentLayoutWrapper pageTitle="Selamat Datang">
       <SplitLayoutContainer>
         <ContainerLeft>
           <ContentFloating>
@@ -36,8 +36,8 @@ function PageAuthRegister() {
             <MainContent>
               <MyArcheryName>MyArchery</MyArcheryName>
               <HeadlineDescription>
-                Buat akun Anda sekarang. Temukan dan ikuti berbagai macam event panahan di
-                MyArchery.
+                Selamat datang! Masuk ke akun Anda untuk temukan dan ikuti berbagai macam event
+                panahan di MyArchery.
               </HeadlineDescription>
             </MainContent>
           </ContentFloating>
@@ -46,12 +46,12 @@ function PageAuthRegister() {
         <ContainerRight>
           <FormAreaContainer>
             <div>
-              <FormAreaHeading>Buat Akun MyArchery</FormAreaHeading>
+              <FormAreaHeading>Selamat Datang</FormAreaHeading>
               <FormAreaDescription>Satu akun untuk daftar berbagai event</FormAreaDescription>
             </div>
 
             <div>
-              <RegistrationForm />
+              <LoginForm />
             </div>
           </FormAreaContainer>
         </ContainerRight>
@@ -242,4 +242,4 @@ const FormAreaDescription = styled.p`
   }
 `;
 
-export default PageAuthRegister;
+export default PageAuthLogin;
