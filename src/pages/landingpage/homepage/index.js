@@ -4,6 +4,8 @@ import { useParams, useHistory } from "react-router-dom";
 import { useEventDetail } from "./hooks/event-detail";
 import { useEventFAQ } from "./hooks/event-faqs";
 import { useDetailEventBySlug } from "./hooks/detail-by-slug";
+import { useSelector } from "react-redux";
+import { getAuthenticationStore } from "store/slice/authentication";
 
 import { SpinnerDotBlock } from "components/ma";
 import { MainCardEvent } from "./components/main-card-event";
@@ -26,6 +28,7 @@ import official from "assets/images/myachery/official.png";
 function LandingPage() {
   const { slug } = useParams();
   const history = useHistory();
+  let { isLoggedIn } = useSelector(getAuthenticationStore);
 
   const { data: eventDetail } = useEventDetail(slug);
   const { data: dataFAQ } = useEventFAQ(eventDetail?.id);
@@ -34,8 +37,6 @@ function LandingPage() {
   if (!eventDetail) {
     return <SpinnerDotBlock />;
   }
-
-  // const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
 
   return (
     <PageWrapper>
@@ -62,7 +63,11 @@ function LandingPage() {
                 heading="Official Pertandingan"
                 subheading="Klik untuk daftar"
                 onClick={() => {
-                  history.push(`/event-registration-official/${slug}`)
+                  if (!isLoggedIn){
+                    history.push(`/archer/login`);  
+                  } else {
+                    history.push(`/event-registration-official/${slug}`)
+                  }
                 }}/> 
                 ) : null}
 
