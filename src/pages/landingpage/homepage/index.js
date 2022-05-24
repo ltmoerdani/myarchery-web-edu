@@ -1,11 +1,11 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import * as AuthStore from "store/slice/authentication";
 import { useEventDetail } from "./hooks/event-detail";
 import { useEventFAQ } from "./hooks/event-faqs";
 import { useDetailEventBySlug } from "./hooks/detail-by-slug";
-import { useSelector } from "react-redux";
-import { getAuthenticationStore } from "store/slice/authentication";
 
 import { SpinnerDotBlock } from "components/ma";
 import { MainCardEvent } from "./components/main-card-event";
@@ -14,21 +14,15 @@ import { DetailInTabs } from "./components/detail-in-tabs";
 import { SecondaryCTAItem } from "./components/secondary-cta-item";
 
 import { url } from "utils";
-// import { useSelector } from "react-redux";
-// import * as AuthStore from "store/slice/authentication";
-
 
 import kalasemen from "assets/images/myachery/kalasemen.png";
 import book from "assets/images/myachery/book.png";
 import clubRank from "assets/images/myachery/club-rank.png";
 import official from "assets/images/myachery/official.png";
 
-
-
 function LandingPage() {
   const { slug } = useParams();
-  const history = useHistory();
-  let { isLoggedIn } = useSelector(getAuthenticationStore);
+  const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
 
   const { data: eventDetail } = useEventDetail(slug);
   const { data: dataFAQ } = useEventFAQ(eventDetail?.id);
@@ -57,25 +51,20 @@ function LandingPage() {
             </div>
 
             <SecondaryCTA>
-              {eventDetailBySlug?.officialStatus == 1 ? (
+              {eventDetailBySlug?.officialStatus === 1 && (
                 <SecondaryCTAItem
-                bgImg={official}
-                heading="Official Pertandingan"
-                subheading="Klik untuk daftar"
-                onClick={() => {
-                  if (!isLoggedIn){
-                    history.push(`/archer/login`);  
-                  } else {
-                    history.push(`/event-registration-official/${slug}`)
-                  }
-                }}/> 
-                ) : null}
+                  bgImg={official}
+                  heading="Official Pertandingan"
+                  subheading="Klik untuk daftar"
+                  to={_getOfficialRegistrationURL(isLoggedIn, slug)}
+                />
+              )}
 
               <SecondaryCTAItem
                 bgImg={kalasemen}
                 heading="Klasemen Pertandingan"
                 subheading="Klik untuk melihat"
-                onClick={() => history.push(`/live-score/${slug}/qualification`)}
+                to={`/live-score/${slug}/qualification`}
               />
 
               {Boolean(eventDetail?.handbook) && (
@@ -83,6 +72,7 @@ function LandingPage() {
                   bgImg={book}
                   heading="Technical Handbook"
                   subheading="Klik untuk unduh"
+                  title="Unduh Technical Handbook"
                   onClick={() => url.openUrlOnNewTab(eventDetail?.handbook)}
                 />
               )}
@@ -91,7 +81,7 @@ function LandingPage() {
                 bgImg={clubRank}
                 heading="Pemeringkatan Klub"
                 subheading="Klik untuk melihat"
-                onClick={() => history.push(`/event-ranks/${slug}/clubs`)}
+                to={`/event-ranks/${slug}/clubs`}
               />
             </SecondaryCTA>
           </LayoutBottom>
@@ -100,6 +90,9 @@ function LandingPage() {
     </PageWrapper>
   );
 }
+
+/* ========================== */
+// styles
 
 const InnerContentWrapper = styled.div`
   max-width: 79rem;
@@ -180,5 +173,17 @@ const LayoutBottom = styled.div`
     gap: 1.5rem;
   }
 `;
+
+/* ========================== */
+// utils
+
+function _getOfficialRegistrationURL(isLoggedIn, slug) {
+  // TODO: modifikasi cek otentikasinya di middleware?
+  const DESTINATION_URL = `/event-registration-official/${slug}`;
+  if (!isLoggedIn) {
+    return "/archer/login?path=" + DESTINATION_URL;
+  }
+  return DESTINATION_URL;
+}
 
 export default LandingPage;
