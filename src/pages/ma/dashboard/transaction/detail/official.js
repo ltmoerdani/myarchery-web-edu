@@ -28,7 +28,7 @@ import event_img from "assets/images/myachery/a-1.jpg";
 import "./components/sass/sytles.scss";
 
 function PageTransactionDetailOfficial() {
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState("4");
   const [dataDetail, setDataDetail] = useState({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
@@ -295,7 +295,7 @@ function PageTransactionDetailOfficial() {
                 className={classNames({ activate: activeTab === "2" })}
                 onClick={() => toggleTab("2")}
               >
-                Peserta
+                Data Official
               </NavLink>
             </NavItem>
             {/* <NavItem>
