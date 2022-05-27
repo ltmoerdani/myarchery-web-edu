@@ -140,10 +140,11 @@ function PageEventRegistration() {
     const result = await OrderEventService.registerOfficial(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions-official/${result.data.archeryEventofficial.eventOfficialDetailId}`);
+      history.push(`/dashboard/transactions-official/${result?.data?.archeryEventOfficial?.eventOfficialDetailId}`);
     } else {
       const errorData = errorsUtil.interpretServerErrors(result);
       dispatchSubmitStatus({ status: "error", errors: errorData });
+      history.push(`/dashboard/list-transaction`);
     }
   };
 
