@@ -200,6 +200,8 @@ function PageEventRegistration() {
     window.scrollTo(0, 0);
   }, [currentStep]);
 
+  console.log(eventDetail, 'detail');
+
   return (
     <StyledPageWrapper>
       <MetaTags>
@@ -456,22 +458,22 @@ function PageEventRegistration() {
                       <LabelTotal>Total Pembayaran</LabelTotal>
                     </div>
                     <div>
-                      {category?.isEarlyBird ? (
+                      {eventDetail?.data?.officialFee ? (
                         <>
-                          <CurrencyFormat
+                          {/* <CurrencyFormat
                             style={{ textDecoration: "line-through" }}
                             className="me-2"
                             displayType={"text"}
-                            value={category?.fee ? Number(category?.fee) : 0}
+                            value={category?.fee ? Number(eventDetail?.data?.officialFee) : 0}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
                             decimalScale={0}
                             fixedDecimalScale
-                          />
+                          /> */}
                           <TotalWithCurrency
                             displayType={"text"}
-                            value={category ? Number(category?.earlyBird) : 0}
+                            value={category ? Number(eventDetail?.data?.officialFee) : 0}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -483,7 +485,7 @@ function PageEventRegistration() {
                         <>
                           <TotalWithCurrency
                             displayType={"text"}
-                            value={category ? Number(category?.fee) : 0}
+                            value={category ? Number(eventDetail?.data?.officialFee) : 0}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
