@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
-import * as AuthStore from "store/slice/authentication";
+// import { useSelector } from "react-redux";
+// import * as AuthStore from "store/slice/authentication";
 import classnames from "classnames";
 
 import { Modal, ModalBody } from "reactstrap";
@@ -113,19 +113,19 @@ function PickerControl({
   const [selectedFilter, setSelectedFilter] = React.useState(() =>
     getInitialFilter(filters, value?.teamCategoryId)
   );
-  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  // const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
-  const getGenderFromCategory = (teamCategoryId) => {
-    const isMaleCategory = ["individu male", "male_team", "mix_team"].some(
-      (team) => team === teamCategoryId
-    );
-    const isFemaleCategory = ["individu female", "female_team", "mix_team"].some(
-      (team) => team === teamCategoryId
-    );
+  // const getGenderFromCategory = (teamCategoryId) => {
+  //   const isMaleCategory = ["individu male", "male_team", "mix_team"].some(
+  //     (team) => team === teamCategoryId
+  //   );
+  //   const isFemaleCategory = ["individu female", "female_team", "mix_team"].some(
+  //     (team) => team === teamCategoryId
+  //   );
 
-    if (isMaleCategory) return "male";
-    if (isFemaleCategory) return "female";
-  };
+  //   if (isMaleCategory) return "male";
+  //   if (isFemaleCategory) return "female";
+  // };
 
   const handleSelectCategory = (category) => onChange?.(category);
 
@@ -159,10 +159,10 @@ function PickerControl({
 
           <CategoryGrid>
             {groupedCategories[selectedFilter].map((category) => {
-              const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
-              const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
-              const categoryMatchesUser =
-                userProfile?.gender === getGenderFromCategory(category.teamCategoryId);
+              // const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
+              // const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
+              // const categoryMatchesUser =
+              //   userProfile?.gender === getGenderFromCategory(category.teamCategoryId);
               return (
                 <CategoryItem key={category.id}>
                   <input
@@ -173,13 +173,13 @@ function PickerControl({
                     value={category.id || ""}
                     checked={value?.id === category.id}
                     onChange={() => handleSelectCategory(category)}
-                    disabled={shouldOptionDisabled || !categoryMatchesUser}
+                    // disabled={shouldOptionDisabled || !categoryMatchesUser}
                   />
                   <CategoryItemLabel
                     htmlFor={`category-item-${category.id}`}
-                    className={classnames({
-                      "not-available": shouldOptionDisabled || !categoryMatchesUser,
-                    })}
+                    // className={classnames({
+                    //   "not-available": shouldOptionDisabled || !categoryMatchesUser,
+                    // })}
                   >
                     <h5 className="category-name">{category.categoryLabel}</h5>
                   </CategoryItemLabel>
