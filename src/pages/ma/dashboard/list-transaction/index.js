@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Container } from "reactstrap";
+import { Container, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
 import CardTransaction from "./components/CardTransaction";
 import { OrderEventService } from "services";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
 import CardTransactionOfficial from "./components/CardTransactionOfficial";
 
+import classnames from "classnames";
+
 function ListTransactionPage() {
   const [dataEvent, setDataEvent] = useState();
   const [dataOfficial, setDataOfficial] = useState();
+  const [activeTab, setActiveTab] = useState("1");
 
   const breadcrumpCurrentPageLabel = "Dashboard";
 
@@ -29,43 +32,87 @@ function ListTransactionPage() {
     console.log(errors);
   };
 
-
   useEffect(() => {
     getAllOrderEvent();
     getAllOfficialEvent();
   }, []);
-  console.log(dataOfficial, 'off');
+  console.log(dataOfficial, "off");
   return (
     <React.Fragment>
       <Container fluid>
         <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
-        <div className="pt-5">
-          {dataEvent?.map((event, index) => (
-            <CardTransaction
-              key={index}
-              eventName={event?.archeryEvent?.eventName}
-              eventType={event?.archeryEvent?.eventType}
-              eventStart={event?.archeryEvent?.eventStartDatetime}
-              eventEnd={event?.archeryEvent?.eventEndDatetime}
-              poster={event?.archeryEvent?.poster}
-              location={event?.archeryEvent?.location}
-              idEvent={event?.participant?.id}
-            />
-          ))}
-          
-          {dataOfficial && dataOfficial?.map((event, index) => (
-            <CardTransactionOfficial
-              key={index}
-              eventName={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventName}
-              eventType={event?.archeryEventOfficialDetail?.detailEvent?.eventType}
-              eventStart={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventStart}
-              eventEnd={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventEnd}
-              poster={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventBanner}
-              location={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventLocation}
-              idEvent={event?.archeryEventOfficialDetail?.eventOfficialDetailId}
-            />
-          ))}
-        </div>
+
+        <Nav>
+          <NavItem>
+            <NavLink
+              className={classnames({ activate: activeTab === "1" })}
+              onClick={() => setActiveTab("1")}
+            >
+              Event
+            </NavLink>
+          </NavItem>
+
+          <NavItem>
+            <NavLink
+              className={classnames({ activate: activeTab === "2" })}
+              onClick={() => setActiveTab("2")}
+            >
+              Official
+            </NavLink>
+          </NavItem>
+        </Nav>
+
+        <TabContent activeTab={activeTab}>
+          <TabPane tabId="1">
+            <div className="pt-4">
+              {dataEvent?.length ? (
+                dataEvent?.map((event, index) => (
+                  <CardTransaction
+                    key={index}
+                    eventName={event?.archeryEvent?.eventName}
+                    eventType={event?.archeryEvent?.eventType}
+                    eventStart={event?.archeryEvent?.eventStartDatetime}
+                    eventEnd={event?.archeryEvent?.eventEndDatetime}
+                    poster={event?.archeryEvent?.poster}
+                    location={event?.archeryEvent?.location}
+                    idEvent={event?.participant?.id}
+                  />
+                ))
+              ) : (
+                <h4 className="text-muted">Tidak ada event terdaftar</h4>
+              )}
+            </div>
+          </TabPane>
+
+          <TabPane tabId="2">
+            <div className="pt-4">
+              {dataOfficial &&
+                dataOfficial?.map((event, index) => (
+                  <CardTransactionOfficial
+                    key={index}
+                    eventName={
+                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventName
+                    }
+                    eventType={event?.archeryEventOfficialDetail?.detailEvent?.eventType}
+                    eventStart={
+                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventStart
+                    }
+                    eventEnd={
+                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventEnd
+                    }
+                    poster={
+                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventBanner
+                    }
+                    location={
+                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation
+                        ?.eventLocation
+                    }
+                    idEvent={event?.archeryEventOfficialDetail?.eventOfficialDetailId}
+                  />
+                ))}
+            </div>
+          </TabPane>
+        </TabContent>
       </Container>
     </React.Fragment>
   );

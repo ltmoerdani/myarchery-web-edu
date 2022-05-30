@@ -140,10 +140,11 @@ function PageEventRegistration() {
     const result = await OrderEventService.registerOfficial(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions-official/${result.data.archeryEventofficial.eventOfficialDetailId}`);
+      history.push(`/dashboard/transactions-official/${result?.data?.archeryEventOfficial?.eventOfficialDetailId}`);
     } else {
       const errorData = errorsUtil.interpretServerErrors(result);
       dispatchSubmitStatus({ status: "error", errors: errorData });
+      history.push(`/dashboard/list-transaction`);
     }
   };
 
@@ -199,6 +200,8 @@ function PageEventRegistration() {
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentStep]);
+
+  console.log(eventDetail, 'detail');
 
   return (
     <StyledPageWrapper>
@@ -456,22 +459,22 @@ function PageEventRegistration() {
                       <LabelTotal>Total Pembayaran</LabelTotal>
                     </div>
                     <div>
-                      {category?.isEarlyBird ? (
+                      {eventDetail?.data?.officialFee ? (
                         <>
-                          <CurrencyFormat
+                          {/* <CurrencyFormat
                             style={{ textDecoration: "line-through" }}
                             className="me-2"
                             displayType={"text"}
-                            value={category?.fee ? Number(category?.fee) : 0}
+                            value={category?.fee ? Number(eventDetail?.data?.officialFee) : 0}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
                             decimalScale={0}
                             fixedDecimalScale
-                          />
+                          /> */}
                           <TotalWithCurrency
                             displayType={"text"}
-                            value={category ? Number(category?.earlyBird) : 0}
+                            value={category ? Number(eventDetail?.data?.officialFee) : 0}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -483,7 +486,7 @@ function PageEventRegistration() {
                         <>
                           <TotalWithCurrency
                             displayType={"text"}
-                            value={category ? Number(category?.fee) : 0}
+                            value={category ? Number(eventDetail?.data?.officialFee) : 0}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
