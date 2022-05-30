@@ -1,10 +1,11 @@
 function getWebAdminURL() {
-  const WEB_ADMIN_URL =
-    process.env.NODE_ENV === "production"
-      ? "https://admin.myarchery.id"
-      : "https://staging-admin.myarchery.id";
+  // TODO: kalau node environment di docker udah bener
+  // const WEB_ADMIN_URL =
+  //   process.env.NODE_ENV === "production"
+  //     ? "https://admin.myarchery.id"
+  //     : "https://staging-admin.myarchery.id";
 
-  return WEB_ADMIN_URL;
+  return "https://admin.myarchery.id";
 }
 
 // TODO:
