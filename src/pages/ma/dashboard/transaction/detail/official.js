@@ -611,17 +611,11 @@ function PageTransactionDetailOfficial() {
                     </Row>
                     <hr />
                     <Row>
-                      <Col md={2}>
-                        <span>Jenis Regu</span>
-                        <div>
-                          <h5>{dataDetail?.detailEventOfficial?.teamCategoryId}</h5>
-                        </div>
-                      </Col>
-                      <Col md={3}>
+                      <Col md={6}>
                         <span>Kategori</span>
                         <div>
                           <h5>
-                            {dataDetail?.detailEventOfficial?.categoryLabel}
+                            Official
                           </h5>
                         </div>
                       </Col>
