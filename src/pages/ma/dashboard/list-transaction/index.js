@@ -34,7 +34,7 @@ function ListTransactionPage() {
     getAllOrderEvent();
     getAllOfficialEvent();
   }, []);
-  console.log(dataOfficial, 'off');
+  
   return (
     <React.Fragment>
       <Container fluid>
@@ -62,7 +62,7 @@ function ListTransactionPage() {
               eventEnd={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventEnd}
               poster={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventBanner}
               location={event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventLocation}
-              idEvent={event?.archeryEventOfficialDetail?.eventOfficialDetailId}
+              idEvent={event?.detailArcheryEventOfficial?.eventOfficialId}
             />
           ))}
         </div>

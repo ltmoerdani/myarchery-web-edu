@@ -23,7 +23,11 @@ import {
   AlertSubmitError,
 } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
+import { 
+  FieldInputText, 
+  // FieldSelectCategory, 
+  FieldSelectClub 
+} from "./components";
 
 import IconAddress from "components/ma/icons/mono/address";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
@@ -301,7 +305,7 @@ function PageEventRegistration() {
                   {isCategoryIndividu && (
                     <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
                   )}
-                  <FieldSelectCategory
+                  {/* <FieldSelectCategory
                     required
                     groupedOptions={eventCategories?.data}
                     value={category}
@@ -316,7 +320,7 @@ function PageEventRegistration() {
                     errors={formErrors.category}
                   >
                     Kategori Lomba
-                  </FieldSelectCategory>
+                  </FieldSelectCategory> */}
                   
                 </ContentCard>
               </WizardViewContent>
