@@ -107,7 +107,7 @@ function ListTransactionPage() {
                       event?.archeryEventOfficialDetail?.detailEvent?.publicInformation
                         ?.eventLocation
                     }
-                    idEvent={event?.archeryEventOfficialDetail?.eventOfficialDetailId}
+                    idEvent={event?.detailArcheryEventOfficial?.eventOfficialId}
                   />
                 ))}
             </div>
