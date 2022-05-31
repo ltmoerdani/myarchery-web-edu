@@ -108,27 +108,7 @@ function PageEventRegistration() {
   };
 
   const handleClickNext = () => {
-    let validationErrors = {};
-    // if (!category?.id) {
-    //   validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
-    // }
-
-    // Kategori tim secara umum
-    // if (
-    //   category?.id &&
-    //   ["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)
-    // ) {
-      if (!club?.detail.id) {
-        validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
-      }
-    // }
-
-    updateFormData({ type: "FORM_INVALID", errors: validationErrors });
-
-    const isValid = !Object.keys(validationErrors)?.length;
-    if (isValid) {
-      goToNextStep();
-    }
+    goToNextStep();
   };
 
   const handleSubmitOrder = async () => {
