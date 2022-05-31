@@ -108,7 +108,15 @@ function PageEventRegistration() {
   };
 
   const handleClickNext = () => {
-    goToNextStep();
+    let validationErrors = {};
+    if (!club?.detail.id) {
+      validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
+    }
+    updateFormData({ type: "FORM_INVALID", errors: validationErrors });
+    const isValid = !Object.keys(validationErrors)?.length;
+    if (isValid){
+      goToNextStep();
+    }
   };
 
   const handleSubmitOrder = async () => {
@@ -187,14 +195,14 @@ function PageEventRegistration() {
     window.scrollTo(0, 0);
   }, [currentStep]);
 
-  console.log(eventDetail, 'detail');
-
   return (
     <StyledPageWrapper>
       <MetaTags>
         <title>
           Pendaftaran {eventDetailData?.publicInformation.eventName || ""} | MyArchery.id
         </title>
+        <meta id="meta-description" name="description" content="Bergabunglah bersama MyArchery.id" />
+        <meta id="og-title" property="og:title" content="MyArchery.id" />
       </MetaTags>
 
       <Container fluid>
