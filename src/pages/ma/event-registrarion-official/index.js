@@ -134,7 +134,7 @@ function PageEventRegistration() {
     const result = await OrderEventService.registerOfficial(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions-official/${result?.data?.archeryEventOfficial?.eventOfficialDetailId}`);
+      history.push(`/dashboard/transactions-official/${result?.data?.archeryEventOfficial?.id}`);
     } else {
       const errorData = errorsUtil.interpretServerErrors(result);
       dispatchSubmitStatus({ status: "error", errors: errorData });
