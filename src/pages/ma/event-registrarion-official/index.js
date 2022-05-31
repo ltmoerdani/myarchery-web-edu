@@ -23,7 +23,11 @@ import {
   AlertSubmitError,
 } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
+import { 
+  FieldInputText, 
+  // FieldSelectCategory, 
+  FieldSelectClub 
+} from "./components";
 
 import IconAddress from "components/ma/icons/mono/address";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
@@ -74,7 +78,9 @@ function PageEventRegistration() {
     { status: "idle", errors: null }
   );
 
-  const { category, club, participants } = formData.data;
+  const { category, club, 
+    // participants 
+  } = formData.data;
   const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
   const isLoadingEventDetail = eventDetail.status === "loading";
@@ -84,7 +90,7 @@ function PageEventRegistration() {
   }`;
   const isLoadingSubmit = submitStatus.status === "loading";
   const isErrorSubmit = submitStatus.status === "error";
-  const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
+  // const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
 
   const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
   const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
@@ -103,19 +109,19 @@ function PageEventRegistration() {
 
   const handleClickNext = () => {
     let validationErrors = {};
-    if (!category?.id) {
-      validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
-    }
+    // if (!category?.id) {
+    //   validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
+    // }
 
     // Kategori tim secara umum
-    if (
-      category?.id &&
-      ["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)
-    ) {
+    // if (
+    //   category?.id &&
+    //   ["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)
+    // ) {
       if (!club?.detail.id) {
         validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
       }
-    }
+    // }
 
     updateFormData({ type: "FORM_INVALID", errors: validationErrors });
 
@@ -129,12 +135,12 @@ function PageEventRegistration() {
     dispatchSubmitStatus({ status: "loading", errors: null });
 
     const payload = {
-      team_category_id : category.teamCategoryId,
-      age_category_id : category.ageCategoryId,
-      competition_category_id : category.competitionCategoryId,
-      distance_id : category.distanceId,
+      // team_category_id : category.teamCategoryId,
+      // age_category_id : category.ageCategoryId,
+      // competition_category_id : category.competitionCategoryId,
+      // distance_id : category.distanceId,
       club_id: club?.detail.id || 0,
-      event_id: category.eventId,
+      event_id: eventDetail?.data?.id,
     };
 
     const result = await OrderEventService.registerOfficial(payload);
@@ -304,7 +310,7 @@ function PageEventRegistration() {
                   {isCategoryIndividu && (
                     <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
                   )}
-                  <FieldSelectCategory
+                  {/* <FieldSelectCategory
                     required
                     groupedOptions={eventCategories?.data}
                     value={category}
@@ -319,7 +325,7 @@ function PageEventRegistration() {
                     errors={formErrors.category}
                   >
                     Kategori Lomba
-                  </FieldSelectCategory>
+                  </FieldSelectCategory> */}
                   
                 </ContentCard>
               </WizardViewContent>
@@ -435,13 +441,14 @@ function PageEventRegistration() {
                   <div>
                     <DetailLabel>Jenis Regu</DetailLabel>
                     <DetailValue>
-                      Official {category?.categoryLabel || category?.teamCategoryId || (
+                      Official 
+                      {/* {category?.categoryLabel || category?.teamCategoryId || (
                         <React.Fragment>&ndash;</React.Fragment>
-                      )}
+                      )} */}
                     </DetailValue>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <DetailLabel>Jumlah Peserta</DetailLabel>
                     {isCategoryIndividu ? (
                       <DetailValue>1 Orang</DetailValue>
@@ -450,7 +457,7 @@ function PageEventRegistration() {
                     ) : (
                       <DetailValue muted>&mdash;</DetailValue>
                     )}
-                  </div>
+                  </div> */}
                 </TicketSectionDetail>
 
                 <div className="d-flex flex-column justify-content-between">
@@ -474,7 +481,7 @@ function PageEventRegistration() {
                           /> */}
                           <TotalWithCurrency
                             displayType={"text"}
-                            value={category ? Number(eventDetail?.data?.officialFee) : 0}
+                            value={Number(eventDetail?.data?.officialFee)}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -486,7 +493,7 @@ function PageEventRegistration() {
                         <>
                           <TotalWithCurrency
                             displayType={"text"}
-                            value={category ? Number(eventDetail?.data?.officialFee) : 0}
+                            value={Number(eventDetail?.data?.officialFee)}
                             prefix="Rp"
                             thousandSeparator={"."}
                             decimalSeparator={","}

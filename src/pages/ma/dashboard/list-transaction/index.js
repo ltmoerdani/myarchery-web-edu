@@ -36,6 +36,7 @@ function ListTransactionPage() {
     getAllOrderEvent();
     getAllOfficialEvent();
   }, []);
+  
   return (
     <React.Fragment>
       <Container fluid>
