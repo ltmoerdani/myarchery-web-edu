@@ -108,7 +108,15 @@ function PageEventRegistration() {
   };
 
   const handleClickNext = () => {
-    goToNextStep();
+    let validationErrors = {};
+    if (!club?.detail.id) {
+      validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
+    }
+    updateFormData({ type: "FORM_INVALID", errors: validationErrors });
+    const isValid = !Object.keys(validationErrors)?.length;
+    if (isValid){
+      goToNextStep();
+    }
   };
 
   const handleSubmitOrder = async () => {
