@@ -52,7 +52,7 @@ function RegistrationForm() {
     const { data, errors, success } = await ArcherService.register(payload);
 
     if (success) {
-      if (!data) {
+      if (data) {
         dispatch(AuthenticationStore.login(data));
       }
     } else {
