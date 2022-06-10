@@ -29,6 +29,16 @@ import imgFeatureItemClub from "assets/images/home/feature-item-club.svg";
 import imgFeatureItemSeries from "assets/images/home/feature-item-series.svg";
 import imgFeatureItemLiveScore from "assets/images/home/feature-item-live-score.svg";
 
+const partners = [
+  { name: "Pro Archery Shop", imgSrc: imgPro, webSrc: "" },
+  {
+    name: "Hammam Archery Shop",
+    imgSrc: imgHammam,
+    webSrc: "https://www.instagram.com/hammam_archery_shop/",
+  },
+  { name: "Queen Archery Proshop", imgSrc: imgQueen, webSrc: "" },
+];
+
 function PageHome() {
   const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
   // TODO: masih hardcoded, ubah dinamis kalau series udah ready
@@ -134,17 +144,9 @@ function PageHome() {
             </SectionHeader>
 
             <PartnersLogosGrid>
-              <PartnerItem>
-                <img src={imgPro} className="img-fluid" />
-              </PartnerItem>
-
-              <PartnerItem>
-                <img src={imgHammam} className="img-fluid" />
-              </PartnerItem>
-
-              <PartnerItem>
-                <img src={imgQueen} className="img-fluid" />
-              </PartnerItem>
+              {partners.map((partner, index) => (
+                <PartnerItem key={index} partner={partner} />
+              ))}
             </PartnersLogosGrid>
           </PaddedWrapper>
         </InnerContainer>
@@ -250,6 +252,22 @@ function FeatureItemRight({ icon, title, description }) {
         <FeatureItemDescription>{description}</FeatureItemDescription>
       </FeatureItemContent>
     </FeatureItemRightWrapper>
+  );
+}
+
+function PartnerItem({ partner }) {
+  const imgElement = (
+    <img src={partner.imgSrc} alt={partner.name} title={partner.name} className="img-fluid" />
+  );
+  if (!partner.webSrc) {
+    return <PartnerItemWrapper>{imgElement}</PartnerItemWrapper>;
+  }
+  return (
+    <PartnerItemWrapper>
+      <a href={partner.webSrc} target="_blank" rel="noreferrer">
+        {imgElement}
+      </a>
+    </PartnerItemWrapper>
   );
 }
 
@@ -457,7 +475,7 @@ const PartnersLogosGrid = styled.div`
   }
 `;
 
-const PartnerItem = styled.div`
+const PartnerItemWrapper = styled.div`
   img {
     max-height: 90px;
   }
