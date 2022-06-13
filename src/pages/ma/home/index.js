@@ -31,13 +31,21 @@ import imgFeatureItemSeries from "assets/images/home/feature-item-series.svg";
 import imgFeatureItemLiveScore from "assets/images/home/feature-item-live-score.svg";
 
 const partners = [
-  { name: "Pro Archery Shop", imgSrc: imgPro, webSrc: "" },
+  {
+    name: "Pro Archery Shop",
+    imgSrc: imgPro,
+    webSrc: "https://instagram.com/proarcheryshop/",
+  },
   {
     name: "Hammam Archery Shop",
     imgSrc: imgHammam,
     webSrc: "https://www.instagram.com/hammam_archery_shop/",
   },
-  { name: "Queen Archery Proshop", imgSrc: imgQueen, webSrc: "" },
+  {
+    name: "Queen Archery Proshop",
+    imgSrc: imgQueen,
+    webSrc: "https://www.instagram.com/queen_archery_proshop/",
+  },
 ];
 
 function PageHome() {
