@@ -67,7 +67,7 @@ const SplitLayoutContainer = styled.div`
   @media (min-width: 960px) {
     display: flex;
     flex-direction: row;
-    height: 100vh;
+    min-height: 100vh;
   }
 `;
 
@@ -220,6 +220,8 @@ const FormAreaContainer = styled.div`
 
   @media (min-width: 960px) {
     margin: 0;
+    padding-top: 4rem;
+    padding-bottom: 2rem;
   }
 `;
 
