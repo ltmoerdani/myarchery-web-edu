@@ -21,6 +21,7 @@ import imgEndorsePro from "assets/images/home/endorsement-pro-shop.png";
 import imgEndorseHub from "assets/images/home/endorsement-hub.png";
 import imgEndorseKarawang from "assets/images/home/endorsement-barebow-karawang.png";
 import imgEndorsePerpaniJkt from "assets/images/home/endorsement-perpani-jkt.jpg";
+import imgEndorsePerpaniKebumen from "assets/images/home/endorsement-perpani-kebumen.png";
 import imgFeaturesMac from "assets/images/home/features-illustration-mac.png";
 import imgFeaturesCircle from "assets/images/home/features-circle.svg";
 import imgFeatureItemEvent from "assets/images/home/feature-item-event.svg";
@@ -232,6 +233,10 @@ function PageHome() {
                 <PartnersLogosGrid>
                   <PartnerPerpani>
                     <img src={imgEndorsePerpaniJkt} className="img-fluid" />
+                  </PartnerPerpani>
+
+                  <PartnerPerpani>
+                    <img src={imgEndorsePerpaniKebumen} className="img-fluid" />
                   </PartnerPerpani>
 
                   <div>
