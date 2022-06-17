@@ -4,7 +4,7 @@ import { Elimination } from "services";
 
 const POLLING_INTERVAL = 10000;
 
-function useMatchTemplate(eventCategoryId) {
+function useMatchTemplate(eventCategoryId, isEventEnded) {
   const fetcher = useFetcher();
 
   React.useEffect(() => {
@@ -16,9 +16,18 @@ function useMatchTemplate(eventCategoryId) {
       return Elimination.getEventElimination({ event_category_id: eventCategoryId });
     };
 
-    const getData = () => fetcher.runAsync(fetcherCallback);
-
+    const getData = () => {
+      fetcher.runAsync(fetcherCallback, {
+        onError() {
+          fetcher.reset();
+        },
+      });
+    };
     getData();
+
+    if (isEventEnded) {
+      return;
+    }
 
     const matchesPollingTimer = setInterval(() => {
       getData();
@@ -26,7 +35,7 @@ function useMatchTemplate(eventCategoryId) {
 
     // clean up
     return () => clearInterval(matchesPollingTimer);
-  }, [eventCategoryId]);
+  }, [eventCategoryId, isEventEnded]);
 
   return fetcher;
 }
