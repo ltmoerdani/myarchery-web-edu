@@ -65,7 +65,7 @@ function SeedBagan({ bracketProps, configs }) {
                 "item-winner": parseInt(team.win) === 1 && !isBye,
               })}
             >
-              <BoxName>{team.name || "-"}</BoxName>
+              <BoxName>{team.name || team.team || team.teamName || "-"}</BoxName>
               {typeof team.result === "number" && <BoxScore>{team.result}</BoxScore>}
             </SeedTeam>
           ))}

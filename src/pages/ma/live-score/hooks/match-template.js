@@ -16,7 +16,13 @@ function useMatchTemplate(eventCategoryId, isEventEnded) {
       return Elimination.getEventElimination({ event_category_id: eventCategoryId });
     };
 
-    const getData = () => fetcher.runAsync(fetcherCallback);
+    const getData = () => {
+      fetcher.runAsync(fetcherCallback, {
+        onError() {
+          fetcher.reset();
+        },
+      });
+    };
     getData();
 
     if (isEventEnded) {
