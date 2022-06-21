@@ -138,7 +138,6 @@ function PageEventRegistration() {
     } else {
       const errorData = errorsUtil.interpretServerErrors(result);
       dispatchSubmitStatus({ status: "error", errors: errorData });
-      history.push(`/dashboard/list-transaction`);
     }
   };
 
