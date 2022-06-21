@@ -4,7 +4,7 @@ import { EventQualificationService } from "services";
 
 const POLLING_INTERVAL = 10000;
 
-function useParticipantScorings(categoryDetailId, teamType) {
+function useParticipantScorings(categoryDetailId, teamType, isEventEnded) {
   const fetcher = useFetcher();
 
   React.useEffect(() => {
@@ -24,13 +24,17 @@ function useParticipantScorings(categoryDetailId, teamType) {
 
     getData();
 
+    if (isEventEnded) {
+      return;
+    }
+
     const scoringPollingTimer = setInterval(() => {
       getData();
     }, POLLING_INTERVAL);
 
     // clean up
     return () => clearInterval(scoringPollingTimer);
-  }, [categoryDetailId]);
+  }, [categoryDetailId, isEventEnded]);
 
   return fetcher;
 }

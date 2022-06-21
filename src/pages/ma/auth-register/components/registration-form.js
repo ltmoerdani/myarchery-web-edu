@@ -52,7 +52,7 @@ function RegistrationForm() {
     const { data, errors, success } = await ArcherService.register(payload);
 
     if (success) {
-      if (!data) {
+      if (data) {
         dispatch(AuthenticationStore.login(data));
       }
     } else {
@@ -79,111 +79,120 @@ function RegistrationForm() {
         handleValidSubmit(e, v);
       }}
     >
-      <div className="mb-2">
-        <AvField
-          name="name"
-          label="Nama Profile"
-          className="form-control"
-          placeholder="Masukkan nama profile"
-          type="text"
-          required
-          errorMessage="Nama wajib diisi"
-        />
-      </div>
-
-      <div className="mb-2">
-        <DateInput
-          name="date_of_birth"
-          label="Tanggal Lahir"
-          onChange={(e) => getValueDateOfBirth(e)}
-        />
-      </div>
-
-      <div className="mb-2">
-        <div style={{ marginBottom: "0.5rem" }}>
-          <span style={{ fontSize: "13px", fontWeight: "500" }}>Jenis kelamin</span>
+      <FieldSpacer>
+        <div>
+          <AvField
+            name="name"
+            label="Nama Peserta"
+            className="form-control"
+            placeholder="Masukkan nama lengkap, contoh: Mahfuzon Akhiar"
+            type="text"
+            required
+            errorMessage="Nama wajib diisi"
+          />
+          <FieldInstructionText>
+            Masukkan nama peserta jika Anda mewakili peserta, atau masukkan nama Anda jika tidak
+            mewakili siapa pun
+          </FieldInstructionText>
         </div>
 
-        <div className="d-flex">
-          <div className="form-check ms-2">
-            <Input
-              required
-              onChange={(e) => getValueRadio(e)}
-              style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
-              value="male"
-              className="form-check-input"
-              type="radio"
-              name="gender"
-              id="flexRadioDefault1"
-            />
+        <div>
+          <DateInput
+            name="date_of_birth"
+            label="Tanggal Lahir"
+            onChange={(e) => getValueDateOfBirth(e)}
+          />
+          <FieldInstructionText>
+            Masukkan tanggal lahir dari nama yang didaftarkan pada kolom Nama Peserta
+          </FieldInstructionText>
+        </div>
 
-            <label
-              style={{ fontSize: "14px" }}
-              className="form-check-label ms-2 pt-1"
-              htmlFor="flexRadioDefault1"
-            >
-              Pria
-            </label>
+        <div>
+          <div style={{ marginBottom: "0.5rem" }}>
+            <span style={{ fontSize: "13px", fontWeight: "500" }}>Jenis Kelamin</span>
           </div>
 
-          <div className="form-check ms-5">
-            <Input
-              required
-              onChange={(e) => getValueRadio(e)}
-              style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
-              value="female"
-              className="form-check-input"
-              type="radio"
-              name="gender"
-              id="flexRadioDefault1"
-            />
+          <div className="d-flex">
+            <div className="form-check ms-2">
+              <Input
+                required
+                onChange={(e) => getValueRadio(e)}
+                style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
+                value="male"
+                className="form-check-input"
+                type="radio"
+                name="gender"
+                id="flexRadioDefault1"
+              />
 
-            <label
-              style={{ fontSize: "14px" }}
-              className="form-check-label ms-2 pt-1"
-              htmlFor="flexRadioDefault1"
-            >
-              Wanita
-            </label>
+              <label
+                style={{ fontSize: "14px" }}
+                className="form-check-label ms-2 pt-1"
+                htmlFor="flexRadioDefault1"
+              >
+                Pria
+              </label>
+            </div>
+
+            <div className="form-check ms-5">
+              <Input
+                required
+                onChange={(e) => getValueRadio(e)}
+                style={{ width: "22px", height: "22px", border: "1px solid #0D47A1" }}
+                value="female"
+                className="form-check-input"
+                type="radio"
+                name="gender"
+                id="flexRadioDefault2"
+              />
+
+              <label
+                style={{ fontSize: "14px" }}
+                className="form-check-label ms-2 pt-1"
+                htmlFor="flexRadioDefault2"
+              >
+                Wanita
+              </label>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mb-2">
-        <AvField
-          name="email"
-          label="Email"
-          className="form-control"
-          placeholder="Masukkan email"
-          type="email"
-          required
-          errorMessage="Email wajib diisi"
-        />
-      </div>
+        <div>
+          <AvField
+            name="email"
+            label="Email"
+            className="form-control"
+            placeholder="Masukkan email"
+            type="email"
+            required
+            errorMessage="Email wajib diisi"
+          />
+        </div>
 
-      <div className="mb-2">
-        {/* TODO: pasang toggle show password */}
-        <EnhancedField
-          name="password"
-          label="Kata Sandi"
-          type="password"
-          required
-          placeholder="Masukkan kata sandi"
-          errorMessage="Kata sandi wajib diisi"
-        />
-      </div>
+        <div>
+          {/* TODO: pasang toggle show password */}
+          <EnhancedField
+            name="password"
+            label="Kata Sandi"
+            type="password"
+            required
+            placeholder="Masukkan kata sandi"
+            errorMessage="Kata sandi wajib diisi"
+          />
+        </div>
 
-      <div className="mb-2">
-        {/* TODO: pasang toggle show password */}
-        <EnhancedField
-          name="password_confirmation"
-          label="Konfirmasi Kata Sandi"
-          type="password"
-          required
-          placeholder="Masukkan konfirmasi kata sandi"
-          errorMessage="Konfirmasi kata sandi wajib diisi"
-        />
-      </div>
+        <div>
+          {/* TODO: pasang toggle show password */}
+          <EnhancedField
+            name="password_confirmation"
+            label="Konfirmasi Kata Sandi"
+            type="password"
+            required
+            placeholder="Masukkan konfirmasi kata sandi"
+            errorMessage="Konfirmasi kata sandi wajib diisi"
+          />
+        </div>
+      </FieldSpacer>
 
       <div className="mt-3">
         <ButtonBlue block type="submit">
@@ -206,6 +215,12 @@ function RegistrationForm() {
   );
 }
 
+const FieldSpacer = styled.div`
+  > * + * {
+    margin-top: 1rem;
+  }
+`;
+
 const EnhancedField = styled(AvField)`
   &.form-control.is-invalid {
     background-image: none;
@@ -214,6 +229,12 @@ const EnhancedField = styled(AvField)`
 
 const TextLink = styled(Link)`
   color: var(--ma-blue);
+`;
+
+const FieldInstructionText = styled.div`
+  margin-top: 0.375rem;
+  color: var(--ma-gray-500);
+  font-size: 90%;
 `;
 
 export { RegistrationForm };

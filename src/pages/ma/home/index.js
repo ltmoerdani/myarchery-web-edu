@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
 
+import MetaTags from "react-meta-tags";
 import { ButtonBlue } from "components/ma";
 import { LatestEvents } from "./components/latest-events";
 import { HeroCarousel } from "./components/hero-carousel";
@@ -20,6 +21,7 @@ import imgEndorsePro from "assets/images/home/endorsement-pro-shop.png";
 import imgEndorseHub from "assets/images/home/endorsement-hub.png";
 import imgEndorseKarawang from "assets/images/home/endorsement-barebow-karawang.png";
 import imgEndorsePerpaniJkt from "assets/images/home/endorsement-perpani-jkt.jpg";
+import imgEndorsePerpaniKebumen from "assets/images/home/endorsement-perpani-kebumen.png";
 import imgFeaturesMac from "assets/images/home/features-illustration-mac.png";
 import imgFeaturesCircle from "assets/images/home/features-circle.svg";
 import imgFeatureItemEvent from "assets/images/home/feature-item-event.svg";
@@ -29,205 +31,232 @@ import imgFeatureItemClub from "assets/images/home/feature-item-club.svg";
 import imgFeatureItemSeries from "assets/images/home/feature-item-series.svg";
 import imgFeatureItemLiveScore from "assets/images/home/feature-item-live-score.svg";
 
+const partners = [
+  {
+    name: "Pro Archery Shop",
+    imgSrc: imgPro,
+    webSrc: "https://instagram.com/proarcheryshop/",
+  },
+  {
+    name: "Hammam Archery Shop",
+    imgSrc: imgHammam,
+    webSrc: "https://www.instagram.com/hammam_archery_shop/",
+  },
+  {
+    name: "Queen Archery Proshop",
+    imgSrc: imgQueen,
+    webSrc: "https://www.instagram.com/queen_archery_proshop/",
+  },
+];
+
 function PageHome() {
   const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
   // TODO: masih hardcoded, ubah dinamis kalau series udah ready
   const linkToJakartaSeriesLeaderboard = `/series/1/leaderboard`;
   return (
-    <PageWrapper>
-      <SectionWhite>
-        <InnerContainer>
-          <HeroCarousel />
-        </InnerContainer>
-      </SectionWhite>
+    <React.Fragment>
+      <MetaTags>
+        <title>MyArchery.id - Temukan dan ikuti berbagai macam event panahan di MyArchery</title>
+      </MetaTags>
 
-      <SectionWhite id="events-list">
-        <InnerContainer>
-          <SectionLatestEvents>
-            <SectionHeader>
-              <SectionHeading>Event Terbaru</SectionHeading>
-              <SectionDescription>
-                Temukan dan ikuti berbagai macam event panahan di MyArchery
-              </SectionDescription>
-            </SectionHeader>
+      <PageWrapper>
+        <SectionWhite>
+          <InnerContainer>
+            <HeroCarousel />
+          </InnerContainer>
+        </SectionWhite>
 
-            <LatestEvents />
-          </SectionLatestEvents>
-        </InnerContainer>
-      </SectionWhite>
+        <SectionWhite id="events-list">
+          <InnerContainer>
+            <SectionLatestEvents>
+              <SectionHeader>
+                <SectionHeading>Event Terbaru</SectionHeading>
+                <SectionDescription>
+                  Temukan dan ikuti berbagai macam event panahan di MyArchery
+                </SectionDescription>
+              </SectionHeader>
 
-      <SectionGray>
-        <InnerContainer>
-          <SeriesWrapper>
-            <SeriesFloatingContent>
-              <SectionHeading>Pertandingan Series</SectionHeading>
-              <SectionDescription>
-                Rangkaian pertandingan panahan dari DKI Jakarta Series sebagai wadah atlet untuk
-                menjadi pemain inti dalam pertandingan bertaraf nasional.
-              </SectionDescription>
+              <LatestEvents />
+            </SectionLatestEvents>
+          </InnerContainer>
+        </SectionWhite>
 
-              <ButtonBlue as={Link} to={linkToJakartaSeriesLeaderboard}>
-                Leaderboard
-              </ButtonBlue>
-            </SeriesFloatingContent>
-          </SeriesWrapper>
-        </InnerContainer>
-      </SectionGray>
+        <SectionGray>
+          <InnerContainer>
+            <SeriesWrapper>
+              <SeriesFloatingContent>
+                <SectionHeading>Pertandingan Series</SectionHeading>
+                <SectionDescription>
+                  Rangkaian pertandingan panahan dari DKI Jakarta Series sebagai wadah atlet untuk
+                  menjadi pemain inti dalam pertandingan bertaraf nasional.
+                </SectionDescription>
 
-      <SectionWhite>
-        <InnerContainer>
-          <PaddedWrapper>
-            <SectionHeader>
-              <SectionHeading>Ragam Aktivitas bersama MyArchery</SectionHeading>
-              <SectionDescription>
-                Menjadi bagian dari panahan lebih mudah melalui MyArchery. Mengadakan pertandingan,
-                turnamen, dan berkumpul dengan komunitas dengan fitur buat event serta komunitas.
-              </SectionDescription>
-            </SectionHeader>
+                <ButtonBlue as={Link} to={linkToJakartaSeriesLeaderboard}>
+                  Leaderboard
+                </ButtonBlue>
+              </SeriesFloatingContent>
+            </SeriesWrapper>
+          </InnerContainer>
+        </SectionGray>
 
-            <ActivitiesGrid>
-              <ActivityItemManage>
-                <ActivityItemFloatingContent>
-                  <ActivityItemHeading>Buat dan Atur Event</ActivityItemHeading>
-                  <SectionDescription>
-                    Buat berbagai event panahan dengan pengaturan sistem skoring dan pemeringkatan
-                  </SectionDescription>
+        <SectionWhite>
+          <InnerContainer>
+            <PaddedWrapper>
+              <SectionHeader>
+                <SectionHeading>Ragam Aktivitas bersama MyArchery</SectionHeading>
+                <SectionDescription>
+                  Menjadi bagian dari panahan lebih mudah melalui MyArchery. Mengadakan
+                  pertandingan, turnamen, dan berkumpul dengan komunitas dengan fitur buat event
+                  serta komunitas.
+                </SectionDescription>
+              </SectionHeader>
 
-                  <div>
-                    <ButtonBlue as="a" href={url.getWebAdminURL()} target="_blank" rel="noreferrer">
-                      Ke Organizer
-                    </ButtonBlue>
-                  </div>
-                </ActivityItemFloatingContent>
-              </ActivityItemManage>
+              <ActivitiesGrid>
+                <ActivityItemManage>
+                  <ActivityItemFloatingContent>
+                    <ActivityItemHeading>Buat dan Atur Event</ActivityItemHeading>
+                    <SectionDescription>
+                      Buat berbagai event panahan dengan pengaturan sistem skoring dan pemeringkatan
+                    </SectionDescription>
 
-              <ActivityItemClub>
-                <ActivityItemFloatingContent>
-                  <ActivityItemHeading>Jadi Bagian dari Klub</ActivityItemHeading>
-                  <SectionDescription>
-                    Berkumpul dan memantau kegiatan klub secara virtual lebih mudah melalui
-                    MyArchery
-                  </SectionDescription>
+                    <div>
+                      <ButtonBlue
+                        as="a"
+                        href={url.getWebAdminURL()}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Ke Organizer
+                      </ButtonBlue>
+                    </div>
+                  </ActivityItemFloatingContent>
+                </ActivityItemManage>
 
-                  <div>
-                    <ButtonBlue as={Link} to={_getJoinClubURL(isLoggedIn)}>
-                      Gabung Klub
-                    </ButtonBlue>
-                  </div>
-                </ActivityItemFloatingContent>
-              </ActivityItemClub>
-            </ActivitiesGrid>
-          </PaddedWrapper>
-        </InnerContainer>
-      </SectionWhite>
+                <ActivityItemClub>
+                  <ActivityItemFloatingContent>
+                    <ActivityItemHeading>Jadi Bagian dari Klub</ActivityItemHeading>
+                    <SectionDescription>
+                      Berkumpul dan memantau kegiatan klub secara virtual lebih mudah melalui
+                      MyArchery
+                    </SectionDescription>
 
-      <SectionGray>
-        <InnerContainer>
-          <PaddedWrapper>
-            <SectionHeader>
-              <SectionHeading>Partner MyArchery</SectionHeading>
+                    <div>
+                      <ButtonBlue as={Link} to={_getJoinClubURL(isLoggedIn)}>
+                        Gabung Klub
+                      </ButtonBlue>
+                    </div>
+                  </ActivityItemFloatingContent>
+                </ActivityItemClub>
+              </ActivitiesGrid>
+            </PaddedWrapper>
+          </InnerContainer>
+        </SectionWhite>
 
-              <SectionDescription>
-                Bersama berbagai komunitas, klub, organisasi, dan toko perlengkapan panah, MyArchery
-                memastikan kegiatan panahan selalu nyaman dan menyenangkan untuk berbagai kalangan.
-              </SectionDescription>
-            </SectionHeader>
+        <SectionGray>
+          <InnerContainer>
+            <PaddedWrapper>
+              <SectionHeader>
+                <SectionHeading>Partner MyArchery</SectionHeading>
 
-            <PartnersLogosGrid>
-              <PartnerItem>
-                <img src={imgPro} className="img-fluid" />
-              </PartnerItem>
-
-              <PartnerItem>
-                <img src={imgHammam} className="img-fluid" />
-              </PartnerItem>
-
-              <PartnerItem>
-                <img src={imgQueen} className="img-fluid" />
-              </PartnerItem>
-            </PartnersLogosGrid>
-          </PaddedWrapper>
-        </InnerContainer>
-      </SectionGray>
-
-      <SectionWhite>
-        <InnerContainer>
-          <SectionAboutWrapper>
-            <SectionHeader>
-              <SectionHeading>Tentang Kami</SectionHeading>
-              <SectionDescription>
-                Berbagai fitur dan layanan dapat Anda manfaatkan untuk mendukung kegiatan panahan
-                pribadi dan komunitas. Tersedia di berbagai perangkat sesuai kebutuhan Anda.
-              </SectionDescription>
-            </SectionHeader>
-
-            <FeaturesContainerOuter>
-              <FeaturesContainer>
-                <FeaturesListLeft>
-                  <FeatureItemLeft
-                    icon={imgFeatureItemEvent}
-                    title="Banyak Event"
-                    description="Menyediakan berbagai informasi mengenai event panahan"
-                  />
-                  <FeatureItemLeft
-                    icon={imgFeatureItemFeatureRich}
-                    title="Berbagai Fitur"
-                    description="Fitur yang memudahkan peserta dan penyelenggara event"
-                  />
-                  <FeatureItemLeft
-                    icon={imgFeatureItemLeaderboard}
-                    title="Leaderboard"
-                    description="Pantau pergerakan skor peserta dan peringkat medali klub, melalui leaderboard yang diupdate secara live"
-                  />
-                </FeaturesListLeft>
-
-                <FeaturesListRight>
-                  <FeatureItemRight
-                    icon={imgFeatureItemClub}
-                    title="Klub"
-                    description="Berkumpul bersama klub secara virtual dan ikuti berbagai event panahan"
-                  />
-                  <FeatureItemRight
-                    icon={imgFeatureItemSeries}
-                    title="Series"
-                    description="Event Series untuk menyeleksi peserta dan atlet panahan"
-                  />
-                  <FeatureItemRight
-                    icon={imgFeatureItemLiveScore}
-                    title="Live Score"
-                    description="Skoring event secara live yang diupdate ke Leaderboard"
-                  />
-                </FeaturesListRight>
-              </FeaturesContainer>
-            </FeaturesContainerOuter>
-
-            <SectionHeader>
-              <EndorsementHeading>
-                Dipercaya oleh berbagai klub, organisasi, dan penyedia perlengkapan panahan
-              </EndorsementHeading>
+                <SectionDescription>
+                  Bersama berbagai komunitas, klub, organisasi, dan toko perlengkapan panah,
+                  MyArchery memastikan kegiatan panahan selalu nyaman dan menyenangkan untuk
+                  berbagai kalangan.
+                </SectionDescription>
+              </SectionHeader>
 
               <PartnersLogosGrid>
-                <PartnerPerpani>
-                  <img src={imgEndorsePerpaniJkt} className="img-fluid" />
-                </PartnerPerpani>
-
-                <div>
-                  <img src={imgEndorsePro} className="img-fluid" />
-                </div>
-
-                <div>
-                  <img src={imgEndorseHub} className="img-fluid" />
-                </div>
-
-                <div>
-                  <img src={imgEndorseKarawang} className="img-fluid" />
-                </div>
+                {partners.map((partner, index) => (
+                  <PartnerItem key={index} partner={partner} />
+                ))}
               </PartnersLogosGrid>
-            </SectionHeader>
-          </SectionAboutWrapper>
-        </InnerContainer>
-      </SectionWhite>
-    </PageWrapper>
+            </PaddedWrapper>
+          </InnerContainer>
+        </SectionGray>
+
+        <SectionWhite>
+          <InnerContainer>
+            <SectionAboutWrapper>
+              <SectionHeader>
+                <SectionHeading>Tentang Kami</SectionHeading>
+                <SectionDescription>
+                  Berbagai fitur dan layanan dapat Anda manfaatkan untuk mendukung kegiatan panahan
+                  pribadi dan komunitas. Tersedia di berbagai perangkat sesuai kebutuhan Anda.
+                </SectionDescription>
+              </SectionHeader>
+
+              <FeaturesContainerOuter>
+                <FeaturesContainer>
+                  <FeaturesListLeft>
+                    <FeatureItemLeft
+                      icon={imgFeatureItemEvent}
+                      title="Banyak Event"
+                      description="Menyediakan berbagai informasi mengenai event panahan"
+                    />
+                    <FeatureItemLeft
+                      icon={imgFeatureItemFeatureRich}
+                      title="Berbagai Fitur"
+                      description="Fitur yang memudahkan peserta dan penyelenggara event"
+                    />
+                    <FeatureItemLeft
+                      icon={imgFeatureItemLeaderboard}
+                      title="Leaderboard"
+                      description="Pantau pergerakan skor peserta dan peringkat medali klub, melalui leaderboard yang diupdate secara live"
+                    />
+                  </FeaturesListLeft>
+
+                  <FeaturesListRight>
+                    <FeatureItemRight
+                      icon={imgFeatureItemClub}
+                      title="Klub"
+                      description="Berkumpul bersama klub secara virtual dan ikuti berbagai event panahan"
+                    />
+                    <FeatureItemRight
+                      icon={imgFeatureItemSeries}
+                      title="Series"
+                      description="Event Series untuk menyeleksi peserta dan atlet panahan"
+                    />
+                    <FeatureItemRight
+                      icon={imgFeatureItemLiveScore}
+                      title="Live Score"
+                      description="Skoring event secara live yang diupdate ke Leaderboard"
+                    />
+                  </FeaturesListRight>
+                </FeaturesContainer>
+              </FeaturesContainerOuter>
+
+              <SectionHeader>
+                <EndorsementHeading>
+                  Dipercaya oleh berbagai klub, organisasi, dan penyedia perlengkapan panahan
+                </EndorsementHeading>
+
+                <PartnersLogosGrid>
+                  <PartnerPerpani>
+                    <img src={imgEndorsePerpaniJkt} className="img-fluid" />
+                  </PartnerPerpani>
+
+                  <PartnerPerpani>
+                    <img src={imgEndorsePerpaniKebumen} className="img-fluid" />
+                  </PartnerPerpani>
+
+                  <div>
+                    <img src={imgEndorsePro} className="img-fluid" />
+                  </div>
+
+                  <div>
+                    <img src={imgEndorseHub} className="img-fluid" />
+                  </div>
+
+                  <div>
+                    <img src={imgEndorseKarawang} className="img-fluid" />
+                  </div>
+                </PartnersLogosGrid>
+              </SectionHeader>
+            </SectionAboutWrapper>
+          </InnerContainer>
+        </SectionWhite>
+      </PageWrapper>
+    </React.Fragment>
   );
 }
 
@@ -250,6 +279,22 @@ function FeatureItemRight({ icon, title, description }) {
         <FeatureItemDescription>{description}</FeatureItemDescription>
       </FeatureItemContent>
     </FeatureItemRightWrapper>
+  );
+}
+
+function PartnerItem({ partner }) {
+  const imgElement = (
+    <img src={partner.imgSrc} alt={partner.name} title={partner.name} className="img-fluid" />
+  );
+  if (!partner.webSrc) {
+    return <PartnerItemWrapper>{imgElement}</PartnerItemWrapper>;
+  }
+  return (
+    <PartnerItemWrapper>
+      <a href={partner.webSrc} target="_blank" rel="noreferrer">
+        {imgElement}
+      </a>
+    </PartnerItemWrapper>
   );
 }
 
@@ -457,7 +502,7 @@ const PartnersLogosGrid = styled.div`
   }
 `;
 
-const PartnerItem = styled.div`
+const PartnerItemWrapper = styled.div`
   img {
     max-height: 90px;
   }
