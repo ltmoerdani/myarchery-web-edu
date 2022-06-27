@@ -131,8 +131,7 @@ function PageScoreElimination() {
                   <FullPageLoadingIndicator isLoading={isLoadingMatchTemplate} />
 
                   <MatchBracketContainer>
-                    {(matchTemplate?.eliminationId || matchTemplate?.eliminationGroupId) &&
-                    matchTemplate?.rounds ? (
+                    {matchTemplate?.rounds ? (
                       <OverflowingBracketContent>
                         <MatchBracket matchTemplate={matchTemplate} />
                       </OverflowingBracketContent>
