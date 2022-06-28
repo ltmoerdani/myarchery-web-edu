@@ -2,61 +2,37 @@ import * as React from "react";
 import { useParams, Link } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "./hooks/event-detail-slug";
-import { useCategoriesByGender } from "./hooks/event-categories-by-gender";
+import { useCategoryFilters } from "./hooks/category-filters";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
 import { ButtonBlue, SpinnerDotBlock } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { CategoryFilterChooser, LiveIndicator, ScoringTable } from "./components";
+import { TeamFilterChooser } from "./components/team-filter-chooser";
 
-import classnames from "classnames";
 import { isAfter } from "date-fns";
 import { datetime } from "utils";
-import { makeCategoryOptions, getLandingPagePath } from "./utils";
-
-const teamFilterLabels = {
-  "individu male": "Individu Putra",
-  "individu female": "Individu Putri",
-  maleTeam: "Beregu Putra",
-  femaleTeam: "Beregu Putri",
-  mixTeam: "Beregu Campuran",
-};
+import { getLandingPagePath } from "./utils";
 
 function PageScoreQualification() {
   const { slug } = useParams();
   const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
   const eventId = eventDetail?.id;
-
-  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
-
   const {
-    data: categories,
-    groupNames: teamCategories,
-    status: categoryStatus,
-  } = useCategoriesByGender(eventId);
-  const [teamFilterSelected, setTeamFilterSelected] = React.useState(0);
-
-  const currentTeamFilterName = teamCategories[teamFilterSelected];
-  const categoryOptions = makeCategoryOptions(categories?.[currentTeamFilterName]);
-
-  const [categorySelected, dispatchCategorySelected] = React.useReducer(
-    (state, action) => ({ ...state, ...action }),
-    {}
-  );
-
-  React.useEffect(() => {
-    // otomatis set kategori ketika masih null
-    if (!categoryOptions?.length || categorySelected[currentTeamFilterName]) {
-      return;
-    }
-
-    dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
-  }, [currentTeamFilterName]);
+    isLoading: isLoadingCategory,
+    selectCategory,
+    categoryOptions,
+    activeCategory,
+    teamOptions,
+    selectTeam,
+    activeTeam,
+    activeCategoryDetail,
+  } = useCategoryFilters(eventId);
 
   const isLoadingEvent = eventStatus === "loading";
-  const isLoadingCategory = categoryStatus === "loading";
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
+  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
 
   return (
     <StyledPageWrapper>
@@ -84,7 +60,7 @@ function PageScoreQualification() {
           </ContentHeader>
         )}
 
-        {!categories && isLoadingCategory ? (
+        {isLoadingCategory ? (
           <SpinnerDotBlock />
         ) : (
           eventDetail && (
@@ -99,32 +75,22 @@ function PageScoreQualification() {
                 <CategoryFilterChooser
                   breakpoint="min-width: 1081px"
                   options={categoryOptions}
-                  selected={categorySelected[currentTeamFilterName]}
-                  onChange={(category) => {
-                    dispatchCategorySelected({ [currentTeamFilterName]: category });
-                  }}
+                  selected={activeCategory}
+                  onChange={(category) => selectCategory(category)}
                 />
               </PanelSidebar>
 
               <div>
                 <ListViewToolbar>
-                  <LabelCurrentCategory>
-                    {categorySelected[currentTeamFilterName]?.label || "Pilih kategori"}
-                  </LabelCurrentCategory>
+                  <LabelCurrentCategory>{activeCategory || "Pilih kategori"}</LabelCurrentCategory>
 
                   <ScrollX>
                     <SpaceButtonsGroup>
-                      {teamCategories?.map((filter, index) => (
-                        <ButtonTeamFilter
-                          key={filter}
-                          className={classnames({
-                            "filter-selected": teamFilterSelected === index,
-                          })}
-                          onClick={() => setTeamFilterSelected(index)}
-                        >
-                          {teamFilterLabels[filter]}
-                        </ButtonTeamFilter>
-                      ))}
+                      <TeamFilterChooser
+                        options={teamOptions}
+                        selected={activeTeam}
+                        onSelect={(opt) => selectTeam(opt.id)}
+                      />
                     </SpaceButtonsGroup>
                   </ScrollX>
                 </ListViewToolbar>
@@ -132,8 +98,9 @@ function PageScoreQualification() {
                 <ScrollX>
                   <ScoringTable
                     // ! Penting: wajib kasih prop key unik di komponen ini
-                    key={categorySelected[currentTeamFilterName]?.id || "table-00"}
-                    categoryDetail={categorySelected[currentTeamFilterName]}
+                    key={activeCategoryDetail?.id || "table-00"}
+                    categoryDetail={activeCategoryDetail}
+                    // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
                     isEventEnded={isEventEnded}
                   />
                 </ScrollX>
@@ -285,31 +252,6 @@ const SpaceButtonsGroup = styled.div`
     justify-content: flex-end;
     align-items: flex-start;
     gap: 0.5rem;
-  }
-`;
-
-const ButtonTeamFilter = styled.button`
-  &,
-  &:focus,
-  &:active {
-    padding: 0.75rem 1rem;
-    border: solid 1px var(--ma-primary-blue-50);
-    border-radius: 0.5rem;
-    background-color: var(--ma-primary-blue-50);
-    color: var(--ma-blue);
-    font-size: 0.875em;
-
-    @media (min-width: 721px) {
-      padding: 0.5rem 0.75rem;
-    }
-  }
-
-  white-space: nowrap;
-  transition: border-color 0.1s, background-color 0.1s;
-
-  &.filter-selected {
-    border: solid 1px var(--ma-secondary);
-    background-color: var(--ma-secondary);
   }
 `;
 
