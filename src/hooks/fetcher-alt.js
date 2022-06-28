@@ -29,7 +29,7 @@ function useFetcher() {
     if (result.success) {
       dispatch({
         status: "success",
-        data: typeof transform === "function" ? transform(result.data) : result.data,
+        data: _buildDataState(result.data, transform),
       });
       onSuccess?.();
     } else {
@@ -61,6 +61,13 @@ function useUnmountChecker() {
   }, []);
 
   return isMountedRef;
+}
+
+function _buildDataState(data, transform) {
+  if (!data || typeof transform !== "function") {
+    return data;
+  }
+  return transform(data);
 }
 
 export { useFetcher };

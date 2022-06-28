@@ -2,7 +2,7 @@ import * as React from "react";
 import { useParams, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "./hooks/event-detail-slug";
-import { useCategoriesByGenderElimination } from "./hooks/event-categories-by-gender-elimination";
+import { useCategoryFilters } from "./hooks/category-filters";
 import { useMatchTemplate } from "./hooks/match-template";
 
 import MetaTags from "react-meta-tags";
@@ -15,50 +15,38 @@ import {
   FullPageLoadingIndicator,
   MatchBracket,
 } from "./components";
+import { TeamFilterChooser } from "./components/team-filter-chooser";
 
-import classnames from "classnames";
 import { isAfter } from "date-fns";
 import { datetime } from "utils";
-import { getQualificationScorePageUrl, makeCategoryOptions, getTabNameFromKey } from "./utils";
+import { getQualificationScorePageUrl } from "./utils";
 
 function PageScoreElimination() {
   const { pathname } = useLocation();
   const { slug } = useParams();
   const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
   const eventId = eventDetail?.id;
-  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
+  const {
+    isLoading: isLoadingCategory,
+    selectCategory,
+    categoryOptions,
+    activeCategory,
+    teamOptions,
+    selectTeam,
+    activeTeam,
+    activeCategoryDetail,
+  } = useCategoryFilters(eventId);
 
   const {
-    data: categories,
-    groupNames: teamCategories,
-    status: categoryStatus,
-  } = useCategoriesByGenderElimination(eventId);
-  const [teamFilterSelected, setTeamFilterSelected] = React.useState(0);
+    data: matchTemplate,
+    status: statusMatchTemplate,
+    reset: resetBracket,
+  } = useMatchTemplate(activeCategoryDetail?.id, isEventEnded);
 
-  const currentTeamFilterName = teamCategories[teamFilterSelected];
-  const categoryOptions = makeCategoryOptions(categories?.[currentTeamFilterName]);
-
-  const [categorySelected, dispatchCategorySelected] = React.useReducer(
-    (state, action) => ({ ...state, ...action }),
-    {}
-  );
-
-  React.useEffect(() => {
-    if (!categoryOptions?.length || categorySelected[currentTeamFilterName]) {
-      return;
-    }
-    dispatchCategorySelected({ [currentTeamFilterName]: categoryOptions[0] });
-  }, [currentTeamFilterName]);
-
-  const { data: matchTemplate, status: statusMatchTemplate } = useMatchTemplate(
-    categorySelected?.[currentTeamFilterName]?.id,
-    isEventEnded
-  );
-
-  const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
   const isLoadingEvent = eventStatus === "loading";
-  const isLoadingCategory = categoryStatus === "loading";
-  const isLoadingMatchTemplate = statusMatchTemplate === "loading";
+  const isLoadingBracket = statusMatchTemplate === "loading";
+  const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
+  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
 
   return (
     <StyledPageWrapper>
@@ -86,7 +74,7 @@ function PageScoreElimination() {
           </ContentHeader>
         )}
 
-        {!categories && isLoadingCategory ? (
+        {isLoadingCategory ? (
           <SpinnerDotBlock />
         ) : (
           eventDetail && (
@@ -95,46 +83,41 @@ function PageScoreElimination() {
                 <CategoryFilterChooser
                   breakpoint="min-width: 961px"
                   options={categoryOptions}
-                  selected={categorySelected[currentTeamFilterName]}
+                  selected={activeCategory}
                   onChange={(category) => {
-                    dispatchCategorySelected({ [currentTeamFilterName]: category });
+                    selectCategory(category);
+                    resetBracket();
                   }}
                 />
               </PanelSidebar>
 
               <div>
                 <ListViewToolbar>
-                  <LabelCurrentCategory>
-                    {categorySelected[currentTeamFilterName]?.label || "Pilih kategori"}
-                  </LabelCurrentCategory>
+                  <LabelCurrentCategory>{activeCategory || "Pilih kategori"}</LabelCurrentCategory>
 
                   <ScrollX>
                     <SpaceButtonsGroup>
-                      {teamCategories?.map((filter, index) => {
-                        return (
-                          <ButtonTeamFilter
-                            key={filter}
-                            className={classnames({
-                              "filter-selected": teamFilterSelected === index,
-                            })}
-                            onClick={() => setTeamFilterSelected(index)}
-                          >
-                            {getTabNameFromKey(filter)}
-                          </ButtonTeamFilter>
-                        );
-                      })}
+                      <TeamFilterChooser
+                        options={teamOptions}
+                        selected={activeTeam}
+                        onSelect={(opt) => {
+                          selectTeam(opt.id);
+                          resetBracket();
+                        }}
+                      />
                     </SpaceButtonsGroup>
                   </ScrollX>
                 </ListViewToolbar>
 
-                <SectionTableContainer>
-                  <FullPageLoadingIndicator isLoading={isLoadingMatchTemplate} />
-
+                <SectionTableContainer key={activeCategoryDetail?.id}>
+                  <FullPageLoadingIndicator isLoading={isLoadingBracket} />
                   <MatchBracketContainer>
                     {matchTemplate?.rounds ? (
                       <OverflowingBracketContent>
                         <MatchBracket matchTemplate={matchTemplate} />
                       </OverflowingBracketContent>
+                    ) : isLoadingBracket ? (
+                      <SettingsNotApplied>Sedang menyiapkan bagan...</SettingsNotApplied>
                     ) : (
                       <SettingsNotApplied>
                         <h5>Belum ada pertandingan untuk kategori ini</h5>
@@ -269,31 +252,6 @@ const SpaceButtonsGroup = styled.div`
     justify-content: flex-end;
     align-items: flex-start;
     gap: 0.5rem;
-  }
-`;
-
-const ButtonTeamFilter = styled.button`
-  &,
-  &:focus,
-  &:active {
-    padding: 0.75rem 1rem;
-    border: solid 1px var(--ma-primary-blue-50);
-    border-radius: 0.5rem;
-    background-color: var(--ma-primary-blue-50);
-    color: var(--ma-blue);
-    font-size: 0.875em;
-
-    @media (min-width: 721px) {
-      padding: 0.5rem 0.75rem;
-    }
-  }
-
-  white-space: nowrap;
-  transition: border-color 0.1s, background-color 0.1s;
-
-  &.filter-selected {
-    border: solid 1px var(--ma-secondary);
-    background-color: var(--ma-secondary);
   }
 `;
 
