@@ -30,6 +30,13 @@ function useCategoryFilters(eventId) {
     dispatch({ type: "INIT", payload: categories });
   }, [categories]);
 
+  React.useEffect(() => {
+    if (!activeCategory) {
+      return;
+    }
+    window.scrollTo(0, 0);
+  }, [activeCategory]);
+
   const isLoading = !categories && status === "loading";
   const isFetching = categories && status === "loading";
 
