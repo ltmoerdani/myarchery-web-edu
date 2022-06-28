@@ -4,13 +4,16 @@ import styled from "styled-components";
 import classnames from "classnames";
 
 function TeamFilterChooser({ options, selected, onSelect }) {
-  return options?.map((filter, index) => (
+  if (!options?.length) {
+    return null;
+  }
+  return options?.map((option) => (
     <ButtonTeamFilter
-      key={filter.id}
-      className={classnames({ "filter-selected": selected.id === filter.id })}
-      onClick={() => onSelect(index)}
+      key={option.id}
+      className={classnames({ "filter-selected": selected === option.id })}
+      onClick={() => onSelect?.(option)}
     >
-      {filter.label}
+      {option.label}
     </ButtonTeamFilter>
   ));
 }

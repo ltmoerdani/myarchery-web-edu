@@ -5,9 +5,10 @@ import { useParticipantScorings } from "../../hooks/participant-scorings";
 import { SessionCellsDataHeading, SessionCellsData, FullPageLoadingIndicator } from "../index";
 
 function ScoringTable({ categoryDetail, isEventEnded }) {
+  const teamType = categoryDetail?.categoryTeam?.toLowerCase?.();
   const { data: scorings, isLoading } = useParticipantScorings(
     categoryDetail?.id,
-    categoryDetail?.type,
+    teamType,
     isEventEnded
   );
 
@@ -20,7 +21,7 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
     );
   }
 
-  if (categoryDetail.type === "individu") {
+  if (teamType === "individual") {
     return (
       <SectionTableContainer>
         <FullPageLoadingIndicator isLoading={isLoading} />
@@ -70,7 +71,7 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
     );
   }
 
-  if (categoryDetail.type === "team") {
+  if (teamType === "team") {
     return (
       <SectionTableContainer>
         <FullPageLoadingIndicator isLoading={isLoading} />

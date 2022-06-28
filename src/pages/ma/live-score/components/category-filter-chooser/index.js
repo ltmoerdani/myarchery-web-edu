@@ -24,15 +24,14 @@ function ChooserAsSidebar({
   onChange,
   noOptionMessage,
 }) {
-  const { id } = selected || {};
-  const [optionSelected, setOptionSelected] = React.useState(selected || {});
+  const [nameSelected, setNameSelected] = React.useState(selected || "");
 
   React.useEffect(() => {
-    if (!id) {
+    if (!selected) {
       return;
     }
-    setOptionSelected(selected);
-  }, [id]);
+    setNameSelected(selected);
+  }, [selected]);
 
   return (
     <StyledWrapper>
@@ -43,17 +42,17 @@ function ChooserAsSidebar({
             <ChooserNoOption>{noOptionMessage || "Belum ada kategori"}</ChooserNoOption>
           </div>
         ) : (
-          options.map((option, index) => (
-            <div key={option.id || option.label || index}>
+          options.map((name, index) => (
+            <div key={name || index}>
               <ChooserOption
-                className={classnames({ "option-selected": option.id === optionSelected.id })}
-                disabled={option.id === optionSelected.id}
+                className={classnames({ "option-selected": name === nameSelected })}
+                disabled={name === nameSelected}
                 onClick={() => {
-                  setOptionSelected(option);
-                  onChange?.(option);
+                  setNameSelected(name);
+                  onChange?.(name);
                 }}
               >
-                {option.label}
+                {name}
               </ChooserOption>
             </div>
           ))

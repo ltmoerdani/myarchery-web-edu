@@ -27,6 +27,7 @@ function PageScoreQualification() {
     teamOptions,
     selectTeam,
     activeTeam,
+    activeCategoryDetail,
   } = useCategoryFilters(eventId);
 
   const isLoadingEvent = eventStatus === "loading";
@@ -81,16 +82,14 @@ function PageScoreQualification() {
 
               <div>
                 <ListViewToolbar>
-                  <LabelCurrentCategory>
-                    {activeCategory?.label || "Pilih kategori"}
-                  </LabelCurrentCategory>
+                  <LabelCurrentCategory>{activeCategory || "Pilih kategori"}</LabelCurrentCategory>
 
                   <ScrollX>
                     <SpaceButtonsGroup>
                       <TeamFilterChooser
                         options={teamOptions}
                         selected={activeTeam}
-                        onSelect={(index) => selectTeam(index)}
+                        onSelect={(opt) => selectTeam(opt.id)}
                       />
                     </SpaceButtonsGroup>
                   </ScrollX>
@@ -99,8 +98,8 @@ function PageScoreQualification() {
                 <ScrollX>
                   <ScoringTable
                     // ! Penting: wajib kasih prop key unik di komponen ini
-                    key={activeCategory?.id || "table-00"}
-                    categoryDetail={activeCategory}
+                    key={activeCategoryDetail?.id || "table-00"}
+                    categoryDetail={activeCategoryDetail}
                     // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
                     isEventEnded={isEventEnded}
                   />
