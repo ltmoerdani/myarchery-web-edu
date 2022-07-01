@@ -30,6 +30,7 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
           <thead>
             <tr>
               <th>Peringkat</th>
+              <th>Bantalan</th>
               <th className="text-uppercase">Nama</th>
               <th className="text-uppercase">Klub</th>
               <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
@@ -54,6 +55,7 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
                       <span>{index + 1}</span>
                     </DisplayRank>
                   </td>
+                  <td>{_getBudrestNumber(scoring.member)}</td>
                   <td>{scoring.member.name}</td>
                   <td>{scoring.member.clubName || <React.Fragment>&ndash;</React.Fragment>}</td>
 
@@ -187,5 +189,12 @@ const ScoringEmptyBar = styled.div`
   align-items: center;
   background-color: #ffffff;
 `;
+
+function _getBudrestNumber(member) {
+  if (!member.budRestNumber || !member.targetFace) {
+    return "-";
+  }
+  return member.budRestNumber + member.targetFace;
+}
 
 export { ScoringTable };

@@ -62,11 +62,12 @@ function SeedBagan({ bracketProps, configs }) {
               key={index}
               className={classnames({
                 "item-active": shouldEnableScoring(),
-                "item-winner": parseInt(team.win) === 1 && !isBye,
+                "item-winner": configs.isSettingApplied && parseInt(team.win) === 1 && !isBye,
               })}
             >
               <BoxName>{team.name || team.team || team.teamName || "-"}</BoxName>
               {typeof team.result === "number" && <BoxScore>{team.result}</BoxScore>}
+              {typeof team.totalScoring === "number" && <BoxScore>{team.totalScoring}</BoxScore>}
             </SeedTeam>
           ))}
         </ItemContainer>
@@ -128,6 +129,7 @@ const ItemContainer = styled.div`
 `;
 
 const BoxName = styled.span`
+  max-width: 10rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
