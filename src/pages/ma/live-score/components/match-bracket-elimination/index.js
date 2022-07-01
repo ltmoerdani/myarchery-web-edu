@@ -67,6 +67,7 @@ function SeedBagan({ bracketProps, configs }) {
             >
               <BoxName>{team.name || team.team || team.teamName || "-"}</BoxName>
               {typeof team.result === "number" && <BoxScore>{team.result}</BoxScore>}
+              {typeof team.totalScoring === "number" && <BoxScore>{team.totalScoring}</BoxScore>}
             </SeedTeam>
           ))}
         </ItemContainer>
@@ -128,6 +129,7 @@ const ItemContainer = styled.div`
 `;
 
 const BoxName = styled.span`
+  max-width: 10rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
