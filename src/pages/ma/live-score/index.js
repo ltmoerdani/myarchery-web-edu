@@ -73,7 +73,7 @@ function PageScoreQualification() {
                 </NavElimination>
 
                 <CategoryFilterChooser
-                  breakpoint="min-width: 1081px"
+                  breakpoint="min-width: 1200px"
                   options={categoryOptions}
                   selected={activeCategory}
                   onChange={(category) => selectCategory(category)}
@@ -139,23 +139,18 @@ const MetaInfo = styled.div`
 `;
 
 const PanelWithStickSidebar = styled.div`
-  > * + * {
-    margin-top: 1.5rem;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
 
-  @media (min-width: 961px) {
-    display: flex;
+  @media (min-width: 1200px) {
+    flex-direction: row;
     align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1.5rem;
 
-    > *:last-child {
-      flex: 16 0 18.75rem;
-    }
-
-    > * + * {
-      margin-top: 0;
+    > *:nth-child(2) {
+      flex-grow: 1;
+      flex-basis: 0;
     }
   }
 `;
@@ -165,7 +160,7 @@ const PanelSidebar = styled.div`
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: stretch;
-  gap: 1.5rem;
+  gap: 1rem;
 
   > *:first-child {
     flex-basis: 240px;
@@ -177,7 +172,7 @@ const PanelSidebar = styled.div`
     flex-grow: 10;
   }
 
-  @media (min-width: 961px) {
+  @media (min-width: 1200px) {
     display: block;
     flex: 1 0 16.25rem;
     max-width: 16.25rem;
@@ -207,7 +202,12 @@ const ButtonNavToElimination = styled(ButtonLink)`
   &:focus,
   &:active {
     width: 100%;
+    padding: 0.75rem;
     border-radius: 0.5rem;
+
+    @media (min-width: 1200px) {
+      padding: 0.47rem 0.75rem;
+    }
   }
 `;
 
