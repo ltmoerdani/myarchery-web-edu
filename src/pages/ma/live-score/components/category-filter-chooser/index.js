@@ -74,6 +74,10 @@ const ChooserHeader = styled.div`
   color: var(--ma-blue);
   text-transform: capitalize;
   font-weight: 600;
+
+  &.chooser-mobile {
+    font-size: 1rem;
+  }
 `;
 
 const ChooserNoOption = styled.span`
@@ -112,19 +116,24 @@ const ChooserOption = styled.button`
     padding-left: 2.125rem;
     color: var(--ma-blue);
   }
+
+  &.option-mobile {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 0.875rem;
+  }
 `;
 
 function ChooserMobile({ title = "Kategori", options = [], selected, onChange, noOptionMessage }) {
-  const { id } = selected || {};
-  const [nameSelected, setNameSelected] = React.useState(selected || {});
+  const [nameSelected, setNameSelected] = React.useState(selected || "");
   const [isOptionsOpen, setIsOpen] = React.useState(false);
 
   React.useEffect(() => {
-    if (!id) {
+    if (!selected) {
       return;
     }
     setNameSelected(selected);
-  }, [id]);
+  }, [selected]);
 
   return (
     <div>
@@ -138,13 +147,13 @@ function ChooserMobile({ title = "Kategori", options = [], selected, onChange, n
       {isOptionsOpen && (
         <Modal
           isOpen
-          size="sm"
+          size="md"
           centered
           onClosed={() => setIsOpen(false)}
           toggle={() => setIsOpen((open) => !open)}
         >
           <ModalBody>
-            <ChooserHeader>{title}</ChooserHeader>
+            <ChooserHeader className="chooser-mobile">{title}</ChooserHeader>
             <div>
               {!options?.length ? (
                 <div>
@@ -154,7 +163,7 @@ function ChooserMobile({ title = "Kategori", options = [], selected, onChange, n
                 options.map((name, index) => (
                   <div key={name || index}>
                     <ChooserOption
-                      className={classnames({
+                      className={classnames("option-mobile", {
                         "option-selected": name === nameSelected,
                       })}
                       disabled={name === nameSelected}
