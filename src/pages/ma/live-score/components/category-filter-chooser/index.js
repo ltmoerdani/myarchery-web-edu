@@ -116,20 +116,20 @@ const ChooserOption = styled.button`
 
 function ChooserMobile({ title = "Kategori", options = [], selected, onChange, noOptionMessage }) {
   const { id } = selected || {};
-  const [optionSelected, setOptionSelected] = React.useState(selected || {});
+  const [nameSelected, setNameSelected] = React.useState(selected || {});
   const [isOptionsOpen, setIsOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (!id) {
       return;
     }
-    setOptionSelected(selected);
+    setNameSelected(selected);
   }, [id]);
 
   return (
     <div>
       <ChooserMobileButton onClick={() => setIsOpen(true)}>
-        <span>{optionSelected?.label || title}</span>
+        <span>{nameSelected || title}</span>
         <span>
           <IconChevronDown size="16" />
         </span>
@@ -151,18 +151,20 @@ function ChooserMobile({ title = "Kategori", options = [], selected, onChange, n
                   <ChooserOption>{noOptionMessage || "Belum ada kategori"}</ChooserOption>
                 </div>
               ) : (
-                options.map((option, index) => (
-                  <div key={option.id || option.label || index}>
+                options.map((name, index) => (
+                  <div key={name || index}>
                     <ChooserOption
-                      className={classnames({ "option-selected": option.id === optionSelected.id })}
-                      disabled={option.id === optionSelected.id}
+                      className={classnames({
+                        "option-selected": name === nameSelected,
+                      })}
+                      disabled={name === nameSelected}
                       onClick={() => {
-                        setOptionSelected(option);
-                        onChange?.(option);
+                        setNameSelected(name);
+                        onChange?.(name);
                         setIsOpen(false);
                       }}
                     >
-                      {option.label}
+                      {name}
                     </ChooserOption>
                   </div>
                 ))
