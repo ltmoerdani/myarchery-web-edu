@@ -59,76 +59,80 @@ function PageScoreElimination() {
           {eventDetail ? "Live Score Kualifikasi" : ""}
         </BreadcrumbDashboard>
 
-        {!eventDetail && isLoadingEvent ? (
-          <SpinnerDotBlock />
-        ) : (
-          <ContentHeader>
-            <div>
-              <EventName>{eventName}</EventName>
-              <MetaInfo>
-                <LiveIndicator />
-                <span>| Babak Eliminasi</span>
-              </MetaInfo>
-            </div>
-            <div></div>
-          </ContentHeader>
-        )}
-
-        {isLoadingCategory ? (
-          <SpinnerDotBlock />
-        ) : (
-          eventDetail && (
-            <PanelWithStickySidebar>
-              <PanelSidebar>
-                <CategoryFilterChooser
-                  breakpoint="min-width: 961px"
-                  options={categoryOptions}
-                  selected={activeCategory}
-                  onChange={(category) => {
-                    selectCategory(category);
-                    resetBracket();
-                  }}
-                />
-              </PanelSidebar>
-
+        <ContentContainer>
+          {!eventDetail && isLoadingEvent ? (
+            <SpinnerDotBlock />
+          ) : (
+            <ContentHeader>
               <div>
-                <ListViewToolbar>
-                  <LabelCurrentCategory>{activeCategory || "Pilih kategori"}</LabelCurrentCategory>
-
-                  <ScrollX>
-                    <SpaceButtonsGroup>
-                      <TeamFilterChooser
-                        options={teamOptions}
-                        selected={activeTeam}
-                        onSelect={(opt) => {
-                          selectTeam(opt.id);
-                          resetBracket();
-                        }}
-                      />
-                    </SpaceButtonsGroup>
-                  </ScrollX>
-                </ListViewToolbar>
-
-                <SectionTableContainer key={activeCategoryDetail?.id}>
-                  <FullPageLoadingIndicator isLoading={isLoadingBracket} />
-                  <MatchBracketContainer>
-                    {matchTemplate?.rounds ? (
-                      <OverflowingBracketContent>
-                        <MatchBracket matchTemplate={matchTemplate} />
-                      </OverflowingBracketContent>
-                    ) : isLoadingBracket ? (
-                      <SettingsNotApplied>Sedang menyiapkan bagan...</SettingsNotApplied>
-                    ) : (
-                      <SettingsNotApplied>
-                        <h5>Belum ada pertandingan untuk kategori ini</h5>
-                      </SettingsNotApplied>
-                    )}
-                  </MatchBracketContainer>
-                </SectionTableContainer>
+                <EventName>{eventName}</EventName>
+                <MetaInfo>
+                  <LiveIndicator />
+                  <span>| Babak Eliminasi</span>
+                </MetaInfo>
               </div>
-            </PanelWithStickySidebar>
-          )
-        )}
+              <div></div>
+            </ContentHeader>
+          )}
+
+          {isLoadingCategory ? (
+            <SpinnerDotBlock />
+          ) : (
+            eventDetail && (
+              <PanelWithStickySidebar>
+                <PanelSidebar>
+                  <CategoryFilterChooser
+                    breakpoint="min-width: 1440px"
+                    options={categoryOptions}
+                    selected={activeCategory}
+                    onChange={(category) => {
+                      selectCategory(category);
+                      resetBracket();
+                    }}
+                  />
+                </PanelSidebar>
+
+                <div>
+                  <ListViewToolbar>
+                    <LabelCurrentCategory>
+                      {activeCategory || "Pilih kategori"}
+                    </LabelCurrentCategory>
+
+                    <ScrollX>
+                      <SpaceButtonsGroup>
+                        <TeamFilterChooser
+                          options={teamOptions}
+                          selected={activeTeam}
+                          onSelect={(opt) => {
+                            selectTeam(opt.id);
+                            resetBracket();
+                          }}
+                        />
+                      </SpaceButtonsGroup>
+                    </ScrollX>
+                  </ListViewToolbar>
+
+                  <SectionTableContainer key={activeCategoryDetail?.id}>
+                    <FullPageLoadingIndicator isLoading={isLoadingBracket} />
+                    <MatchBracketContainer>
+                      {matchTemplate?.rounds ? (
+                        <OverflowingBracketContent>
+                          <MatchBracket matchTemplate={matchTemplate} />
+                        </OverflowingBracketContent>
+                      ) : isLoadingBracket ? (
+                        <SettingsNotApplied>Sedang menyiapkan bagan...</SettingsNotApplied>
+                      ) : (
+                        <SettingsNotApplied>
+                          <h5>Belum ada pertandingan untuk kategori ini</h5>
+                        </SettingsNotApplied>
+                      )}
+                    </MatchBracketContainer>
+                  </SectionTableContainer>
+                </div>
+              </PanelWithStickySidebar>
+            )
+          )}
+        </ContentContainer>
       </Container>
     </StyledPageWrapper>
   );
@@ -140,6 +144,11 @@ const StyledPageWrapper = styled.div`
 
 const Container = styled(BSContainer)`
   margin-bottom: 5rem;
+`;
+
+const ContentContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
 const ContentHeader = styled.div`
@@ -160,55 +169,25 @@ const MetaInfo = styled.div`
 `;
 
 const PanelWithStickySidebar = styled.div`
-  > * + * {
-    margin-top: 1.5rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 
-  @media (min-width: 961px) {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+  @media (min-width: 1440px) {
+    flex-direction: row;
 
-    > *:last-child {
-      flex: 16 0 18.75rem;
-    }
-
-    > * + * {
-      margin-top: 0;
+    > *:nth-child(2) {
+      flex-grow: 1;
+      max-width: 900px;
     }
   }
 `;
 
 const PanelSidebar = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-items: stretch;
-  gap: 1.5rem;
-
-  > *:first-child {
-    flex-basis: 240px;
-    flex-grow: 1;
-  }
-
-  > *:last-child {
-    flex-basis: 360px;
-    flex-grow: 10;
-  }
-
-  @media (min-width: 961px) {
-    display: block;
-    flex: 1 0 16.25rem;
-    max-width: 16.25rem;
-    position: sticky;
-    top: calc(var(--ma-header-height) + 2.5rem);
-
-    > * + * {
-      margin-top: 1.5rem;
-    }
-  }
+  display: block;
+  flex-grow: 1;
+  position: sticky;
+  top: calc(var(--ma-header-height) + 2.5rem);
 `;
 
 const ListViewToolbar = styled.div`
@@ -219,7 +198,7 @@ const ListViewToolbar = styled.div`
   color: #ffffff;
   text-transform: capitalize;
 
-  @media (min-width: 961px) {
+  @media (min-width: 1440px) {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -235,7 +214,7 @@ const LabelCurrentCategory = styled.div`
   font-size: 1.125em;
   display: none;
 
-  @media (min-width: 1081px) {
+  @media (min-width: 1440px) {
     display: block;
   }
 `;
