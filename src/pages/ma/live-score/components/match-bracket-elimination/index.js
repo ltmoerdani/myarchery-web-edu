@@ -57,19 +57,23 @@ function SeedBagan({ bracketProps, configs }) {
         <ItemContainer>
           {isFinalRound && <FinalHeading>Medali Emas</FinalHeading>}
           {isThirdPlaceRound && <FinalHeading>Medali Perunggu</FinalHeading>}
-          {seed.teams.map((team, index) => (
-            <SeedTeam
-              key={index}
-              className={classnames({
-                "item-active": shouldEnableScoring(),
-                "item-winner": configs.isSettingApplied && parseInt(team.win) === 1 && !isBye,
-              })}
-            >
-              <BoxName>{team.name || team.team || team.teamName || "-"}</BoxName>
-              {typeof team.result === "number" && <BoxScore>{team.result}</BoxScore>}
-              {typeof team.totalScoring === "number" && <BoxScore>{team.totalScoring}</BoxScore>}
-            </SeedTeam>
-          ))}
+          {seed.teams.map((team, index) => {
+            const playerName = team.name || team.team || team.teamName || "-";
+            const isWinner = configs.isSettingApplied && Boolean(team.win) && !isBye;
+            return (
+              <SeedTeam
+                key={index}
+                className={classnames({
+                  "item-active": shouldEnableScoring(),
+                  "item-winner": isWinner,
+                })}
+              >
+                <BoxName title={playerName}>{playerName}</BoxName>
+                {typeof team.result === "number" && <BoxScore>{team.result}</BoxScore>}
+                {typeof team.totalScoring === "number" && <BoxScore>{team.totalScoring}</BoxScore>}
+              </SeedTeam>
+            );
+          })}
         </ItemContainer>
       </SeedItem>
     </Seed>
