@@ -49,8 +49,8 @@ function PageEventRanksClubs() {
             <PanelSidebar>
               <CategoryFilterChooser
                 breakpoint="min-width: 1081px"
-                options={[{ label: "Semua kategori" }]}
-                selected={{ label: "Semua kategori" }}
+                options={["Semua kategori"]}
+                selected="Semua kategori"
                 onChange={(category) => category}
               />
             </PanelSidebar>
