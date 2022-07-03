@@ -9,8 +9,11 @@ import IconMedalGold from "components/ma/icons/color/medal-gold";
 import IconMedalSilver from "components/ma/icons/color/medal-silver";
 import IconMedalBronze from "components/ma/icons/color/medal-bronze";
 
+import { misc } from "utils";
+
 function RankingTable({ eventId }) {
   const { data: rankedClubs, isLoading: isLoadingRankedClubs } = useEventRanksClubs(eventId);
+  const { registerQueue, checkIsPending, onLoad, onError } = useQueueHeavyImageList();
 
   if (!eventId) {
     return (
@@ -71,7 +74,14 @@ function RankingTable({ eventId }) {
                         <BlockAvatar>
                           <AvatarContainer>
                             {club.clubLogo ? (
-                              <img src={club.clubLogo} />
+                              <HeavyImage
+                                src={club.clubLogo}
+                                onRegisterQueue={() => registerQueue(index)}
+                                onLoad={onLoad}
+                                onError={onError}
+                                isPending={checkIsPending(index)}
+                                fallback={<AvatarDefault fullname={club.clubName} />}
+                              />
                             ) : (
                               <AvatarDefault fullname={club.clubName} />
                             )}
@@ -123,6 +133,17 @@ function BlockRankNo({ children }) {
       <span>{renderRankNumber(children)}</span>
     </StyledBlockRankNo>
   );
+}
+
+function HeavyImage({ onRegisterQueue, src, onLoad, onError, isPending = false, fallback = null }) {
+  React.useEffect(() => {
+    onRegisterQueue?.();
+  }, []);
+
+  if (isPending) {
+    return fallback || <span>Loading</span>;
+  }
+  return <img src={src} onLoad={onLoad} onError={onError} />;
 }
 
 const SectionTableContainer = styled.div`
@@ -308,5 +329,56 @@ const BlockMedalCounts = styled.span`
     }
   }
 `;
+
+function useQueueHeavyImageList() {
+  const [state, dispatch] = React.useReducer(queueReducer, {
+    queue: [],
+    index: 0,
+    loaded: [],
+    errors: [],
+  });
+  const { queue, index: currentQueueIndex } = state;
+
+  const registerQueue = (index) => dispatch({ type: "REGISTER_QUEUE", payload: index });
+
+  const checkIsPending = (imageIdentifier) => {
+    const indexInQueue = queue.indexOf("" + imageIdentifier);
+    const foundInQueue = indexInQueue > -1;
+    return !foundInQueue || indexInQueue > currentQueueIndex;
+  };
+
+  const onLoad = async () => {
+    await misc.sleep(500);
+    dispatch({ type: "IMAGE_LOADED" });
+  };
+
+  const onError = () => {
+    dispatch({ type: "IMAGE_ERROR" });
+  };
+
+  return { checkIsPending, registerQueue, onLoad, onError };
+}
+
+function queueReducer(state, action) {
+  if (action.type === "REGISTER_QUEUE") {
+    return {
+      ...state,
+      queue: [...state.queue, "" + action.payload],
+    };
+  }
+
+  if (action.type === "IMAGE_LOADED") {
+    const { queue: currentQueue, index: currentIndex } = state;
+    const tempNextIndex = currentIndex + 1;
+    const nextIndex = tempNextIndex >= currentQueue ? currentIndex : tempNextIndex;
+    return {
+      ...state,
+      index: nextIndex,
+      loaded: [...state.loaded, currentIndex],
+    };
+  }
+
+  return state;
+}
 
 export { RankingTable };
