@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import { useRankedMembers } from "../../hooks/ranked-members";
 
-import { AvatarDefault } from "components/ma";
+import { AvatarDefault, AlertSubmitError } from "components/ma";
 import { FullPageLoadingIndicator } from "../portal-loading";
 
 import IconMedalGold from "components/ma/icons/color/medal-gold";
@@ -11,13 +11,28 @@ import IconMedalBronze from "components/ma/icons/color/medal-bronze";
 
 function RankingTable({ categoryDetail }) {
   const { id: categoryId } = categoryDetail || {};
-  const { data: rankedMembers, isLoading: isLoadingRankedMembers } = useRankedMembers(categoryId);
+  const {
+    data: rankedMembers,
+    isLoading: isLoadingRankedMembers,
+    isError,
+    errors,
+  } = useRankedMembers(categoryId);
 
-  if (!categoryDetail || !rankedMembers) {
+  if (!categoryDetail || isError || (rankedMembers && !rankedMembers.length)) {
     return (
       <SectionTableContainer>
         <FullPageLoadingIndicator isLoading={isLoadingRankedMembers} />
-        <ScoringEmptyBar>Memproses data scoring...</ScoringEmptyBar>
+        <ScoringEmptyBar>Tidak ada data</ScoringEmptyBar>
+        <AlertSubmitError isError={isError} errors={errors} />
+      </SectionTableContainer>
+    );
+  }
+
+  if (!rankedMembers) {
+    return (
+      <SectionTableContainer>
+        <FullPageLoadingIndicator isLoading={isLoadingRankedMembers} />
+        <ScoringEmptyBar>Memproses data pemeringkatan...</ScoringEmptyBar>
       </SectionTableContainer>
     );
   }

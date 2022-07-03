@@ -2,43 +2,35 @@ import * as React from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useSeriesCategories } from "./hooks/series-categories";
+import { useCategoryFilters } from "./hooks/series-category-filters";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
-import { SpinnerDotBlock } from "components/ma";
+import { SpinnerDotBlock, AlertSubmitError } from "components/ma";
 import { BreadcrumbDashboard } from "../../dashboard/components/breadcrumb";
 import { CategoryFilterChooser } from "../../live-score/components";
 import { RankingTable } from "./components/ranking-table";
 
 import classnames from "classnames";
-import { makeCategoryOptions } from "./utils";
-
-const teamCategoryOptions = [
-  { label: "Individu Putra", value: "individu male" },
-  { label: "Individu Putri", value: "individu female" },
-];
 
 function PageSeriesLeaderboard() {
   const { series_id } = useParams();
   const seriesId = parseInt(series_id);
-  const { data: seriesData, isLoading: isLoadingSeriesData } = useSeriesCategories(seriesId);
+  const { data: seriesData, isError, errors } = useSeriesCategories(seriesId);
   const { detailSeries: series, categorySeries: categories } = seriesData || {};
 
-  const [teamCategorySelected, setTeamCategorySelected] = React.useState(teamCategoryOptions[0]);
+  const {
+    isLoading: isLoadingSeries,
+    selectCategory,
+    categoryOptions,
+    activeCategory,
+    teamOptions,
+    selectTeam,
+    activeTeam,
+    activeCategoryDetail,
+  } = useCategoryFilters(categories);
 
-  const categoryOptions = makeCategoryOptions(categories, teamCategorySelected);
-  const [categorySelected, dispatchCategorySelected] = React.useReducer(
-    (state, action) => ({ ...state, ...action }),
-    {}
-  );
-
-  React.useEffect(() => {
-    if (!categoryOptions?.length || categorySelected[teamCategorySelected.value]) {
-      return;
-    }
-
-    dispatchCategorySelected({ [teamCategorySelected.value]: categoryOptions[0] });
-  }, [categoryOptions, teamCategorySelected]);
+  const isLoading = !categories && isLoadingSeries;
 
   return (
     <StyledPageWrapper>
@@ -55,7 +47,7 @@ function PageSeriesLeaderboard() {
           {series?.name ? series.name : "Kembali"}
         </BreadcrumbDashboard>
 
-        {!seriesData && isLoadingSeriesData ? (
+        {isLoading ? (
           <SpinnerDotBlock />
         ) : (
           <ContentHeader>
@@ -66,36 +58,30 @@ function PageSeriesLeaderboard() {
           </ContentHeader>
         )}
 
-        {!categories && isLoadingSeriesData ? (
+        {isLoading ? (
           <SpinnerDotBlock />
         ) : (
           <PanelWithStickSidebar>
             <PanelSidebar>
               <CategoryFilterChooser
-                breakpoint="min-width: 1081px"
+                breakpoint="min-width: 1200px"
                 options={categoryOptions}
-                selected={categorySelected[teamCategorySelected.value]}
-                onChange={(category) => {
-                  dispatchCategorySelected({ [teamCategorySelected.value]: category });
-                }}
+                selected={activeCategory}
+                onChange={(category) => selectCategory(category)}
               />
             </PanelSidebar>
 
             <div>
               <ListViewToolbar>
-                <LabelCurrentCategory>
-                  {categorySelected[teamCategorySelected.value]?.label || "Pilih kategori"}
-                </LabelCurrentCategory>
+                <LabelCurrentCategory>{activeCategory || "Pilih kategori"}</LabelCurrentCategory>
 
                 <ScrollX>
                   <SpaceButtonsGroup>
-                    {teamCategoryOptions?.map((filter) => (
+                    {teamOptions?.map((filter) => (
                       <ButtonTeamFilter
-                        key={filter.value}
-                        className={classnames({
-                          "filter-selected": filter.value === teamCategorySelected.value,
-                        })}
-                        onClick={() => setTeamCategorySelected(filter)}
+                        key={filter.id}
+                        className={classnames({ "filter-selected": filter.id === activeTeam })}
+                        onClick={() => selectTeam(filter.id)}
                       >
                         {filter.label}
                       </ButtonTeamFilter>
@@ -104,11 +90,12 @@ function PageSeriesLeaderboard() {
                 </ScrollX>
               </ListViewToolbar>
 
-              <RankingTable categoryDetail={categorySelected[teamCategorySelected.value]} />
+              <RankingTable key={activeCategoryDetail?.id} categoryDetail={activeCategoryDetail} />
             </div>
           </PanelWithStickSidebar>
         )}
       </Container>
+      <AlertSubmitError isError={isError} errors={errors} />
     </StyledPageWrapper>
   );
 }
