@@ -1,15 +1,11 @@
 import * as React from "react";
 
-// TODO:
-// import { makeCategoryOptions } from "./utils";
-
 function useCategoryFilters(categories) {
   const [filters, dispatch] = React.useReducer(filterReducer, {
     category: null,
     teams: null,
     categoryDetails: null,
   });
-  console.log(filters);
 
   const { activeCategory, activeTeam, activeCategoryDetail } = _getActiveData(filters);
 
