@@ -115,7 +115,8 @@ function PageScoreElimination() {
                   <SectionTableContainer key={activeCategoryDetail?.id}>
                     <FullPageLoadingIndicator isLoading={isLoadingBracket} />
                     <MatchBracketContainer>
-                      {matchTemplate?.rounds ? (
+                      {(matchTemplate?.eliminationId || matchTemplate?.eliminationGroupId) &&
+                      matchTemplate?.rounds ? (
                         <OverflowingBracketContent>
                           <MatchBracket matchTemplate={matchTemplate} />
                         </OverflowingBracketContent>
