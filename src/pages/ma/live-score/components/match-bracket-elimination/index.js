@@ -8,9 +8,14 @@ import {
   SeedTeam as RBSeedTeam,
 } from "react-brackets";
 
+import IconMedalGold from "components/ma/icons/color/medal-gold";
+import IconMedalSilver from "components/ma/icons/color/medal-silver";
+import IconMedalBronze from "components/ma/icons/color/medal-bronze";
+
 import classnames from "classnames";
 
 function MatchBracket({ matchTemplate }) {
+  const { hasWinner, winnerIndex } = _checkThirdPlaceHasWinner(matchTemplate);
   return (
     <Bracket
       rounds={matchTemplate.rounds || []}
@@ -21,6 +26,8 @@ function MatchBracket({ matchTemplate }) {
             isSettingApplied: !matchTemplate.updated,
             totalRounds: matchTemplate.rounds.length - 1,
             eliminationId: matchTemplate.eliminationId,
+            thirdPlaceHasWinner: hasWinner,
+            thirdPlaceWinnerIndex: winnerIndex,
           }}
         />
       )}
@@ -30,19 +37,16 @@ function MatchBracket({ matchTemplate }) {
 
 function SeedBagan({ bracketProps, configs }) {
   const { roundIndex, seed, breakpoint } = bracketProps;
+  const { totalRounds, isSettingApplied, thirdPlaceHasWinner, thirdPlaceWinnerIndex } = configs;
 
-  const isFinalRound =
-    (configs.totalRounds === 4 && roundIndex === 3) ||
-    (configs.totalRounds === 3 && roundIndex === 2);
-  const isThirdPlaceRound =
-    (configs.totalRounds === 4 && roundIndex === 4) ||
-    (configs.totalRounds === 3 && roundIndex === 3);
+  const { isFinalRound, isThirdPlaceRound } = _getRoundPositions({ totalRounds, roundIndex });
 
   const shouldEnableScoring = () => {
     const noWinnersYet = seed.teams.every((team) => team.win === 0);
-    return configs.isSettingApplied && noWinnersYet;
+    return isSettingApplied && noWinnersYet;
   };
 
+  const hasWinner = seed.teams.some((team) => team.win === 1);
   const isBye = seed.teams.some((team) => team.status === "bye");
 
   return (
@@ -55,21 +59,44 @@ function SeedBagan({ bracketProps, configs }) {
     >
       <SeedItem>
         <ItemContainer>
-          {isFinalRound && <FinalHeading>Medali Emas</FinalHeading>}
-          {isThirdPlaceRound && <FinalHeading>Medali Perunggu</FinalHeading>}
-          {seed.teams.map((team, index) => {
+          {seed.teams.map((team, teamIndex) => {
             const playerName = team.name || team.team || team.teamName || "-";
-            const isWinner = configs.isSettingApplied && Boolean(team.win) && !isBye;
+            const isWinner = isSettingApplied && Boolean(team.win) && !isBye;
+            const isThirdPlaceWinner = isThirdPlaceRound && teamIndex === thirdPlaceWinnerIndex;
             return (
               <SeedTeam
-                key={index}
+                key={teamIndex}
                 className={classnames({
                   "item-active": shouldEnableScoring(),
-                  "item-winner": isWinner,
+                  "item-winner": isWinner || isThirdPlaceWinner,
                 })}
               >
                 <BoxName title={playerName}>{playerName}</BoxName>
                 <Score team={team} />
+
+                {/* ! Hati-hati, logika kondisionalnya ruwet pakai ternary wkwk */}
+                {/* TODO: refaktor jadi komponen (?) */}
+                {isFinalRound && hasWinner ? (
+                  isWinner ? (
+                    <FinalHeading className={classnames({ "final-bottom": teamIndex > 0 })}>
+                      Medali Emas <IconMedalGold size="20" />
+                    </FinalHeading>
+                  ) : (
+                    <FinalHeading className={classnames({ "final-bottom": teamIndex > 0 })}>
+                      Medali Perak <IconMedalSilver size="20" />
+                    </FinalHeading>
+                  )
+                ) : isFinalRound && !hasWinner ? (
+                  <FinalHeading>Babak Final</FinalHeading>
+                ) : isThirdPlaceRound && thirdPlaceHasWinner ? (
+                  isThirdPlaceWinner ? (
+                    <FinalHeading className={classnames({ "final-bottom": teamIndex > 0 })}>
+                      <IconMedalBronze size="20" /> Medali Perunggu
+                    </FinalHeading>
+                  ) : null
+                ) : isThirdPlaceRound && !thirdPlaceHasWinner ? (
+                  <FinalHeading>Perebutan Juara 3</FinalHeading>
+                ) : null}
               </SeedTeam>
             );
           })}
@@ -89,13 +116,21 @@ function Score({ team }) {
   return null;
 }
 
+/* ========================= */
+// styles
+
 const FinalHeading = styled.h6`
   position: absolute;
-  top: -2em;
+  top: -2.5em;
   left: 0;
   right: 0;
   font-weight: 600;
   text-align: center;
+
+  &.final-bottom {
+    top: unset;
+    bottom: -3em;
+  }
 `;
 
 const Seed = styled(RBSeed)`
@@ -160,5 +195,100 @@ const BoxScore = styled.span`
     background-color: #000000;
   }
 `;
+
+/* ========================= */
+// utils
+
+function _getRoundPositions({ totalRounds, roundIndex }) {
+  const positionByRounds = {
+    5: { finalIndex: 4, thirdPlaceIndex: 5 }, // 32 besar
+    4: { finalIndex: 3, thirdPlaceIndex: 4 }, // 16 besar
+    3: { finalIndex: 2, thirdPlaceIndex: 3 }, // 8 besar
+    2: { finalIndex: 1, thirdPlaceIndex: 2 }, // 4 besar
+  };
+
+  const { finalIndex, thirdPlaceIndex } = positionByRounds[totalRounds] || {};
+  const isFinalRound = roundIndex === finalIndex;
+  const isThirdPlaceRound = roundIndex === thirdPlaceIndex;
+
+  return { isFinalRound, isThirdPlaceRound };
+}
+
+function _checkThirdPlaceHasWinner(data) {
+  const defaultValue = { hasWinner: false, winnerIndex: -1 };
+
+  if (!data) {
+    return defaultValue;
+  }
+
+  const winningStatusByRound = data.rounds.map((round) => {
+    const thisRoundDone = round.seeds.every((seed) => {
+      const thisMatchIsBye = seed.teams.some((team) => team.status === "bye");
+      const thisMatchHasWinner = seed.teams.some((team) => Boolean(team.win));
+      const isDone = thisMatchIsBye || thisMatchHasWinner;
+      return isDone;
+    });
+    return thisRoundDone;
+  });
+
+  const thirdPlaceRoundIndex = winningStatusByRound.length - 1;
+  const finalRoundIndex = thirdPlaceRoundIndex - 1;
+  const semiFinalIndex = finalRoundIndex - 1;
+
+  const ongoingIndex = _getOngoingIndex(winningStatusByRound);
+
+  // Belum kelihatan di perebutan juara 3 ada pemenang apa enggak
+  if (ongoingIndex <= semiFinalIndex) {
+    return defaultValue;
+  }
+
+  const thirdPlaceSeed = data.rounds[thirdPlaceRoundIndex].seeds[0];
+  return _checkSeedHasWinner(thirdPlaceSeed);
+}
+
+/**
+ * Yang ongoing harusnya satu round setelah round
+ * yang match-nya udah dapat pemenang semua
+ */
+function _getOngoingIndex(statusByRound) {
+  let foundIndex = 0;
+  const rounds = [...statusByRound];
+  for (const index in rounds) {
+    const status = rounds[index];
+    const lastIndex = statusByRound.length - 1;
+    if (status === true && parseInt(index) < lastIndex) {
+      continue;
+    }
+    foundIndex = parseInt(index);
+    break;
+  }
+  return foundIndex;
+}
+
+function _checkSeedHasWinner(seed) {
+  const hasPlayerName = seed.teams.some((player) => Boolean(player.name));
+  if (hasPlayerName) {
+    const winIndex = seed.teams.findIndex((team) => Boolean(team.win));
+    const playerIndex = seed.teams.findIndex((player) => Boolean(player.name));
+    const foundIndex = winIndex > -1 ? winIndex : playerIndex > -1 ? playerIndex : -1;
+    return {
+      hasWinner: hasPlayerName,
+      winnerIndex: foundIndex,
+    };
+  }
+
+  const hasTeamName = seed.teams.some((team) => Boolean(team.teamName));
+  if (hasTeamName) {
+    const winIndex = seed.teams.findIndex((team) => Boolean(team.win));
+    const teamIndex = seed.teams.findIndex((team) => Boolean(team.teamName));
+    const foundIndex = winIndex > -1 ? winIndex : teamIndex > -1 ? teamIndex : -1;
+    return {
+      hasWinner: hasTeamName,
+      winnerIndex: foundIndex,
+    };
+  }
+
+  return { hasWinner: false, winnerIndex: -1 };
+}
 
 export { MatchBracket };
