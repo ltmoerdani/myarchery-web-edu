@@ -10,6 +10,7 @@ import { ButtonBlue, SpinnerDotBlock } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { CategoryFilterChooser, LiveIndicator, ScoringTable } from "./components";
 import { TeamFilterChooser } from "./components/team-filter-chooser";
+import { EmbedYoutube } from "./components/embed-youtube";
 
 import { isAfter } from "date-fns";
 import { datetime } from "utils";
@@ -44,6 +45,10 @@ function PageScoreQualification() {
         <BreadcrumbDashboard to={getLandingPagePath(eventDetail?.publicInformation.eventUrl)}>
           {eventDetail ? "Kembali" : ""}
         </BreadcrumbDashboard>
+
+        {/* Sementara masih hardcoded untuk event Series 2 aja */}
+        {/* TODO: hapus/bikin fitur input link embed video */}
+        {eventId === 22 && <EmbedYoutube />}
 
         {!eventDetail && isLoadingEvent ? (
           <SpinnerDotBlock />
