@@ -69,8 +69,7 @@ function SeedBagan({ bracketProps, configs }) {
                 })}
               >
                 <BoxName title={playerName}>{playerName}</BoxName>
-                {typeof team.result === "number" && <BoxScore>{team.result}</BoxScore>}
-                {typeof team.totalScoring === "number" && <BoxScore>{team.totalScoring}</BoxScore>}
+                <Score team={team} />
               </SeedTeam>
             );
           })}
@@ -78,6 +77,16 @@ function SeedBagan({ bracketProps, configs }) {
       </SeedItem>
     </Seed>
   );
+}
+
+function Score({ team }) {
+  if (typeof team.result === "number") {
+    return <BoxScore>{team.result}</BoxScore>;
+  }
+  if (typeof team.totalScoring === "number") {
+    return <BoxScore>{team.totalScoring}</BoxScore>;
+  }
+  return null;
 }
 
 const FinalHeading = styled.h6`
