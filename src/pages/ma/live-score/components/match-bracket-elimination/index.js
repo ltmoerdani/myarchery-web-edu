@@ -71,7 +71,14 @@ function SeedBagan({ bracketProps, configs }) {
                   "item-winner": isWinner || isThirdPlaceWinner,
                 })}
               >
-                <BoxName title={playerName}>{playerName}</BoxName>
+                <BoxNameGroup>
+                  <BoxName title={playerName}>{playerName}</BoxName>
+                  {team.club && (
+                    <BoxName title={team.club} className="name-club">
+                      {team.club}
+                    </BoxName>
+                  )}
+                </BoxNameGroup>
                 <Score team={team} />
 
                 {/* ! Hati-hati, logika kondisionalnya ruwet pakai ternary wkwk */}
@@ -165,6 +172,10 @@ const SeedTeam = styled(RBSeedTeam)`
     border-color: var(--ma-blue);
     background-color: #bc8b2c;
     color: #000000;
+
+    .name-club {
+      color: var(--ma-text-black);
+    }
   }
 `;
 
@@ -176,11 +187,24 @@ const ItemContainer = styled.div`
   }
 `;
 
+const BoxNameGroup = styled.span`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+`;
+
 const BoxName = styled.span`
   max-width: 10rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: left;
+
+  &.name-club {
+    color: var(--ma-gray-500);
+    font-size: 0.7em;
+  }
 `;
 
 const BoxScore = styled.span`
@@ -221,15 +245,22 @@ function _checkThirdPlaceHasWinner(data) {
     return defaultValue;
   }
 
-  const winningStatusByRound = data.rounds.map((round) => {
+  const winningStatusByRound = [];
+  for (const index in data.rounds) {
+    const round = data.rounds[index];
+    const previousIndex = parseInt(index) - 1;
+    const previousStatus = previousIndex > -1 ? winningStatusByRound[previousIndex] : true;
+
     const thisRoundDone = round.seeds.every((seed) => {
       const thisMatchIsBye = seed.teams.some((team) => team.status === "bye");
       const thisMatchHasWinner = seed.teams.some((team) => Boolean(team.win));
-      const isDone = thisMatchIsBye || thisMatchHasWinner;
+      const thisMatchAllWait = seed.teams.every((team) => team.status === "wait");
+      const isDone = thisMatchIsBye || thisMatchHasWinner || (previousStatus && thisMatchAllWait);
       return isDone;
     });
-    return thisRoundDone;
-  });
+
+    winningStatusByRound.push(thisRoundDone);
+  }
 
   const thirdPlaceRoundIndex = winningStatusByRound.length - 1;
   const finalRoundIndex = thirdPlaceRoundIndex - 1;
