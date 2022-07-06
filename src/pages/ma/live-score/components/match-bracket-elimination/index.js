@@ -221,15 +221,22 @@ function _checkThirdPlaceHasWinner(data) {
     return defaultValue;
   }
 
-  const winningStatusByRound = data.rounds.map((round) => {
+  const winningStatusByRound = [];
+  for (const index in data.rounds) {
+    const round = data.rounds[index];
+    const previousIndex = parseInt(index) - 1;
+    const previousStatus = previousIndex > -1 ? winningStatusByRound[previousIndex] : true;
+
     const thisRoundDone = round.seeds.every((seed) => {
       const thisMatchIsBye = seed.teams.some((team) => team.status === "bye");
       const thisMatchHasWinner = seed.teams.some((team) => Boolean(team.win));
-      const isDone = thisMatchIsBye || thisMatchHasWinner;
+      const thisMatchAllWait = seed.teams.every((team) => team.status === "wait");
+      const isDone = thisMatchIsBye || thisMatchHasWinner || (previousStatus && thisMatchAllWait);
       return isDone;
     });
-    return thisRoundDone;
-  });
+
+    winningStatusByRound.push(thisRoundDone);
+  }
 
   const thirdPlaceRoundIndex = winningStatusByRound.length - 1;
   const finalRoundIndex = thirdPlaceRoundIndex - 1;
