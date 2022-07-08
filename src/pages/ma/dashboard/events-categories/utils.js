@@ -1,11 +1,12 @@
-import { isPast, parseISO } from "date-fns";
+import { isPast, parseISO, addDays } from "date-fns";
 
 function shouldDisableEditing(eventDateEnd) {
   if (!eventDateEnd) {
-    return true;
+    return false;
   }
   const dateEnd = typeof eventDateEnd === "string" ? parseISO(eventDateEnd) : eventDateEnd;
-  return isPast(dateEnd);
+  const fourDaysAfterEnd = addDays(dateEnd, 4);
+  return isPast(fourDaysAfterEnd);
 }
 
 export { shouldDisableEditing };
