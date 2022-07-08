@@ -12,8 +12,6 @@ import { BreadcrumbDashboard } from "../components/breadcrumb";
 import IconUsers from "components/ma/icons/mono/users";
 import IconUser from "components/ma/icons/mono/user";
 
-import { shouldDisableEditing } from "./utils";
-
 function PageEventCategories() {
   const { event_id } = useParams();
   const eventId = parseInt(event_id);
@@ -22,7 +20,6 @@ function PageEventCategories() {
 
   const isLoadingEvents = categoriesState.status === "loading";
   const isErrorEvents = categoriesState.status === "error";
-  const editIsDisabled = shouldDisableEditing(eventDetail?.publicInformation.eventEnd);
 
   const setSerieCategory = async (memberId, categoryId, status) => {
     const result = await OrderEventService.setSerieCategory({
@@ -131,13 +128,12 @@ function PageEventCategories() {
                       </DetailBar>
                       {eventCategory?.haveSeries == 1 ? (
                         <div>
-                          {eventCategory.canUpdateSeries == 1 &&
-                          eventCategory.canJoinSeries == 1 &&
+                          {eventCategory.canJoinSeries == 1 &&
                           (eventCategory.joinSerieCategoryId == 0 ||
                             eventCategory.joinSerieCategoryId == eventCategory.id) ? (
                             eventCategory.joinSerieCategoryId == eventCategory.id ? (
                               <ButtonRed
-                                disabled={editIsDisabled}
+                                disabled={eventCategory.canUpdateSeries == 0}
                                 onClick={() => {
                                   setSerieCategory(
                                     eventCategory.detailParticipant.memberId,
@@ -150,7 +146,7 @@ function PageEventCategories() {
                               </ButtonRed>
                             ) : (
                               <ButtonOutlineBlue
-                                disabled={editIsDisabled}
+                                disabled={eventCategory.canUpdateSeries == 0}
                                 onClick={() => {
                                   setSerieCategory(
                                     eventCategory.detailParticipant.memberId,
@@ -163,7 +159,7 @@ function PageEventCategories() {
                               </ButtonOutlineBlue>
                             )
                           ) : (
-                            <ButtonOutline disabled={editIsDisabled}>
+                            <ButtonOutline disabled={eventCategory.canUpdateSeries == 0}>
                               {eventCategory.joinSerieCategoryId == eventCategory.id
                                 ? "pemeringkatan series dikuti"
                                 : "pilih sebagai pemeringkatan series"}
