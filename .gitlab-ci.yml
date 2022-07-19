@@ -3,9 +3,10 @@ services:
   - docker:dind
  
 stages:
+  - update-bf
+  - deploy-bf
   - build
   - push
-  - update
   - deploy
 
 stage_build:
@@ -71,7 +72,7 @@ stage_deploy_docker:
 
 update:
   image: node:14
-  stage: update
+  stage: update-bf
   before_script:
   - apt-get update -qq
   - apt-get install -qq git
@@ -86,7 +87,7 @@ update:
 
 deploy:
   image: node:14
-  stage: deploy
+  stage: deploy-bf
   before_script:
   - apt-get update -qq
   - apt-get install -qq git
