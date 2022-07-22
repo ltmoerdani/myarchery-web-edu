@@ -185,7 +185,8 @@ function PageEventRegistration() {
       updateEventCategories({ status: "loading", errors: null });
       const result = await EventsService.getCategory({ event_id: eventId });
       if (result.success) {
-        updateEventCategories({ status: "success", data: result.data });
+        const data = _checkDataContainingMarathon(result.data);
+        updateEventCategories({ status: "success", data: data });
       } else {
         updateEventCategories({ status: "error", errors: result.errors });
       }
@@ -1020,6 +1021,32 @@ function formReducer(state, action) {
   }
 
   return state;
+}
+
+function _checkDataContainingMarathon(data) {
+  let flatArray = [];
+  for (const teamCategory in data) {
+    flatArray = [...flatArray, ...data[teamCategory]];
+  }
+
+  // Dapat kategori detail mana pun yang di-set range tanggal bertandingnya
+  // berarti tipe marathon
+  const anyOneHasRangeDate = flatArray.some((category) => category.rangeDate?.length);
+
+  if (!anyOneHasRangeDate) {
+    return data;
+  }
+
+  // Assign flag `isMarathon` ke masing-masing item kategori detail-nya
+  const categoriesWithMarathonFlag = { ...data };
+  for (const teamCategory in data) {
+    categoriesWithMarathonFlag[teamCategory] = data[teamCategory].map((category) => ({
+      ...category,
+      isMarathon: true,
+    }));
+  }
+
+  return categoriesWithMarathonFlag;
 }
 
 export default PageEventRegistration;
