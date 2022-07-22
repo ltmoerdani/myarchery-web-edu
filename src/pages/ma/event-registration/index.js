@@ -22,6 +22,7 @@ import {
 } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
+import { PickerMatchDate } from "./components/picker-match-date";
 
 import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
@@ -30,7 +31,7 @@ import IconMail from "components/ma/icons/mono/mail";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
-import { stringUtil, errorsUtil } from "utils";
+import { stringUtil, errorsUtil, datetime } from "utils";
 import AdsBanner from "./components/ads-banner";
 
 const tabList = [
@@ -41,6 +42,7 @@ const tabList = [
 const initialFormState = {
   data: {
     category: null,
+    matchDate: null,
     teamName: "",
     club: null,
     participants: [
@@ -77,7 +79,7 @@ function PageEventRegistration() {
     { status: "idle", errors: null }
   );
 
-  const { category, teamName, club, participants } = formData.data;
+  const { category, matchDate, teamName, club, participants } = formData.data;
   const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
   const isLoadingEventDetail = eventDetail.status === "loading";
@@ -124,6 +126,14 @@ function PageEventRegistration() {
       }
     }
 
+    // Harus isi tanggal untuk kategori event marathon
+    if (category.rangeDate.length && !matchDate) {
+      validationErrors = {
+        ...validationErrors,
+        matchDate: ["Tanggal bertanding wajib diisi"],
+      };
+    }
+
     updateFormData({ type: "FORM_INVALID", errors: validationErrors });
 
     const isValid = !Object.keys(validationErrors)?.length;
@@ -137,6 +147,7 @@ function PageEventRegistration() {
 
     const payload = {
       event_category_id: category.id,
+      day_choice: datetime.formatServerDate(matchDate) || undefined,
       club_id: club?.detail.id || 0,
       team_name: teamName || undefined,
       with_club: withClub,
@@ -261,6 +272,13 @@ function PageEventRegistration() {
                     Kategori Lomba
                   </FieldSelectCategory>
 
+                  <PickerMatchDate
+                    category={category}
+                    value={matchDate}
+                    onChange={(date) => updateFormData({ matchDate: date })}
+                    errors={formErrors.matchDate}
+                  />
+
                   {userProfile ? (
                     <React.Fragment>
                       <FieldInputText
@@ -309,46 +327,53 @@ function PageEventRegistration() {
                       {/* <p>Masukkan email peserta yang telah terdaftar</p> */}
                     </div>
                   </SegmentByTeamCategory>
-                  <Label className="form-check-label" htmlFor="yes">
-                    Apakah anda mewakili klub ?
-                  </Label>
-                  <br></br>
-                  <div
-                    className={`form-check form-radio-primary`}
-                    style={{ display: "inline-block", marginRight: 10 }}
-                  >
-                    <Input
-                      type="radio"
-                      name="withClub"
-                      value="yes"
-                      onChange={() => {
-                        setWithClub("yes");
-                      }}
-                      checked={withClub == "yes" ? true : false}
-                      className="form-check-Input"
-                    />
-                    <Label className="form-check-label" htmlFor="yes">
-                      iya, saya mewakili klub
-                    </Label>
-                  </div>
 
-                  <div
-                    className={`form-check form-radio-primary`}
-                    style={{ display: "inline-block", marginRight: 10 }}
-                  >
-                    <Input
-                      type="radio"
-                      name="withClub"
-                      value="no"
-                      onChange={() => {
-                        setWithClub("no");
-                      }}
-                      checked={withClub == "no" ? true : false}
-                      className="form-check-Input"
-                    />
-                    <Label className="form-check-label" htmlFor="no">
-                      tidak, saya individu
-                    </Label>
+                  <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
+                    <div>
+                      <Label className="form-check-label" style={{ marginBottom: "0.25rem" }}>
+                        Apakah Anda mewakili klub?
+                      </Label>
+                    </div>
+
+                    <div
+                      className={`form-check form-radio-primary`}
+                      style={{ display: "inline-block", marginRight: 10 }}
+                    >
+                      <Input
+                        type="radio"
+                        name="withClub"
+                        id="with-club-yes"
+                        value="yes"
+                        onChange={() => {
+                          setWithClub("yes");
+                        }}
+                        checked={withClub == "yes" ? true : false}
+                        className="form-check-Input"
+                      />
+                      <Label className="form-check-label" htmlFor="with-club-yes">
+                        Iya, saya mewakili klub
+                      </Label>
+                    </div>
+
+                    <div
+                      className={`form-check form-radio-primary`}
+                      style={{ display: "inline-block", marginRight: 10 }}
+                    >
+                      <Input
+                        type="radio"
+                        name="withClub"
+                        id="with-club-no"
+                        value="no"
+                        onChange={() => {
+                          setWithClub("no");
+                        }}
+                        checked={withClub == "no" ? true : false}
+                        className="form-check-Input"
+                      />
+                      <Label className="form-check-label" htmlFor="with-club-no">
+                        Tidak, saya individu
+                      </Label>
+                    </div>
                   </div>
 
                   <FieldSelectClub
@@ -647,7 +672,7 @@ function PageEventRegistration() {
             )}
           </div>
         </SplitDisplay>
-        <AdsBanner/>
+        <AdsBanner />
       </Container>
       <LoadingScreen loading={isLoadingSubmit} />
     </StyledPageWrapper>
@@ -946,11 +971,18 @@ function formReducer(state, action) {
       data: null,
     }));
 
+    // cek date range marathon
+    const hasOnlyOneRangeDate = action.payload.rangeDate?.length === 1;
+    const matchDate = hasOnlyOneRangeDate
+      ? datetime.parseServerDatetime(action.payload.rangeDate[0])
+      : null;
+
     return {
       ...state,
       data: {
         ...state.data,
         category: action.payload,
+        matchDate: matchDate,
         // reset field-field data peserta
         teamName: "",
         club: null,

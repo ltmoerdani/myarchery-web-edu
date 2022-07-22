@@ -195,20 +195,18 @@ function PickerControl({
                   >
                     <h5 className="category-name">{category.categoryLabel}</h5>
                     <div>
-                      {!category.isOpen ? (
-                        <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
-                      ) : isQuotaAvailable ? (
-                        categoryMatchesUser ? (
+                      {categoryMatchesUser ? (
+                        !category.isOpen ? (
+                          <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
+                        ) : isQuotaAvailable ? (
                           <QuotaLabel>
                             {category.totalParticipant}&#47;{category.quota}
                           </QuotaLabel>
                         ) : (
-                          <QuotaLabelMuted>
-                            {category.totalParticipant}&#47;{category.quota}
-                          </QuotaLabelMuted>
+                          <QuotaLabelMuted>Habis</QuotaLabelMuted>
                         )
                       ) : (
-                        <QuotaLabelMuted>Habis</QuotaLabelMuted>
+                        <QuotaLabelMuted>Tidak Sesuai Gender</QuotaLabelMuted>
                       )}
                     </div>
                   </CategoryItemLabel>
