@@ -23,6 +23,7 @@ function PickerMatchDate({ category, value, onChange, errors }) {
   return (
     <FieldInputDate
       label="Pilih Tanggal Bertanding"
+      required
       minDate={dateConstraint.min}
       maxDate={dateConstraint.max}
       value={value}
