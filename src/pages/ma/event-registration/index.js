@@ -147,6 +147,7 @@ function PageEventRegistration() {
 
     const payload = {
       event_category_id: category.id,
+      day_choice: datetime.formatServerDate(matchDate) || undefined,
       club_id: club?.detail.id || 0,
       team_name: teamName || undefined,
       with_club: withClub,
