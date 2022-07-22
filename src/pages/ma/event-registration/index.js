@@ -1024,25 +1024,12 @@ function formReducer(state, action) {
 }
 
 function _checkDataContainingMarathon(data) {
-  let flatArray = [];
-  for (const teamCategory in data) {
-    flatArray = [...flatArray, ...data[teamCategory]];
-  }
-
-  // Dapat kategori detail mana pun yang di-set range tanggal bertandingnya
-  // berarti tipe marathon
-  const anyOneHasRangeDate = flatArray.some((category) => category.rangeDate?.length);
-
-  if (!anyOneHasRangeDate) {
-    return data;
-  }
-
   // Assign flag `isMarathon` ke masing-masing item kategori detail-nya
   const categoriesWithMarathonFlag = { ...data };
   for (const teamCategory in data) {
     categoriesWithMarathonFlag[teamCategory] = data[teamCategory].map((category) => ({
       ...category,
-      isMarathon: true,
+      isMarathon: Boolean(category.isMarathon),
     }));
   }
 

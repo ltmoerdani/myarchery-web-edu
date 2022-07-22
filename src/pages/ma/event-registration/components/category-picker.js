@@ -364,13 +364,20 @@ function makeTeamCategoriesFilters(data) {
     femaleTeam: "Beregu Putri",
     mixTeam: "Beregu Campuran",
   };
+
   const filterOptions = [];
+
   for (const groupId in data) {
+    const isMarathon = data[groupId]?.[0]?.isMarathon || false;
+    if (data[groupId].every((category) => isMarathon && !category.quota)) {
+      continue;
+    }
     filterOptions.push({
       value: groupId,
-      label: teamCategories[groupId],
+      label: !isMarathon ? teamCategories[groupId] : teamCategories[groupId].split(" ")[0],
     });
   }
+
   return filterOptions;
 }
 
