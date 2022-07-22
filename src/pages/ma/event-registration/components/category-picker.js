@@ -166,10 +166,10 @@ function PickerControl({
             {groupedCategories[selectedFilter].map((category) => {
               const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
               const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
-              const categoryMatchesUser = _checkIsGenderMatchesCategory(
-                category.teamCategoryId,
-                userProfile?.gender
-              );
+              const categoryMatchesUser =
+                category.isMarathon ||
+                _checkIsGenderMatchesCategory(category.teamCategoryId, userProfile?.gender);
+
               return (
                 <CategoryItem key={category.id}>
                   <input
@@ -195,20 +195,18 @@ function PickerControl({
                   >
                     <h5 className="category-name">{category.categoryLabel}</h5>
                     <div>
-                      {!category.isOpen ? (
-                        <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
-                      ) : isQuotaAvailable ? (
-                        categoryMatchesUser ? (
+                      {categoryMatchesUser ? (
+                        !category.isOpen ? (
+                          <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
+                        ) : isQuotaAvailable ? (
                           <QuotaLabel>
                             {category.totalParticipant}&#47;{category.quota}
                           </QuotaLabel>
                         ) : (
-                          <QuotaLabelMuted>
-                            {category.totalParticipant}&#47;{category.quota}
-                          </QuotaLabelMuted>
+                          <QuotaLabelMuted>Habis</QuotaLabelMuted>
                         )
                       ) : (
-                        <QuotaLabelMuted>Habis</QuotaLabelMuted>
+                        <QuotaLabelMuted>Tidak Sesuai Gender</QuotaLabelMuted>
                       )}
                     </div>
                   </CategoryItemLabel>
@@ -366,13 +364,20 @@ function makeTeamCategoriesFilters(data) {
     femaleTeam: "Beregu Putri",
     mixTeam: "Beregu Campuran",
   };
+
   const filterOptions = [];
+
   for (const groupId in data) {
+    const isMarathon = data[groupId]?.[0]?.isMarathon || false;
+    if (data[groupId].every((category) => isMarathon && !category.quota)) {
+      continue;
+    }
     filterOptions.push({
       value: groupId,
-      label: teamCategories[groupId],
+      label: !isMarathon ? teamCategories[groupId] : teamCategories[groupId].split(" ")[0],
     });
   }
+
   return filterOptions;
 }
 
