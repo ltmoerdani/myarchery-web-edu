@@ -166,10 +166,10 @@ function PickerControl({
             {groupedCategories[selectedFilter].map((category) => {
               const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
               const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
-              const categoryMatchesUser = _checkIsGenderMatchesCategory(
-                category.teamCategoryId,
-                userProfile?.gender
-              );
+              const categoryMatchesUser =
+                category.isMarathon ||
+                _checkIsGenderMatchesCategory(category.teamCategoryId, userProfile?.gender);
+
               return (
                 <CategoryItem key={category.id}>
                   <input
