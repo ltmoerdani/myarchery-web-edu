@@ -2,6 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 
 import DatePicker from "react-datepicker";
+import { FieldErrorMessage } from "./field-error-message";
 
 import id from "date-fns/locale/id";
 import classnames from "classnames";
@@ -49,6 +50,7 @@ function FieldInputDate({
         maxDate={maxDate}
         showPopperArrow={false}
       />
+      <FieldErrorMessage errors={errors} />
     </FieldInputDateWrapper>
   );
 }

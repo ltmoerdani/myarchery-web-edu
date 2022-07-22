@@ -2,7 +2,7 @@ import * as React from "react";
 import { FieldInputDate } from "./field-input-date";
 import { datetime } from "utils";
 
-function PickerMatchDate({ category, value, onChange }) {
+function PickerMatchDate({ category, value, onChange, errors }) {
   const dateConstraint = React.useMemo(() => {
     if (!category?.rangeDate?.length) {
       return {};
@@ -27,6 +27,7 @@ function PickerMatchDate({ category, value, onChange }) {
       maxDate={dateConstraint.max}
       value={value}
       onChange={onChange}
+      errors={errors}
     />
   );
 }

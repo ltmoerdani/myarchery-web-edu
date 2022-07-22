@@ -126,6 +126,14 @@ function PageEventRegistration() {
       }
     }
 
+    // Harus isi tanggal untuk kategori event marathon
+    if (category.rangeDate.length && !matchDate) {
+      validationErrors = {
+        ...validationErrors,
+        matchDate: ["Tanggal bertanding wajib diisi"],
+      };
+    }
+
     updateFormData({ type: "FORM_INVALID", errors: validationErrors });
 
     const isValid = !Object.keys(validationErrors)?.length;
@@ -267,6 +275,7 @@ function PageEventRegistration() {
                     category={category}
                     value={matchDate}
                     onChange={(date) => updateFormData({ matchDate: date })}
+                    errors={formErrors.matchDate}
                   />
 
                   {userProfile ? (
@@ -317,46 +326,53 @@ function PageEventRegistration() {
                       {/* <p>Masukkan email peserta yang telah terdaftar</p> */}
                     </div>
                   </SegmentByTeamCategory>
-                  <Label className="form-check-label" htmlFor="yes">
-                    Apakah anda mewakili klub ?
-                  </Label>
-                  <br></br>
-                  <div
-                    className={`form-check form-radio-primary`}
-                    style={{ display: "inline-block", marginRight: 10 }}
-                  >
-                    <Input
-                      type="radio"
-                      name="withClub"
-                      value="yes"
-                      onChange={() => {
-                        setWithClub("yes");
-                      }}
-                      checked={withClub == "yes" ? true : false}
-                      className="form-check-Input"
-                    />
-                    <Label className="form-check-label" htmlFor="yes">
-                      iya, saya mewakili klub
-                    </Label>
-                  </div>
 
-                  <div
-                    className={`form-check form-radio-primary`}
-                    style={{ display: "inline-block", marginRight: 10 }}
-                  >
-                    <Input
-                      type="radio"
-                      name="withClub"
-                      value="no"
-                      onChange={() => {
-                        setWithClub("no");
-                      }}
-                      checked={withClub == "no" ? true : false}
-                      className="form-check-Input"
-                    />
-                    <Label className="form-check-label" htmlFor="no">
-                      tidak, saya individu
-                    </Label>
+                  <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
+                    <div>
+                      <Label className="form-check-label" style={{ marginBottom: "0.25rem" }}>
+                        Apakah Anda mewakili klub?
+                      </Label>
+                    </div>
+
+                    <div
+                      className={`form-check form-radio-primary`}
+                      style={{ display: "inline-block", marginRight: 10 }}
+                    >
+                      <Input
+                        type="radio"
+                        name="withClub"
+                        id="with-club-yes"
+                        value="yes"
+                        onChange={() => {
+                          setWithClub("yes");
+                        }}
+                        checked={withClub == "yes" ? true : false}
+                        className="form-check-Input"
+                      />
+                      <Label className="form-check-label" htmlFor="with-club-yes">
+                        Iya, saya mewakili klub
+                      </Label>
+                    </div>
+
+                    <div
+                      className={`form-check form-radio-primary`}
+                      style={{ display: "inline-block", marginRight: 10 }}
+                    >
+                      <Input
+                        type="radio"
+                        name="withClub"
+                        id="with-club-no"
+                        value="no"
+                        onChange={() => {
+                          setWithClub("no");
+                        }}
+                        checked={withClub == "no" ? true : false}
+                        className="form-check-Input"
+                      />
+                      <Label className="form-check-label" htmlFor="with-club-no">
+                        Tidak, saya individu
+                      </Label>
+                    </div>
                   </div>
 
                   <FieldSelectClub
