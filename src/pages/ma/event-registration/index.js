@@ -22,6 +22,7 @@ import {
 } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
+import { PickerMatchDate } from "./components/picker-match-date";
 
 import IconAddress from "components/ma/icons/mono/address";
 import IconGender from "components/ma/icons/mono/gender";
@@ -30,7 +31,7 @@ import IconMail from "components/ma/icons/mono/mail";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import classnames from "classnames";
-import { stringUtil, errorsUtil } from "utils";
+import { stringUtil, errorsUtil, datetime } from "utils";
 import AdsBanner from "./components/ads-banner";
 
 const tabList = [
@@ -41,6 +42,7 @@ const tabList = [
 const initialFormState = {
   data: {
     category: null,
+    matchDate: null,
     teamName: "",
     club: null,
     participants: [
@@ -77,7 +79,7 @@ function PageEventRegistration() {
     { status: "idle", errors: null }
   );
 
-  const { category, teamName, club, participants } = formData.data;
+  const { category, matchDate, teamName, club, participants } = formData.data;
   const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
   const isLoadingEventDetail = eventDetail.status === "loading";
@@ -260,6 +262,12 @@ function PageEventRegistration() {
                   >
                     Kategori Lomba
                   </FieldSelectCategory>
+
+                  <PickerMatchDate
+                    category={category}
+                    value={matchDate}
+                    onChange={(date) => updateFormData({ matchDate: date })}
+                  />
 
                   {userProfile ? (
                     <React.Fragment>
@@ -647,7 +655,7 @@ function PageEventRegistration() {
             )}
           </div>
         </SplitDisplay>
-        <AdsBanner/>
+        <AdsBanner />
       </Container>
       <LoadingScreen loading={isLoadingSubmit} />
     </StyledPageWrapper>
@@ -946,11 +954,18 @@ function formReducer(state, action) {
       data: null,
     }));
 
+    // cek date range marathon
+    const hasOnlyOneRangeDate = action.payload.rangeDate?.length === 1;
+    const matchDate = hasOnlyOneRangeDate
+      ? datetime.parseServerDatetime(action.payload.rangeDate[0])
+      : null;
+
     return {
       ...state,
       data: {
         ...state.data,
         category: action.payload,
+        matchDate: matchDate,
         // reset field-field data peserta
         teamName: "",
         club: null,
