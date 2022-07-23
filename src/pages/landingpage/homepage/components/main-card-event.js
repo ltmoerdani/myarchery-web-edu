@@ -2,9 +2,11 @@ import * as React from "react";
 import styled from "styled-components";
 import { useCategoryDetails } from "../hooks/category-details";
 import { useCategoriesWithFilters } from "../hooks/category-filters";
+import { useMarathonCategoryFilters } from "../hooks/category-filters-marathon";
 
 import { SpinnerDotBlock } from "components/ma";
 
+import { EVENT_TYPE } from "../constants";
 import classnames from "classnames";
 import { datetime } from "utils";
 
@@ -19,9 +21,142 @@ function MainCardEvent({ eventDetail }) {
     selectOptionAgeCategory,
   } = useCategoriesWithFilters(eventCategories);
 
+  const isMarathonEvent = eventDetail?.eventType === EVENT_TYPE.MARATHON;
   const isPreparingCategories = !eventCategories && isLoading;
   const dateEventStart = datetime.formatFullDateLabel(eventDetail?.eventStartDatetime);
   const dateEventEnd = datetime.formatFullDateLabel(eventDetail?.eventEndDatetime);
+
+  if (isMarathonEvent) {
+    return (
+      <CardContentMarathon
+        eventDetail={eventDetail}
+        dateEventStart={dateEventStart}
+        dateEventEnd={dateEventEnd}
+        isPreparingCategories={isPreparingCategories}
+        eventCategories={eventCategories}
+        optionsCompetitionCategory={optionsCompetitionCategory}
+        optionsAgeCategory={optionsAgeCategory}
+        activeCategoryDetails={activeCategoryDetails}
+      />
+    );
+  }
+
+  return (
+    <ContentSheet>
+      <VerticalSpaced>
+        <div>
+          <EventHeadingGroup>
+            <div>
+              <EventNameHeading>{eventDetail?.eventName}</EventNameHeading>
+            </div>
+            <div>
+              <CompetitionTypeLabel>{eventDetail?.eventCompetition}</CompetitionTypeLabel>
+            </div>
+          </EventHeadingGroup>
+
+          <SubHeadingInfo>
+            <span>
+              {eventDetail ? (
+                <React.Fragment>
+                  {dateEventStart} &ndash; {dateEventEnd}
+                </React.Fragment>
+              ) : (
+                "tanggal tidak tersedia"
+              )}
+            </span>
+            <span>&#124;</span>
+            <span>{eventDetail?.location}</span>
+          </SubHeadingInfo>
+
+          <div>Oleh {eventDetail?.detailAdmin?.name}</div>
+        </div>
+
+        <BlockCategories>
+          {isPreparingCategories ? (
+            <SpinnerDotBlock />
+          ) : !eventCategories ? (
+            <div>Tidak ada data kategori</div>
+          ) : (
+            <React.Fragment>
+              <CompetitionCategoryBar>
+                <ScrollableCategoryBar>
+                  {optionsCompetitionCategory.map((filter) => (
+                    <CompetitionCategoryItem
+                      key={filter.competitionCategory}
+                      onClick={() => {
+                        if (filter.isActive) {
+                          return;
+                        }
+                        selectOptionCompetitionCategory(filter.competitionCategory);
+                      }}
+                      className={classnames({ "filter-category-active": filter.isActive })}
+                    >
+                      <span>{filter.competitionCategory}</span>
+                    </CompetitionCategoryItem>
+                  ))}
+                </ScrollableCategoryBar>
+              </CompetitionCategoryBar>
+
+              <AgeCategoryBar>
+                <ScrollableAgeCategoryBar>
+                  {optionsAgeCategory.map((filter) => (
+                    <AgeCategoryItem
+                      key={filter.ageCategory}
+                      onClick={() => {
+                        if (filter.isActive) {
+                          return;
+                        }
+                        selectOptionAgeCategory(filter.ageCategory);
+                      }}
+                      className={classnames({ "age-filter-active": filter.isActive })}
+                    >
+                      {filter.ageCategory}
+                    </AgeCategoryItem>
+                  ))}
+                </ScrollableAgeCategoryBar>
+              </AgeCategoryBar>
+
+              <QuotaBar>
+                <QuotaHeading>Kuota Pertandingan</QuotaHeading>
+                <QuotaGrid>
+                  {activeCategoryDetails.map((categoryDetail) => (
+                    <QuotaItem key={categoryDetail.categoryDetailId}>
+                      <TeamCategoryLabel>{categoryDetail.teamCategoryLabel}</TeamCategoryLabel>
+                      {!categoryDetail.quota ? (
+                        <QuotaAmountMuted>Kuota tidak tersedia</QuotaAmountMuted>
+                      ) : !categoryDetail.remainingQuota ? (
+                        <QuotaAmountMuted>Penuh</QuotaAmountMuted>
+                      ) : (
+                        <QuotaAmount>
+                          Tersedia: {categoryDetail.remainingQuota}/{categoryDetail.quota}
+                        </QuotaAmount>
+                      )}
+                    </QuotaItem>
+                  ))}
+                </QuotaGrid>
+              </QuotaBar>
+            </React.Fragment>
+          )}
+        </BlockCategories>
+      </VerticalSpaced>
+    </ContentSheet>
+  );
+}
+
+function CardContentMarathon({
+  eventDetail,
+  dateEventStart,
+  dateEventEnd,
+  isPreparingCategories,
+  eventCategories,
+}) {
+  const {
+    activeCategoryDetails,
+    optionsCompetitionCategory,
+    optionsAgeCategory,
+    selectOptionCompetitionCategory,
+    selectOptionAgeCategory,
+  } = useMarathonCategoryFilters(eventCategories);
 
   return (
     <ContentSheet>
