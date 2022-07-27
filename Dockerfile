@@ -7,10 +7,10 @@ CMD mkdir log
 RUN apk update
 RUN apk add git
 RUN git config --global url."https://".insteadOf git://
-RUN npm cache clean --force
+#RUN npm cache clean --force
 
 RUN npm uninstall node-sass --force
-RUN npm i sass --legacy-peer-deps
+RUN npm i sass --force #--legacy-peer-deps
 
 RUN npm i react-scripts --force #--legacy-peer-deps
 RUN npm install -g npm@8.5.5
