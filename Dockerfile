@@ -8,7 +8,8 @@ RUN apk update
 RUN apk add git
 RUN git config --global url."https://".insteadOf git://
 
-RUN useradd -u 8877 docker
+RUN addgroup -g 2000 -S docker 
+RUN adduser -S -G docker -u 2001 -s /bin/bash -h myarchery-web docker
 USER docker
 RUN npm cache clean --force
 
