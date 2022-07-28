@@ -7,6 +7,9 @@ CMD mkdir log
 RUN apk update
 RUN apk add git
 RUN git config --global url."https://".insteadOf git://
+
+RUN useradd -u 8877 docker
+USER docker
 RUN npm cache clean --force
 
 RUN npm uninstall node-sass --force
