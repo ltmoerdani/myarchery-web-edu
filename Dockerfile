@@ -8,9 +8,6 @@ RUN apk update
 RUN apk add git
 RUN git config --global url."https://".insteadOf git://
 
-RUN addgroup -g 2000 -S docker 
-RUN adduser -S -G docker -u 2001 -s /bin/bash -h myarchery-web docker
-USER docker
 RUN npm cache clean --force
 
 RUN npm uninstall node-sass --force
@@ -25,6 +22,10 @@ RUN yarn add node-sass
 RUN npm run build #--threshold 10
 
 RUN rm -f config/.env
+
+RUN addgroup -g 2000 -S docker 
+RUN adduser -S -G docker -u 2001 -s /bin/bash -h myarchery-web docker
+USER docker
 
 CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
 
