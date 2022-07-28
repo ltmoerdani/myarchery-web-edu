@@ -16,7 +16,7 @@ function PickerMatchDate({ category, value, onChange, errors }) {
     };
   }, [category]);
 
-  if (!category?.rangeDate?.length) {
+  if (!category?.isMarathon) {
     return null;
   }
 

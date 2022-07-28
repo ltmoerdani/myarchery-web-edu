@@ -116,7 +116,7 @@ function PickerControl({
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
   const _checkIsGenderMatchesCategory = (teamCategoryId, userGender) => {
-    if (teamCategoryId === "mix_team") {
+    if (teamCategoryId === "mix_team" || teamCategoryId === "individu_mix") {
       return true;
     }
 
@@ -166,9 +166,10 @@ function PickerControl({
             {groupedCategories[selectedFilter].map((category) => {
               const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
               const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
-              const categoryMatchesUser =
-                category.isMarathon ||
-                _checkIsGenderMatchesCategory(category.teamCategoryId, userProfile?.gender);
+              const categoryMatchesUser = _checkIsGenderMatchesCategory(
+                category.teamCategoryId,
+                userProfile?.gender
+              );
 
               return (
                 <CategoryItem key={category.id}>
@@ -317,6 +318,7 @@ const CategoryItemLabel = styled.label`
   }
 
   &.not-available {
+    cursor: default;
     background-color: var(--ma-gray-80);
 
     .category-name {
@@ -360,24 +362,18 @@ function makeTeamCategoriesFilters(data) {
   const teamCategories = {
     "individu male": "Individu Putra",
     "individu female": "Individu Putri",
+    individuMix: "Individu",
     maleTeam: "Beregu Putra",
     femaleTeam: "Beregu Putri",
     mixTeam: "Beregu Campuran",
   };
-
   const filterOptions = [];
-
   for (const groupId in data) {
-    const isMarathon = data[groupId]?.[0]?.isMarathon || false;
-    if (data[groupId].every((category) => isMarathon && !category.quota)) {
-      continue;
-    }
     filterOptions.push({
       value: groupId,
-      label: !isMarathon ? teamCategories[groupId] : teamCategories[groupId].split(" ")[0],
+      label: teamCategories[groupId],
     });
   }
-
   return filterOptions;
 }
 
