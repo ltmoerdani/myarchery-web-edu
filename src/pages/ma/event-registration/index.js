@@ -44,6 +44,7 @@ const initialFormState = {
     category: null,
     matchDate: null,
     teamName: "",
+    withClub: "yes",
     club: null,
     participants: [
       { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -55,7 +56,6 @@ const initialFormState = {
 };
 
 function PageEventRegistration() {
-  const [withClub, setWithClub] = React.useState("yes");
   const { slug } = useParams();
   const { search } = useLocation();
   const { categoryId } = queryString.parse(search);
@@ -79,7 +79,7 @@ function PageEventRegistration() {
     { status: "idle", errors: null }
   );
 
-  const { category, matchDate, teamName, club, participants } = formData.data;
+  const { category, matchDate, teamName, withClub, club, participants } = formData.data;
   const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
   const isLoadingEventDetail = eventDetail.status === "loading";
@@ -93,6 +93,8 @@ function PageEventRegistration() {
 
   const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
   const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
+
+  const setWithClub = (value) => updateFormData({ type: "CHANGE_WITH_CLUB", payload: value });
 
   const getLandingPagePath = (url) => {
     if (!url) {
@@ -112,14 +114,16 @@ function PageEventRegistration() {
       validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
     }
 
-    if (!club?.detail.id && withClub == "yes") {
+    if (category?.id && !club?.detail.id && withClub == "yes") {
       validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
     }
 
     // Kategori tim secara umum
     if (
       category?.id &&
-      ["individu male", "individu female"].every((team) => team !== category?.teamCategoryId)
+      ["individu male", "individu female", "individu_mix"].every(
+        (team) => team !== category?.teamCategoryId
+      )
     ) {
       if (!club?.detail.id) {
         validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
@@ -127,7 +131,7 @@ function PageEventRegistration() {
     }
 
     // Harus isi tanggal untuk kategori event marathon
-    if (category.rangeDate.length && !matchDate) {
+    if (category?.isMarathon && !matchDate) {
       validationErrors = {
         ...validationErrors,
         matchDate: ["Tanggal bertanding wajib diisi"],
@@ -348,8 +352,9 @@ function PageEventRegistration() {
                         onChange={() => {
                           setWithClub("yes");
                         }}
-                        checked={withClub == "yes" ? true : false}
+                        checked={withClub === "yes" ? true : false}
                         className="form-check-Input"
+                        disabled={!category}
                       />
                       <Label className="form-check-label" htmlFor="with-club-yes">
                         Iya, saya mewakili klub
@@ -368,8 +373,9 @@ function PageEventRegistration() {
                         onChange={() => {
                           setWithClub("no");
                         }}
-                        checked={withClub == "no" ? true : false}
+                        checked={withClub === "no" ? true : false}
                         className="form-check-Input"
+                        disabled={!category}
                       />
                       <Label className="form-check-label" htmlFor="with-club-no">
                         Tidak, saya individu
@@ -990,6 +996,13 @@ function formReducer(state, action) {
         participants: nextParticipantsState,
       },
     };
+  }
+
+  if (action.type === "CHANGE_WITH_CLUB") {
+    const data = { ...state.data, withClub: action.payload };
+    const resetedErrors = { ...state.errors };
+    delete resetedErrors.club;
+    return { ...state, data: data, errors: resetedErrors };
   }
 
   if (action.type === "FIELD_MEMBER_EMAIL") {
