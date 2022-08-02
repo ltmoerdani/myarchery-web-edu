@@ -1,13 +1,17 @@
 FROM node:lts-alpine3.14
 
-CMD mkdir myarchery-web
-WORKDIR myarchery-web
-COPY . /myarchery-web
-CMD mkdir log
 RUN apk update
 RUN apk add git
 RUN git config --global url."https://".insteadOf git://
 RUN npm cache clean --force
+
+CMD mkdir myarchery-web
+WORKDIR myarchery-web
+COPY . /myarchery-web
+CMD mkdir log
+
+RUN addgroup -g 2000 -S docker
+RUN adduser -S -G docker -u 2001 -s /bin/sh -h myarchery-web docker
 
 RUN npm uninstall node-sass --force
 #RUN npm i sass --legacy-peer-deps
@@ -24,3 +28,5 @@ RUN rm -f config/.env
 
 CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
 
+USER docker
+RUN whoami
