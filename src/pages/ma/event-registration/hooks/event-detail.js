@@ -5,17 +5,21 @@ import { EventsService } from "services";
 function useEventDetail(slug) {
   const fetcher = useFetcher();
 
+  const fetchEventDetail = (options) => {
+    const getFunction = () => {
+      return EventsService.getDetailEvent({ slug });
+    };
+    fetcher.runAsync(getFunction, options);
+  };
+
   React.useEffect(() => {
     if (!slug) {
       return;
     }
-    const getFunction = () => {
-      return EventsService.getDetailEvent({ slug });
-    };
-    fetcher.runAsync(getFunction);
+    fetchEventDetail();
   }, [slug]);
 
-  return { ...fetcher };
+  return { ...fetcher, fetchEventDetail };
 }
 
 export { useEventDetail };

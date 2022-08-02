@@ -9,6 +9,7 @@ import { useFormOrder } from "./hooks/form-order";
 
 import { WizardView, WizardViewContent } from "components/ma";
 import { PageWrapper } from "components/ma/page-wrapper";
+import { BannerReservation } from "./components/banner-reservation";
 import { FormView } from "./views/form-view";
 import { SummaryView } from "./views/summary-view";
 import { TicketView } from "./views/ticket-view";
@@ -32,6 +33,7 @@ function PageEventRegistration() {
   const { currentStep, goToStep } = wizardView;
 
   const formOrder = useFormOrder();
+  const { category } = formOrder.data;
 
   const pageTitle = "Pendaftaran " + (eventDetailData?.publicInformation.eventName || "");
   const breadcrumbLink = _getLandingPagePath(eventDetailData?.publicInformation.eventUrl);
@@ -43,48 +45,52 @@ function PageEventRegistration() {
 
   return (
     <PageWrapper pageTitle={pageTitle} breadcrumbText={pageTitle} breadcrumbLink={breadcrumbLink}>
-      <StepIndicator>
-        <Step
-          className={classnames({
-            "step-active": currentStep === 1,
-            "step-done": currentStep > 1,
-          })}
-          onClick={() => currentStep > 1 && goToStep(1)}
-        >
-          1. Pendaftaran
-        </Step>
+      <ViewLayout>
+        <StepIndicator>
+          <Step
+            className={classnames({
+              "step-active": currentStep === 1,
+              "step-done": currentStep > 1,
+            })}
+            onClick={() => currentStep > 1 && goToStep(1)}
+          >
+            1. Pendaftaran
+          </Step>
 
-        <StepArrow>&#10097;</StepArrow>
+          <StepArrow>&#10097;</StepArrow>
 
-        <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
-      </StepIndicator>
+          <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
+        </StepIndicator>
 
-      <SplitDisplay>
-        <div>
-          <WizardView currentStep={currentStep}>
-            <WizardViewContent noContainer>
-              <FormView
-                userProfile={userProfile}
-                eventCategories={eventCategories}
-                formOrder={formOrder}
-              />
-            </WizardViewContent>
+        <BannerReservation category={category} />
 
-            <WizardViewContent noContainer>
-              <SummaryView userProfile={userProfile} formOrder={formOrder} />
-            </WizardViewContent>
-          </WizardView>
-        </div>
+        <SplitDisplay>
+          <div>
+            <WizardView currentStep={currentStep}>
+              <WizardViewContent noContainer>
+                <FormView
+                  userProfile={userProfile}
+                  eventCategories={eventCategories}
+                  formOrder={formOrder}
+                />
+              </WizardViewContent>
 
-        <div>
-          <TicketView
-            isLoadingEventDetail={isLoadingEventDetail}
-            eventDetailData={eventDetailData}
-            wizardView={wizardView}
-            formOrder={formOrder}
-          />
-        </div>
-      </SplitDisplay>
+              <WizardViewContent noContainer>
+                <SummaryView userProfile={userProfile} formOrder={formOrder} />
+              </WizardViewContent>
+            </WizardView>
+          </div>
+
+          <div>
+            <TicketView
+              isLoadingEventDetail={isLoadingEventDetail}
+              eventDetailData={eventDetailData}
+              wizardView={wizardView}
+              formOrder={formOrder}
+            />
+          </div>
+        </SplitDisplay>
+      </ViewLayout>
 
       <AdsBanner />
     </PageWrapper>
@@ -93,6 +99,12 @@ function PageEventRegistration() {
 
 /* ==================================== */
 // styles
+
+const ViewLayout = styled.div`
+  > * + * {
+    margin-top: 1rem;
+  }
+`;
 
 const StepIndicator = styled.div`
   display: flex;
