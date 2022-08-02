@@ -32,7 +32,7 @@ import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
 
 function PageTransactionDetail() {
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState("4");
   const [dataDetail, setDataDetail] = useState({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
@@ -136,6 +136,10 @@ function PageTransactionDetail() {
     : "";
 
   const verifiedAlert = () => {
+    if (!dataDetail?.archeryEvent?.needVerify) {
+      return null;
+    }
+
     if (userProfile?.verifyStatus == 1) {
       return null;
     }
@@ -654,7 +658,8 @@ function PageTransactionDetail() {
                                 <>
                                   <button
                                     onClick={
-                                      userProfile?.verifyStatus != 1
+                                      userProfile?.verifyStatus != 1 &&
+                                      dataDetail?.archeryEvent?.needVerify
                                         ? () => setIsAlertOpen(true)
                                         : handleClickPayment
                                     }
