@@ -1,6 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
+import { useUserProfile } from "hooks/user-profile";
 import { useHistory } from "react-router-dom";
+import { useSubmitVerification } from "../hooks/submit-verification";
 import { useSubmitOrder } from "../hooks/submit-order";
 
 import CurrencyFormat from "react-currency-format";
@@ -12,14 +14,33 @@ import {
   LoadingScreen,
   SpinnerDotBlock,
 } from "components/ma";
+import { toast } from "components/ma/processing-toast";
 
 import { checkIsIndividu } from "../utils";
 
-function TicketView({ isLoadingEventDetail, eventDetailData, wizardView, formOrder }) {
+function TicketView({
+  isLoadingEventDetail,
+  eventDetailData,
+  wizardView,
+  formVerification,
+  formOrder,
+  onSuccessVerification,
+}) {
   const history = useHistory();
+  const { userProfile } = useUserProfile();
+
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
+
+  const {
+    submit: submitVerification,
+    isLoading: isLoadingVerification,
+    isError: isErrorVerification,
+    errors: errorVerification,
+  } = useSubmitVerification(formVerification.data);
+
   const { data: formData, handleValidation } = formOrder;
   const { category } = formData;
+
   const {
     submit,
     reset,
@@ -30,7 +51,23 @@ function TicketView({ isLoadingEventDetail, eventDetailData, wizardView, formOrd
 
   const participantCounts = _getParticipantCounts(category);
 
-  const handleClickNext = () => handleValidation(goToNextStep);
+  const handleClickNext = () => {
+    const onValidOrder = () => {
+      const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
+      if (!isVerificationDone) {
+        submitVerification({
+          onSuccess: () => {
+            onSuccessVerification?.();
+            goToNextStep();
+          },
+        });
+      } else {
+        goToNextStep();
+      }
+    };
+    const onInvalidOrder = () => toast.error("Mohon koreksi form terlebih dulu agar terisi benar");
+    handleValidation(onValidOrder, onInvalidOrder);
+  };
 
   const handleSubmitOrder = () => {
     const options = {
@@ -114,9 +151,12 @@ function TicketView({ isLoadingEventDetail, eventDetailData, wizardView, formOrd
             </TicketSectionTotal>
 
             {currentStep === 1 ? (
-              <ButtonBlue disabled={!category} onClick={handleClickNext}>
-                Selanjutnya
-              </ButtonBlue>
+              <React.Fragment>
+                <ButtonBlue disabled={!category} onClick={handleClickNext}>
+                  Selanjutnya
+                </ButtonBlue>
+                <AlertSubmitError isError={isErrorVerification} errors={errorVerification} />
+              </React.Fragment>
             ) : (
               <React.Fragment>
                 <ButtonConfirmPayment
@@ -129,7 +169,7 @@ function TicketView({ isLoadingEventDetail, eventDetailData, wizardView, formOrd
           </div>
         </TicketCard>
 
-        <LoadingScreen loading={isLoadingSubmit} />
+        <LoadingScreen loading={isLoadingSubmit || isLoadingVerification} />
       </React.Fragment>
     );
   }
@@ -306,6 +346,18 @@ function _getParticipantCounts(category) {
   }
 
   return 3;
+}
+
+/**
+ * Verifikasi tidak diminta lagi ketika statusnya "terverifikasi" (kode 1)
+ * atau "menunggu diverifikasi" (kode 3). Status lainnya akan tetap ditawarkan
+ * form untuk isi data verifikasi user.
+ * @param {int} verifyStatus 1 | 2 | 3 | 4
+ * @returns {Boolean}
+ */
+function _checkIsVerificationDone(verifyStatus) {
+  const acceptedStatuses = [1, 3];
+  return acceptedStatuses.indexOf(verifyStatus) > -1;
 }
 
 export { TicketView };

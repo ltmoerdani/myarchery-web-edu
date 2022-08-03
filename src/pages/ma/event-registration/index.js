@@ -5,6 +5,8 @@ import { useUserProfile } from "hooks/user-profile";
 import { useWizardView } from "hooks/wizard-view";
 import { useEventDetail } from "./hooks/event-detail";
 import { useCategoriesByTeam } from "./hooks/categories-by-team";
+import { useVerificationDetail } from "./hooks/verification-detail";
+import { useFormVerification } from "./hooks/form-verification";
 import { useFormOrder } from "./hooks/form-order";
 
 import { WizardView, WizardViewContent } from "components/ma";
@@ -24,13 +26,18 @@ const tabList = [
 
 function PageEventRegistration() {
   const { slug } = useParams();
-  const userProfile = useUserProfile();
+  const { userProfile, refresh: refreshUserProfile } = useUserProfile();
 
   const { data: eventDetailData, isLoading: isLoadingEventDetail } = useEventDetail(slug);
   const { data: eventCategories } = useCategoriesByTeam(eventDetailData?.id);
+  const { data: verificationDetail, fetchVerificationDetail } = useVerificationDetail(
+    userProfile.id
+  );
 
   const wizardView = useWizardView(tabList);
   const { currentStep, goToStep } = wizardView;
+
+  const formVerification = useFormVerification(verificationDetail);
 
   const formOrder = useFormOrder({ eventCategories });
   const { category } = formOrder.data;
@@ -72,6 +79,7 @@ function PageEventRegistration() {
                   userProfile={userProfile}
                   eventCategories={eventCategories}
                   formOrder={formOrder}
+                  formVerification={formVerification}
                 />
               </WizardViewContent>
 
@@ -86,7 +94,12 @@ function PageEventRegistration() {
               isLoadingEventDetail={isLoadingEventDetail}
               eventDetailData={eventDetailData}
               wizardView={wizardView}
+              formVerification={formVerification}
               formOrder={formOrder}
+              onSuccessVerification={() => {
+                fetchVerificationDetail();
+                refreshUserProfile();
+              }}
             />
           </div>
         </SplitDisplay>

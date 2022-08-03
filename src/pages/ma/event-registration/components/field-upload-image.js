@@ -39,12 +39,16 @@ function FieldUploadImage({
         </span>
 
         <Show when={disabled}>
-          <UploadArea>
+          <UploadArea className={classnames({ "field-disabled": disabled })}>
             <UploadAreaContent>
-              <span>KTP/KK</span>
-
               <ButtonList>
-                <Button>Lihat</Button>
+                <Show when={hasPreview}>
+                  <Button>Lihat</Button>
+                </Show>
+
+                <Show when={!hasPreview}>
+                  <span>Tidak ada gambar terunggah</span>
+                </Show>
               </ButtonList>
             </UploadAreaContent>
           </UploadArea>
@@ -111,6 +115,10 @@ const UploadArea = styled.span`
   background-color: #f6f6f6;
 
   font-weight: 400;
+
+  &.field-disabled {
+    cursor: default;
+  }
 `;
 
 const UploadAreaContent = styled.span`

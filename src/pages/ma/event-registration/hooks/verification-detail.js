@@ -5,17 +5,21 @@ import { ArcherService } from "services";
 function useVerificationDetail(userId) {
   const fetcher = useFetcher();
 
-  React.useEffect(() => {
-    if (!userId) {
-      return;
-    }
+  const fetchVerificationDetail = () => {
     const getFuntion = () => {
       return ArcherService.getDetailVerifikasi({ user_id: userId });
     };
     fetcher.runAsync(getFuntion);
+  };
+
+  React.useEffect(() => {
+    if (!userId) {
+      return;
+    }
+    fetchVerificationDetail();
   }, [userId]);
 
-  return fetcher;
+  return { ...fetcher, fetchVerificationDetail };
 }
 
 export { useVerificationDetail };

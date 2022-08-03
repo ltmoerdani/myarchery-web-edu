@@ -1,7 +1,5 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useVerificationDetail } from "../hooks/verification-detail";
-import { useFormVerification } from "../hooks/form-verification";
 
 import { Label } from "reactstrap";
 import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "../components";
@@ -20,28 +18,20 @@ import IconAddress from "components/ma/icons/mono/address";
 
 import { checkIsIndividu } from "../utils";
 
-function FormView({ userProfile, eventCategories, formOrder }) {
-  const {
-    data: formData,
-    errors: formErrors,
-    updateField,
-    setCategory,
-    setWithClub,
-    setClub,
-  } = formOrder;
-  const { category, matchDate, withClub, club } = formData;
+function FormView({ userProfile, eventCategories, formOrder, formVerification }) {
+  const { errors: formErrors, updateField, setCategory, setWithClub, setClub } = formOrder;
+  const { category, matchDate, withClub, club } = formOrder.data;
 
-  const { data: verificationDetail } = useVerificationDetail(userProfile.id);
   const {
-    data: formVerification,
     updateField: updateVerification,
     updateNIK,
     updateImage,
     updateWithDependence,
-  } = useFormVerification(verificationDetail);
+  } = formVerification;
 
-  const { isWna, province, city, nik, address, imageKTP } = formVerification;
-  const { wnaCountry, wnaCity, wnaPassportNumber, wnaAddress, imagePassport } = formVerification;
+  const { isWna, province, city, nik, address, imageKTP } = formVerification.data;
+  const { wnaCountry, wnaCity, wnaPassportNumber, wnaAddress, imagePassport } =
+    formVerification.data;
 
   const isCategoryIndividu = checkIsIndividu(category);
   const isVerificationDone = _checkIsVerificationDone(userProfile.verifyStatus);
