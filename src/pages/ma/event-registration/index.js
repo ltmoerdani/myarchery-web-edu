@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { useUserProfile } from "hooks/user-profile";
 import { useWizardView } from "hooks/wizard-view";
@@ -26,6 +26,7 @@ const tabList = [
 
 function PageEventRegistration() {
   const { slug } = useParams();
+  const history = useHistory();
   const { userProfile, refresh: refreshUserProfile } = useUserProfile();
 
   const { data: eventDetailData, isLoading: isLoadingEventDetail } = useEventDetail(slug);
@@ -69,7 +70,7 @@ function PageEventRegistration() {
           <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
         </StepIndicator>
 
-        <BannerReservation category={category} />
+        <BannerReservation category={category} onTimeout={() => history.push(breadcrumbLink)} />
 
         <SplitDisplay>
           <div>

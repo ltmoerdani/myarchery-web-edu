@@ -16,6 +16,8 @@ import {
 } from "components/ma";
 import { toast } from "components/ma/processing-toast";
 
+import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
+
 import { checkIsIndividu } from "../utils";
 
 function TicketView({
@@ -253,11 +255,17 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
             <Button onClick={handleCancelSubmit} style={{ color: "var(--ma-blue)" }}>
               Cek Kembali
             </Button>
-            <ButtonBlue onClick={handleConfirmSubmit}>Sudah Benar</ButtonBlue>
+            <ButtonBlue onClick={handleConfirmSubmit}>Benar</ButtonBlue>
           </span>
         }
       >
-        <p>Apakah data pemesanan Anda sudah benar?</p>
+        <p style={{ color: "var(--ma-orange-300)" }}>
+          <IconAlertTriangle size="36" />
+        </p>
+        <p>
+          Pastikan data Anda sudah benar. Penyelenggara dapat mendiskualifikasi Anda dari
+          pertandingan jika data tidak sesuai.
+        </p>
       </SweetAlert>
     </React.Fragment>
   );

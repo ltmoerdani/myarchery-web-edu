@@ -5,8 +5,8 @@ import { useCountDown } from "../hooks/count-down";
 
 import { LoadingScreen } from "components/ma";
 
-function BannerReservation({ category }) {
-  const { data: booking, deleteBooking, isLoading } = useBooking(category);
+function BannerReservation({ category, onTimeout }) {
+  const { data: booking, deleteBookingOnBeforeUnload, isLoading } = useBooking(category);
   const { expiredBookingTime: timestamp } = booking || {};
 
   if (!timestamp) {
@@ -25,8 +25,15 @@ function BannerReservation({ category }) {
     <React.Fragment>
       <BannerTimerWrapper>
         Tiket Anda sudah tereservasi. Selesaikan isi form dalam{" "}
-        <TimerText key={timestamp} timestamp={timestamp} onTimeout={deleteBooking} />. Jika melebihi
-        batas waktu, reservasi akan dibuka kembali.
+        <TimerText
+          key={timestamp}
+          timestamp={timestamp}
+          onTimeout={() => {
+            deleteBookingOnBeforeUnload();
+            onTimeout?.();
+          }}
+        />
+        . Jika melebihi batas waktu, reservasi akan dibuka kembali.
       </BannerTimerWrapper>
       <LoadingScreen loading={isLoading} />
     </React.Fragment>
