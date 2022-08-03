@@ -3,25 +3,33 @@ import styled from "styled-components";
 import { useBooking } from "../hooks/booking";
 import { useCountDown } from "../hooks/count-down";
 
+import { LoadingScreen } from "components/ma";
+
 function BannerReservation({ category }) {
-  const { data: booking, deleteBooking } = useBooking(category);
+  const { data: booking, deleteBooking, isLoading } = useBooking(category);
   const { expiredBookingTime: timestamp } = booking || {};
 
   if (!timestamp) {
     return (
-      <BannerTimerWrapper className="timer-muted">
-        Tiket akan tereservasi ketika kategori lomba sudah dipilih. Form dapat diisi selama{" "}
-        <TimerTextWrapper>15 menit</TimerTextWrapper>.
-      </BannerTimerWrapper>
+      <React.Fragment>
+        <BannerTimerWrapper className="timer-muted">
+          Tiket akan tereservasi ketika kategori lomba sudah dipilih. Form dapat diisi selama{" "}
+          <TimerTextWrapper>15 menit</TimerTextWrapper>.
+        </BannerTimerWrapper>
+        <LoadingScreen loading={isLoading} />
+      </React.Fragment>
     );
   }
 
   return (
-    <BannerTimerWrapper>
-      Tiket Anda sudah tereservasi. Selesaikan isi form dalam{" "}
-      <TimerText key={timestamp} timestamp={timestamp} onTimeout={deleteBooking} />. Jika melebihi
-      batas waktu, reservasi akan dibuka kembali.
-    </BannerTimerWrapper>
+    <React.Fragment>
+      <BannerTimerWrapper>
+        Tiket Anda sudah tereservasi. Selesaikan isi form dalam{" "}
+        <TimerText key={timestamp} timestamp={timestamp} onTimeout={deleteBooking} />. Jika melebihi
+        batas waktu, reservasi akan dibuka kembali.
+      </BannerTimerWrapper>
+      <LoadingScreen loading={isLoading} />
+    </React.Fragment>
   );
 }
 

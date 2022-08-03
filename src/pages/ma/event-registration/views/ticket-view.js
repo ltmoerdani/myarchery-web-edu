@@ -114,7 +114,9 @@ function TicketView({ isLoadingEventDetail, eventDetailData, wizardView, formOrd
             </TicketSectionTotal>
 
             {currentStep === 1 ? (
-              <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
+              <ButtonBlue disabled={!category} onClick={handleClickNext}>
+                Selanjutnya
+              </ButtonBlue>
             ) : (
               <React.Fragment>
                 <ButtonConfirmPayment

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useLocation } from "react-router-dom";
 import { stringUtil } from "utils";
 
 // Dibuat function, biar tiap formnya di-initiate,
@@ -16,10 +17,15 @@ const _makeDefaultValues = () => ({
   ],
 });
 
-function useFormOrder(initialValues = _makeDefaultValues()) {
+function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories }) {
   const [form, dispatch] = React.useReducer(_formReducer, {
     data: initialValues,
     errors: {},
+  });
+
+  useDefaultCategoryFromParam({
+    eventCategories: eventCategories,
+    onParamFound: (category) => dispatch({ category: category }),
   });
 
   const isError = Object.keys(form.errors)?.length;
@@ -141,6 +147,35 @@ function _formReducer(state, action) {
   }
 
   return state;
+}
+
+/* =================================== */
+
+function useDefaultCategoryFromParam({ eventCategories, onParamFound }) {
+  const { search } = useLocation();
+
+  const qs_category_id = new URLSearchParams(search).get("categoryId");
+  const categoryId = qs_category_id ? parseInt(qs_category_id) : qs_category_id;
+
+  // Kategori default ketika dikirim id lewat param URL
+  React.useEffect(() => {
+    if (!eventCategories) {
+      return;
+    }
+
+    let category;
+    for (const group in eventCategories) {
+      const targetCategory = eventCategories[group].find(
+        (category) => parseInt(category.id) === categoryId
+      );
+      if (targetCategory) {
+        category = targetCategory;
+        break;
+      }
+    }
+
+    category && onParamFound?.(category);
+  }, [eventCategories]);
 }
 
 /* =================================== */

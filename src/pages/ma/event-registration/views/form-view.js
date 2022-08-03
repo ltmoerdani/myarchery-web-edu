@@ -1,19 +1,26 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
+import { useVerificationDetail } from "../hooks/verification-detail";
+import { useFormVerification } from "../hooks/form-verification";
 
-import { Input, Label } from "reactstrap";
+import { Label } from "reactstrap";
 import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "../components";
 import { Show } from "../components/show-when";
 import { FieldErrorMessage } from "../components/field-error-message";
 import { PickerMatchDate } from "../components/picker-match-date";
+import { FieldSelectNationality } from "../components/field-select-nationality";
+import { FieldSelectProvince } from "../components/field-select-province";
+import { FieldSelectCity } from "../components/field-select-city";
+import { FieldSelectCountry } from "../components/field-select-country";
+import { FieldSelectCityByCountry } from "../components/field-select-city-country";
+import { FieldUploadImage } from "../components/field-upload-image";
+import { SelectRadio } from "../components/select-radio";
 
 import IconAddress from "components/ma/icons/mono/address";
 
 import { checkIsIndividu } from "../utils";
 
 function FormView({ userProfile, eventCategories, formOrder }) {
-  const { search } = useLocation();
   const {
     data: formData,
     errors: formErrors,
@@ -24,29 +31,20 @@ function FormView({ userProfile, eventCategories, formOrder }) {
   } = formOrder;
   const { category, matchDate, withClub, club } = formData;
 
-  const qs_category_id = new URLSearchParams(search).get("categoryId");
-  const categoryId = qs_category_id ? parseInt(qs_category_id) : qs_category_id;
+  const { data: verificationDetail } = useVerificationDetail(userProfile.id);
+  const {
+    data: formVerification,
+    updateField: updateVerification,
+    updateNIK,
+    updateImage,
+    updateWithDependence,
+  } = useFormVerification(verificationDetail);
+
+  const { isWna, province, city, nik, address, imageKTP } = formVerification;
+  const { wnaCountry, wnaCity, wnaPassportNumber, wnaAddress, imagePassport } = formVerification;
+
   const isCategoryIndividu = checkIsIndividu(category);
-
-  // Kategori default ketika dikirim id lewat param URL
-  React.useEffect(() => {
-    if (!eventCategories) {
-      return;
-    }
-
-    let category;
-    for (const group in eventCategories) {
-      const targetCategory = eventCategories[group].find(
-        (category) => parseInt(category.id) === categoryId
-      );
-      if (targetCategory) {
-        category = targetCategory;
-        break;
-      }
-    }
-
-    category && updateField({ category });
-  }, [eventCategories]);
+  const isVerificationDone = _checkIsVerificationDone(userProfile.verifyStatus);
 
   return (
     <ContentCard>
@@ -115,15 +113,110 @@ function FormView({ userProfile, eventCategories, formOrder }) {
         <div>Sedang memuat data pengguna...</div>
       )}
 
-      <SegmentByTeamCategory
-        teamFilters={["individu male", "individu female"]}
-        teamCategoryId={category?.teamCategoryId}
-      >
-        <div className="mt-5 mb-0">
-          <h5>Data Peserta</h5>
-          {/* <p>Masukkan email peserta yang telah terdaftar</p> */}
-        </div>
-      </SegmentByTeamCategory>
+      <Show when={category}>
+        <FieldSelectNationality
+          value={isWna || 0}
+          onChange={(value) => updateVerification("isWna", parseInt(value))}
+          disabled={isVerificationDone}
+        />
+
+        <Show when={!isWna}>
+          <FieldSelectProvince
+            value={province}
+            onChange={(opt) => updateWithDependence("province", opt, "city")}
+            disabled={isVerificationDone}
+          />
+
+          <FieldSelectCity
+            provinceId={province?.value}
+            value={city}
+            onChange={(opt) => updateVerification("city", opt)}
+            disabled={isVerificationDone || !province?.value}
+          />
+
+          <FieldInputText
+            label="NIK"
+            placeholder="Masukkan 16 digit nomor KTP/KK"
+            value={nik}
+            onChange={updateNIK}
+            disabled={isVerificationDone}
+          />
+
+          <FieldUploadImage
+            label="Foto KTP/KK"
+            placeholder="Unggah gambar dengan file JPG/PNG"
+            name="imageKTP"
+            value={imageKTP}
+            onChange={(value) => updateImage("imageKTP", value)}
+            disabled={isVerificationDone}
+          />
+          <SubtleFieldNote>
+            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada perubahan nama, Anda perlu
+            mengisi ulang data.
+          </SubtleFieldNote>
+
+          <FieldInputText
+            label="Alamat Lengkap"
+            placeholder="Masukkan alamat sesuai KTP/KK"
+            value={address}
+            onChange={(value) => updateVerification("address", value)}
+            disabled={isVerificationDone}
+          />
+        </Show>
+
+        <Show when={isWna}>
+          <FieldSelectCountry
+            label="Negara"
+            placeholder="Pilih negara sesuai paspor"
+            value={wnaCountry}
+            onChange={(opt) => updateWithDependence("wnaCountry", opt, "wnaCity")}
+            disabled={isVerificationDone}
+          />
+
+          <FieldSelectCityByCountry
+            label="Kota (Sesuai dengan paspor)"
+            placeholder="Pilih kota"
+            countryId={wnaCountry?.value}
+            value={wnaCity}
+            onChange={(opt) => updateVerification("wnaCity", opt)}
+            disabled={isVerificationDone || !wnaCountry?.value}
+          />
+
+          <FieldInputText
+            label="Nomor Paspor"
+            placeholder="Masukkan nomor paspor"
+            value={wnaPassportNumber}
+            onChange={(value) => updateVerification("wnaPassportNumber", value)}
+            disabled={isVerificationDone}
+          />
+
+          <FieldUploadImage
+            label="Foto Paspor"
+            placeholder="Unggah gambar dengan file JPG/PNG"
+            name="imagePassport"
+            value={imagePassport}
+            onChange={(value) => updateImage("imagePassport", value)}
+            disabled={isVerificationDone}
+          />
+          <SubtleFieldNote>
+            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada perubahan nama, Anda perlu
+            mengisi ulang data.
+          </SubtleFieldNote>
+
+          <FieldInputText
+            label="Alamat Lengkap"
+            placeholder="Masukkan alamat sesuai paspor"
+            value={wnaAddress}
+            onChange={(value) => updateVerification("wnaAddress", value)}
+            disabled={isVerificationDone}
+          />
+        </Show>
+      </Show>
+
+      <div className="mt-5 mb-0">
+        <h5>Data Peserta</h5>
+        <p>Atur Detail Klub Peserta</p>
+      </div>
 
       <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
         <div>
@@ -133,47 +226,14 @@ function FormView({ userProfile, eventCategories, formOrder }) {
         </div>
 
         <div>
-          <div
-            className={`form-check form-radio-primary`}
-            style={{ display: "inline-block", marginRight: 10 }}
-          >
-            <Input
-              type="radio"
-              name="withClub"
-              id="with-club-yes"
-              value="yes"
-              onChange={() => {
-                setWithClub("yes");
-              }}
-              checked={withClub === "yes" ? true : false}
-              className="form-check-Input"
-              disabled={!category}
-            />
-            <Label className="form-check-label" htmlFor="with-club-yes">
-              Iya, saya mewakili klub
-            </Label>
-          </div>
-
-          <div
-            className={`form-check form-radio-primary`}
-            style={{ display: "inline-block", marginRight: 10 }}
-          >
-            <Input
-              type="radio"
-              name="withClub"
-              id="with-club-no"
-              value="no"
-              onChange={() => {
-                setWithClub("no");
-              }}
-              checked={withClub === "no" ? true : false}
-              className="form-check-Input"
-              disabled={!category}
-            />
-            <Label className="form-check-label" htmlFor="with-club-no">
-              Tidak, saya individu
-            </Label>
-          </div>
+          <SelectRadio
+            options={[
+              { value: "yes", label: "Iya, saya mewakili klub" },
+              { value: "no", label: "Tidak, saya individu" },
+            ]}
+            value={withClub}
+            onChange={setWithClub}
+          />
 
           <FieldErrorMessage errors={formErrors.withClub} />
         </div>
@@ -261,5 +321,20 @@ const SplitFieldItem = styled.div`
 const SubtleFieldNote = styled.div`
   color: var(--ma-gray-400);
 `;
+
+/* ================================= */
+// utils
+
+/**
+ * Verifikasi tidak diminta lagi ketika statusnya "terverifikasi" (kode 1)
+ * atau "menunggu diverifikasi" (kode 3). Status lainnya akan tetap ditawarkan
+ * form untuk isi data verifikasi user.
+ * @param {int} verifyStatus 1 | 2 | 3 | 4
+ * @returns {Boolean}
+ */
+function _checkIsVerificationDone(verifyStatus) {
+  const acceptedStatuses = [1, 3];
+  return acceptedStatuses.indexOf(verifyStatus) > -1;
+}
 
 export { FormView };

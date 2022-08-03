@@ -32,7 +32,7 @@ function PageEventRegistration() {
   const wizardView = useWizardView(tabList);
   const { currentStep, goToStep } = wizardView;
 
-  const formOrder = useFormOrder();
+  const formOrder = useFormOrder({ eventCategories });
   const { category } = formOrder.data;
 
   const pageTitle = "Pendaftaran " + (eventDetailData?.publicInformation.eventName || "");
