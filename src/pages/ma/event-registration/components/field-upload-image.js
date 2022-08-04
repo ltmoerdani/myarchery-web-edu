@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import styled from "styled-components";
 
 import { Button, ButtonBlue } from "components/ma";
@@ -43,7 +44,7 @@ function FieldUploadImage({
             <UploadAreaContent>
               <ButtonList>
                 <Show when={hasPreview}>
-                  <Button>Lihat</Button>
+                  <PreviewImage title={value.raw?.name} imageUrl={value.preview || value.url} />
                 </Show>
 
                 <Show when={!hasPreview}>
@@ -61,9 +62,7 @@ function FieldUploadImage({
 
               <ButtonList>
                 <Show when={hasPreview}>
-                  <Button onClick={() => alert(value.raw?.name || value.preview || value.url)}>
-                    Lihat
-                  </Button>
+                  <PreviewImage title={value.raw?.name} imageUrl={value.preview || value.url} />
                 </Show>
 
                 <ButtonBlue as="span">Pilih File</ButtonBlue>
@@ -88,6 +87,46 @@ function FieldUploadImage({
     </FieldInputTextWrapper>
   );
 }
+
+function PreviewImage(props) {
+  const [isOpen, setOpen] = React.useState(false);
+  return (
+    <React.Fragment>
+      <Button onClick={() => setOpen(true)}>Lihat</Button>
+      <LightBox isOpen={isOpen} onClose={() => setOpen(false)} {...props} />
+    </React.Fragment>
+  );
+}
+
+function LightBox({ isOpen, imageUrl, title, onClose }) {
+  const portalRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const portalTargetDOM = document.createElement("div");
+    portalRef.current = portalTargetDOM;
+
+    portalTargetDOM.setAttribute("class", "preview-light-box");
+    document.body.appendChild(portalTargetDOM);
+
+    return function () {
+      portalTargetDOM.remove();
+    };
+  }, []);
+
+  if (!portalRef.current || !isOpen) {
+    return null;
+  }
+
+  return ReactDOM.createPortal(
+    <LightBoxWrapper onClick={onClose}>
+      <LightBoxImage src={imageUrl} alt={title} />
+    </LightBoxWrapper>,
+    portalRef.current
+  );
+}
+
+/* ====================================== */
+// styles
 
 const InputToggleItem = styled.input`
   position: absolute;
@@ -134,6 +173,26 @@ const UploadAreaContent = styled.span`
 const ButtonList = styled.span`
   display: flex;
   gap: 0.5rem;
+`;
+
+const LightBoxWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  z-index: 1010;
+`;
+
+const LightBoxImage = styled.img`
+  position: absolute;
+  height: 50%;
+  width: auto;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 export { FieldUploadImage };
