@@ -11,6 +11,8 @@ import { Input } from "reactstrap";
 import { DateInput } from "components";
 import { ButtonBlue } from "components/ma";
 
+import { errorsUtil } from "utils";
+
 const LOGIN_ROUTE_DEFAULT = "/archer/login";
 const LOGIN_ROUTE_WITH_REDIRECT_PARAM = LOGIN_ROUTE_DEFAULT + "?path=";
 
@@ -49,26 +51,16 @@ function RegistrationForm() {
       date_of_birth: dateOfBirth,
     };
 
-    const { data, errors, success } = await ArcherService.register(payload);
+    const result = await ArcherService.register(payload);
 
-    if (success) {
-      if (data) {
-        dispatch(AuthenticationStore.login(data));
+    if (result.success) {
+      if (result.data) {
+        dispatch(AuthenticationStore.login(result.data));
+        const verificationPageURL = "/archer/register-verification?email=" + values.email;
+        history.push(verificationPageURL);
       }
     } else {
-      const err = Object.keys(errors).map((err) => err);
-
-      if (err[0] == "email") {
-        toastr.error(errors?.email[0]);
-      }
-
-      if (err[1] == "password" || err[0] == "password" || err[2] == "password") {
-        toastr.error(errors?.password[0]);
-      }
-
-      if (err[1] == "gender" || err[0] == "gender") {
-        toastr.error(errors?.gender[0]);
-      }
+      _displayErrorToasts(result);
     }
   };
 
@@ -215,6 +207,9 @@ function RegistrationForm() {
   );
 }
 
+/* ======================================== */
+// styles
+
 const FieldSpacer = styled.div`
   > * + * {
     margin-top: 1rem;
@@ -236,5 +231,37 @@ const FieldInstructionText = styled.div`
   color: var(--ma-gray-500);
   font-size: 90%;
 `;
+
+/* ======================================== */
+// utils
+
+function _displayErrorToasts(resultObject) {
+  const errors = errorsUtil.interpretServerErrors(resultObject);
+  const messages = _makeErrorMessageList(errors);
+  for (const message of messages) {
+    toastr.error(message);
+  }
+}
+
+function _makeErrorMessageList(errors) {
+  if (errors && typeof errors === "string") {
+    return [errors];
+  }
+
+  if (errors) {
+    const messages = [];
+    for (const field in errors) {
+      for (const message of errors[field]) {
+        messages.push(message);
+      }
+    }
+
+    if (messages.length) {
+      return messages;
+    }
+  }
+
+  return ["Error tidak diketahui."];
+}
 
 export { RegistrationForm };
