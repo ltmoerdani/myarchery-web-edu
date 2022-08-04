@@ -1,7 +1,7 @@
 import * as React from "react";
 import { intervalToDuration, fromUnixTime, isPast } from "date-fns";
 
-function useCountDown({ endTimestamp, initialDuration = { minutes: 15, seconds: 0 }, onTimeout }) {
+function useCountDown({ endTimestamp, initialDuration = { minutes: 0, seconds: 0 }, onTimeout }) {
   const [duration, setDuration] = React.useState(initialDuration);
 
   React.useEffect(() => {
