@@ -32,7 +32,7 @@ function PageEventRegistration() {
   const { data: eventDetailData, isLoading: isLoadingEventDetail } = useEventDetail(slug);
   const { data: eventCategories } = useCategoriesByTeam(eventDetailData?.id);
   const { data: verificationDetail, fetchVerificationDetail } = useVerificationDetail(
-    userProfile.id
+    userProfile?.id
   );
 
   const wizardView = useWizardView(tabList);

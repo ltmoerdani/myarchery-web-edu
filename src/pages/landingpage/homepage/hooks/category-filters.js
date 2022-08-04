@@ -120,7 +120,7 @@ function _makeFilteringState(categoryDetails) {
       teamCategoryLabel: _getTeamLabelFromCategoryLabel(categoryDetail.labelCategory),
       quota: categoryDetail.quota,
       totalParticipant: categoryDetail.totalParticipant,
-      remainingQuota: categoryDetail.quota - categoryDetail.totalParticipant,
+      remainingQuota: categoryDetail.quota - categoryDetail.countUserBooking,
     });
 
     return groupingResult;
