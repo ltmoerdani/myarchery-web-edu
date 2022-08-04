@@ -1,33 +1,17 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useLocation, useHistory } from "react-router-dom";
-import { useSubmitVerificationCode } from "./hooks/submit-verification-code";
 
 import { Link } from "react-router-dom";
-import OtpInput from "react-otp-input";
-import { ButtonBlue, Button, LoadingScreen, AlertServerError } from "components/ma";
-import { Show } from "../event-registration/components/show-when";
+import { ButtonBlue } from "components/ma";
 import { PageWrapper } from "./components/page-wrapper";
 
 import bgAbstractTop from "assets/images/auth/auth-illustration-abstract-top.png";
 import bgAbstractBottom from "assets/images/auth/auth-illustration-abstract-bottom.png";
 import bgIllustrationPeople from "assets/images/auth/auth-illustration-people.svg";
 import imgMyArcheryLogoWhite from "assets/images/auth/auth-logo-myarchery-untrimmed.png";
+import passwordDone from "assets/images/myachery/password-done.png";
 
-function PageAuthRegisterVerification() {
-  const { search } = useLocation();
-  const history = useHistory();
-
-  const email = _getQueryString(search, "email");
-  const [code, setCode] = React.useState();
-
-  const {
-    submit,
-    isLoading: isSubmiting,
-    isError,
-    errors,
-  } = useSubmitVerificationCode({ email: email, code: code });
-
+function PageAuthRegisterSuccess() {
   return (
     <PageWrapper pageTitle="Verifikasi Akun MyArchery">
       <SplitLayoutContainer>
@@ -50,83 +34,24 @@ function PageAuthRegisterVerification() {
         </ContainerLeft>
 
         <ContainerRight>
-          <Show when={!email}>
-            <ScreenInvalidEmail />
-          </Show>
-
-          <Show when={email}>
-            <FormAreaContainer>
+          <FormAreaContainer>
+            <div>
               <div>
-                <FormAreaHeading>Masukkan Kode</FormAreaHeading>
-                <FormAreaDescription>Kode telah dikirimkan ke email {email}</FormAreaDescription>
+                <img src={passwordDone} />
               </div>
+              <FormAreaHeading>Selamat akun Anda berhasil dibuat</FormAreaHeading>
+              <FormAreaDescription>Yuk sekarang coba masuk</FormAreaDescription>
+            </div>
 
-              <div>
-                <InputOTPCode value={code} onChange={setCode} />
-              </div>
-
-              <ButtonListVertical>
-                <ButtonBlue
-                  block
-                  onClick={() =>
-                    submit({
-                      onSuccess: () => history.push("/archer/register-success"),
-                    })
-                  }
-                >
-                  Verifikasi
-                </ButtonBlue>
-                <Button block as={Link} to="/home">
-                  Batal
-                </Button>
-              </ButtonListVertical>
-
-              <LoadingScreen loading={isSubmiting} />
-              <AlertServerError isError={isError} errors={errors} />
-            </FormAreaContainer>
-          </Show>
+            <ButtonListVertical>
+              <ButtonBlue block as={Link} to="/archer/login">
+                Masuk
+              </ButtonBlue>
+            </ButtonListVertical>
+          </FormAreaContainer>
         </ContainerRight>
       </SplitLayoutContainer>
     </PageWrapper>
-  );
-}
-
-function ScreenInvalidEmail() {
-  return (
-    <FormAreaContainer>
-      <div>
-        <FormAreaHeading>Email tidak valid</FormAreaHeading>
-      </div>
-
-      <div>
-        <p>
-          Ke halaman{" "}
-          <TextLink to="/archer/login" className="fw-medium">
-            login
-          </TextLink>{" "}
-          atau{" "}
-          <TextLink to="/archer/register" className="fw-medium">
-            buat akun
-          </TextLink>
-          .
-        </p>
-      </div>
-    </FormAreaContainer>
-  );
-}
-
-function InputOTPCode({ value, onChange }) {
-  return (
-    <InputOTPWrapper>
-      <OtpInput
-        value={value}
-        onChange={onChange}
-        numInputs={5}
-        shouldAutoFocus
-        containerStyle="otp-container"
-        inputStyle="otp-input-field"
-      />
-    </InputOTPWrapper>
   );
 }
 
@@ -303,54 +228,8 @@ const FormAreaHeading = styled.h2`
 `;
 
 const FormAreaDescription = styled.p`
+  margin-top: 1rem;
   color: var(--ma-gray-600);
-  font-size: 1rem;
-
-  @media (min-width: 600px) {
-    font-size: 1.125rem;
-  }
-
-  @media (min-width: 960px) {
-    font-size: 1.25rem;
-  }
-`;
-
-const TextLink = styled(Link)`
-  color: var(--ma-blue);
-`;
-
-const InputOTPWrapper = styled.div`
-  width: 100%;
-  margin: 0 auto;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  .otp-container {
-    gap: 0.75rem;
-  }
-
-  .otp-input-field {
-    flex-grow: 1;
-
-    width: 4rem !important;
-    padding: 0.47rem 0.75rem;
-    border: 1px solid var(--ma-gray-200);
-    border-radius: 0.5rem;
-    background-color: #fff;
-
-    font-size: 24px;
-    color: #495057;
-
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-
-    &:focus {
-      border-color: #2684ff;
-      box-shadow: 0 0 0 1px #2684ff;
-    }
-  }
 `;
 
 const ButtonListVertical = styled.div`
@@ -359,11 +238,4 @@ const ButtonListVertical = styled.div`
   }
 `;
 
-/* =============================== */
-// utils
-
-function _getQueryString(search, key) {
-  return new URLSearchParams(search).get(key);
-}
-
-export default PageAuthRegisterVerification;
+export default PageAuthRegisterSuccess;
