@@ -69,7 +69,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
           <FieldInputText
             placeholder="Nama Pendaftar"
             disabled
-            value={userProfile.name}
+            value={userProfile?.name}
             onChange={() => {}}
           >
             Nama Pendaftar
@@ -80,7 +80,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
               <FieldInputText
                 placeholder="Email"
                 disabled
-                value={userProfile.email}
+                value={userProfile?.email}
                 onChange={() => {}}
               >
                 Email
@@ -91,7 +91,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
               <FieldInputText
                 placeholder="No. Telepon"
                 disabled
-                value={userProfile.phoneNumber}
+                value={userProfile?.phoneNumber}
                 onChange={() => {}}
               >
                 No. Telepon
