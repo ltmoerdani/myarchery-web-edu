@@ -11,3 +11,4 @@ export { default as Certificate } from "./certificate";
 export { default as Landingpage } from "./landingpage";
 export { default as SeriesService } from "./series";
 export { default as FaqService } from "./faqs";
+export { default as GeneralService } from "./generals";
