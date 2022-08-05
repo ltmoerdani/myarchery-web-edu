@@ -1,38 +1,21 @@
-import React, { useState, useEffect } from "react";
+import * as React from "react";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
-import * as AuthStore from "store/slice/authentication";
+import { useHistory } from "react-router-dom";
+import { useUserProfile } from "hooks/user-profile";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
-import LatestEventsList from "./components/latest-events";
-import DashboardMenus from "./components/menus";
 import SweetAlert from "react-bootstrap-sweetalert";
-import { useHistory, Link } from "react-router-dom";
 import { Button, ButtonBlue } from "components/ma";
+import DashboardMenus from "./components/menus";
+import LatestEventsList from "./components/latest-events";
 
 import { misc } from "utils";
 
-import logoBuatAkun from "assets/images/myachery/Illustration.png";
 import illustrationWarningAlert from "assets/images/alert-publication.svg";
-import icon from "assets/images/myachery/icon.svg";
 
 function PageDashboard() {
-  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
-
-  useEffect(() => {
-    const openPromptAfterDelay = async () => {
-      await misc.sleep(500); // 0.5 detik
-      setIsAlertOpen(true);
-    };
-
-    openPromptAfterDelay();
-  }, []);
-
-  const onCancel = () => {
-    setIsAlertOpen(false);
-  };
+  const { userProfile } = useUserProfile();
 
   return (
     <DashboardWrapper>
@@ -41,13 +24,12 @@ function PageDashboard() {
       </MetaTags>
 
       <Container fluid>
-        <div className="mb-2">
+        <div className="mb-5">
           <GreetingUserText>{userProfile}</GreetingUserText>
           <p className="subheading">Selamat datang di myarchery.id</p>
-          <StatusVerifikasi
-            verifyStatus={userProfile?.verifyStatus}
-            reasonRejected={userProfile?.reasonRejected}
-          />
+
+          {/* Komponen `StatusVerifikasi` gak dirender karena sekarang gak pakai (?) */}
+          {/* Modul komponennya masih bisa diakses di folder `./components/verification-status` */}
         </div>
 
         <DashboardMenus />
@@ -61,12 +43,6 @@ function PageDashboard() {
         <LatestEventsList />
       </Container>
 
-      <VerificationStatusAlert
-        isAlertOpen={isAlertOpen}
-        verifyStatus={userProfile?.verifyStatus}
-        reasonRejected={userProfile?.reasonRejected}
-        onCancel={onCancel}
-      />
       <PromptPhotoUpload />
     </DashboardWrapper>
   );
@@ -77,202 +53,9 @@ function GreetingUserText({ children }) {
   return <h1 className="heading">{text}</h1>;
 }
 
-function StatusVerifikasi({ verifyStatus, reasonRejected }) {
-  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
-  const hasAvatar = Boolean(userProfile?.avatar);
-
-  // Memastikan nilai yang dicek integer
-  verifyStatus = verifyStatus ? parseInt(verifyStatus) : verifyStatus;
-
-  if (verifyStatus === 4) {
-    return (
-      <div className="my-4">
-        <NotificationBannerContainer>
-          <div>
-            <span className="d-inline-block" style={{ width: "24px", height: "24px" }}>
-              <img style={{ minWidth: "100%", minheight: "100%" }} src={icon} />
-            </span>
-
-            <span className="ms-2 fw-bold">
-              Akun Anda belum terverifikasi. Silakan lengkapi data Anda.
-            </span>
-          </div>
-
-          <div>
-            <Link to="/dashboard/profile/verifikasi">Verifikasi Sekarang</Link>
-          </div>
-        </NotificationBannerContainer>
-      </div>
-    );
-  }
-
-  if (verifyStatus === 3) {
-    return (
-      <div className="my-4">
-        <NotificationBannerContainer>
-          <div>
-            <span className="d-inline-block" style={{ width: "24px", height: "24px" }}>
-              <img style={{ minWidth: "100%", minheight: "100%" }} src={icon} />
-            </span>
-
-            <span className="ms-2 fw-bold">Akun Anda sedang dalam proses verifikasi.</span>
-          </div>
-
-          <div>
-            <Link to="/dashboard/profile/verifikasi">Halaman Verifikasi</Link>
-          </div>
-        </NotificationBannerContainer>
-      </div>
-    );
-  }
-
-  if (verifyStatus === 2) {
-    return (
-      <div className="my-4">
-        <NotificationBannerWarningContainer>
-          <div>
-            <span className="d-inline-block" style={{ width: "24px", height: "24px" }}>
-              <img style={{ minWidth: "100%", minheight: "100%" }} src={icon} />
-            </span>
-
-            {reasonRejected ? (
-              <span className="ms-2 fw-bold">
-                Proses verifikasi ditolak karena {reasonRejected}, silahkan ajukan lagi.
-              </span>
-            ) : (
-              <span className="ms-2 fw-bold">Proses verifikasi ditolak, silahkan ajukan lagi.</span>
-            )}
-          </div>
-
-          <div>
-            <Link to="/dashboard/profile/verifikasi">Halaman Verifikasi</Link>
-          </div>
-        </NotificationBannerWarningContainer>
-      </div>
-    );
-  }
-
-  if (verifyStatus === 1 && !hasAvatar) {
-    return (
-      <div className="my-4">
-        <NotificationBannerWarningContainer>
-          <div>
-            <span className="d-inline-block" style={{ width: "24px", height: "24px" }}>
-              <img style={{ minWidth: "100%", minheight: "100%" }} src={icon} />
-            </span>
-
-            <span className="ms-2 ">
-              Terdapat pembaharuan dalam ketentuan foto profil. Klik Halaman Verifikasi untuk
-              informasi lebih lanjut.
-            </span>
-          </div>
-
-          <div>
-            <Link to="/dashboard/profile">Halaman Edit Profil</Link>
-          </div>
-        </NotificationBannerWarningContainer>
-      </div>
-    );
-  }
-
-  return null;
-}
-
-function VerificationStatusAlert({ isAlertOpen, verifyStatus, reasonRejected, onCancel }) {
-  const history = useHistory();
-
-  // Memastikan nilai yang dicek integer
-  verifyStatus = verifyStatus ? parseInt(verifyStatus) : verifyStatus;
-
-  const onConfirm = () => {
-    history.push("/dashboard/profile/verifikasi");
-  };
-
-  if (verifyStatus === 4) {
-    return (
-      <SweetAlert
-        show={isAlertOpen}
-        title=""
-        custom
-        btnSize="md"
-        onConfirm={onConfirm}
-        style={{ padding: "1.25rem" }}
-        customButtons={
-          <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
-            <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
-              Nanti Saja
-            </Button>
-            <ButtonBlue onClick={onConfirm}>Ya, lengkapi data</ButtonBlue>
-          </span>
-        }
-      >
-        <div className="d-flex justify-content-center flex-column">
-          <div style={{ width: "60%", margin: "0 auto" }}>
-            <div style={{ width: "214px", height: "145px" }}>
-              <img src={logoBuatAkun} width="100%" height="100%" style={{ objectFit: "cover" }} />
-            </div>
-          </div>
-          <span
-            style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
-            className="mt-3"
-          >
-            Verifikasi Akun
-          </span>
-          <p>
-            Akun Anda belum terverifikasi. Silakan lengkapi data untuk dapat mengikuti berbagai
-            event panahan.
-          </p>
-        </div>
-      </SweetAlert>
-    );
-  }
-
-  if (verifyStatus === 2) {
-    return (
-      <SweetAlert
-        show={isAlertOpen}
-        title=""
-        custom
-        btnSize="md"
-        onConfirm={onConfirm}
-        style={{ padding: "1.25rem" }}
-        customButtons={
-          <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
-            <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
-              Nanti Saja
-            </Button>
-            <ButtonBlue onClick={onConfirm}>Ya, lengkapi data</ButtonBlue>
-          </span>
-        }
-      >
-        <div className="d-flex justify-content-center flex-column">
-          <div style={{ width: "60%", margin: "0 auto" }}>
-            <div style={{ width: "214px", height: "145px" }}>
-              <img src={logoBuatAkun} width="100%" height="100%" style={{ objectFit: "cover" }} />
-            </div>
-          </div>
-          <span
-            style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
-            className="mt-3"
-          >
-            Verifikasi Akun
-          </span>
-          <p>
-            Proses verifikasi Anda hampir selesai,
-            <br />
-            <span>{reasonRejected}</span>
-          </p>
-        </div>
-      </SweetAlert>
-    );
-  }
-
-  return null;
-}
-
 function PromptPhotoUpload() {
   const history = useHistory();
-  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const { userProfile } = useUserProfile();
   const [isPromptOpen, setIsPromptOpen] = React.useState(false);
 
   const hasAvatar = Boolean(userProfile?.avatar);
@@ -280,7 +63,7 @@ function PromptPhotoUpload() {
     ? parseInt(userProfile?.verifyStatus)
     : userProfile?.verifyStatus;
 
-  useEffect(() => {
+  React.useEffect(() => {
     const openPromptAfterDelay = async () => {
       if (verifyStatus === 1 && !hasAvatar) {
         await misc.sleep(500); // 0.5 detik
@@ -350,36 +133,6 @@ const LatestEventsHeader = styled.div`
   .events-description {
     font-size: 0.875rem;
     color: var(--ma-gray-500);
-  }
-`;
-
-const NotificationBannerContainer = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  background-color: #f2f8ff;
-
-  > *:nth-child(1) {
-    flex-grow: 1;
-  }
-
-  > *:nth-child(2) {
-    flex-shrink: 0;
-  }
-`;
-
-const NotificationBannerWarningContainer = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  background-color: #fdf0ef;
-
-  > *:nth-child(1) {
-    flex-grow: 1;
-  }
-
-  > *:nth-child(2) {
-    flex-shrink: 0;
   }
 `;
 
