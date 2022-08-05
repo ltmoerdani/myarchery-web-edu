@@ -144,11 +144,11 @@ function _makeInitialValuesState(verificationDetail) {
       isWna: verificationDetail.isWna,
       province: {
         value: provinceId,
-        label: verificationDetail.detailProvince.name || "",
+        label: verificationDetail.detailProvince?.name || "",
       },
       city: {
         value: cityId,
-        label: verificationDetail.detailCity.name || "",
+        label: verificationDetail.detailCity?.name || "",
       },
       nik: verificationDetail.nik || "",
       imageKTP: {
@@ -169,11 +169,11 @@ function _makeInitialValuesState(verificationDetail) {
     isWna: verificationDetail.isWna,
     wnaCountry: {
       value: countryId,
-      label: verificationDetail.detailCountry.name || "",
+      label: verificationDetail.detailCountry?.name || "",
     },
     wnaCity: {
       value: cityId,
-      label: verificationDetail.detailCityCountry.name || "",
+      label: verificationDetail.detailCityCountry?.name || "",
     },
     wnaPassportNumber: verificationDetail.passportNumber || "",
     imagePassport: {
