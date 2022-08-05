@@ -34,7 +34,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
     formVerification.data;
 
   const isCategoryIndividu = checkIsIndividu(category);
-  const isVerificationDone = _checkIsVerificationDone(userProfile.verifyStatus);
+  const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
 
   return (
     <ContentCard>
