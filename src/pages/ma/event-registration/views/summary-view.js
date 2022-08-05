@@ -37,20 +37,20 @@ function SummaryView({ userProfile, formOrder }) {
                 <td>Nama Pendaftar</td>
                 <td width="16">:</td>
                 <td>
-                  <div>{userProfile.name}</div>
+                  <div>{userProfile?.name}</div>
                 </td>
               </tr>
               <tr>
                 <td>Email</td>
                 <td width="16">:</td>
                 <td>
-                  <div>{userProfile.email}</div>
+                  <div>{userProfile?.email}</div>
                 </td>
               </tr>
               <tr>
                 <td>No. Telepon</td>
                 <td width="16">:</td>
-                <td>{userProfile.phoneNumber || <span>&ndash;</span>}</td>
+                <td>{userProfile?.phoneNumber || <span>&ndash;</span>}</td>
               </tr>
             </tbody>
           </Table>
