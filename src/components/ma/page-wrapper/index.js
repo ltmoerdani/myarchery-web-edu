@@ -4,6 +4,7 @@ import styled from "styled-components";
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
 import { ProcessingToast } from "components/ma/processing-toast";
+import { ErrorBoundary } from "components/ma/error-boundary";
 import { Breadcrumb } from "./components/breadcrumb";
 
 function PageWrapper({ children, pageTitle, before, after, breadcrumbText, breadcrumbLink }) {
@@ -19,7 +20,7 @@ function PageWrapper({ children, pageTitle, before, after, breadcrumbText, bread
         <Container fluid>
           <Breadcrumb label={breadcrumbText} to={breadcrumbLink} />
 
-          {children}
+          <ErrorBoundary>{children}</ErrorBoundary>
         </Container>
 
         <ProcessingToast />

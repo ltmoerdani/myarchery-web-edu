@@ -11,6 +11,7 @@ import { useFormOrder } from "./hooks/form-order";
 
 import { WizardView, WizardViewContent } from "components/ma";
 import { PageWrapper } from "components/ma/page-wrapper";
+import { ErrorBoundary } from "components/ma/error-boundary";
 import { BannerReservation } from "./components/banner-reservation";
 import { FormView } from "./views/form-view";
 import { SummaryView } from "./views/summary-view";
@@ -53,60 +54,68 @@ function PageEventRegistration() {
 
   return (
     <PageWrapper pageTitle={pageTitle} breadcrumbText={pageTitle} breadcrumbLink={breadcrumbLink}>
-      <ViewLayout>
-        <StepIndicator>
-          <Step
-            className={classnames({
-              "step-active": currentStep === 1,
-              "step-done": currentStep > 1,
-            })}
-            onClick={() => currentStep > 1 && goToStep(1)}
-          >
-            1. Pendaftaran
-          </Step>
+      <ErrorBoundary>
+        <ViewLayout>
+          <StepIndicator>
+            <Step
+              className={classnames({
+                "step-active": currentStep === 1,
+                "step-done": currentStep > 1,
+              })}
+              onClick={() => currentStep > 1 && goToStep(1)}
+            >
+              1. Pendaftaran
+            </Step>
 
-          <StepArrow>&#10097;</StepArrow>
+            <StepArrow>&#10097;</StepArrow>
 
-          <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
-        </StepIndicator>
+            <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
+          </StepIndicator>
 
-        <BannerReservation category={category} onTimeout={() => history.push(breadcrumbLink)} />
+          <BannerReservation category={category} onTimeout={() => history.push(breadcrumbLink)} />
 
-        <SplitDisplay>
-          <div>
-            <WizardView currentStep={currentStep}>
-              <WizardViewContent noContainer>
-                <FormView
-                  userProfile={userProfile}
-                  eventCategories={eventCategories}
-                  formOrder={formOrder}
+          <SplitDisplay>
+            <div>
+              <WizardView currentStep={currentStep}>
+                <WizardViewContent noContainer>
+                  <ErrorBoundary>
+                    <FormView
+                      userProfile={userProfile}
+                      eventCategories={eventCategories}
+                      formOrder={formOrder}
+                      formVerification={formVerification}
+                    />
+                  </ErrorBoundary>
+                </WizardViewContent>
+
+                <WizardViewContent noContainer>
+                  <ErrorBoundary>
+                    <SummaryView userProfile={userProfile} formOrder={formOrder} />
+                  </ErrorBoundary>
+                </WizardViewContent>
+              </WizardView>
+            </div>
+
+            <div>
+              <ErrorBoundary>
+                <TicketView
+                  isLoadingEventDetail={isLoadingEventDetail}
+                  eventDetailData={eventDetailData}
+                  wizardView={wizardView}
                   formVerification={formVerification}
+                  formOrder={formOrder}
+                  onSuccessVerification={() => {
+                    fetchVerificationDetail();
+                    refreshUserProfile();
+                  }}
                 />
-              </WizardViewContent>
+              </ErrorBoundary>
+            </div>
+          </SplitDisplay>
+        </ViewLayout>
 
-              <WizardViewContent noContainer>
-                <SummaryView userProfile={userProfile} formOrder={formOrder} />
-              </WizardViewContent>
-            </WizardView>
-          </div>
-
-          <div>
-            <TicketView
-              isLoadingEventDetail={isLoadingEventDetail}
-              eventDetailData={eventDetailData}
-              wizardView={wizardView}
-              formVerification={formVerification}
-              formOrder={formOrder}
-              onSuccessVerification={() => {
-                fetchVerificationDetail();
-                refreshUserProfile();
-              }}
-            />
-          </div>
-        </SplitDisplay>
-      </ViewLayout>
-
-      <AdsBanner />
+        <AdsBanner />
+      </ErrorBoundary>
     </PageWrapper>
   );
 }
