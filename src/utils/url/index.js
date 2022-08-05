@@ -1,19 +1,15 @@
 function getWebAdminURL() {
-  // TODO: kalau node environment di docker udah bener
-  // const WEB_ADMIN_URL =
-  //   process.env.NODE_ENV === "production"
-  //     ? "https://admin.myarchery.id"
-  //     : "https://staging-admin.myarchery.id";
-
-  return "https://admin.myarchery.id";
+  const WEB_ADMIN_URL = process.env.REACT_APP_WEB_ADMIN_URL || "https://staging-admin.myarchery.id";
+  return WEB_ADMIN_URL;
 }
 
-// TODO:
-// eslint-disable-next-line no-unused-vars
-function getAppArcherURL() {}
+function getAppArcherURL() {
+  const WEB_ARCHER_URL = process.env.REACT_APP_ARCHER_URL || "https://staging.myarchery.id";
+  return WEB_ARCHER_URL;
+}
 
 function openUrlOnNewTab(url) {
   return window.open(url, "_blank");
 }
 
-export default { getWebAdminURL, openUrlOnNewTab };
+export default { getWebAdminURL, getAppArcherURL, openUrlOnNewTab };
