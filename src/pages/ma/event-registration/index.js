@@ -1,697 +1,132 @@
 import * as React from "react";
-import { useParams, useLocation, useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
-import queryString from "query-string";
-import { useSelector } from "react-redux";
-import * as AuthStore from "store/slice/authentication";
+import { useUserProfile } from "hooks/user-profile";
 import { useWizardView } from "hooks/wizard-view";
-import { EventsService, OrderEventService } from "services";
+import { useEventDetail } from "./hooks/event-detail";
+import { useCategoriesByTeam } from "./hooks/categories-by-team";
+import { useVerificationDetail } from "./hooks/verification-detail";
+import { useFormVerification } from "./hooks/form-verification";
+import { useFormOrder } from "./hooks/form-order";
 
-import MetaTags from "react-meta-tags";
-import { Container as BSContainer, Table as BSTable, Input, Label } from "reactstrap";
-import CurrencyFormat from "react-currency-format";
-import SweetAlert from "react-bootstrap-sweetalert";
-import { LoadingScreen } from "components";
-import {
-  WizardView,
-  WizardViewContent,
-  Button,
-  ButtonBlue,
-  AvatarDefault,
-  AlertSubmitError,
-} from "components/ma";
-import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "./components";
-import { PickerMatchDate } from "./components/picker-match-date";
-
-import IconAddress from "components/ma/icons/mono/address";
-import IconGender from "components/ma/icons/mono/gender";
-import IconAge from "components/ma/icons/mono/age";
-import IconMail from "components/ma/icons/mono/mail";
-import IconBadgeVerified from "components/ma/icons/color/badge-verified";
+import { WizardView, WizardViewContent } from "components/ma";
+import { PageWrapper } from "components/ma/page-wrapper";
+import { ErrorBoundary } from "components/ma/error-boundary";
+import { BannerReservation } from "./components/banner-reservation";
+import { FormView } from "./views/form-view";
+import { SummaryView } from "./views/summary-view";
+import { TicketView } from "./views/ticket-view";
+import AdsBanner from "./components/ads-banner";
 
 import classnames from "classnames";
-import { stringUtil, errorsUtil, datetime } from "utils";
-import AdsBanner from "./components/ads-banner";
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
   { step: 2, label: "Pemesanan" },
 ];
 
-const initialFormState = {
-  data: {
-    category: null,
-    matchDate: null,
-    teamName: "",
-    withClub: "yes",
-    club: null,
-    participants: [
-      { name: `member-email-${stringUtil.createRandom()}`, data: null },
-      { name: `member-email-${stringUtil.createRandom()}`, data: null },
-      { name: `member-email-${stringUtil.createRandom()}`, data: null },
-    ],
-  },
-  errors: {},
-};
-
 function PageEventRegistration() {
   const { slug } = useParams();
-  const { search } = useLocation();
-  const { categoryId } = queryString.parse(search);
   const history = useHistory();
+  const { userProfile, refresh: refreshUserProfile } = useUserProfile();
 
-  const { currentStep, goToNextStep, goToPreviousStep, goToStep } = useWizardView(tabList);
-  const [eventDetail, updateEventDetail] = React.useReducer(eventDetailReducer, {
-    status: "idle",
-    data: null,
-    errors: null,
-  });
-  const [eventCategories, updateEventCategories] = React.useReducer(eventCategoriesReducer, {
-    status: "idle",
-    data: null,
-    errors: null,
-  });
-  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
-  const [formData, updateFormData] = React.useReducer(formReducer, initialFormState);
-  const [submitStatus, dispatchSubmitStatus] = React.useReducer(
-    (state, action) => ({ ...state, ...action }),
-    { status: "idle", errors: null }
+  const { data: eventDetailData, isLoading: isLoadingEventDetail } = useEventDetail(slug);
+  const { data: eventCategories } = useCategoriesByTeam(eventDetailData?.id);
+  const { data: verificationDetail, fetchVerificationDetail } = useVerificationDetail(
+    userProfile?.id
   );
 
-  const { category, matchDate, teamName, withClub, club, participants } = formData.data;
-  const formErrors = formData.errors;
-  const eventDetailData = eventDetail?.data;
-  const isLoadingEventDetail = eventDetail.status === "loading";
-  const eventId = eventDetailData?.id;
-  const breadcrumpCurrentPageLabel = `Pendaftaran ${
-    eventDetailData?.publicInformation.eventName || ""
-  }`;
-  const isLoadingSubmit = submitStatus.status === "loading";
-  const isErrorSubmit = submitStatus.status === "error";
-  const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
+  const wizardView = useWizardView(tabList);
+  const { currentStep, goToStep } = wizardView;
 
-  const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
-  const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
+  const formVerification = useFormVerification(verificationDetail);
 
-  const setWithClub = (value) => updateFormData({ type: "CHANGE_WITH_CLUB", payload: value });
+  const formOrder = useFormOrder({ eventCategories });
+  const { category } = formOrder.data;
 
-  const getLandingPagePath = (url) => {
-    if (!url) {
-      return "#";
-    }
-    const segments = url.split("/");
-    const segmentLength = segments.length;
-    const path = `/${segments[segmentLength - 3]}/${segments[segmentLength - 2]}/${
-      segments[segmentLength - 1]
-    }`;
-    return path;
-  };
-
-  const handleClickNext = () => {
-    let validationErrors = {};
-    if (!category?.id) {
-      validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
-    }
-
-    if (category?.id && !club?.detail.id && withClub == "yes") {
-      validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
-    }
-
-    // Kategori tim secara umum
-    if (
-      category?.id &&
-      ["individu male", "individu female", "individu_mix"].every(
-        (team) => team !== category?.teamCategoryId
-      )
-    ) {
-      if (!club?.detail.id) {
-        validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
-      }
-    }
-
-    // Harus isi tanggal untuk kategori event marathon
-    if (category?.isMarathon && !matchDate) {
-      validationErrors = {
-        ...validationErrors,
-        matchDate: ["Tanggal bertanding wajib diisi"],
-      };
-    }
-
-    updateFormData({ type: "FORM_INVALID", errors: validationErrors });
-
-    const isValid = !Object.keys(validationErrors)?.length;
-    if (isValid) {
-      goToNextStep();
-    }
-  };
-
-  const handleSubmitOrder = async () => {
-    dispatchSubmitStatus({ status: "loading", errors: null });
-
-    const payload = {
-      event_category_id: category.id,
-      day_choice: datetime.formatServerDate(matchDate) || undefined,
-      club_id: club?.detail.id || 0,
-      team_name: teamName || undefined,
-      with_club: withClub,
-    };
-
-    const result = await OrderEventService.register(payload);
-    if (result.success) {
-      dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions/${result.data.archeryEventParticipantId}`);
-    } else {
-      const errorData = errorsUtil.interpretServerErrors(result);
-      dispatchSubmitStatus({ status: "error", errors: errorData });
-    }
-  };
+  const pageTitle = "Pendaftaran " + (eventDetailData?.publicInformation.eventName || "");
+  const breadcrumbLink = _getLandingPagePath(eventDetailData?.publicInformation.eventUrl);
 
   React.useEffect(() => {
-    const getEventDetail = async () => {
-      updateEventDetail({ status: "loading", errors: null });
-      const result = await EventsService.getDetailEvent({ slug });
-      if (result.success) {
-        updateEventDetail({ status: "success", data: result.data });
-      } else {
-        updateEventDetail({ status: "error", errors: result.errors });
-      }
-    };
-
-    getEventDetail();
-  }, []);
-
-  React.useEffect(() => {
-    if (!eventId) {
-      return;
-    }
-    const getCategories = async () => {
-      updateEventCategories({ status: "loading", errors: null });
-      const result = await EventsService.getCategory({ event_id: eventId });
-      if (result.success) {
-        const data = _checkDataContainingMarathon(result.data);
-        updateEventCategories({ status: "success", data: data });
-      } else {
-        updateEventCategories({ status: "error", errors: result.errors });
-      }
-    };
-    getCategories();
-  }, [eventId]);
-
-  React.useEffect(() => {
-    if (!eventCategories.data) {
-      return;
-    }
-
-    let category;
-    for (const group in eventCategories.data) {
-      const targetCategory = eventCategories.data[group].find(
-        (category) => parseInt(category.id) === parseInt(categoryId)
-      );
-      if (targetCategory) {
-        category = targetCategory;
-        break;
-      }
-    }
-
-    category && updateFormData({ category });
-  }, [eventCategories]);
-
-  React.useEffect(() => {
+    // Scroll to top tiap klik next/previous
     window.scrollTo(0, 0);
   }, [currentStep]);
 
   return (
-    <StyledPageWrapper>
-      <MetaTags>
-        <title>
-          Pendaftaran {eventDetailData?.publicInformation.eventName || ""} | MyArchery.id
-        </title>
-      </MetaTags>
+    <PageWrapper pageTitle={pageTitle} breadcrumbText={pageTitle} breadcrumbLink={breadcrumbLink}>
+      <ErrorBoundary>
+        <ViewLayout>
+          <StepIndicator>
+            <Step
+              className={classnames({
+                "step-active": currentStep === 1,
+                "step-done": currentStep > 1,
+              })}
+              onClick={() => currentStep > 1 && goToStep(1)}
+            >
+              1. Pendaftaran
+            </Step>
 
-      <Container fluid>
-        <BreadcrumbDashboard to={getLandingPagePath(eventDetailData?.publicInformation.eventUrl)}>
-          {breadcrumpCurrentPageLabel}
-        </BreadcrumbDashboard>
+            <StepArrow>&#10097;</StepArrow>
 
-        <StepIndicator>
-          <Step
-            className={classnames({
-              "step-active": currentStep === 1,
-              "step-done": currentStep > 1,
-            })}
-            onClick={() => currentStep > 1 && goToStep(1)}
-          >
-            1. Pendaftaran
-          </Step>
-          <StepArrow>&#10097;</StepArrow>
-          <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
-        </StepIndicator>
+            <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
+          </StepIndicator>
 
-        <SplitDisplay>
-          <div>
-            <WizardView currentStep={currentStep}>
-              <WizardViewContent noContainer>
-                <ContentCard>
-                  <MainCardHeader>
-                    <WrappedIcon>
-                      <IconAddress />
-                    </WrappedIcon>
-                    <MainCardHeaderText>Detail Pendaftaran</MainCardHeaderText>
-                  </MainCardHeader>
+          <BannerReservation category={category} onTimeout={() => history.push(breadcrumbLink)} />
 
-                  <FieldSelectCategory
-                    required
-                    groupedOptions={eventCategories?.data}
-                    value={category}
-                    onChange={(category) => {
-                      updateFormData({ type: "FORM_INVALID", errors: {} });
-                      updateFormData({
-                        type: "CHANGE_CATEGORY",
-                        default: userProfile,
-                        payload: category,
-                      });
-                    }}
-                    errors={formErrors.category}
-                  >
-                    Kategori Lomba
-                  </FieldSelectCategory>
+          <SplitDisplay>
+            <div>
+              <WizardView currentStep={currentStep}>
+                <WizardViewContent noContainer>
+                  <ErrorBoundary>
+                    <FormView
+                      userProfile={userProfile}
+                      eventCategories={eventCategories}
+                      formOrder={formOrder}
+                      formVerification={formVerification}
+                    />
+                  </ErrorBoundary>
+                </WizardViewContent>
 
-                  <PickerMatchDate
-                    category={category}
-                    value={matchDate}
-                    onChange={(date) => updateFormData({ matchDate: date })}
-                    errors={formErrors.matchDate}
-                  />
+                <WizardViewContent noContainer>
+                  <ErrorBoundary>
+                    <SummaryView userProfile={userProfile} formOrder={formOrder} />
+                  </ErrorBoundary>
+                </WizardViewContent>
+              </WizardView>
+            </div>
 
-                  {userProfile ? (
-                    <React.Fragment>
-                      <FieldInputText
-                        placeholder="Nama Pendaftar"
-                        disabled
-                        value={userProfile.name}
-                        onChange={() => {}}
-                      >
-                        Nama Pendaftar
-                      </FieldInputText>
+            <div>
+              <ErrorBoundary>
+                <TicketView
+                  isLoadingEventDetail={isLoadingEventDetail}
+                  eventDetailData={eventDetailData}
+                  wizardView={wizardView}
+                  formVerification={formVerification}
+                  formOrder={formOrder}
+                  onSuccessVerification={() => {
+                    fetchVerificationDetail();
+                    refreshUserProfile();
+                  }}
+                />
+              </ErrorBoundary>
+            </div>
+          </SplitDisplay>
+        </ViewLayout>
 
-                      <SplitFields>
-                        <SplitFieldItem>
-                          <FieldInputText
-                            placeholder="Email"
-                            disabled
-                            value={userProfile.email}
-                            onChange={() => {}}
-                          >
-                            Email
-                          </FieldInputText>
-                        </SplitFieldItem>
-
-                        <SplitFieldItem>
-                          <FieldInputText
-                            placeholder="No. Telepon"
-                            disabled
-                            value={userProfile.phoneNumber}
-                            onChange={() => {}}
-                          >
-                            No. Telepon
-                          </FieldInputText>
-                        </SplitFieldItem>
-                      </SplitFields>
-                    </React.Fragment>
-                  ) : (
-                    <div>Sedang memuat data pengguna...</div>
-                  )}
-
-                  <SegmentByTeamCategory
-                    teamFilters={["individu male", "individu female"]}
-                    teamCategoryId={category?.teamCategoryId}
-                  >
-                    <div className="mt-5 mb-0">
-                      <h5>Data Peserta</h5>
-                      {/* <p>Masukkan email peserta yang telah terdaftar</p> */}
-                    </div>
-                  </SegmentByTeamCategory>
-
-                  <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
-                    <div>
-                      <Label className="form-check-label" style={{ marginBottom: "0.25rem" }}>
-                        Apakah Anda mewakili klub?
-                      </Label>
-                    </div>
-
-                    <div
-                      className={`form-check form-radio-primary`}
-                      style={{ display: "inline-block", marginRight: 10 }}
-                    >
-                      <Input
-                        type="radio"
-                        name="withClub"
-                        id="with-club-yes"
-                        value="yes"
-                        onChange={() => {
-                          setWithClub("yes");
-                        }}
-                        checked={withClub === "yes" ? true : false}
-                        className="form-check-Input"
-                        disabled={!category}
-                      />
-                      <Label className="form-check-label" htmlFor="with-club-yes">
-                        Iya, saya mewakili klub
-                      </Label>
-                    </div>
-
-                    <div
-                      className={`form-check form-radio-primary`}
-                      style={{ display: "inline-block", marginRight: 10 }}
-                    >
-                      <Input
-                        type="radio"
-                        name="withClub"
-                        id="with-club-no"
-                        value="no"
-                        onChange={() => {
-                          setWithClub("no");
-                        }}
-                        checked={withClub === "no" ? true : false}
-                        className="form-check-Input"
-                        disabled={!category}
-                      />
-                      <Label className="form-check-label" htmlFor="with-club-no">
-                        Tidak, saya individu
-                      </Label>
-                    </div>
-                  </div>
-
-                  <FieldSelectClub
-                    required={category?.id && !isCategoryIndividu}
-                    disabled={!category?.id || withClub == "no"}
-                    value={club}
-                    onChange={(clubValue) => updateFormData({ club: clubValue })}
-                    errors={formErrors.club}
-                  >
-                    Pilih Klub yang diwakilkan
-                  </FieldSelectClub>
-                  {isCategoryIndividu && (
-                    <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
-                  )}
-
-                  <SegmentByTeamCategory
-                    teamFilters={["individu male", "individu female"]}
-                    teamCategoryId={category?.teamCategoryId}
-                  >
-                    <FieldInputText
-                      name={"member-individual"}
-                      placeholder="Nama Peserta"
-                      disabled
-                      value={userProfile?.email}
-                    >
-                      Peserta
-                    </FieldInputText>
-                  </SegmentByTeamCategory>
-                </ContentCard>
-              </WizardViewContent>
-
-              <WizardViewContent noContainer>
-                <ContentCard>
-                  <MainCardHeader>
-                    <WrappedIcon>
-                      <IconAddress />
-                    </WrappedIcon>
-                    <MainCardHeaderText>Detail Pendaftar</MainCardHeaderText>
-                  </MainCardHeader>
-
-                  {userProfile ? (
-                    <BSTable responsive className="mt-3">
-                      <tbody>
-                        <tr>
-                          <td>Nama Pendaftar</td>
-                          <td width="16">:</td>
-                          <td>
-                            <div>{userProfile.name}</div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Email</td>
-                          <td width="16">:</td>
-                          <td>
-                            <div>{userProfile.email}</div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>No. Telepon</td>
-                          <td width="16">:</td>
-                          <td>{userProfile.phoneNumber || <span>&ndash;</span>}</td>
-                        </tr>
-                      </tbody>
-                    </BSTable>
-                  ) : (
-                    <div>Sedang memuat data pengguna...</div>
-                  )}
-                </ContentCard>
-
-                {club && (
-                  <ContentCard>
-                    <SplitFields>
-                      <SplitFieldItem>
-                        <ClubDetailLabel>Nama Klub</ClubDetailLabel>
-                        <ClubDetailValue>{club?.detail.name}</ClubDetailValue>
-                      </SplitFieldItem>
-                    </SplitFields>
-                  </ContentCard>
-                )}
-
-                {isCategoryIndividu && (
-                  <ParticipantCard>
-                    <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
-
-                    <ParticipantMediaObject>
-                      <MediaParticipantAvatar>
-                        <ParticipantAvatar>
-                          {userProfile?.avatar ? (
-                            <img className="club-logo-img" src={userProfile?.avatar} />
-                          ) : (
-                            <AvatarDefault fullname={userProfile?.name} />
-                          )}
-                        </ParticipantAvatar>
-                      </MediaParticipantAvatar>
-
-                      <MediaParticipantContent>
-                        <ParticipantName>
-                          <span>{userProfile?.name}</span>
-                          <span>
-                            <IconBadgeVerified />
-                          </span>
-                        </ParticipantName>
-
-                        <LabelWithIcon icon={<IconMail size="20" />}>
-                          {userProfile?.email}
-                        </LabelWithIcon>
-
-                        <RowedLabel>
-                          <LabelWithIcon icon={<IconGender size="20" />}>
-                            {(userProfile?.gender === "male" && "Laki-laki") ||
-                              (userProfile?.gender === "female" && "Perempuan")}
-                          </LabelWithIcon>
-
-                          <LabelWithIcon icon={<IconAge size="20" />}>
-                            {userProfile?.age} Tahun
-                          </LabelWithIcon>
-                        </RowedLabel>
-                      </MediaParticipantContent>
-                    </ParticipantMediaObject>
-                  </ParticipantCard>
-                )}
-
-                {participants
-                  .filter((member) => Boolean(member.data))
-                  .map((participant) => (
-                    <ParticipantCard key={participant.name}>
-                      <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
-
-                      <ParticipantMediaObject>
-                        <MediaParticipantAvatar>
-                          <ParticipantAvatar>
-                            {participant.data.avatar ? (
-                              <img className="club-logo-img" src={participant.data.avatar} />
-                            ) : (
-                              <AvatarDefault fullname={participant.data.name} />
-                            )}
-                          </ParticipantAvatar>
-                        </MediaParticipantAvatar>
-
-                        <MediaParticipantContent>
-                          <ParticipantName>
-                            <span>{participant.data.name}</span>
-                            <span>
-                              <IconBadgeVerified />
-                            </span>
-                          </ParticipantName>
-
-                          <LabelWithIcon icon={<IconMail size="20" />}>
-                            {participant.data.email}
-                          </LabelWithIcon>
-
-                          <RowedLabel>
-                            <LabelWithIcon icon={<IconGender size="20" />}>
-                              {(participant.data.gender === "male" && "Laki-laki") ||
-                                (participant.data.gender === "female" && "Perempuan")}
-                            </LabelWithIcon>
-
-                            <LabelWithIcon icon={<IconAge size="20" />}>
-                              {participant.data.age} Tahun
-                            </LabelWithIcon>
-                          </RowedLabel>
-                        </MediaParticipantContent>
-                      </ParticipantMediaObject>
-                    </ParticipantCard>
-                  ))}
-              </WizardViewContent>
-            </WizardView>
-          </div>
-
-          <div>
-            {isLoadingEventDetail ? (
-              <TicketCard>Sedang memuat data event...</TicketCard>
-            ) : eventDetailData ? (
-              <TicketCard>
-                <h4 className="mb-3">Tiket Lomba</h4>
-
-                <EventMediaObject>
-                  <div>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        overflow: "hidden",
-                        width: 60,
-                        height: 60,
-                        borderRadius: 4,
-                      }}
-                    >
-                      <img
-                        src={eventDetailData?.publicInformation.eventBanner}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    </span>
-                  </div>
-
-                  <EventMediaObjectContent>
-                    <h5>{eventDetailData?.publicInformation.eventName}</h5>
-                    <p className="mb-0">{eventDetailData?.publicInformation.eventLocation}</p>
-                  </EventMediaObjectContent>
-                </EventMediaObject>
-
-                <TicketDivider />
-
-                <TicketSectionDetail>
-                  <div>
-                    <DetailLabel>Jenis Regu</DetailLabel>
-                    <DetailValue>
-                      {category?.teamCategoryDetail?.label || category?.teamCategoryId || (
-                        <React.Fragment>&ndash;</React.Fragment>
-                      )}
-                    </DetailValue>
-                  </div>
-
-                  <div>
-                    <DetailLabel>Kategori</DetailLabel>
-                    <DetailValue>
-                      {category?.categoryLabel || <React.Fragment>&ndash;</React.Fragment>}
-                    </DetailValue>
-                  </div>
-
-                  <div>
-                    <DetailLabel>Jumlah Peserta</DetailLabel>
-                    {isCategoryIndividu ? (
-                      <DetailValue>1 Orang</DetailValue>
-                    ) : participantCounts > 0 ? (
-                      <DetailValue>{participantCounts} Orang</DetailValue>
-                    ) : (
-                      <DetailValue muted>&mdash;</DetailValue>
-                    )}
-                  </div>
-                </TicketSectionDetail>
-
-                <div className="d-flex flex-column justify-content-between">
-                  <TicketSectionTotal>
-                    <div>
-                      <LabelTotal>Total Pembayaran</LabelTotal>
-                    </div>
-                    <div>
-                      {category?.isEarlyBird ? (
-                        <>
-                          <CurrencyFormat
-                            style={{ textDecoration: "line-through" }}
-                            className="me-2"
-                            displayType={"text"}
-                            value={category?.fee ? Number(category?.fee) : 0}
-                            prefix="Rp"
-                            thousandSeparator={"."}
-                            decimalSeparator={","}
-                            decimalScale={0}
-                            fixedDecimalScale
-                          />
-                          <TotalWithCurrency
-                            displayType={"text"}
-                            value={category ? Number(category?.earlyBird) : 0}
-                            prefix="Rp"
-                            thousandSeparator={"."}
-                            decimalSeparator={","}
-                            decimalScale={0}
-                            fixedDecimalScale
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <TotalWithCurrency
-                            displayType={"text"}
-                            value={category ? Number(category?.fee) : 0}
-                            prefix="Rp"
-                            thousandSeparator={"."}
-                            decimalSeparator={","}
-                            decimalScale={0}
-                            fixedDecimalScale
-                          />
-                        </>
-                      )}
-                    </div>
-                  </TicketSectionTotal>
-
-                  {currentStep === 1 ? (
-                    <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
-                  ) : (
-                    <React.Fragment>
-                      <ButtonConfirmPayment
-                        onConfirm={() => handleSubmitOrder()}
-                        onCancel={() => goToPreviousStep()}
-                      />
-                      <AlertSubmitError
-                        isError={isErrorSubmit}
-                        errors={submitStatus.errors}
-                        onConfirm={() => dispatchSubmitStatus({ status: "idle" })}
-                      />
-                    </React.Fragment>
-                  )}
-                </div>
-              </TicketCard>
-            ) : (
-              <TicketCard>Ada kesalahan dalam memuat data.</TicketCard>
-            )}
-          </div>
-        </SplitDisplay>
         <AdsBanner />
-      </Container>
-      <LoadingScreen loading={isLoadingSubmit} />
-    </StyledPageWrapper>
+      </ErrorBoundary>
+    </PageWrapper>
   );
 }
 
-const StyledPageWrapper = styled.div`
-  font-family: "Inter", sans-serif;
-`;
+/* ==================================== */
+// styles
 
-const Container = styled(BSContainer)`
-  margin-bottom: 5rem;
+const ViewLayout = styled.div`
+  > * + * {
+    margin-top: 1rem;
+  }
 `;
 
 const StepIndicator = styled.div`
@@ -736,317 +171,19 @@ const SplitDisplay = styled.div`
   gap: 2rem 1rem;
 `;
 
-const ContentCard = styled.div`
-  margin-bottom: 1rem;
-  padding: 1.5rem;
-  padding-bottom: 2.5rem;
-  border-radius: 0.5rem;
-  background-color: #ffffff;
-`;
+/* ==================================== */
+// utils
 
-const MainCardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-`;
-
-const MainCardHeaderText = styled.h4`
-  margin: 0;
-`;
-
-const WrappedIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  border: solid 1px #c4c4c4;
-`;
-
-const SplitFields = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.375rem;
-`;
-
-const SplitFieldItem = styled.div`
-  flex: 1 1 13.75rem;
-`;
-
-const SubtleFieldNote = styled.div`
-  color: var(--ma-gray-400);
-`;
-
-const ParticipantCard = styled.div`
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background-color: #ffffff;
-`;
-
-const ParticipantHeadingLabel = styled.div`
-  padding: 0.75rem 1rem;
-  border-radius: 0.25rem;
-  background-color: var(--ma-blue-primary-50);
-  font-size: 15px;
-  font-weight: 600;
-`;
-
-const ParticipantMediaObject = styled.div`
-  margin: 1.25rem 0;
-  display: flex;
-  gap: 1.5rem;
-`;
-
-const MediaParticipantAvatar = styled.div`
-  flex-grow: 0;
-`;
-
-const ParticipantAvatar = styled.div`
-  overflow: hidden;
-  width: 6rem;
-  height: 6rem;
-  border-radius: 50%;
-`;
-
-const MediaParticipantContent = styled.div`
-  margin: auto 0;
-`;
-
-const ParticipantName = styled.h5`
-  margin-bottom: 0.5rem;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const RowedLabel = styled.div`
-  display: flex;
-  gap: 1.5rem;
-`;
-
-function LabelWithIcon({ icon, children }) {
-  return (
-    <StyledLabelWithIcon>
-      {icon && <span className="label-icon">{icon}</span>}
-      <span>{children}</span>
-    </StyledLabelWithIcon>
-  );
-}
-
-const StyledLabelWithIcon = styled.p`
-  margin: 0;
-  margin-bottom: 0.5rem;
-  color: var(--ma-gray-500);
-
-  .label-icon {
-    margin-right: 0.5rem;
+function _getLandingPagePath(url) {
+  if (!url) {
+    return "#";
   }
-`;
-
-const ClubDetailLabel = styled.h6`
-  font-size: 12px;
-  font-weight: 400;
-`;
-
-const ClubDetailValue = styled.p`
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-`;
-
-const EventMediaObject = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
-
-const EventMediaObjectContent = styled.div`
-  flex: 1 1 0%;
-  margin: auto;
-`;
-
-const TicketCard = styled(ContentCard)`
-  box-shadow: 0px 7.84391px 15.6878px rgba(18, 38, 63, 0.0313726);
-`;
-
-const TicketDivider = styled.hr`
-  margin: 2rem 0;
-`;
-
-const TicketSectionDetail = styled.div`
-  margin-bottom: 4rem;
-`;
-
-const DetailLabel = styled.h6`
-  font-weight: 400;
-`;
-
-const isTextMuted = ({ muted }) => (muted ? "color: var(--ma-gray-400);" : "");
-
-const DetailValue = styled.p`
-  font-size: 15px;
-  font-weight: 600;
-  text-transform: capitalize;
-  ${isTextMuted}
-`;
-
-const TicketSectionTotal = styled.div`
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-`;
-
-const LabelTotal = styled.span`
-  font-weight: 600;
-  font-size: 15px;
-`;
-
-const TotalWithCurrency = styled(CurrencyFormat)`
-  color: var(--ma-blue);
-  font-size: 18px;
-  font-weight: 600;
-`;
-
-function SegmentByTeamCategory({ children, teamFilters, teamCategoryId }) {
-  if (teamFilters.some((filter) => filter === teamCategoryId)) {
-    return children;
-  }
-  return null;
-}
-
-function ButtonConfirmPayment({ onConfirm, onCancel }) {
-  const [isAlertOpen, setAlertOpen] = React.useState(false);
-
-  const handleConfirmSubmit = () => {
-    setAlertOpen(false);
-    onConfirm?.();
-  };
-
-  const handleCancelSubmit = () => {
-    setAlertOpen(false);
-    onCancel?.();
-  };
-
-  return (
-    <React.Fragment>
-      <ButtonBlue onClick={() => setAlertOpen(true)}>Lanjutkan Pembayaran</ButtonBlue>
-      <SweetAlert
-        show={isAlertOpen}
-        title=""
-        custom
-        btnSize="md"
-        onConfirm={handleConfirmSubmit}
-        style={{ padding: "1.25rem" }}
-        customButtons={
-          <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
-            <Button onClick={handleCancelSubmit} style={{ color: "var(--ma-blue)" }}>
-              Cek Kembali
-            </Button>
-            <ButtonBlue onClick={handleConfirmSubmit}>Sudah Benar</ButtonBlue>
-          </span>
-        }
-      >
-        <p>Apakah data pemesanan Anda sudah benar?</p>
-      </SweetAlert>
-    </React.Fragment>
-  );
-}
-
-function eventDetailReducer(state, action) {
-  if (action) {
-    return { ...state, ...action };
-  }
-  return state;
-}
-
-function eventCategoriesReducer(state, action) {
-  if (action) {
-    return { ...state, ...action };
-  }
-  return state;
-}
-
-function formReducer(state, action) {
-  if (action.type === "CHANGE_CATEGORY") {
-    // Kasih default user profile hanya kalau kategorinya individual
-    // selain itu reset ke kosongan semua
-    const nextParticipantsState = state.data.participants.map((member) => ({
-      ...member,
-      data: null,
-    }));
-
-    // cek date range marathon
-    const hasOnlyOneRangeDate = action.payload.rangeDate?.length === 1;
-    const matchDate = hasOnlyOneRangeDate
-      ? datetime.parseServerDatetime(action.payload.rangeDate[0])
-      : null;
-
-    return {
-      ...state,
-      data: {
-        ...state.data,
-        category: action.payload,
-        matchDate: matchDate,
-        // reset field-field data peserta
-        teamName: "",
-        club: null,
-        participants: nextParticipantsState,
-      },
-    };
-  }
-
-  if (action.type === "CHANGE_WITH_CLUB") {
-    const data = { ...state.data, withClub: action.payload };
-    const resetedErrors = { ...state.errors };
-    delete resetedErrors.club;
-    return { ...state, data: data, errors: resetedErrors };
-  }
-
-  if (action.type === "FIELD_MEMBER_EMAIL") {
-    const nextParticipantsState = state.data.participants.map((member) => {
-      if (member.name === action.name) {
-        return { ...member, data: action.payload };
-      }
-      return member;
-    });
-
-    return {
-      ...state,
-      data: { ...state.data, participants: nextParticipantsState },
-    };
-  }
-
-  if (action.type === "FORM_INVALID") {
-    return {
-      ...state,
-      errors: action.errors,
-    };
-  }
-
-  if (action) {
-    return {
-      ...state,
-      data: { ...state.data, ...action },
-    };
-  }
-
-  return state;
-}
-
-function _checkDataContainingMarathon(data) {
-  // Assign flag `isMarathon` ke masing-masing item kategori detail-nya
-  const categoriesWithMarathonFlag = { ...data };
-  for (const teamCategory in data) {
-    categoriesWithMarathonFlag[teamCategory] = data[teamCategory].map((category) => ({
-      ...category,
-      isMarathon: Boolean(category.isMarathon),
-    }));
-  }
-
-  return categoriesWithMarathonFlag;
+  const segments = url.split("/");
+  const segmentLength = segments.length;
+  const path = `/${segments[segmentLength - 3]}/${segments[segmentLength - 2]}/${
+    segments[segmentLength - 1]
+  }`;
+  return path;
 }
 
 export default PageEventRegistration;

@@ -27,15 +27,13 @@ function useFetcher() {
     }
 
     if (result.success) {
-      dispatch({
-        status: "success",
-        data: _buildDataState(result.data, transform),
-      });
-      onSuccess?.();
+      const data = _buildDataState(result.data, transform);
+      dispatch({ status: "success", data: data });
+      onSuccess?.(data);
     } else {
       const fetchingErrors = errorsUtil.interpretServerErrors(result);
       dispatch({ status: "error", errors: fetchingErrors });
-      onError?.();
+      onError?.(fetchingErrors);
     }
   };
 
