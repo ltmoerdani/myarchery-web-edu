@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
 import { ArcherService } from "services";
 import { withTranslation } from "react-i18next";
+import { useLocation as useAdministativeLocation } from "hooks/location";
 
 import {
   Dropdown,
@@ -24,6 +25,7 @@ const ProfileMenu = (props) => {
   const location = useLocation();
   const { push } = useHistory();
   const dispatch = useDispatch();
+  useAdministativeLocation();
 
   const [menu, setMenu] = useState(false);
   const { isLoggedIn, userProfile } = useSelector(AuthStore.getAuthenticationStore);
