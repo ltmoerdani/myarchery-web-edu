@@ -5,16 +5,12 @@ import ResetSuccessArcher from "pages/authArcher/resetSuccess";
 import PolicyArcher from "pages/authArcher/policy";
 
 import PageAuthRegister from "pages/ma/auth-register";
-import PageAuthRegisterVerification from "pages/ma/auth-register/verification";
-import PageAuthRegisterSuccess from "pages/ma/auth-register/success";
 import PageAuthLogin from "pages/ma/auth-login";
 import PageAuthPasswordReset from "pages/ma/auth-password-reset";
 
 const archerRouters = [
   { path: "/archer/login", component: PageAuthLogin, exact: true },
   { path: "/archer/register", component: PageAuthRegister, exact: true },
-  { path: "/archer/register-verification", component: PageAuthRegisterVerification, exact: true },
-  { path: "/archer/register-success", component: PageAuthRegisterSuccess, exact: true },
   { path: "/archer/logout", component: Logout, exact: true },
   { path: "/archer/forgot-password", component: PageAuthPasswordReset, exact: true },
   { path: "/archer/verification/:email", component: Verification, exact: true },

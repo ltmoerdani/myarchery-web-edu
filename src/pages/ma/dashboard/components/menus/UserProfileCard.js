@@ -1,65 +1,15 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useUserProfile } from "hooks/user-profile";
+
+import { useSelector } from "react-redux";
+import * as AuthStore from "store/slice/authentication";
 
 import { Link } from "react-router-dom";
 import { ButtonOutlineBlue } from "components/ma";
 import Avatar from "./Avatar";
 
+import icon_white from "assets/images/myachery/icon-white.svg";
 import icon_green from "assets/images/myachery/success-icon.svg";
-
-function UserProfileCard({ to }) {
-  const { userProfile } = useUserProfile();
-
-  return (
-    <CardMenuProfileContainer>
-      <div className="profile-body">
-        <div className="profile-avatar">
-          <Avatar imageSrc={userProfile?.avatar} />
-        </div>
-
-        <div className="profile-detail">
-          <h3 className="mt-3">{userProfile?.name || "Archer"}</h3>
-          <p className="mt-4 d-flex flex-column">
-            <span>Email</span>
-            <span className="fw-bold">{userProfile?.email || "memuat..."}</span>{" "}
-          </p>
-        </div>
-      </div>
-
-      <div className="profile-footer d-flex align-items-center justify-content-between">
-        <div>
-          <VerifiedBadge userProfile={userProfile} />
-        </div>
-
-        <div className="float-end">
-          <ButtonOutlineBlue rounded as={Link} to={to}>
-            Edit Profil
-          </ButtonOutlineBlue>
-        </div>
-      </div>
-    </CardMenuProfileContainer>
-  );
-}
-
-function VerifiedBadge({ userProfile }) {
-  if (userProfile?.verifyStatus == 1) {
-    return (
-      <Link style={{ color: "#000" }} to="/dashboard/profile/verifikasi">
-        <div className="d-flex align-items-center px-2 py-1 rounded-pill">
-          <div>
-            <img src={icon_green} className="me-2" />
-          </div>
-          <div>
-            <span>{userProfile?.statusVerify}</span>
-          </div>
-        </div>
-      </Link>
-    );
-  }
-
-  return null;
-}
 
 const CardMenuProfileContainer = styled.div`
   position: relative;
@@ -143,5 +93,100 @@ const CardMenuProfileContainer = styled.div`
     }
   }
 `;
+
+function UserProfileCard({ to }) {
+  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+
+  const statusVerifikasi = () => {
+    if (userProfile?.verifyStatus == 4) {
+      return (
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#EEE" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    if (userProfile?.verifyStatus == 3) {
+      return (
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#EEE" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    if (userProfile?.verifyStatus == 2) {
+      return (
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          style={{ backgroundColor: "#FFDD98" }}
+        >
+          <div>
+            <img src={icon_white} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+      );
+    }
+    
+    if (userProfile?.verifyStatus == 1) {
+      return (
+        <Link style={{color: '#000'}} to="/dashboard/profile/verifikasi">
+        <div
+          className="d-flex align-items-center px-2 py-1 rounded-pill"
+          >
+          <div>
+            <img src={icon_green} className="me-2" />
+          </div>
+          <div>
+            <span>{userProfile?.statusVerify}</span>
+          </div>
+        </div>
+          </Link>
+      );
+    }
+  };
+  return (
+    <CardMenuProfileContainer>
+      <div className="profile-body">
+        <div className="profile-avatar">
+          <Avatar imageSrc={userProfile?.avatar} />
+        </div>
+
+        <div className="profile-detail">
+          <h3 className="mt-3">{userProfile?.name || "Archer"}</h3>
+          <p className="mt-4 d-flex flex-column">
+            <span>Email</span>
+            <span className="fw-bold">{userProfile?.email || "memuat..."}</span>{" "}
+          </p>
+        </div>
+      </div>
+
+      <div className="profile-footer d-flex align-items-center justify-content-between">
+        <div>{statusVerifikasi()}</div>
+        <div className="float-end">
+          <ButtonOutlineBlue rounded as={Link} to={to}>
+            Edit Profil
+          </ButtonOutlineBlue>
+        </div>
+      </div>
+    </CardMenuProfileContainer>
+  );
+}
 
 export default UserProfileCard;

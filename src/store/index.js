@@ -10,14 +10,12 @@ import authenticationReducer from "./slice/authentication"
 import archerReducer from "./slice/archer"
 import eventReducer from "./slice/events"
 import eliminationStagesReducer from "./slice/eliminationStages"
-import locationReducer from "./slice/location";
 
 
 const persistConfig = {
   key: "archery",
   version: 1,
   storage,
-  blacklist: ["location"],
 }
 
 const rootReducer = combineReducers({
@@ -25,7 +23,6 @@ const rootReducer = combineReducers({
   archer: archerReducer,
   events: eventReducer,
   eliminationStages: eliminationStagesReducer,
-  location: locationReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

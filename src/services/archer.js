@@ -30,14 +30,5 @@ export default {
     },
     getDetailVerifikasi(qs = null) {
         return API.get("/app/v1/user/data-verifikasi", qs)
-    },
-
-    /**
-     * Cek kode verifikasi untuk user baru
-     * @param {Data} data { email, code }
-     * @returns {Promise} { success, data, message, errors }
-     */
-    verificationRegistration(data = null) {
-        return API.post("/app/v1/auth/validate-code-register", data, null);
-    },
-};
+    }
+}
