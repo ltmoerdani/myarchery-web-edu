@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import * as AuthenticationStore from "store/slice/authentication";
 import { ArcherService } from "services";
-import { ErrorBoundary } from "components/ma/error-boundary";
 
 const AuthenticationArcherMiddleware = ({
   component: Component,
@@ -45,9 +44,7 @@ const AuthenticationArcherMiddleware = ({
 
         return (
           <Layout>
-            <ErrorBoundary>
-              <Component {...props} />
-            </ErrorBoundary>
+            <Component {...props} />
           </Layout>
         );
       }}

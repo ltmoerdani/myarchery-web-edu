@@ -93,26 +93,6 @@ export default {
     return fetch(`${endpoint}?${params}`, config);
   },
 
-  postKeepAlive(endpoint, data = null, qs = null) {
-    const token = store.getState()?.authentication?.user?.accessToken;
-    let params = "";
-    if (qs) {
-      params = queryString.stringify(qs);
-    }
-
-    let config = {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        "Accept-Language": localStorage.getItem("I18N_LANGUAGE") || "en",
-      },
-      body: JSON.stringify(data),
-      keepalive: true,
-    };
-    return fetch(`${endpoint}?${params}`, config);
-  },
-
   put(endpoint, data = null, qs = null, requestWithJSON = false) {
     const token = store.getState()?.authentication?.user?.accessToken;
     let params = "";
