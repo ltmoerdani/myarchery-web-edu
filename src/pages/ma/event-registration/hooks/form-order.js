@@ -9,6 +9,7 @@ const _makeDefaultValues = () => ({
   matchDate: null,
   teamName: "",
   withClub: "yes",
+  paymentMethode:"bankTransfer",
   club: null,
   participants: [
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -35,6 +36,7 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories })
   };
 
   const setWithClub = (value) => dispatch({ type: "CHANGE_WITH_CLUB", payload: value });
+  const setPaymentMethode = (value) => dispatch({ type: "CHANGE_PAYMENT_METHODE", payload: value });
 
   const setClub = (club) => {
     dispatch({ type: "CHANGE_CLUB", payload: club });
@@ -61,6 +63,7 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories })
     setClub,
     setWithClub,
     handleValidation,
+    setPaymentMethode,
   };
 }
 
@@ -85,6 +88,7 @@ function _formReducer(state, action) {
         ...state.data,
         category: action.payload,
         withClub: _isTeam(action.payload) ? "yes" : state.data.withClub,
+        paymentMethode: state.data.paymentMethode,
         matchDate: matchDate,
         // reset field-field data peserta
         teamName: "",
@@ -101,6 +105,11 @@ function _formReducer(state, action) {
     delete errorsAfterReset.club;
     delete errorsAfterReset.withClub;
     return { ...state, data: data, errors: errorsAfterReset };
+  }
+
+  if (action.type === "CHANGE_PAYMENT_METHODE") {
+    const data = { ...state.data, paymentMethode: action.payload };
+    return { ...state, data: data };
   }
 
   if (action.type === "CHANGE_CLUB") {
