@@ -12,12 +12,13 @@ function SelectOption({
   onFocus,
   noOptionsMessage,
   disabled,
+  errors,
 }) {
   return (
     <Select
       placeholder={placeholder || "Placeholder"}
       noOptionsMessage={() => noOptionsMessage}
-      styles={customSelectStyles}
+      styles={computeCustomStylesWithValidation(errors)}
       options={options}
       value={value}
       isMulti={isMulti}
@@ -56,6 +57,22 @@ const customSelectStyles = {
     ...provided,
     color: "var(--ma-blue)",
   }),
+};
+
+/* ================================== */
+// utils
+
+const computeCustomStylesWithValidation = (errors) => {
+  if (errors?.length) {
+    return {
+      ...customSelectStyles,
+      control: (provided) => ({
+        ...provided,
+        border: "solid 1px var(--ma-red)",
+      }),
+    };
+  }
+  return customSelectStyles;
 };
 
 function getOptionFromValue(options, value, defaultFallbackValue) {

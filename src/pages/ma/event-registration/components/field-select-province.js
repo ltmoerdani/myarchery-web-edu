@@ -2,6 +2,7 @@ import * as React from "react";
 import { useLocation } from "hooks/location";
 
 import { SelectOption } from "./select-option";
+import { FieldErrorMessage } from "./field-error-message";
 import { FieldInputTextWrapper } from "./styles/fields";
 
 import classnames from "classnames";
@@ -13,6 +14,7 @@ function FieldSelectProvince({
   value,
   onChange,
   disabled,
+  errors,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
   const { provinces } = useLocation();
@@ -34,7 +36,9 @@ function FieldSelectProvince({
         value={value}
         onChange={onChange}
         disabled={disabled}
+        errors={errors}
       />
+      <FieldErrorMessage errors={errors} />
     </FieldInputTextWrapper>
   );
 }

@@ -40,24 +40,17 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories })
     dispatch({ type: "CHANGE_CLUB", payload: club });
   };
 
-  const validate = () => {
-    const validationErrors = _validateFields(form.data);
-    dispatch({ type: "UPDATE_VALIDATION_ERRORS", errors: validationErrors });
-    const isError = Object.keys(validationErrors)?.length;
+  const handleValidation = ({ onValid, onInvalid }) => {
+    const errors = _validateFields(form.data);
+    const isError = Object.keys(errors)?.length;
 
-    return {
-      isError,
-      errors: validationErrors,
-    };
-  };
+    dispatch({ type: "UPDATE_VALIDATION_ERRORS", errors: errors });
 
-  const handleValidation = (onValid, onError) => {
-    const { isError, errors } = validate();
     if (isError) {
-      onError?.(errors);
-      return;
+      onInvalid?.(errors);
+    } else {
+      onValid?.(form.data);
     }
-    onValid?.();
   };
 
   return {
@@ -67,7 +60,6 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories })
     setCategory,
     setClub,
     setWithClub,
-    validate,
     handleValidation,
   };
 }
