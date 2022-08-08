@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { useFetcher } from "hooks/fetcher-alt";
 import { OrderEventService } from "services";
 
-function useBooking(category) {
+function useBooking(category, isSuccess) {
   const { block } = useHistory();
   const fetcherBooking = useFetcher();
   const fetcherResetBooking = useFetcher();
@@ -53,6 +53,10 @@ function useBooking(category) {
       return;
     }
 
+    if (isSuccess) {
+      return;
+    }
+
     const resetBeforeUnload = (ev) => {
       ev.preventDefault();
       deleteBookingOnBeforeUnload(booking?.participantId);
@@ -64,11 +68,15 @@ function useBooking(category) {
     return () => {
       window.removeEventListener("beforeunload", resetBeforeUnload);
     };
-  }, [booking?.participantId]);
+  }, [booking?.participantId, isSuccess]);
 
   // Routing react-router
   React.useEffect(() => {
     if (!booking?.participantId) {
+      return;
+    }
+
+    if (isSuccess) {
       return;
     }
 
@@ -78,7 +86,7 @@ function useBooking(category) {
     });
 
     return unblock;
-  }, [booking?.participantId]);
+  }, [booking?.participantId, isSuccess]);
 
   return { ...fetcherBooking, createBooking, deleteBooking, deleteBookingOnBeforeUnload };
 }
