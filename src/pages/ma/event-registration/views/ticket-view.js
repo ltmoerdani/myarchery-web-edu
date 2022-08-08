@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import toastr from "toastr";
 import { useUserProfile } from "hooks/user-profile";
 import { useHistory } from "react-router-dom";
 import { useSubmitVerification } from "../hooks/submit-verification";
@@ -33,6 +34,7 @@ function TicketView({
   const { userProfile } = useUserProfile();
 
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
+  const { handleValidation: handleValidationVerification } = formVerification;
 
   const {
     submit: submitVerification,
@@ -41,7 +43,7 @@ function TicketView({
     errors: errorVerification,
   } = useSubmitVerification(formVerification.data);
 
-  const { data: formData, handleValidation } = formOrder;
+  const { data: formData, handleValidation: handleValidationOrder } = formOrder;
   const { category } = formData;
 
   const {
@@ -55,21 +57,42 @@ function TicketView({
   const participantCounts = _getParticipantCounts(category);
 
   const handleClickNext = () => {
-    const onValidOrder = () => {
-      const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
-      if (!isVerificationDone) {
-        submitVerification({
-          onSuccess: () => {
-            onSuccessVerification?.();
+    // TODO: mungkin kapan-kapan bisa diimprove pakai Promise aja,
+    // biar lebih enak dibaca, dalam bentuk chaining atau kayak async/await
+
+    // 1. validate form verifikasi
+    handleValidationVerification({
+      onValid: () => {
+        const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
+        const validationOrderOptions = {
+          onValid: () => {
             goToNextStep();
           },
-        });
-      } else {
-        goToNextStep();
-      }
-    };
-    const onInvalidOrder = () => toast.error("Mohon koreksi form terlebih dulu agar terisi benar");
-    handleValidation(onValidOrder, onInvalidOrder);
+          onInvalid: (invalidErrors) => {
+            _displayToasts(invalidErrors);
+          },
+        };
+
+        // 2. validate form order, hanya kalau form verifikasinya valid
+        if (!isVerificationDone) {
+          // submit verifikasi dulu, baru validate order
+          submitVerification({
+            onSuccess: () => {
+              toast.success("Data verifikasi berhasil disimpan");
+              onSuccessVerification?.();
+
+              handleValidationOrder(validationOrderOptions);
+            },
+          });
+        } else {
+          handleValidationOrder(validationOrderOptions);
+        }
+      },
+
+      onInvalid: (invalidErrors) => {
+        _displayToasts(invalidErrors);
+      },
+    });
   };
 
   const handleSubmitOrder = () => {
@@ -368,6 +391,34 @@ function _getParticipantCounts(category) {
 function _checkIsVerificationDone(verifyStatus) {
   const acceptedStatuses = [1, 3];
   return acceptedStatuses.indexOf(verifyStatus) > -1;
+}
+
+function _displayToasts(errors) {
+  const messages = _makeErrorMessageList(errors);
+  for (const message of messages) {
+    toastr.error(message);
+  }
+}
+
+function _makeErrorMessageList(errors) {
+  if (errors && typeof errors === "string") {
+    return [errors];
+  }
+
+  if (errors) {
+    const messages = [];
+    for (const field in errors) {
+      for (const message of errors[field]) {
+        messages.push(message);
+      }
+    }
+
+    if (messages.length) {
+      return messages;
+    }
+  }
+
+  return ["Error tidak diketahui."];
 }
 
 export { TicketView };

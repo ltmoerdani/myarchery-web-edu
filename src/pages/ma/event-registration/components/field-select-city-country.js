@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { SelectCityByCountry } from "./select-city-country";
+import { FieldErrorMessage } from "./field-error-message";
 import { FieldInputTextWrapper } from "./styles/fields";
 
 import classnames from "classnames";
@@ -13,6 +14,7 @@ function FieldSelectCityByCountry({
   value,
   onChange,
   disabled,
+  errors,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
   return (
@@ -33,6 +35,7 @@ function FieldSelectCityByCountry({
         onChange={onChange}
         disabled={disabled}
       />
+      <FieldErrorMessage errors={errors} />
     </FieldInputTextWrapper>
   );
 }

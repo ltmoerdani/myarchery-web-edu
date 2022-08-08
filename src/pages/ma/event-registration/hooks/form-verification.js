@@ -65,6 +65,19 @@ function useFormVerification(verificationDetail) {
     });
   };
 
+  const handleValidation = ({ onValid, onInvalid }) => {
+    const errors = _validateFields(form.data);
+    const isError = Object.keys(errors)?.length;
+
+    dispatch({ type: "UPDATE_VALIDATION_ERRORS", errors: errors });
+
+    if (isError) {
+      onInvalid?.(errors);
+    } else {
+      onValid?.(form.data);
+    }
+  };
+
   return {
     ...form,
     isDirty,
@@ -72,6 +85,7 @@ function useFormVerification(verificationDetail) {
     updateNIK,
     updateImage,
     updateWithDependence,
+    handleValidation,
   };
 }
 
@@ -111,6 +125,13 @@ function _formReducer(state, action) {
         [action.field]: action.payload,
         [action.dependence]: null,
       },
+    };
+  }
+
+  if (action.type === "UPDATE_VALIDATION_ERRORS") {
+    return {
+      ...state,
+      errors: action.errors,
     };
   }
 
@@ -205,6 +226,112 @@ function _checkFormIsDirty(preservedInitialValues, values) {
 
 function _isOptionField(field, fieldList) {
   return fieldList.indexOf(field) > -1;
+}
+
+function _validateFields(data) {
+  if (typeof data.isWna === "undefined") {
+    return {
+      isWna: ["Kewarganegaraan wajib diisi"],
+    };
+  }
+
+  // WNI
+  if (!data.isWna) {
+    const errors = {};
+    const FIELD_PROVINCE = "province";
+    const FIELD_CITY = "city";
+    const FIELD_NIK = "nik";
+    const FIELD_KTP = "imageKTP";
+    const FIELD_ADDRESS = "address";
+
+    if (!data[FIELD_PROVINCE]?.value) {
+      errors[FIELD_PROVINCE] = _addErrorMessageToField(
+        errors[FIELD_PROVINCE],
+        "Provinsi wajib diisi"
+      );
+    }
+
+    if (!data[FIELD_CITY]?.value) {
+      errors[FIELD_CITY] = _addErrorMessageToField(errors[FIELD_CITY], "Kota wajib diisi");
+    }
+
+    if (!data[FIELD_NIK]) {
+      errors[FIELD_NIK] = _addErrorMessageToField(errors[FIELD_NIK], "NIK/nomor KK wajib diisi");
+    }
+
+    if (!data[FIELD_KTP]?.url && !data[FIELD_KTP]?.raw) {
+      errors[FIELD_KTP] = _addErrorMessageToField(errors[FIELD_KTP], "File KTP/KK wajib dipilih");
+    }
+
+    if (data[FIELD_KTP]?.raw?.size > 2000000) {
+      errors[FIELD_KTP] = _addErrorMessageToField(
+        errors[FIELD_KTP],
+        "Ukuran file KTP/KK tidak boleh melebihi 2MB"
+      );
+    }
+
+    if (!data[FIELD_ADDRESS]) {
+      errors[FIELD_ADDRESS] = _addErrorMessageToField(
+        errors[FIELD_ADDRESS],
+        "Alamat lengkap wajib diisi"
+      );
+    }
+
+    return errors;
+  }
+
+  // WNA
+  const errors = {};
+  const FIELD_COUNTRY = "wnaCountry";
+  const FIELD_CITY = "wnaCity";
+  const FIELD_PASSPORT_NO = "wnaPassportNumber";
+  const FIELD_PASSPORT = "imagePassport";
+  const FIELD_ADDRESS = "wnaAddress";
+
+  if (!data[FIELD_COUNTRY]?.value) {
+    errors[FIELD_COUNTRY] = _addErrorMessageToField(errors[FIELD_COUNTRY], "Negara wajib diisi");
+  }
+
+  if (!data[FIELD_CITY]?.value) {
+    errors[FIELD_CITY] = _addErrorMessageToField(
+      errors[FIELD_CITY],
+      "Kota negara asal wajib diisi"
+    );
+  }
+
+  if (!data[FIELD_PASSPORT_NO]) {
+    errors[FIELD_PASSPORT_NO] = _addErrorMessageToField(
+      errors[FIELD_PASSPORT_NO],
+      "Nomor passport wajib diisi"
+    );
+  }
+
+  if (!data[FIELD_PASSPORT]?.url && !data[FIELD_PASSPORT]?.raw) {
+    errors[FIELD_PASSPORT] = _addErrorMessageToField(
+      errors[FIELD_PASSPORT],
+      "File paspor wajib dipilih"
+    );
+  }
+
+  if (data[FIELD_PASSPORT]?.raw?.size > 2000000) {
+    const message = "Ukuran file paspor tidak boleh melebihi 2MB";
+    errors[FIELD_PASSPORT] = _addErrorMessageToField(errors[FIELD_PASSPORT], message);
+  }
+
+  if (!data[FIELD_ADDRESS]) {
+    errors[FIELD_ADDRESS] = _addErrorMessageToField(
+      errors[FIELD_ADDRESS],
+      "Alamat lengkap wajib diisi"
+    );
+  }
+
+  return errors;
+}
+
+function _addErrorMessageToField(existingMessages, message) {
+  const updatedMessages = existingMessages ? [...existingMessages] : [];
+  updatedMessages.push(message);
+  return updatedMessages;
 }
 
 export { useFormVerification };
