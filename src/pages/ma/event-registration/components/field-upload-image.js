@@ -56,7 +56,7 @@ function FieldUploadImage({
         </Show>
 
         <Show when={!disabled}>
-          <UploadArea>
+          <UploadArea className={classnames({ "field-error": _checkHasError(errors) })}>
             <UploadAreaContent>
               <span>{value.raw?.name || placeholder}</span>
 
@@ -158,6 +158,10 @@ const UploadArea = styled.span`
   &.field-disabled {
     cursor: default;
   }
+
+  &.field-error {
+    border-color: pink;
+  }
 `;
 
 const UploadAreaContent = styled.span`
@@ -194,5 +198,9 @@ const LightBoxImage = styled.img`
   top: 50%;
   transform: translate(-50%, -50%);
 `;
+
+function _checkHasError(errors) {
+  return Boolean(errors?.length);
+}
 
 export { FieldUploadImage };

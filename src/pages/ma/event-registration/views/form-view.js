@@ -19,10 +19,11 @@ import IconAddress from "components/ma/icons/mono/address";
 import { checkIsIndividu } from "../utils";
 
 function FormView({ userProfile, eventCategories, formOrder, formVerification }) {
-  const { errors: formErrors, updateField, setCategory, setWithClub, setClub } = formOrder;
+  const { errors: orderErrors, updateField, setCategory, setWithClub, setClub } = formOrder;
   const { category, matchDate, withClub, club } = formOrder.data;
 
   const {
+    errors: verificationErrors,
     updateField: updateVerification,
     updateNIK,
     updateImage,
@@ -52,7 +53,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
         onChange={(category) => {
           setCategory(category, userProfile);
         }}
-        errors={formErrors.category}
+        errors={orderErrors.category}
       >
         Kategori Lomba
       </FieldSelectCategory>
@@ -61,7 +62,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
         category={category}
         value={matchDate}
         onChange={(date) => updateField({ matchDate: date })}
-        errors={formErrors.matchDate}
+        errors={orderErrors.matchDate}
       />
 
       {userProfile ? (
@@ -115,6 +116,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={province}
             onChange={(opt) => updateWithDependence("province", opt, "city")}
             disabled={isVerificationDone}
+            errors={verificationErrors.province}
+            required
           />
 
           <FieldSelectCity
@@ -122,6 +125,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={city}
             onChange={(opt) => updateVerification("city", opt)}
             disabled={isVerificationDone || !province?.value}
+            errors={verificationErrors.city}
+            required
           />
 
           <FieldInputText
@@ -130,6 +135,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={nik}
             onChange={updateNIK}
             disabled={isVerificationDone}
+            errors={verificationErrors.nik}
+            required
           />
 
           <FieldUploadImage
@@ -139,6 +146,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={imageKTP}
             onChange={(value) => updateImage("imageKTP", value)}
             disabled={isVerificationDone}
+            errors={verificationErrors.imageKTP}
+            required
           />
           <SubtleFieldNote>
             Anda cukup melakukan verifikasi umur sekali di sini. Jika ada perubahan nama, Anda perlu
@@ -151,6 +160,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={address}
             onChange={(value) => updateVerification("address", value)}
             disabled={isVerificationDone}
+            errors={verificationErrors.address}
+            required
           />
         </Show>
 
@@ -161,6 +172,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={wnaCountry}
             onChange={(opt) => updateWithDependence("wnaCountry", opt, "wnaCity")}
             disabled={isVerificationDone}
+            errors={verificationErrors.wnaCountry}
+            required
           />
 
           <FieldSelectCityByCountry
@@ -170,6 +183,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={wnaCity}
             onChange={(opt) => updateVerification("wnaCity", opt)}
             disabled={isVerificationDone || !wnaCountry?.value}
+            errors={verificationErrors.wnaCity}
+            required
           />
 
           <FieldInputText
@@ -178,6 +193,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={wnaPassportNumber}
             onChange={(value) => updateVerification("wnaPassportNumber", value)}
             disabled={isVerificationDone}
+            errors={verificationErrors.wnaPassportNumber}
+            required
           />
 
           <FieldUploadImage
@@ -187,6 +204,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={imagePassport}
             onChange={(value) => updateImage("imagePassport", value)}
             disabled={isVerificationDone}
+            errors={verificationErrors.imagePassport}
+            required
           />
           <SubtleFieldNote>
             Anda cukup melakukan verifikasi umur sekali di sini. Jika ada perubahan nama, Anda perlu
@@ -199,6 +218,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             value={wnaAddress}
             onChange={(value) => updateVerification("wnaAddress", value)}
             disabled={isVerificationDone}
+            errors={verificationErrors.wnaAddress}
+            required
           />
         </Show>
       </Show>
@@ -225,7 +246,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
             onChange={setWithClub}
           />
 
-          <FieldErrorMessage errors={formErrors.withClub} />
+          <FieldErrorMessage errors={orderErrors.withClub} />
         </div>
       </div>
 
@@ -234,7 +255,7 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
         disabled={!category?.id || withClub == "no"}
         value={club}
         onChange={setClub}
-        errors={formErrors.club}
+        errors={orderErrors.club}
       >
         Pilih Klub yang diwakilkan
       </FieldSelectClub>

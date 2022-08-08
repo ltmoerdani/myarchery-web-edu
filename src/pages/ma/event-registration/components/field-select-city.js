@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { SelectCity } from "./select-city";
+import { FieldErrorMessage } from "./field-error-message";
 import { FieldInputTextWrapper } from "./styles/fields";
 
 import classnames from "classnames";
@@ -13,6 +14,7 @@ function FieldSelectCity({
   value,
   onChange,
   disabled,
+  errors,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
   return (
@@ -32,7 +34,9 @@ function FieldSelectCity({
         value={value}
         onChange={onChange}
         disabled={disabled}
+        errors={errors}
       />
+      <FieldErrorMessage errors={errors} />
     </FieldInputTextWrapper>
   );
 }
