@@ -44,6 +44,8 @@ function PageEventRegistration() {
   const formOrder = useFormOrder({ eventCategories });
   const { category } = formOrder.data;
 
+  const [isOrderSuccess, setOrderSuccess] = React.useState(false);
+
   const pageTitle = "Pendaftaran " + (eventDetailData?.publicInformation.eventName || "");
   const breadcrumbLink = _getLandingPagePath(eventDetailData?.publicInformation.eventUrl);
 
@@ -72,7 +74,11 @@ function PageEventRegistration() {
             <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
           </StepIndicator>
 
-          <BannerReservation category={category} onTimeout={() => history.push(breadcrumbLink)} />
+          <BannerReservation
+            category={category}
+            onTimeout={() => history.push(breadcrumbLink)}
+            isSuccess={isOrderSuccess}
+          />
 
           <SplitDisplay>
             <div>
@@ -108,6 +114,7 @@ function PageEventRegistration() {
                     fetchVerificationDetail();
                     refreshUserProfile();
                   }}
+                  onSuccessOrder={() => setOrderSuccess(true)}
                 />
               </ErrorBoundary>
             </div>

@@ -27,6 +27,7 @@ function TicketView({
   formVerification,
   formOrder,
   onSuccessVerification,
+  onSuccessOrder,
 }) {
   const history = useHistory();
   const { userProfile } = useUserProfile();
@@ -74,6 +75,7 @@ function TicketView({
   const handleSubmitOrder = () => {
     const options = {
       onSuccess: (data) => {
+        onSuccessOrder?.();
         const orderId = data?.archeryEventParticipantId;
         orderId && history.push("/dashboard/transactions/" + orderId);
       },
