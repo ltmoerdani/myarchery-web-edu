@@ -5,8 +5,8 @@ import { useCountDown } from "../hooks/count-down";
 
 import { LoadingScreen } from "components/ma";
 
-function BannerReservation({ category, onTimeout }) {
-  const { data: booking, deleteBookingOnBeforeUnload, isLoading } = useBooking(category);
+function BannerReservation({ category, onTimeout, isSuccess }) {
+  const { data: booking, deleteBookingOnBeforeUnload, isLoading } = useBooking(category, isSuccess);
   const { expiredBookingTime: timestamp } = booking || {};
 
   if (!timestamp) {
