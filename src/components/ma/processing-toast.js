@@ -3,7 +3,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 function ProcessingToast() {
   React.useEffect(() => {
-    toast.dismiss();
+    return () => toast.length && toast.dismiss();
   }, []);
 
   return (

@@ -34,7 +34,7 @@ function FieldUploadImage({
   return (
     <FieldInputTextWrapper>
       <UploadLabelWrapper className={classnames({ "field-disabled": disabled })} htmlFor={fieldID}>
-        <span className="field-label">
+        <span className={classnames("field-label", { "field-disabled": disabled })}>
           {label}
           {required && <span className="field-required">*</span>}
         </span>

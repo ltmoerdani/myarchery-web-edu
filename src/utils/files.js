@@ -1,14 +1,11 @@
-// TODO: rename jadi `fileToBase64` biar lebih general...
-// ...tapi pastikan juga yang mereferensi ini di-rename juga.
-// Karena ini ternyata bisa dipakai buat semua jenis file, gak cuma image
-async function imageToBase64(imageFileRaw) {
-  if (!imageFileRaw) {
+async function fileToBase64(fileRaw) {
+  if (!fileRaw) {
     return;
   }
 
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.readAsDataURL(imageFileRaw);
+    reader.readAsDataURL(fileRaw);
     reader.onload = () => {
       const baseURL = reader.result;
       resolve(baseURL);
@@ -16,4 +13,7 @@ async function imageToBase64(imageFileRaw) {
   });
 }
 
-export default { imageToBase64 };
+// alias untuk yang masih panggil nama function lama
+const imageToBase64 = fileToBase64;
+
+export default { imageToBase64, fileToBase64 };
