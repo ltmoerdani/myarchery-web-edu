@@ -163,14 +163,18 @@ function _makeInitialValuesState(verificationDetail) {
       ...defaultValues,
       // data wni
       isWna: verificationDetail.isWna,
-      province: {
-        value: provinceId,
-        label: verificationDetail.detailProvince?.name || "",
-      },
-      city: {
-        value: cityId,
-        label: verificationDetail.detailCity?.name || "",
-      },
+      province: provinceId
+        ? {
+            value: provinceId,
+            label: verificationDetail.detailProvince?.name || "",
+          }
+        : null,
+      city: cityId
+        ? {
+            value: cityId,
+            label: verificationDetail.detailCity?.name || "",
+          }
+        : null,
       nik: verificationDetail.nik || "",
       imageKTP: {
         raw: null,
@@ -188,14 +192,18 @@ function _makeInitialValuesState(verificationDetail) {
     ...defaultValues,
     // data wna
     isWna: verificationDetail.isWna,
-    wnaCountry: {
-      value: countryId,
-      label: verificationDetail.detailCountry?.name || "",
-    },
-    wnaCity: {
-      value: cityId,
-      label: verificationDetail.detailCityCountry?.name || "",
-    },
+    wnaCountry: countryId
+      ? {
+          value: countryId,
+          label: verificationDetail.detailCountry?.name || "",
+        }
+      : null,
+    wnaCity: cityId
+      ? {
+          value: cityId,
+          label: verificationDetail.detailCityCountry?.name || "",
+        }
+      : null,
     wnaPassportNumber: verificationDetail.passportNumber || "",
     imagePassport: {
       raw: null,
@@ -257,6 +265,10 @@ function _validateFields(data) {
 
     if (!data[FIELD_NIK]) {
       errors[FIELD_NIK] = _addErrorMessageToField(errors[FIELD_NIK], "NIK/nomor KK wajib diisi");
+    }
+
+    if (data[FIELD_NIK]?.length < 16) {
+      errors[FIELD_NIK] = _addErrorMessageToField(errors[FIELD_NIK], "Nomor kurang dari 16 digit");
     }
 
     if (!data[FIELD_KTP]?.url && !data[FIELD_KTP]?.raw) {

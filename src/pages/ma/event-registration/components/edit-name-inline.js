@@ -1,9 +1,11 @@
 import * as React from "react";
 import styled from "styled-components";
 import { useUserProfile } from "hooks/user-profile";
+import { useSubmitProfile } from "../hooks/submit-profile";
 
 import { Modal as BSModal, ModalBody } from "reactstrap";
-import { ButtonBlue, Button } from "components/ma";
+import { ButtonBlue, Button, LoadingScreen, AlertServerError } from "components/ma";
+import { toast } from "components/ma/processing-toast";
 import { FieldInputText } from "../components";
 
 function EditName({ children }) {
@@ -21,8 +23,77 @@ function EditName({ children }) {
 
 function EditNameModal({ onClose, toggle }) {
   const { userProfile } = useUserProfile();
+  const [nameValue, setNameValue] = React.useState(userProfile?.name);
+  const {
+    submit,
+    isLoading: isSubmiting,
+    isError: isErrorSubmit,
+    errors: submitErrors,
+  } = useSubmitProfile();
+
+  const isDirty = nameValue !== userProfile?.name;
+
+  const handleSubmit = () => {
+    const payload = { name: nameValue };
+    const options = {
+      onSuccess: () => {
+        onClose?.();
+        toast.success("Berhasil memperbarui data nama lengkap");
+      },
+    };
+    submit(payload, options);
+  };
+
+  const modalProps = {
+    isOpen: true,
+    centered: true,
+    unmountOnClose: true,
+    scrollable: false,
+    toggle: toggle,
+  };
+
+  if (!userProfile?.canUpdateName) {
+    return (
+      <Modal {...modalProps}>
+        <ModalBody>
+          <ModalContentLayout>
+            <HeaderTitle>Nama Peserta</HeaderTitle>
+            <div>
+              <p>
+                Telah mencapai limit untuk mengubah data nama. Anda hanya dapat mengubah nama profil
+                2 kali.
+              </p>
+            </div>
+
+            <div>
+              <FieldInputText
+                placeholder="Masukkan nama lengkap"
+                name="fullname"
+                disabled
+                value={nameValue}
+              />
+              <SubtleFieldNote>
+                Nama digunakan sebagai nama peserta untuk keperluan data dan berkas cetak (ID card,
+                sertifikat, dsb.)
+              </SubtleFieldNote>
+            </div>
+
+            <ButtonListVertical>
+              <ButtonBlue block onClick={onClose}>
+                Tutup
+              </ButtonBlue>
+            </ButtonListVertical>
+          </ModalContentLayout>
+
+          <LoadingScreen loading={isSubmiting} />
+          <AlertServerError isError={isErrorSubmit} errors={submitErrors} />
+        </ModalBody>
+      </Modal>
+    );
+  }
+
   return (
-    <Modal isOpen centered unmountOnClose scrollable={false} toggle={toggle}>
+    <Modal {...modalProps}>
       <ModalBody>
         <ModalContentLayout>
           <HeaderTitle>Ubah Nama Peserta</HeaderTitle>
@@ -42,7 +113,8 @@ function EditNameModal({ onClose, toggle }) {
             <FieldInputText
               placeholder="Masukkan nama lengkap"
               name="fullname"
-              value={userProfile?.name}
+              value={nameValue}
+              onChange={setNameValue}
               isFocus
               onFocus={(ev) => ev.target.select()}
             />
@@ -53,15 +125,24 @@ function EditNameModal({ onClose, toggle }) {
           </div>
 
           <ButtonListVertical>
-            <ButtonBlue block onClick={onClose}>
-              Simpan
-            </ButtonBlue>
+            {isDirty ? (
+              <ButtonBlue block onClick={handleSubmit}>
+                Simpan
+              </ButtonBlue>
+            ) : (
+              <ButtonBlue block disabled>
+                Simpan
+              </ButtonBlue>
+            )}
 
             <Button block onClick={onClose}>
               Batal
             </Button>
           </ButtonListVertical>
         </ModalContentLayout>
+
+        <LoadingScreen loading={isSubmiting} />
+        <AlertServerError isError={isErrorSubmit} errors={submitErrors} />
       </ModalBody>
     </Modal>
   );

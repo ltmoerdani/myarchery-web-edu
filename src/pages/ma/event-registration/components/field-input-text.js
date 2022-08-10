@@ -104,7 +104,7 @@ const FieldInputTextWrapper = styled.div`
     &[readonly] {
       background-color: var(--ma-gray-50);
       border-color: var(--ma-gray-50);
-      color: var(--ma-gray-400);
+      color: var(--ma-gray-500);
       opacity: 1;
     }
 
