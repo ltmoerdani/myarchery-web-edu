@@ -1,10 +1,12 @@
 import * as React from "react";
 import styled from "styled-components";
 import { useUserProfile } from "hooks/user-profile";
+import { useSubmitProfile } from "./hooks/submit-profile";
 import { useVerificationDetail } from "./hooks/verification-detail";
 import { useFormVerification } from "./hooks/form-verification";
+import { useSubmitVerification } from "./hooks/submit-verification";
 
-import { ButtonBlue } from "components/ma";
+import { ButtonBlue, SpinnerDotBlock, LoadingScreen } from "components/ma";
 import { PageWrapper } from "components/ma/page-wrapper";
 import { ErrorBoundary } from "components/ma/error-boundary";
 import { toast } from "components/ma/processing-toast";
@@ -30,7 +32,31 @@ function PageProfileHome() {
 }
 
 function CardMainProfile() {
-  const { userProfile } = useUserProfile();
+  const { userProfile, refresh } = useUserProfile();
+
+  const {
+    submit,
+    isLoading: isSubmiting,
+    errors: submitErrors,
+    reset: resetSubmit,
+  } = useSubmitProfile();
+
+  const handleSubmit = (editor, successMessage = "Berhasil menyimpan data") => {
+    submit(editor.value, {
+      onSuccess: () => {
+        toast.success(successMessage);
+        editor.close();
+        refresh();
+      },
+    });
+  };
+
+  const renderFieldTitle = (shouldRender) => {
+    if (!shouldRender) {
+      return undefined;
+    }
+    return "Telah melebihi limit, tidak dapat lagi mengubah data.";
+  };
 
   return (
     <CardSheet>
@@ -52,7 +78,15 @@ function CardMainProfile() {
                 label="Nama Lengkap"
                 placeholder="Isi nama lengkap"
                 name="name"
+                disabled={!userProfile?.canUpdateName}
+                title={renderFieldTitle(!userProfile?.canUpdateName)}
                 value={userProfile?.name}
+                onSubmit={(editor) => {
+                  handleSubmit(editor, "Berhasil menyimpan data nama lengkap");
+                }}
+                isSubmiting={isSubmiting}
+                submitErrors={submitErrors}
+                onConfirmSubmitErrors={resetSubmit}
                 editor={{
                   title: "Ubah Nama Profil",
                   body: (
@@ -86,14 +120,28 @@ function CardMainProfile() {
                 placeholder="Isi tempat lahir"
                 value={userProfile?.placeOfBirth}
                 name="placeOfBirth"
+                onSubmit={(editor) => {
+                  handleSubmit(editor, "Berhasil menyimpan data tempat lahir");
+                }}
+                isSubmiting={isSubmiting}
+                submitErrors={submitErrors}
+                onConfirmSubmitErrors={resetSubmit}
                 editor={{ title: "Ubah Tempat Lahir" }}
               />
 
               <FieldDataEditor
                 label="Tanggal Lahir"
                 placeholder="Isi tanggal lahir"
-                value={userProfile?.dateOfBirth}
                 name="date_of_birth"
+                disabled={!userProfile?.canUpdateDateOfBirth}
+                title={renderFieldTitle(!userProfile?.canUpdateDateOfBirth)}
+                value={userProfile?.dateOfBirth}
+                onSubmit={(editor) => {
+                  handleSubmit(editor, "Berhasil menyimpan data tanggal lahir");
+                }}
+                isSubmiting={isSubmiting}
+                submitErrors={submitErrors}
+                onConfirmSubmitErrors={resetSubmit}
                 editor={{
                   title: "Ubah Tanggal Lahir",
                   body: (
@@ -115,9 +163,16 @@ function CardMainProfile() {
               <FieldDataEditor
                 label="Jenis Kelamin"
                 placeholder="Isi jenis kelamin"
-                value={userProfile?.gender}
-                valueLabel={_getGenderLabel(userProfile?.gender)}
                 name="gender"
+                disabled={!userProfile?.canUpdateGender}
+                title={renderFieldTitle(!userProfile?.canUpdateGender)}
+                value={userProfile?.gender}
+                onSubmit={(editor) => {
+                  handleSubmit(editor, "Berhasil menyimpan data jenis kelamin");
+                }}
+                isSubmiting={isSubmiting}
+                submitErrors={submitErrors}
+                onConfirmSubmitErrors={resetSubmit}
                 editor={{
                   title: "Ubah Jenis Kelamin",
                   body: (
@@ -148,6 +203,12 @@ function CardMainProfile() {
               placeholder="Isi nomor handphone"
               name="phone_number"
               value={userProfile?.phoneNumber}
+              onSubmit={(editor) => {
+                handleSubmit(editor, "Berhasil menyimpan data nomor handphone");
+              }}
+              isSubmiting={isSubmiting}
+              submitErrors={submitErrors}
+              onConfirmSubmitErrors={resetSubmit}
               editor={{
                 title: "Ubah No. Handphone",
                 body: (
@@ -168,86 +229,125 @@ function CardMainProfile() {
 }
 
 function CardDetailProfile() {
-  const { userProfile } = useUserProfile();
-  const { data: verificationDetail } = useVerificationDetail(userProfile?.id);
+  const { userProfile, refresh: refreshProfile } = useUserProfile();
+  const {
+    data: verificationDetail,
+    isLoading,
+    fetchVerificationDetail,
+  } = useVerificationDetail(userProfile?.id);
   const formVerification = useFormVerification(verificationDetail);
+  const { submit, isLoading: isSubmiting } = useSubmitVerification(formVerification.data);
 
   const { province, city, nik, address, imageKTP } = formVerification.data;
   const {
+    isDirty,
     errors: verificationErrors,
     updateField: updateVerification,
     updateNIK,
     updateImage,
     updateWithDependence,
   } = formVerification;
+
   const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
 
+  if (!verificationDetail && isLoading) {
+    return (
+      <CardSheet>
+        <SpinnerDotBlock />
+      </CardSheet>
+    );
+  }
+
   return (
-    <CardSheet>
-      <CardTitle>Detail</CardTitle>
+    <React.Fragment>
+      <CardSheet>
+        <CardTitle>Detail</CardTitle>
 
-      <FieldInputText
-        label="Alamat Lengkap"
-        placeholder="Masukkan alamat sesuai KTP/KK"
-        value={address}
-        onChange={(value) => updateVerification("address", value)}
-        disabled={isVerificationDone}
-        errors={verificationErrors.address}
-        required={!isVerificationDone}
-      />
-
-      <SplitInputs>
-        <FieldSelectProvince
-          value={province}
-          onChange={(opt) => updateWithDependence("province", opt, "city")}
-          disabled={isVerificationDone}
-          errors={verificationErrors.province}
-          required={!isVerificationDone}
-        />
-
-        <FieldSelectCity
-          provinceId={province?.value}
-          value={city}
-          onChange={(opt) => updateVerification("city", opt)}
-          disabled={isVerificationDone || !province?.value}
-          errors={verificationErrors.city}
-          required={!isVerificationDone}
-        />
-      </SplitInputs>
-
-      <div>
         <FieldInputText
-          label="NIK"
-          placeholder="Masukkan 16 digit nomor KTP/KK"
-          value={nik}
-          onChange={updateNIK}
+          label="Alamat Lengkap"
+          placeholder="Masukkan alamat sesuai KTP/KK"
+          value={address}
+          onChange={(value) => updateVerification("address", value)}
           disabled={isVerificationDone}
-          errors={verificationErrors.nik}
+          errors={verificationErrors.address}
           required={!isVerificationDone}
         />
-        <SubtleFieldNote>
-          Pengguna dibawah 17 tahun dapat memasukkan nomor NIK dari KK
-        </SubtleFieldNote>
-      </div>
 
-      <div>
-        <FieldUploadImage
-          label="Foto KTP/KK"
-          placeholder="Unggah gambar dengan file JPG/PNG"
-          name="imageKTP"
-          value={imageKTP}
-          onChange={(value) => updateImage("imageKTP", value)}
-          disabled={isVerificationDone}
-          errors={verificationErrors.imageKTP}
-          required={!isVerificationDone}
-        />
-        <SubtleFieldNote>Pengguna dibawah 17 tahun dapat melampirkan dokumen KK</SubtleFieldNote>
-      </div>
+        <SplitInputs>
+          <FieldSelectProvince
+            value={province}
+            onChange={(opt) => updateWithDependence("province", opt, "city")}
+            disabled={isVerificationDone}
+            errors={verificationErrors.province}
+            required={!isVerificationDone}
+          />
 
-      <ButtonList>
-        <ButtonBlue disabled={isVerificationDone}>Simpan</ButtonBlue>
-      </ButtonList>
-    </CardSheet>
+          <FieldSelectCity
+            provinceId={province?.value}
+            value={city}
+            onChange={(opt) => updateVerification("city", opt)}
+            disabled={isVerificationDone || !province?.value}
+            errors={verificationErrors.city}
+            required={!isVerificationDone}
+          />
+        </SplitInputs>
+
+        <div>
+          <FieldInputText
+            label="NIK"
+            placeholder="Masukkan 16 digit nomor KTP/KK"
+            value={nik}
+            onChange={updateNIK}
+            disabled={isVerificationDone}
+            errors={verificationErrors.nik}
+            required={!isVerificationDone}
+          />
+          <SubtleFieldNote>
+            Pengguna dibawah 17 tahun dapat memasukkan nomor NIK dari KK
+          </SubtleFieldNote>
+        </div>
+
+        <div>
+          <FieldUploadImage
+            label="Foto KTP/KK"
+            placeholder="Unggah gambar dengan file JPG/PNG"
+            name="imageKTP"
+            value={imageKTP}
+            onChange={(value) => updateImage("imageKTP", value)}
+            disabled={isVerificationDone}
+            errors={verificationErrors.imageKTP}
+            required={!isVerificationDone}
+          />
+          <SubtleFieldNote>Pengguna dibawah 17 tahun dapat melampirkan dokumen KK</SubtleFieldNote>
+        </div>
+
+        <ButtonList>
+          {isVerificationDone ? (
+            <ButtonBlue disabled>Simpan</ButtonBlue>
+          ) : (
+            <ButtonBlue
+              disabled={!isDirty}
+              onClick={() => {
+                if (!isDirty) {
+                  return;
+                }
+                submit({
+                  onSuccess: () => {
+                    toast.success("Data verifikasi berhasil disimpan");
+                    fetchVerificationDetail();
+                    refreshProfile();
+                  },
+                });
+              }}
+            >
+              Simpan
+            </ButtonBlue>
+          )}
+        </ButtonList>
+      </CardSheet>
+
+      <LoadingScreen loading={isSubmiting} />
+    </React.Fragment>
   );
 }
 
@@ -360,17 +460,6 @@ const ButtonList = styled.div`
   gap: 0.5rem;
   justify-content: flex-end;
 `;
-
-function _getGenderLabel(gender) {
-  if (!gender) {
-    return undefined;
-  }
-  const labels = {
-    male: "Pria",
-    female: "Wanita",
-  };
-  return labels[gender];
-}
 
 /**
  * Verifikasi tidak diminta lagi ketika statusnya "terverifikasi" (kode 1)

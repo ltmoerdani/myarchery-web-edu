@@ -8,7 +8,7 @@ import { ButtonBlue, Button, LoadingScreen, AlertServerError } from "components/
 import { ErrorBoundary } from "components/ma/error-boundary";
 import { SelectRadio } from "pages/ma/event-registration/components/select-radio";
 
-import { isSameDay } from "date-fns";
+import { isSameDay, subYears } from "date-fns";
 import { datetime } from "utils";
 
 function FieldDataEditor({
@@ -17,19 +17,22 @@ function FieldDataEditor({
   required,
   name,
   placeholder,
+  title,
+  disabled,
   value = "",
   editor,
   field,
   onSubmit,
   isSubmiting,
   submitErrors,
+  onConfirmSubmitErrors,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
   const displayValue = _getDisplayValue(field, value);
 
   return (
     <ErrorBoundary>
-      <FieldInputTextWrapper>
+      <FieldInputTextWrapper title={title}>
         {(children || label) && (
           <FieldLabel htmlFor={fieldID} className="field-label">
             {children || label}
@@ -46,20 +49,30 @@ function FieldDataEditor({
             placeholder={placeholder}
             value={displayValue}
           />
-          <DataEditor
-            settings={editor}
-            field={{ ...field, id: fieldID, name, placeholder, value }}
-            onSubmit={onSubmit}
-            isSubmiting={isSubmiting}
-            submitErrors={submitErrors}
-          />
+          {!disabled && (
+            <DataEditor
+              settings={editor}
+              field={{ ...field, id: fieldID, name, placeholder, value }}
+              onSubmit={onSubmit}
+              isSubmiting={isSubmiting}
+              submitErrors={submitErrors}
+              onConfirmSubmitErrors={onConfirmSubmitErrors}
+            />
+          )}
         </InputWithButton>
       </FieldInputTextWrapper>
     </ErrorBoundary>
   );
 }
 
-function DataEditor({ settings, field, onSubmit, isSubmiting, submitErrors }) {
+function DataEditor({
+  settings,
+  field,
+  onSubmit,
+  isSubmiting,
+  submitErrors,
+  onConfirmSubmitErrors,
+}) {
   const [isOpen, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -73,16 +86,29 @@ function DataEditor({ settings, field, onSubmit, isSubmiting, submitErrors }) {
           onSubmit={onSubmit}
           isSubmiting={isSubmiting}
           submitErrors={submitErrors}
+          onConfirmSubmitErrors={onConfirmSubmitErrors}
         />
       )}
     </React.Fragment>
   );
 }
 
-function EditorModal({ settings, field, onClose, toggle, onSubmit, isSubmiting, submitErrors }) {
-  const reservedInitialValue = React.useRef(_getInitialValue(field));
-  const [inputValue, setInputValue] = React.useState(reservedInitialValue.current);
+function EditorModal({
+  settings,
+  field,
+  onClose,
+  toggle,
+  onSubmit,
+  isSubmiting,
+  submitErrors,
+  onConfirmSubmitErrors,
+}) {
+  const reservedInitialValue = React.useRef(_getReservedValue(field));
+  const [inputValue, setInputValue] = React.useState(
+    _getInitialValue(field, reservedInitialValue.current)
+  );
   const isDirty = _checkDirty(field, reservedInitialValue.current, inputValue);
+  const editorValue = _makeValueByType(field, inputValue);
 
   const handleError = useErrorHandler();
 
@@ -121,12 +147,12 @@ function EditorModal({ settings, field, onClose, toggle, onSubmit, isSubmiting, 
             </div>
 
             <ButtonListVertical>
-              {isDirty ? (
+              {isDirty && inputValue ? (
                 <ButtonBlue
                   block
                   onClick={() => {
                     try {
-                      onSubmit({ close: onClose });
+                      onSubmit({ close: onClose, value: editorValue });
                     } catch (err) {
                       handleError(err);
                     }
@@ -149,7 +175,11 @@ function EditorModal({ settings, field, onClose, toggle, onSubmit, isSubmiting, 
       </Modal>
 
       <LoadingScreen loading={isSubmiting} />
-      <AlertServerError isError={Boolean(submitErrors)} errors={submitErrors} />
+      <AlertServerError
+        isError={Boolean(submitErrors)}
+        errors={submitErrors}
+        onConfirm={onConfirmSubmitErrors}
+      />
     </React.Fragment>
   );
 }
@@ -331,16 +361,23 @@ function _getDisplayValue(field, value) {
     return field.options.find((option) => option.value === value)?.label;
   }
   if (field?.type === "date") {
-    return datetime.formatFullDateLabel(value);
+    return value ? datetime.formatFullDateLabel(value) : "";
   }
   return value || "";
 }
 
-function _getInitialValue(field) {
+function _getReservedValue(field) {
   if (field?.type === "date") {
-    return datetime.parseServerDatetime(field.value);
+    return field.value ? datetime.parseServerDatetime(field.value) : "";
   }
   return field.value || "";
+}
+
+function _getInitialValue(field, reservedInitialValue) {
+  if (field.type === "date") {
+    return reservedInitialValue || subYears(new Date(), 10);
+  }
+  return reservedInitialValue;
 }
 
 function _checkDirty(field, reservedInitialValue, input) {
@@ -348,6 +385,13 @@ function _checkDirty(field, reservedInitialValue, input) {
     return !isSameDay(reservedInitialValue, input);
   }
   return input !== reservedInitialValue;
+}
+
+function _makeValueByType(field, inputValue) {
+  const value = field.type === "date" ? datetime.formatServerDate(inputValue) : inputValue;
+  return {
+    [field.name]: value,
+  };
 }
 
 export { FieldDataEditor };
