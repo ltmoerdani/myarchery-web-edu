@@ -34,7 +34,7 @@ function FieldUploadImage({
   return (
     <FieldInputTextWrapper>
       <UploadLabelWrapper className={classnames({ "field-disabled": disabled })} htmlFor={fieldID}>
-        <span className="field-label">
+        <span className={classnames("field-label", { "field-disabled": disabled })}>
           {label}
           {required && <span className="field-required">*</span>}
         </span>
@@ -58,7 +58,7 @@ function FieldUploadImage({
         <Show when={!disabled}>
           <UploadArea className={classnames({ "field-error": _checkHasError(errors) })}>
             <UploadAreaContent>
-              <span>{value.raw?.name || placeholder}</span>
+              <DescriptionText>{value.raw?.name || placeholder}</DescriptionText>
 
               <ButtonList>
                 <Show when={hasPreview}>
@@ -172,6 +172,13 @@ const UploadAreaContent = styled.span`
   gap: 0.5rem;
 
   text-align: center;
+`;
+
+const DescriptionText = styled.span`
+  max-width: 18.75rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const ButtonList = styled.span`

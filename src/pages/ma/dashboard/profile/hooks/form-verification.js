@@ -267,10 +267,6 @@ function _validateFields(data) {
       errors[FIELD_NIK] = _addErrorMessageToField(errors[FIELD_NIK], "NIK/nomor KK wajib diisi");
     }
 
-    if (data[FIELD_NIK]?.length < 16) {
-      errors[FIELD_NIK] = _addErrorMessageToField(errors[FIELD_NIK], "Nomor kurang dari 16 digit");
-    }
-
     if (!data[FIELD_KTP]?.url && !data[FIELD_KTP]?.raw) {
       errors[FIELD_KTP] = _addErrorMessageToField(errors[FIELD_KTP], "File KTP/KK wajib dipilih");
     }

@@ -13,6 +13,7 @@ import { FieldSelectCountry } from "../components/field-select-country";
 import { FieldSelectCityByCountry } from "../components/field-select-city-country";
 import { FieldUploadImage } from "../components/field-upload-image";
 import { SelectRadio } from "../components/select-radio";
+import { EditName } from "../components/edit-name-inline";
 
 import IconAddress from "components/ma/icons/mono/address";
 
@@ -75,6 +76,10 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
           >
             Nama Pendaftar
           </FieldInputText>
+          <SubtleFieldNote>
+            Nama pendaftar merupakan nama peserta yang akan mengikuti pertandingan. Untuk mengubah
+            nama silakan klik <EditName>di sini</EditName>.
+          </SubtleFieldNote>
 
           <SplitFields>
             <SplitFieldItem>

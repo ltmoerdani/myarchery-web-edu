@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import * as React from "react";
 import PropTypes from "prop-types";
 import { Route, Redirect } from "react-router-dom";
 import { getAuthenticationStore } from "store/slice/authentication";
 import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import * as AuthenticationStore from "store/slice/authentication";
-import { ArcherService } from "services";
+import { useUserProfile } from "hooks/user-profile";
 import { ErrorBoundary } from "components/ma/error-boundary";
 
 const AuthenticationArcherMiddleware = ({
@@ -14,15 +12,8 @@ const AuthenticationArcherMiddleware = ({
   isAuthProtected,
   ...rest
 }) => {
+  useUserProfile({ forceFetchOnMount: true });
   const { isLoggedIn } = useSelector(getAuthenticationStore);
-  const dispatch = useDispatch();
-
-  useEffect(async () => {
-    const { data, success } = await ArcherService.profile();
-    if (success) {
-      dispatch(AuthenticationStore.profile(data));
-    }
-  }, []);
 
   return (
     <Route
