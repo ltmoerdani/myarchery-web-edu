@@ -33,7 +33,8 @@ function PageWrapper({ children, pageTitle, before, after, breadcrumbText, bread
 
 const StyledPageWrapper = styled.div`
   font-family: "Inter", sans-serif;
-  margin: 2.5rem 0 5rem 0;
+  margin: 2.5rem auto 5rem auto;
+  max-width: 1440px;
 `;
 
 export { PageWrapper };

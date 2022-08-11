@@ -245,6 +245,12 @@ const ParticipantAvatar = styled.div`
   width: 6rem;
   height: 6rem;
   border-radius: 50%;
+
+  > img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const MediaParticipantContent = styled.div`

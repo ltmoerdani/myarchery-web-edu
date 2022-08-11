@@ -1,6 +1,8 @@
 import { parseISO, format } from "date-fns";
 import id from "date-fns/locale/id";
 
+const locale = id;
+
 function parseServerDatetime(dateString) {
   try {
     return parseISO(dateString);
@@ -37,4 +39,10 @@ function formatFullDateLabel(date, { withDay = false } = {}) {
   }
 }
 
-export default { parseServerDatetime, formatServerDatetime, formatServerDate, formatFullDateLabel };
+export default {
+  parseServerDatetime,
+  formatServerDatetime,
+  formatServerDate,
+  formatFullDateLabel,
+  locale,
+};

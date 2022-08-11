@@ -4,13 +4,24 @@ import { fetchingReducer } from "hooks/fetcher";
 import { errorsUtil } from "utils";
 
 function useFetcher() {
-  const [state, dispatch] = React.useReducer(fetchingReducer, {
+  const [state, unsafeDispatch] = React.useReducer(fetchingReducer, {
     status: "idle",
     data: null,
     errors: null,
   });
+
   const isMounted = useUnmountChecker();
   const { status } = state;
+
+  const dispatch = (action) => {
+    // Cegah memory leak
+    // Gak perlu update state kalau sudah unmount
+    // tapi handler sukses & error tetep dipanggil
+    if (!isMounted.current) {
+      return;
+    }
+    unsafeDispatch(action);
+  };
 
   const runAsync = async (serviceFetcher, { onSuccess, onError, transform } = {}) => {
     if (typeof serviceFetcher !== "function") {
@@ -19,12 +30,6 @@ function useFetcher() {
 
     dispatch({ status: "loading", errors: null });
     const result = await serviceFetcher();
-
-    // Cegah memory leak
-    // Gak perlu update state kalau sudah unmount
-    if (!isMounted.current) {
-      return;
-    }
 
     if (result.success) {
       const data = _buildDataState(result.data, transform);
