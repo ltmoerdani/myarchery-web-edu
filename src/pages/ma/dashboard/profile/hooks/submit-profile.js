@@ -27,11 +27,11 @@ function useSubmitProfile() {
 
 function _makePayload(userProfile, value) {
   const payload = {
-    name: userProfile.name,
-    place_of_birth: userProfile.placeOfBirth,
-    date_of_birth: userProfile.dateOfBirth,
-    gender: userProfile.gender,
-    phone_number: userProfile.phoneNumber,
+    name: userProfile.name || undefined,
+    place_of_birth: userProfile.placeOfBirth || undefined,
+    date_of_birth: userProfile.dateOfBirth || undefined,
+    gender: userProfile.gender || undefined,
+    phone_number: userProfile.phoneNumber || undefined,
     ...value,
   };
   return payload;
