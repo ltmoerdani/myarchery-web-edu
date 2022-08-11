@@ -19,7 +19,7 @@ import IconAddress from "components/ma/icons/mono/address";
 
 import { checkIsIndividu } from "../utils";
 
-function FormView({ userProfile, eventCategories, formOrder, formVerification }) {
+function FormView({ userProfile, eventCategories, formOrder, formVerification, onProfileUpdated }) {
   const { errors: orderErrors, updateField, setCategory, setWithClub, setClub } = formOrder;
   const { category, matchDate, withClub, club } = formOrder.data;
 
@@ -79,7 +79,13 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification })
           <SubtleFieldNote>
             Nama pendaftar merupakan nama peserta yang akan mengikuti pertandingan. Untuk mengubah
             nama silakan klik{" "}
-            <EditName title={_renderEditNameTitle(userProfile?.canUpdateName)}>di sini</EditName>.
+            <EditName
+              title={_renderEditNameTitle(userProfile?.canUpdateName)}
+              onProfileUpdated={onProfileUpdated}
+            >
+              di sini
+            </EditName>
+            .
           </SubtleFieldNote>
 
           <SplitFields>

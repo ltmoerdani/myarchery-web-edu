@@ -90,6 +90,7 @@ function PageEventRegistration() {
                       eventCategories={eventCategories}
                       formOrder={formOrder}
                       formVerification={formVerification}
+                      onProfileUpdated={fetchVerificationDetail}
                     />
                   </ErrorBoundary>
                 </WizardViewContent>
