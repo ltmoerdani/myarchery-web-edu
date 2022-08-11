@@ -8,20 +8,26 @@ import { ButtonBlue, Button, LoadingScreen, AlertServerError } from "components/
 import { toast } from "components/ma/processing-toast";
 import { FieldInputText } from "../components";
 
-function EditName({ children }) {
+function EditName({ children, title, onProfileUpdated }) {
   const [isOpen, setOpen] = React.useState(false);
   const buttonLabel = children || "ubah nama";
   return (
     <React.Fragment>
-      <LinkText onClick={() => setOpen((open) => !open)}>{buttonLabel}</LinkText>
+      <LinkText title={title} onClick={() => setOpen((open) => !open)}>
+        {buttonLabel}
+      </LinkText>
       {isOpen && (
-        <EditNameModal toggle={() => setOpen((open) => !open)} onClose={() => setOpen(false)} />
+        <EditNameModal
+          toggle={() => setOpen((open) => !open)}
+          onClose={() => setOpen(false)}
+          onProfileUpdated={onProfileUpdated}
+        />
       )}
     </React.Fragment>
   );
 }
 
-function EditNameModal({ onClose, toggle }) {
+function EditNameModal({ onClose, toggle, onProfileUpdated }) {
   const { userProfile } = useUserProfile();
   const [nameValue, setNameValue] = React.useState(userProfile?.name);
   const {
@@ -37,8 +43,9 @@ function EditNameModal({ onClose, toggle }) {
     const payload = { name: nameValue };
     const options = {
       onSuccess: () => {
-        onClose?.();
+        onClose();
         toast.success("Berhasil memperbarui data nama lengkap");
+        onProfileUpdated();
       },
     };
     submit(payload, options);
@@ -154,6 +161,7 @@ const LinkText = styled.button`
   background-color: unset;
 
   color: var(--ma-blue);
+  font-weight: 600;
 
   &:hover,
   &:focus {
