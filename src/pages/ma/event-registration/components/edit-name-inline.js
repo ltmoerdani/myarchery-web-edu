@@ -8,12 +8,14 @@ import { ButtonBlue, Button, LoadingScreen, AlertServerError } from "components/
 import { toast } from "components/ma/processing-toast";
 import { FieldInputText } from "../components";
 
-function EditName({ children }) {
+function EditName({ children, title }) {
   const [isOpen, setOpen] = React.useState(false);
   const buttonLabel = children || "ubah nama";
   return (
     <React.Fragment>
-      <LinkText onClick={() => setOpen((open) => !open)}>{buttonLabel}</LinkText>
+      <LinkText title={title} onClick={() => setOpen((open) => !open)}>
+        {buttonLabel}
+      </LinkText>
       {isOpen && (
         <EditNameModal toggle={() => setOpen((open) => !open)} onClose={() => setOpen(false)} />
       )}
@@ -154,6 +156,7 @@ const LinkText = styled.button`
   background-color: unset;
 
   color: var(--ma-blue);
+  font-weight: 600;
 
   &:hover,
   &:focus {

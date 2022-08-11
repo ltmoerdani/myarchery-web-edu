@@ -17,23 +17,42 @@ import { FieldUploadImage } from "pages/ma/event-registration/components/field-u
 import { FieldDataEditor } from "./components/field-data-editor";
 import { AvatarUploader } from "./components/avatar-uploader";
 
+import IconCheck from "components/ma/icons/color/check";
+
 function PageProfileHome() {
+  const { userProfile, refresh } = useUserProfile();
+  const {
+    data: verificationDetail,
+    isLoading: isLoadingVerification,
+    fetchVerificationDetail,
+  } = useVerificationDetail(userProfile?.id);
+
+  const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
+
+  const handleProfileUpdated = () => {
+    refresh();
+    fetchVerificationDetail();
+  };
+
   return (
     <PageWrapper pageTitle="Profil Archer" breadcrumbText="Profil" breadcrumbLink="/dashboard">
       <ErrorBoundary>
-        <CardMainProfile />
+        <CardMainProfile userProfile={userProfile} onProfileUpdated={handleProfileUpdated} />
       </ErrorBoundary>
 
       <ErrorBoundary>
-        <CardDetailProfile />
+        <CardDetailProfile
+          isVerificationDone={isVerificationDone}
+          verificationDetail={verificationDetail}
+          isLoading={isLoadingVerification}
+          onVerificationUpdated={handleProfileUpdated}
+        />
       </ErrorBoundary>
     </PageWrapper>
   );
 }
 
-function CardMainProfile() {
-  const { userProfile, refresh } = useUserProfile();
-
+function CardMainProfile({ userProfile, onProfileUpdated }) {
   const {
     submit,
     isLoading: isSubmiting,
@@ -46,16 +65,16 @@ function CardMainProfile() {
       onSuccess: () => {
         toast.success(successMessage);
         editor.close();
-        refresh();
+        onProfileUpdated();
       },
     });
   };
 
-  const renderFieldTitle = (shouldRender) => {
-    if (!shouldRender) {
-      return undefined;
+  const renderFieldTitle = (limitCount) => {
+    if (!limitCount) {
+      return "Telah melebihi limit, tidak dapat lagi mengubah data.";
     }
-    return "Telah melebihi limit, tidak dapat lagi mengubah data.";
+    return `Tersisa kesempatan mengubah data ${limitCount} kali.`;
   };
 
   return (
@@ -79,7 +98,7 @@ function CardMainProfile() {
                 placeholder="Isi nama lengkap"
                 name="name"
                 disabled={!userProfile?.canUpdateName}
-                title={renderFieldTitle(!userProfile?.canUpdateName)}
+                title={renderFieldTitle(userProfile?.canUpdateName)}
                 value={userProfile?.name}
                 onSubmit={(editor) => {
                   handleSubmit(editor, "Berhasil menyimpan data nama lengkap");
@@ -134,7 +153,7 @@ function CardMainProfile() {
                 placeholder="Isi tanggal lahir"
                 name="date_of_birth"
                 disabled={!userProfile?.canUpdateDateOfBirth}
-                title={renderFieldTitle(!userProfile?.canUpdateDateOfBirth)}
+                title={renderFieldTitle(userProfile?.canUpdateDateOfBirth)}
                 value={userProfile?.dateOfBirth}
                 onSubmit={(editor) => {
                   handleSubmit(editor, "Berhasil menyimpan data tanggal lahir");
@@ -165,7 +184,7 @@ function CardMainProfile() {
                 placeholder="Isi jenis kelamin"
                 name="gender"
                 disabled={!userProfile?.canUpdateGender}
-                title={renderFieldTitle(!userProfile?.canUpdateGender)}
+                title={renderFieldTitle(userProfile?.canUpdateGender)}
                 value={userProfile?.gender}
                 onSubmit={(editor) => {
                   handleSubmit(editor, "Berhasil menyimpan data jenis kelamin");
@@ -228,13 +247,12 @@ function CardMainProfile() {
   );
 }
 
-function CardDetailProfile() {
-  const { userProfile, refresh: refreshProfile } = useUserProfile();
-  const {
-    data: verificationDetail,
-    isLoading,
-    fetchVerificationDetail,
-  } = useVerificationDetail(userProfile?.id);
+function CardDetailProfile({
+  isVerificationDone,
+  verificationDetail,
+  isLoading,
+  onVerificationUpdated,
+}) {
   const formVerification = useFormVerification(verificationDetail);
   const { submit, isLoading: isSubmiting } = useSubmitVerification(formVerification.data);
 
@@ -246,9 +264,8 @@ function CardDetailProfile() {
     updateNIK,
     updateImage,
     updateWithDependence,
+    handleValidation,
   } = formVerification;
-
-  const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
 
   if (!verificationDetail && isLoading) {
     return (
@@ -323,19 +340,28 @@ function CardDetailProfile() {
 
         <ButtonList>
           {isVerificationDone ? (
-            <ButtonBlue disabled>Simpan</ButtonBlue>
+            <ButtonBlue disabled>
+              <span>
+                <IconCheck size="16" />
+              </span>{" "}
+              <span>Tersimpan</span>
+            </ButtonBlue>
           ) : (
             <ButtonBlue
+              title={!isDirty ? "Masukkan data atau ubah untuk menyimpan" : undefined}
               disabled={!isDirty}
               onClick={() => {
                 if (!isDirty) {
                   return;
                 }
-                submit({
-                  onSuccess: () => {
-                    toast.success("Data verifikasi berhasil disimpan");
-                    fetchVerificationDetail();
-                    refreshProfile();
+                handleValidation({
+                  onValid: () => {
+                    submit({
+                      onSuccess: () => {
+                        toast.success("Data verifikasi berhasil disimpan");
+                        onVerificationUpdated();
+                      },
+                    });
                   },
                 });
               }}
