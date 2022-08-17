@@ -85,7 +85,11 @@ function PageTransactionDetail() {
       if (data) {
         setDataDetail(data);
         if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
-          handleClickPayment();
+          if (dataDetail?.transactionInfo?.gateway == "OY") {
+            console.log("masuk pak eko");
+          }else{
+            handleClickPaymentMidtrans();
+          }
         }
         console.log(message);
       }
@@ -111,7 +115,13 @@ function PageTransactionDetail() {
     };
   }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
-  const handleClickPayment = () => {
+  const handleClickPayment = (transactionInfo) => {
+    if(transactionInfo?.gateway == "OY") 
+        return () => window.location = transactionInfo?.opt?.url;
+      else
+        handleClickPaymentMidtrans
+  } 
+  const handleClickPaymentMidtrans = () => {
     window.snap?.pay(dataDetail?.transactionInfo?.snapToken, {
       onSuccess: function () {
         console.log("success");
@@ -661,12 +671,12 @@ function PageTransactionDetail() {
                                       userProfile?.verifyStatus != 1 &&
                                       dataDetail?.archeryEvent?.needVerify
                                         ? () => setIsAlertOpen(true)
-                                        : handleClickPayment
+                                        : handleClickPayment(dataDetail?.transactionInfo)
                                     }
                                     className="btn"
                                     style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
                                   >
-                                    Bayar Sekarang
+                                    Bayar Sekarang 
                                   </button>
                                   <p style={{ textAlign: "center" }}>
                                     code : {dataDetail?.transactionInfo?.orderId}
