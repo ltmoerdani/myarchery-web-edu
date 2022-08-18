@@ -35,6 +35,7 @@ function PageTransactionDetail() {
   const [activeTab, setActiveTab] = useState("4");
   const [dataDetail, setDataDetail] = useState({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isOYAlertOpen, setIsOYAlertOpen] = useState(false);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
   const { orderId } = useParams();
@@ -86,7 +87,7 @@ function PageTransactionDetail() {
         setDataDetail(data);
         if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
           if (dataDetail?.transactionInfo?.gateway == "OY") {
-            console.log("masuk pak eko");
+            setIsOYAlertOpen(true);
           }else{
             handleClickPaymentMidtrans();
           }
@@ -117,7 +118,7 @@ function PageTransactionDetail() {
 
   const handleClickPayment = (transactionInfo) => {
     if(transactionInfo?.gateway == "OY") 
-        return () => window.location = transactionInfo?.opt?.url;
+        return () => setIsOYAlertOpen(true);//window.location = transactionInfo?.opt?.url;
       else
         handleClickPaymentMidtrans
   } 
@@ -241,7 +242,7 @@ function PageTransactionDetail() {
           <SweetAlert
             show={isAlertOpen}
             title=""
-            custom
+            custom = "true"
             btnSize="md"
             onConfirm={onConfirm}
             style={{ padding: "1.25rem" }}
@@ -282,6 +283,30 @@ function PageTransactionDetail() {
     }
   };
 
+  const OYAlert = () => {
+      return (
+        <>
+          <SweetAlert
+            show={isOYAlertOpen}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={() => setIsOYAlertOpen(false)}
+            style={{ padding: "0.25rem", height:"100%" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <Button style={{ color: "var(--ma-blue)" }} onClick={() => setIsOYAlertOpen(false)}>Tutup Halaman Pembayaran</Button>
+              </span>
+            }
+          >
+            <span>
+              <object type="text/html" data={dataDetail?.transactionInfo?.opt?.url} style={{width:'100%', height:'100%'}} />
+            </span>
+          </SweetAlert>
+        </>
+      );
+  };
+  
   return (
     <React.Fragment>
       <MetaTags>
@@ -707,6 +732,7 @@ function PageTransactionDetail() {
         </div>
       </Container>
       {verifiedAlert()}
+      {OYAlert()}
     </React.Fragment>
   );
 }
