@@ -7,3 +7,9 @@
 td {
     padding: 0 8px;
 }
+
+.alert-full-height {
+    > *:nth-child(2) {
+        height: inherit;
+    }
+}
