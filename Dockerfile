@@ -34,5 +34,5 @@ RUN rm -f config/.env
 
 CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
 
-USER docker
-RUN whoami
+#USER docker
+#RUN whoami
