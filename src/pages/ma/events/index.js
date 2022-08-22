@@ -69,16 +69,20 @@ function PageEventsList() {
                 <CardEventItem key={event.id}>
                   <CardEventItemHeader>
                     <div className="image-container">
-                      {showPoster && (
-                        <img className="event-item-banner-img" src={event.poster} alt="Banner" />
-                      )}
+                      <Link to={_parseEventPath(event.eventUrl)}>
+                        {showPoster && (
+                          <img className="event-item-banner-img" src={event.poster} alt="Banner" />
+                        )}
+                      </Link>
                     </div>
                   </CardEventItemHeader>
 
                   <CardBodySectionContainer>
                     <CardEventItemBody>
                       <div>
-                        <HeadingEventName>{event.eventName}</HeadingEventName>
+                        <Link to={_parseEventPath(event.eventUrl)}>
+                          <HeadingEventName>{event.eventName}</HeadingEventName>
+                        </Link>
                         <div>Oleh {event.admin?.name}</div>
                       </div>
 
@@ -328,7 +332,7 @@ const EventsGrid = styled.div`
   gap: 1rem;
 
   @media (min-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   }
 `;
 
@@ -337,9 +341,15 @@ const CardEventItem = styled.div`
   flex-direction: column;
 
   background-color: #ffffff;
-  border: solid 1px var(--ma-gray-50);
+  border: solid 1px var(--ma-gray-100);
   border-radius: 0.25rem;
-  box-shadow: 0px 4px 2px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.05);
+
+  transition: box-shadow 0.125s ease-in-out;
+
+  &:hover {
+    box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.05);
+  }
 `;
 
 const CardEventItemHeader = styled.div`
@@ -368,6 +378,7 @@ const CardBodySectionContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 1rem;
 
   height: 100%;
   padding: 1.75rem;
