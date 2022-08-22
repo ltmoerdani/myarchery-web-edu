@@ -7,7 +7,7 @@ function useEventsList() {
 
   React.useEffect(() => {
     const getFunction = () => {
-      return Landingpage.getEvent({ limit: 4 });
+      return Landingpage.getEvent({ limit: 8 });
     };
 
     fetcher.runAsync(getFunction);
