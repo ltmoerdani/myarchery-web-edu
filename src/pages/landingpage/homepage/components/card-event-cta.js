@@ -9,7 +9,8 @@ import { ButtonCTABig } from "./button-cta-big";
 import Countdown from "react-countdown";
 import CurrencyFormat from "react-currency-format";
 
-import { isAfter } from "date-fns";
+import classnames from "classnames";
+import { isAfter, isBefore, isWithinInterval } from "date-fns";
 import { datetime } from "utils";
 
 function CardEventCTA({ eventDetail }) {
@@ -17,7 +18,10 @@ function CardEventCTA({ eventDetail }) {
 
   const captionCopy = "Segera daftarkan dirimu dan timmu pada kompetisi";
   const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
-  const isRegistrationClosed = registerEventEnd ? isAfter(new Date(), registerEventEnd) : true;
+  const { isBeforeRegistration, isRegistrationOpen } = React.useMemo(
+    () => _checkIsRegistrationOpen(eventDetail),
+    [eventDetail]
+  );
 
   // TODO: ekstrak custom hook sendiri (?)
   const eventPriceOptions = React.useMemo(() => {
@@ -129,11 +133,13 @@ function CardEventCTA({ eventDetail }) {
       </VerticalSpaced>
 
       <VerticalSpaced>
-        <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
+        {!isBeforeRegistration && <Countdown date={registerEventEnd} renderer={renderCountDown} />}
 
         <div>
-          {isRegistrationClosed ? (
-            <ButtonCTABig disabled>Pendaftaran Ditutup</ButtonCTABig>
+          {!isRegistrationOpen ? (
+            <ButtonCTABig disabled>
+              {isBeforeRegistration ? "Pendaftaran Segera Dibuka" : "Pendaftaran Ditutup"}
+            </ButtonCTABig>
           ) : (
             <ButtonCTABig
               as={Link}
@@ -253,17 +259,9 @@ function AmountWithCurrency({ amount }) {
 
 /* ============================================= */
 
-function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
-  if (completed) {
-    return (
-      <div>
-        <span>Event Berakhir</span>
-      </div>
-    );
-  }
-
+function renderCountDown({ days, hours, minutes, seconds, completed }) {
   return (
-    <CountdownWrapper>
+    <CountdownWrapper className={classnames({ "count-down-completed": completed })}>
       <CounterItem>
         <CounterNumber>{days}</CounterNumber>
         <CounterUnit>Hari</CounterUnit>
@@ -319,6 +317,10 @@ const CounterNumber = styled.span`
   color: var(--ma-text-black);
   font-size: 1.625rem;
   font-weight: 600;
+
+  .count-down-completed & {
+    color: var(--ma-gray-400);
+  }
 `;
 
 const CounterUnit = styled.span`
@@ -326,6 +328,11 @@ const CounterUnit = styled.span`
   background-color: #eff2f7;
   font-size: 0.75rem;
   font-weight: 400;
+
+  .count-down-completed & {
+    background-color: var(--ma-gray-50);
+    color: var(--ma-gray-400);
+  }
 `;
 
 /* =========================================== */
@@ -338,6 +345,26 @@ function _getTeamLabelFromTeamId(teamCategory) {
     mix: "Campuran",
   };
   return labels[teamCategory];
+}
+
+function _checkIsRegistrationOpen(eventDetail) {
+  const registerEventStart = datetime.parseServerDatetime(eventDetail.registrationStartDatetime);
+  const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
+  const interval = {
+    start: registerEventStart,
+    end: registerEventEnd,
+  };
+  const today = new Date();
+
+  const isRegistrationOpen = isWithinInterval(today, interval);
+  const isBeforeRegistration = isBefore(today, registerEventStart);
+  const isAfterRegistration = isAfter(today, registerEventEnd);
+
+  return {
+    isRegistrationOpen,
+    isAfterRegistration,
+    isBeforeRegistration,
+  };
 }
 
 export { CardEventCTA };
