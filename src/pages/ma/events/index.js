@@ -1,16 +1,19 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { useEventsList } from "./hooks/events-list";
 import styled from "styled-components";
+import { useQueueHeavyImageList } from "hooks/queue-heavy-image-list";
+import { useEventsList } from "./hooks/events-list";
 
 import Countdown from "react-countdown";
 import { SpinnerDotBlock, ButtonBlue, ButtonOutlineBlue } from "components/ma";
+import { HeavyImage } from "components/ma/heavy-image";
 
 import IconCalendar from "components/ma/icons/mono/calendar";
 import IconMapPin from "components/ma/icons/mono/map-pin";
 
 import { datetime } from "utils";
 
+import logoLight from "assets/images/myachery/myachery.png";
 import pro from "assets/images/partners/pro.png";
 import monster from "assets/images/partners/monster.png";
 import queen from "assets/images/partners/queen.png";
@@ -62,72 +65,7 @@ function PageEventsList() {
         </HeadingSectionBlock>
 
         <ContentSectionBlock>
-          <EventsGrid>
-            {events.map((event) => {
-              const showPoster = Boolean(event.poster);
-              return (
-                <CardEventItem key={event.id}>
-                  <CardEventItemHeader>
-                    <div className="image-container">
-                      <Link to={_parseEventPath(event.eventUrl)}>
-                        {showPoster && (
-                          <img className="event-item-banner-img" src={event.poster} alt="Banner" />
-                        )}
-                      </Link>
-                    </div>
-                  </CardEventItemHeader>
-
-                  <CardBodySectionContainer>
-                    <CardEventItemBody>
-                      <div>
-                        <Link to={_parseEventPath(event.eventUrl)}>
-                          <HeadingEventName>{event.eventName}</HeadingEventName>
-                        </Link>
-                        <div>Oleh {event.admin?.name}</div>
-                      </div>
-
-                      <EventInfoList>
-                        <EventInfoItemLabel>
-                          <LabelIconWrapper>
-                            <IconCalendar />
-                          </LabelIconWrapper>
-                          <LabelHead>
-                            {datetime.formatFullDateLabel(event.eventStartDatetime)} &ndash;{" "}
-                            {datetime.formatFullDateLabel(event.eventEndDatetime)}
-                          </LabelHead>
-                        </EventInfoItemLabel>
-
-                        <EventInfoItemLabel>
-                          <LabelIconWrapper>
-                            <IconMapPin />
-                          </LabelIconWrapper>
-
-                          <div>
-                            {Boolean(event.detailCity?.name) && (
-                              <LabelHead>{event.detailCity?.name?.toLowerCase()}</LabelHead>
-                            )}
-                            <div>{event.location}</div>
-                          </div>
-                        </EventInfoItemLabel>
-                      </EventInfoList>
-
-                      {Boolean(event.description) && (
-                        <EventDescription title={event.description}>
-                          {event.description}
-                        </EventDescription>
-                      )}
-                    </CardEventItemBody>
-
-                    <EventCardBottomAction>
-                      <ButtonOutlineBlue as={Link} to={_parseEventPath(event.eventUrl)}>
-                        Lihat Detail
-                      </ButtonOutlineBlue>
-                    </EventCardBottomAction>
-                  </CardBodySectionContainer>
-                </CardEventItem>
-              );
-            })}
-          </EventsGrid>
+          <EventList events={events} />
         </ContentSectionBlock>
       </InnerContentWrapper>
 
@@ -188,6 +126,85 @@ function CustomCountDown({ days, hours, minutes, seconds, completed }) {
         <CounterUnit>Detik</CounterUnit>
       </CounterItem>
     </CountdownWrapper>
+  );
+}
+
+function EventList({ events }) {
+  const { registerQueue, checkIsPending, onLoad, onError } = useQueueHeavyImageList();
+  return (
+    <EventsGrid>
+      {events.map((event, index) => {
+        const showPoster = Boolean(event.poster);
+        return (
+          <CardEventItem key={event.id}>
+            <CardEventItemHeader>
+              <div className="image-container">
+                <Link to={_parseEventPath(event.eventUrl)}>
+                  {showPoster && (
+                    <HeavyImage
+                      src={event.poster}
+                      onRegisterQueue={() => registerQueue(index)}
+                      onLoad={onLoad}
+                      onError={onError}
+                      isPending={checkIsPending(index)}
+                      fallback={<BannerLoadingQueue>memuat...</BannerLoadingQueue>}
+                      alt="Banner"
+                      className="event-item-banner-img"
+                    />
+                  )}
+                </Link>
+              </div>
+            </CardEventItemHeader>
+
+            <CardBodySectionContainer>
+              <CardEventItemBody>
+                <div>
+                  <Link to={_parseEventPath(event.eventUrl)}>
+                    <HeadingEventName>{event.eventName}</HeadingEventName>
+                  </Link>
+                  <div>Oleh {event.admin?.name}</div>
+                </div>
+
+                <EventInfoList>
+                  <EventInfoItemLabel>
+                    <LabelIconWrapper>
+                      <IconCalendar />
+                    </LabelIconWrapper>
+                    <LabelHead>
+                      {datetime.formatFullDateLabel(event.eventStartDatetime)} &ndash;{" "}
+                      {datetime.formatFullDateLabel(event.eventEndDatetime)}
+                    </LabelHead>
+                  </EventInfoItemLabel>
+
+                  <EventInfoItemLabel>
+                    <LabelIconWrapper>
+                      <IconMapPin />
+                    </LabelIconWrapper>
+
+                    <div>
+                      {Boolean(event.detailCity?.name) && (
+                        <LabelHead>{event.detailCity?.name?.toLowerCase()}</LabelHead>
+                      )}
+                      <div>{event.location}</div>
+                    </div>
+                  </EventInfoItemLabel>
+                </EventInfoList>
+
+                {Boolean(event.description) && (
+                  <EventDescription title={event.description}>{event.description}</EventDescription>
+                )}
+              </CardEventItemBody>
+
+              <EventCardBottomAction>
+                <ButtonOutlineBlue as={Link} to={_parseEventPath(event.eventUrl)}>
+                  Lihat Detail
+                </ButtonOutlineBlue>
+              </EventCardBottomAction>
+            </CardBodySectionContainer>
+          </CardEventItem>
+        );
+      })}
+    </EventsGrid>
   );
 }
 
@@ -359,7 +376,7 @@ const CardEventItemHeader = styled.div`
     position: relative;
     width: 100%;
     padding-top: 42%;
-    background-color: var(--ma-gray-600);
+    background-color: var(--ma-gray-50);
 
     .event-item-banner-img {
       position: absolute;
@@ -540,6 +557,25 @@ const PartnersLogosGrid = styled.div`
   @media (min-width: 768px) {
     flex-direction: row;
   }
+`;
+
+const BannerLoadingQueue = styled.span`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+
+  background-image: url(${logoLight});
+  background-size: 30%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  color: var(--ma-gray-400);
+  text-align: center;
 `;
 
 /* ============================== */
