@@ -2,6 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import { useLocation, useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useCountDown } from "./hooks/count-down";
 import { useSubmitVerificationCode } from "./hooks/submit-verification-code";
 import * as AuthenticationStore from "store/slice/authentication";
 
@@ -11,18 +12,28 @@ import { ButtonBlue, Button, LoadingScreen, AlertServerError } from "components/
 import { Show } from "../event-registration/components/show-when";
 import { PageWrapper } from "./components/page-wrapper";
 
+import { getUnixTime } from "date-fns";
+
 import bgAbstractTop from "assets/images/auth/auth-illustration-abstract-top.png";
 import bgAbstractBottom from "assets/images/auth/auth-illustration-abstract-bottom.png";
 import bgIllustrationPeople from "assets/images/auth/auth-illustration-people.svg";
 import imgMyArcheryLogoWhite from "assets/images/auth/auth-logo-myarchery-untrimmed.png";
 
+const CODE_DIGITS_COUNT = 5;
+
 function PageAuthRegisterVerification() {
   const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
   const { search } = useLocation();
   const history = useHistory();
-
-  const email = _getQueryString(search, "email");
   const [code, setCode] = React.useState();
+  const [resendAllowed, setResendAllowed] = React.useState(false);
+  const timestampAtFirstRender = React.useMemo(() => getUnixTime(new Date()), []);
+
+  const qs = new URLSearchParams(search);
+
+  const email = qs.get("email");
+  const expiresAt = qs.get("expiresAt") || timestampAtFirstRender;
+  const isInputValid = code?.toString?.().length === CODE_DIGITS_COUNT;
 
   const {
     submit,
@@ -82,6 +93,15 @@ function PageAuthRegisterVerification() {
                 <InputOTPCode value={code} onChange={setCode} />
               </div>
 
+              <SplitSides>
+                <div>
+                  <ButtonResendCode disabled={!resendAllowed} />
+                </div>
+                <div>
+                  <TextCountDown expiresAt={expiresAt} onTimeout={() => setResendAllowed(true)} />
+                </div>
+              </SplitSides>
+
               <ButtonListVertical>
                 <ButtonBlue
                   block
@@ -90,6 +110,7 @@ function PageAuthRegisterVerification() {
                       onSuccess: () => history.push("/archer/register-success"),
                     })
                   }
+                  disabled={!isInputValid}
                 >
                   Verifikasi
                 </ButtonBlue>
@@ -145,6 +166,32 @@ function InputOTPCode({ value, onChange }) {
       />
     </InputOTPWrapper>
   );
+}
+
+function ButtonResendCode({ label = "Kirim ulang kode", disabled, onClick }) {
+  if (disabled) {
+    return (
+      <ResendDisabled title="Permintaan kirim ulang kode dapat dilakukan bila kode telah expired">
+        {label}
+      </ResendDisabled>
+    );
+  }
+  return (
+    <ResendLink
+      href="#"
+      onClick={(ev) => {
+        ev.preventDefault();
+        onClick?.();
+      }}
+    >
+      {label}
+    </ResendLink>
+  );
+}
+
+function TextCountDown({ expiresAt, onTimeout }) {
+  const duration = useCountDown({ endTimestamp: expiresAt, onTimeout: onTimeout });
+  return <span>{_formatTimer(duration)}</span>;
 }
 
 /* =============================== */
@@ -370,17 +417,51 @@ const InputOTPWrapper = styled.div`
   }
 `;
 
+const SplitSides = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+`;
+
+const ResendDisabled = styled.span`
+  color: var(--ma-gray-400);
+  font-weight: 600;
+  cursor: not-allowed;
+  user-select: none;
+`;
+
+const ResendLink = styled.a`
+  color: var(--ma-blue);
+  font-weight: 600;
+
+  &:hover {
+    color: var(--ma-blue);
+    text-decoration: underline !important;
+  }
+`;
+
 const ButtonListVertical = styled.div`
   > * + * {
     margin-top: 0.5rem;
   }
 `;
 
-/* =============================== */
-// utils
+function _formatTimer(duration) {
+  if (!duration) {
+    return undefined;
+  }
+  const hours = _getDigits(duration.hours);
+  const minutes = _getDigits(duration.minutes);
+  const seconds = _getDigits(duration.seconds);
+  return `${hours}:${minutes}:${seconds}`;
+}
 
-function _getQueryString(search, key) {
-  return new URLSearchParams(search).get(key);
+function _getDigits(number = 0) {
+  if (!number) {
+    return "00";
+  }
+  const numberAsString = number.toString();
+  return numberAsString.length > 1 ? numberAsString : "0" + numberAsString;
 }
 
 export default PageAuthRegisterVerification;
