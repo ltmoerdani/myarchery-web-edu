@@ -27,11 +27,14 @@ function formatServerDate(date) {
   }
 }
 
-function formatFullDateLabel(date, { withDay = false } = {}) {
+function formatFullDateLabel(date, { withDay = false, withTime = false } = {}) {
   const dateObject = typeof date === "string" ? parseISO(date) : date;
   try {
     if (withDay) {
       return format(dateObject, "EEEE, d MMMM yyyy", { locale: id });
+    }
+    if (withTime) {
+      return format(dateObject, "d MMMM yyyy, HH:mm:ss", { locale: id });
     }
     return format(dateObject, "d MMMM yyyy", { locale: id });
   } catch {
