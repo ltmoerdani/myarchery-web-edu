@@ -36,7 +36,7 @@ function RegistrationForm() {
     const path = location.state?.from?.pathname || redirectPath;
 
     if (!path) {
-      history.push("/archer/dashboard");
+      history.push("/dashboard");
     } else {
       history.push(path);
     }

@@ -1,7 +1,9 @@
 import * as React from "react";
 import styled from "styled-components";
 import { useLocation, useHistory } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useSubmitVerificationCode } from "./hooks/submit-verification-code";
+import * as AuthenticationStore from "store/slice/authentication";
 
 import { Link } from "react-router-dom";
 import OtpInput from "react-otp-input";
@@ -15,6 +17,7 @@ import bgIllustrationPeople from "assets/images/auth/auth-illustration-people.sv
 import imgMyArcheryLogoWhite from "assets/images/auth/auth-logo-myarchery-untrimmed.png";
 
 function PageAuthRegisterVerification() {
+  const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
   const { search } = useLocation();
   const history = useHistory();
 
@@ -27,6 +30,20 @@ function PageAuthRegisterVerification() {
     isError,
     errors,
   } = useSubmitVerificationCode({ email: email, code: code });
+
+  // Redirect ketika dia masih ter-auth sebagai user
+  React.useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+
+    const path = location.state?.from?.pathname || "/dashboard";
+    if (!path) {
+      history.push("/dashboard");
+    } else {
+      history.push(path);
+    }
+  }, [isLoggedIn]);
 
   return (
     <PageWrapper pageTitle="Verifikasi Akun MyArchery">

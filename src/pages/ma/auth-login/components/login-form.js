@@ -35,7 +35,7 @@ function LoginForm() {
     if (isLoggedIn) {
       if (!redirectPath) {
         if (!pathFrom) {
-          history.push("/archer/dashboard");
+          history.push("/dashboard");
         } else {
           history.push(pathFrom);
         }
