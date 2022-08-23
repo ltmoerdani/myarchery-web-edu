@@ -4,15 +4,22 @@ import { useLocation, useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useCountDown } from "./hooks/count-down";
 import { useSubmitVerificationCode } from "./hooks/submit-verification-code";
+import { useSubmitResendVerificationCode } from "./hooks/submit-resend-verification-code";
 import * as AuthenticationStore from "store/slice/authentication";
 
 import { Link } from "react-router-dom";
 import OtpInput from "react-otp-input";
-import { ButtonBlue, Button, LoadingScreen, AlertServerError } from "components/ma";
+import {
+  ButtonBlue,
+  Button,
+  LoadingScreen,
+  AlertServerError,
+  AlertSubmitSuccess,
+} from "components/ma";
 import { Show } from "../event-registration/components/show-when";
 import { PageWrapper } from "./components/page-wrapper";
 
-import { getUnixTime } from "date-fns";
+import { getUnixTime, fromUnixTime, isPast } from "date-fns";
 
 import bgAbstractTop from "assets/images/auth/auth-illustration-abstract-top.png";
 import bgAbstractBottom from "assets/images/auth/auth-illustration-abstract-bottom.png";
@@ -23,10 +30,9 @@ const CODE_DIGITS_COUNT = 5;
 
 function PageAuthRegisterVerification() {
   const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const history = useHistory();
   const [code, setCode] = React.useState();
-  const [resendAllowed, setResendAllowed] = React.useState(false);
   const timestampAtFirstRender = React.useMemo(() => getUnixTime(new Date()), []);
 
   const qs = new URLSearchParams(search);
@@ -34,6 +40,7 @@ function PageAuthRegisterVerification() {
   const email = qs.get("email");
   const expiresAt = qs.get("expiresAt") || timestampAtFirstRender;
   const isInputValid = code?.toString?.().length === CODE_DIGITS_COUNT;
+  const resendAllowed = React.useMemo(() => isPast(fromUnixTime(expiresAt)), [expiresAt]);
 
   const {
     submit,
@@ -41,6 +48,14 @@ function PageAuthRegisterVerification() {
     isError,
     errors,
   } = useSubmitVerificationCode({ email: email, code: code });
+
+  const {
+    submit: resendCode,
+    isLoading: isResendingCode,
+    isSuccess: isSuccessResendingCode,
+    isError: isErrorResendingCode,
+    errors: errorsResendingCode,
+  } = useSubmitResendVerificationCode({ email: email });
 
   // Redirect ketika dia masih ter-auth sebagai user
   React.useEffect(() => {
@@ -95,10 +110,21 @@ function PageAuthRegisterVerification() {
 
               <SplitSides>
                 <div>
-                  <ButtonResendCode disabled={!resendAllowed} />
+                  <ButtonResendCode
+                    disabled={!resendAllowed}
+                    onClick={() => {
+                      resendCode({
+                        onSuccess: (data) => {
+                          const qs = new URLSearchParams(search);
+                          data.timeVerified && qs.set("expiresAt", data.timeVerified);
+                          history.replace(pathname + "?" + qs.toString());
+                        },
+                      });
+                    }}
+                  />
                 </div>
                 <div>
-                  <TextCountDown expiresAt={expiresAt} onTimeout={() => setResendAllowed(true)} />
+                  <TextCountDown expiresAt={expiresAt} />
                 </div>
               </SplitSides>
 
@@ -119,8 +145,13 @@ function PageAuthRegisterVerification() {
                 </Button>
               </ButtonListVertical>
 
-              <LoadingScreen loading={isSubmiting} />
+              <LoadingScreen loading={isSubmiting || isResendingCode} />
               <AlertServerError isError={isError} errors={errors} />
+              <AlertServerError isError={isErrorResendingCode} errors={errorsResendingCode} />
+              <AlertSubmitSuccess isSuccess={isSuccessResendingCode}>
+                Kode telah dikirimkan ulang ke email {email}.<br />
+                Silakan periksa inbox serta folder spam.
+              </AlertSubmitSuccess>
             </FormAreaContainer>
           </Show>
         </ContainerRight>
