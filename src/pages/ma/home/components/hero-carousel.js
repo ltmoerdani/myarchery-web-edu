@@ -6,7 +6,6 @@ import { Carousel } from "react-responsive-carousel";
 import logoLight from "assets/images/myachery/myachery.png";
 import bannerPartnership from "assets/images/myachery/banner7 2.png";
 import bannerWelcomeKid from "assets/images/myachery/banner6 1.svg";
-import bannerWelcomeBro from "assets/images/myachery/banner6 3.svg";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
@@ -31,7 +30,6 @@ function HeroCarousel() {
           </PartnershipCTAContainer>
         </SlidePartnership>
         <SlideWelcome imgSrc={bannerWelcomeKid} />
-        <SlideWelcome imgSrc={bannerWelcomeBro} />
       </Carousel>
     </CarouselWrapper>
   );
