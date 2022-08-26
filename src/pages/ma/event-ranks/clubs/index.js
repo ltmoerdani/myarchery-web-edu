@@ -2,17 +2,38 @@ import * as React from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetail } from "./hooks/event-detail";
+import { useRankingCategories } from "./hooks/ranking-categories";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
 import { SpinnerDotBlock } from "components/ma";
 import { BreadcrumbDashboard } from "../../dashboard/components/breadcrumb";
-import { CategoryFilterChooser } from "../../live-score/components";
+import { CategoryFilterChooser } from "./components/category-filter-chooser";
 import { RankingTable } from "./components/ranking-table";
 
 function PageEventRanksClubs() {
   const { slug } = useParams();
   const { data: eventDetail, isLoading: isLoadingEventDetail } = useEventDetail(slug);
+
+  const { data: rankingCategories } = useRankingCategories(eventDetail?.id);
+  const [rankingCategory, setRankingCategory] = React.useState(null);
+
+  const rankingOptions = React.useMemo(() => {
+    return rankingCategories?.map((rc, index) => ({
+      value: index,
+      label: rc.label,
+      data: rc,
+    }));
+  }, [rankingCategories]);
+
+  const defaultOption = rankingOptions?.[0];
+
+  React.useEffect(() => {
+    if (rankingCategory) {
+      return;
+    }
+    setRankingCategory(defaultOption);
+  }, [rankingCategory, defaultOption]);
 
   return (
     <StyledPageWrapper>
@@ -49,18 +70,28 @@ function PageEventRanksClubs() {
             <PanelSidebar>
               <CategoryFilterChooser
                 breakpoint="min-width: 1081px"
-                options={["Semua kategori"]}
-                selected="Semua kategori"
-                onChange={(category) => category}
+                options={rankingOptions}
+                value={rankingCategory}
+                onChange={(option) => setRankingCategory(option)}
+                noOptionMessage="Pilihan tidak tersedia"
               />
             </PanelSidebar>
 
             <div>
               <ListViewToolbar>
-                <LabelCurrentCategory>Semua kategori</LabelCurrentCategory>
+                <LabelCurrentCategory>
+                  {rankingCategory?.label || "Semua kategori"}
+                </LabelCurrentCategory>
               </ListViewToolbar>
 
-              {eventDetail && <RankingTable eventId={eventDetail.id} />}
+              {eventDetail && rankingCategory ? (
+                <RankingTable
+                  eventId={eventDetail.id}
+                  params={rankingCategory?.data?.paramRequestRank}
+                />
+              ) : (
+                <EmptyBar>Data tidak tersedia</EmptyBar>
+              )}
             </div>
           </PanelWithStickSidebar>
         )}
@@ -68,6 +99,9 @@ function PageEventRanksClubs() {
     </StyledPageWrapper>
   );
 }
+
+/* =============================== */
+// styles
 
 const StyledPageWrapper = styled.div`
   font-family: "Inter", sans-serif;
@@ -92,7 +126,7 @@ const PanelWithStickSidebar = styled.div`
     margin-top: 1.5rem;
   }
 
-  @media (min-width: 961px) {
+  @media (min-width: 1081px) {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -110,10 +144,9 @@ const PanelWithStickSidebar = styled.div`
 `;
 
 const PanelSidebar = styled.div`
-  display: none;
+  display: block;
 
   @media (min-width: 1081px) {
-    display: block;
     flex: 1 0 16.25rem;
     max-width: 16.25rem;
     position: sticky;
@@ -156,44 +189,13 @@ const LabelCurrentCategory = styled.div`
   font-size: 1.125em;
 `;
 
-// const ScrollX = styled.div`
-//   overflow-x: auto;
-// `;
-
-// const SpaceButtonsGroup = styled.div`
-//   display: flex;
-//   gap: 0.75rem;
-
-//   @media (min-width: 721px) {
-//     justify-content: flex-end;
-//     align-items: flex-start;
-//     gap: 0.5rem;
-//   }
-// `;
-
-// const ButtonTeamFilter = styled.button`
-//   &,
-//   &:focus,
-//   &:active {
-//     padding: 0.75rem 1rem;
-//     border: solid 1px var(--ma-primary-blue-50);
-//     border-radius: 0.5rem;
-//     background-color: var(--ma-primary-blue-50);
-//     color: var(--ma-blue);
-//     font-size: 0.875em;
-
-//     @media (min-width: 721px) {
-//       padding: 0.5rem 0.75rem;
-//     }
-//   }
-
-//   white-space: nowrap;
-//   transition: border-color 0.1s, background-color 0.1s;
-
-//   &.filter-selected {
-//     border: solid 1px var(--ma-secondary);
-//     background-color: var(--ma-secondary);
-//   }
-// `;
+const EmptyBar = styled.div`
+  padding: 0.8125rem 0.625rem;
+  font-size: 0.875em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+`;
 
 export default PageEventRanksClubs;
