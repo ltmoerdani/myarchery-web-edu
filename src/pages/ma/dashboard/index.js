@@ -60,8 +60,8 @@ function PromptPhotoUpload() {
 
   const hasAvatar = Boolean(userProfile?.avatar);
   const verifyStatus = userProfile?.verifyStatus
-    ? parseInt(userProfile.verifyStatus)
-    : userProfile.verifyStatus;
+    ? parseInt(userProfile?.verifyStatus)
+    : userProfile?.verifyStatus;
 
   React.useEffect(() => {
     const openPromptAfterDelay = async () => {

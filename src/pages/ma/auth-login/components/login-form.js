@@ -7,7 +7,7 @@ import * as AuthenticationStore from "store/slice/authentication";
 
 import { AvForm, AvGroup, AvField, AvInput, AvFeedback } from "availity-reactstrap-validation";
 import SweetAlert from "react-bootstrap-sweetalert";
-import { ButtonBlue } from "components/ma";
+import { ButtonBlue, LoadingScreen } from "components/ma";
 
 const REGISTER_ROUTE_DEFAULT = "/archer/register";
 const REGISTER_ROUTE_WITH_REDIRECT_PARAM = REGISTER_ROUTE_DEFAULT + "?path=";
@@ -27,6 +27,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [faild, setFaild] = React.useState(false);
   const [message, setMessage] = React.useState("");
+  const [isLoading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     // ! Legacy, need refactoring...
@@ -35,7 +36,7 @@ function LoginForm() {
     if (isLoggedIn) {
       if (!redirectPath) {
         if (!pathFrom) {
-          history.push("/archer/dashboard");
+          history.push("/dashboard");
         } else {
           history.push(pathFrom);
         }
@@ -52,10 +53,22 @@ function LoginForm() {
   const onFaildClikOk = () => setFaild(false);
 
   const handleValidSubmit = async (event, values) => {
+    setLoading(true);
     const { data, errors, message, success } = await ArcherService.login(values);
+
+    setLoading(false);
     if (success) {
-      if (data) {
+      if (data.emailVerified === 1) {
         dispatch(AuthenticationStore.login(data));
+      } else if (data.emailVerified === 0) {
+        const qs = new URLSearchParams();
+        // 1. email
+        qs.set("email", values.email);
+        // 2. waktu expired OTP email
+        data.timeVerified && qs.set("expiresAt", data.timeVerified);
+
+        const queryString = qs.toString();
+        history.push("/archer/register-verification?" + queryString);
       }
     } else {
       setLoginErrors(errors);
@@ -173,6 +186,8 @@ function LoginForm() {
           </p>
         </div>
       </AvForm>
+
+      <LoadingScreen loading={isLoading} />
 
       <SweetAlert
         title=""
