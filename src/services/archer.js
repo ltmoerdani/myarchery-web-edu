@@ -40,4 +40,13 @@ export default {
     verificationRegistration(data = null) {
         return API.post("/app/v1/auth/validate-code-register", data, null);
     },
+
+    /**
+     * Kirim ulang email berisi kode verifikasi untuk user baru
+     * @param {Data} data { email }
+     * @returns {Promise} { success, data, message, errors }
+     */
+    resendVerificationRegistration(data = null) {
+        return API.post("/app/v1/auth/resend-otp-account-verification-code", data, null);
+    },
 };
