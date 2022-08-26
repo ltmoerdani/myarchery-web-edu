@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useFetcher } from "hooks/fetcher-alt";
-import { EventsService } from "services";
+import { GeneralService } from "services";
 
-function useEventRanksClubs(eventId, params) {
+function useRankingCategories(eventId) {
   const fetcher = useFetcher();
 
   React.useEffect(() => {
@@ -11,11 +11,11 @@ function useEventRanksClubs(eventId, params) {
     }
 
     fetcher.runAsync(() => {
-      return EventsService.getEventRanksClubs({ ...params, event_id: eventId });
+      return GeneralService.getClubRankingCategories({ event_id: eventId });
     });
-  }, [eventId, params]);
+  }, [eventId]);
 
   return fetcher;
 }
 
-export { useEventRanksClubs };
+export { useRankingCategories };

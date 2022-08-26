@@ -11,8 +11,11 @@ import IconMedalBronze from "components/ma/icons/color/medal-bronze";
 
 import { misc } from "utils";
 
-function RankingTable({ eventId }) {
-  const { data: rankedClubs, isLoading: isLoadingRankedClubs } = useEventRanksClubs(eventId);
+function RankingTable({ eventId, params }) {
+  const { data: rankedClubs, isLoading: isLoadingRankedClubs } = useEventRanksClubs(
+    eventId,
+    params
+  );
   const { registerQueue, checkIsPending, onLoad, onError } = useQueueHeavyImageList();
 
   if (!eventId) {
