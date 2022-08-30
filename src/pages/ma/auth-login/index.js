@@ -1,8 +1,9 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 import MetaTags from "react-meta-tags";
+import { ProcessingToast, toast } from "components/ma/processing-toast";
 import { LoginForm } from "./components/login-form";
 
 import bgAbstractTop from "assets/images/auth/auth-illustration-abstract-top.png";
@@ -17,11 +18,20 @@ function ContentLayoutWrapper({ children, pageTitle }) {
         {pageTitle ? <title>{pageTitle} | MyArchery.id</title> : <title>MyArchery.id</title>}
       </MetaTags>
       {children}
+      <ProcessingToast />
     </React.Fragment>
   );
 }
 
 function PageAuthLogin() {
+  const { search } = useLocation();
+  const qs = new URLSearchParams(search);
+  const registerSuccess = Boolean(qs.get("register_success"));
+
+  React.useEffect(() => {
+    registerSuccess && toast.success("Registrasi berhasil. Silakan login dengan akun baru Anda.");
+  }, [registerSuccess]);
+
   return (
     <ContentLayoutWrapper pageTitle="Selamat Datang">
       <SplitLayoutContainer>
