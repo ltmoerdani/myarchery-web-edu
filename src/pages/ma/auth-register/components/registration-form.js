@@ -57,7 +57,16 @@ function RegistrationForm() {
     setSubmiting(false);
     if (result.success) {
       if (result.data) {
+        const needOTPForRegistration = result.data.registerOtp;
         const qs = new URLSearchParams();
+        qs.set("register_success", 1);
+
+        if (!needOTPForRegistration) {
+          const queryString = qs.toString();
+          history.push("/archer/login?" + queryString);
+          return;
+        }
+
         // 1. email
         qs.set("email", values.email);
         // 2. waktu expired OTP email
