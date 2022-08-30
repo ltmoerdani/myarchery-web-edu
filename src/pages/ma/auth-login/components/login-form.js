@@ -36,7 +36,10 @@ function LoginForm() {
     if (isLoggedIn) {
       if (!redirectPath) {
         if (!pathFrom) {
-          history.push("/dashboard");
+          const qs = new URLSearchParams();
+          qs.set("login_success", 1);
+          const queryString = qs.toString();
+          history.push("/dashboard?" + queryString);
         } else {
           history.push(pathFrom);
         }
@@ -58,9 +61,11 @@ function LoginForm() {
 
     setLoading(false);
     if (success) {
-      if (data.emailVerified === 1) {
+      const needOTPForRegistration = data.registerOtp;
+
+      if (!needOTPForRegistration || (needOTPForRegistration && data.emailVerified === 1)) {
         dispatch(AuthenticationStore.login(data));
-      } else if (data.emailVerified === 0) {
+      } else if (needOTPForRegistration && data.emailVerified === 0) {
         const qs = new URLSearchParams();
         // 1. email
         qs.set("email", values.email);
