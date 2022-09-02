@@ -16,7 +16,7 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
     return (
       <SectionTableContainer>
         <FullPageLoadingIndicator isLoading={isLoading} />
-        <ScoringEmptyBar>Memproses data scoring...</ScoringEmptyBar>
+        <ScoringEmpty>Memproses data scoring...</ScoringEmpty>
       </SectionTableContainer>
     );
   }
@@ -26,29 +26,25 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
       <SectionTableContainer>
         <FullPageLoadingIndicator isLoading={isLoading} />
 
-        <TableScores>
-          <thead>
-            <tr>
-              <th>Peringkat</th>
-              <th>Bantalan</th>
-              <th className="text-uppercase">Nama</th>
-              <th className="text-uppercase">Klub</th>
-              <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
-              <th className="text-uppercase">Total</th>
-              <th className="text-uppercase">X</th>
-              <th className="text-uppercase">X+10</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {!scorings?.length ? (
+        {!scorings?.length ? (
+          <ScoringEmpty>Belum ada data skor di kategori ini</ScoringEmpty>
+        ) : (
+          <TableScores>
+            <thead>
               <tr>
-                <td colSpan="6">
-                  <ScoringEmptyRow>Belum ada data skor di kategori ini</ScoringEmptyRow>
-                </td>
+                <th>Peringkat</th>
+                <th>Bantalan</th>
+                <th className="text-uppercase">Nama</th>
+                <th className="text-uppercase">Klub</th>
+                <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
+                <th className="text-uppercase">Total</th>
+                <th className="text-uppercase">X+10</th>
+                <th className="text-uppercase">X</th>
               </tr>
-            ) : (
-              scorings.map((scoring, index) => (
+            </thead>
+
+            <tbody>
+              {scorings.map((scoring, index) => (
                 <tr key={scoring.member.id}>
                   <td>
                     <DisplayRank>
@@ -62,13 +58,13 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
                   <SessionCellsData sessions={scoring.sessions} />
 
                   <td>{scoring.total}</td>
-                  <td>{scoring.totalX}</td>
                   <td>{scoring.totalXPlusTen}</td>
+                  <td>{scoring.totalX}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </TableScores>
+              ))}
+            </tbody>
+          </TableScores>
+        )}
       </SectionTableContainer>
     );
   }
@@ -78,28 +74,24 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
       <SectionTableContainer>
         <FullPageLoadingIndicator isLoading={isLoading} />
 
-        <TableScores>
-          <thead>
-            <tr>
-              <th>Peringkat</th>
-              <th className="text-uppercase">Nama Tim</th>
-              <th className="text-uppercase">Klub</th>
-              <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
-              <th className="text-uppercase">Total</th>
-              <th className="text-uppercase">X</th>
-              <th className="text-uppercase">X+10</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {!scorings?.length ? (
+        {!scorings?.length ? (
+          <ScoringEmpty>Belum ada data skor di kategori ini</ScoringEmpty>
+        ) : (
+          <TableScores>
+            <thead>
               <tr>
-                <td colSpan="6">
-                  <ScoringEmptyRow>Belum ada data skor di kategori ini</ScoringEmptyRow>
-                </td>
+                <th>Peringkat</th>
+                <th className="text-uppercase">Nama Tim</th>
+                <th className="text-uppercase">Klub</th>
+                <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
+                <th className="text-uppercase">Total</th>
+                <th className="text-uppercase">X+10</th>
+                <th className="text-uppercase">X</th>
               </tr>
-            ) : (
-              scorings.map((scoring, index) => (
+            </thead>
+
+            <tbody>
+              {scorings.map((scoring, index) => (
                 <tr key={scoring.participantId}>
                   <td>
                     <DisplayRank>
@@ -122,20 +114,20 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
 
                   <td>{scoring.clubName || <React.Fragment>&ndash;</React.Fragment>}</td>
                   <td>{scoring.total}</td>
-                  <td>{scoring.totalX}</td>
                   <td>{scoring.totalXPlusTen}</td>
+                  <td>{scoring.totalX}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </TableScores>
+              ))}
+            </tbody>
+          </TableScores>
+        )}
       </SectionTableContainer>
     );
   }
 
   return (
     <SectionTableContainer>
-      <ScoringEmptyBar>Error tidak diketahui</ScoringEmptyBar>
+      <ScoringEmpty>Error tidak diketahui</ScoringEmpty>
     </SectionTableContainer>
   );
 }
@@ -174,16 +166,8 @@ const DisplayRank = styled.div`
   justify-content: space-between;
 `;
 
-const ScoringEmptyRow = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ffffff;
-`;
-
-const ScoringEmptyBar = styled.div`
-  padding: 0.8125rem 0.625rem;
-  font-size: 0.875em;
+const ScoringEmpty = styled.div`
+  padding: 1.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
