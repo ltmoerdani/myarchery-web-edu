@@ -23,7 +23,8 @@ function HeroCarousel() {
         infiniteLoop
         autoPlay
         stopOnHover
-        transitionTime={1000}
+        transitionTime={750}
+        interval={6000}
         renderIndicator={renderCustomIndicator}
         renderItem={renderCustomItem}
       >
