@@ -10,11 +10,36 @@ import { ButtonBlue, SpinnerDotBlock } from "components/ma";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
 import { CategoryFilterChooser, LiveIndicator, ScoringTable } from "./components";
 import { TeamFilterChooser } from "./components/team-filter-chooser";
-import { EmbedYoutube } from "./components/embed-youtube";
+import { TopBannerWidget } from "./components/top-banner-widget";
 
 import { isAfter } from "date-fns";
 import { datetime } from "utils";
 import { getLandingPagePath } from "./utils";
+
+import imgBannerVictory from "assets/images/live-score/live-score-banner-victory.jpg";
+
+const staticData = {
+  // event id
+  22: {
+    type: "youtube",
+    src: "https://www.youtube.com/embed/IFXGIXFq-EA",
+    title: "Gold Final Standart Bow U-12 - Pro Jakarta Open 2022",
+    width: 560,
+    height: 315,
+  },
+  41: {
+    type: "image-static",
+    src: imgBannerVictory,
+  },
+};
+
+function poolStaticData(eventDetail) {
+  const props = staticData[eventDetail?.id];
+  if (props) {
+    return { shouldRenderBannerWidget: true, ...props };
+  }
+  return { shouldRenderBannerWidget: false };
+}
 
 function PageScoreQualification() {
   const { slug } = useParams();
@@ -35,6 +60,8 @@ function PageScoreQualification() {
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
   const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
 
+  const { shouldRenderBannerWidget, ...widgetProps } = poolStaticData(eventDetail);
+
   return (
     <StyledPageWrapper>
       <MetaTags>
@@ -48,7 +75,8 @@ function PageScoreQualification() {
 
         {/* Sementara masih hardcoded untuk event Series 2 aja */}
         {/* TODO: hapus/bikin fitur input link embed video */}
-        {eventId === 22 && <EmbedYoutube />}
+        {/* {eventId === 22 && <EmbedYoutube />} */}
+        {shouldRenderBannerWidget && <TopBannerWidget {...widgetProps} />}
 
         {!eventDetail && isLoadingEvent ? (
           <SpinnerDotBlock />
