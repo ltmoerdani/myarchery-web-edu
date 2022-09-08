@@ -64,7 +64,7 @@ function LandingPage() {
                 bgImg={kalasemen}
                 heading="Klasemen Pertandingan"
                 subheading="Klik untuk melihat"
-                to={`/live-score/${slug}/qualification`}
+                to={`/live-score/${slug}/${eventDetail.eventCompetition == 'Selection' ? 'selection' : 'qualification'}`}
               />
 
               {Boolean(eventDetail?.handbook) && (
