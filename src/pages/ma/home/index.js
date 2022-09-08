@@ -24,6 +24,8 @@ import imgEndorsePerpaniJkt from "assets/images/home/endorsement-perpani-jkt.jpg
 import imgEndorsePerpaniKebumen from "assets/images/home/endorsement-perpani-kebumen.png";
 import imgEndorseBxp from "assets/images/home/endorsement-bxp.png";
 import imgEndorseTac from "assets/images/home/endorsement-tac.png";
+import imgEndorseKujang from "assets/images/home/endorsement-kujang.jpg";
+import imgEndorseFast from "assets/images/home/endorsement-fast.png";
 import imgFeaturesMac from "assets/images/home/features-illustration-mac.png";
 import imgFeaturesCircle from "assets/images/home/features-circle.svg";
 import imgFeatureItemEvent from "assets/images/home/feature-item-event.svg";
@@ -59,6 +61,8 @@ const logosTrustedBy = [
   { imgSrc: imgEndorseKarawang },
   { imgSrc: imgEndorseBxp },
   { imgSrc: imgEndorseTac },
+  { imgSrc: imgEndorseKujang },
+  { imgSrc: imgEndorseFast },
 ];
 
 function PageHome() {
