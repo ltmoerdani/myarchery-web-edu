@@ -2,8 +2,7 @@ import * as React from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "../hooks/event-detail-slug";
-// import { useCategoryFilters } from "./hooks/category-filters";
-import { useCategoryFiltersSelection } from "../hooks/category-filters-selection";
+import { useCategoryFiltersSelection } from "./hooks/category-filters-selection";
 
 import MetaTags from "react-meta-tags";
 import { Container as BSContainer } from "reactstrap";
@@ -12,39 +11,43 @@ import { BreadcrumbDashboard } from "../../dashboard/components/breadcrumb";
 import { ScoringTableSelection } from "../components";
 import { LiveIndicator } from "../components";
 import { TeamFilterChooser } from "../components/team-filter-chooser";
-import { CategoryProvider,SelectCategories } from "./components/select-categories";
+import { SelectCategories } from "./components/select-categories";
 
-import { isAfter } from "date-fns";
-import { datetime } from "utils";
+// import { isAfter } from "date-fns";
+// import { datetime } from "utils";
 import { getLandingPagePath } from "../utils";
 
 function PageScoreSelection() {
   const { slug } = useParams();
   const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
   const eventId = eventDetail?.id;
+
   const {
     isLoading: isLoadingCategory,
-    // selectCategory,
-    // categoryOptions,
-    // activeCategory,
-    teamOptions,
-    selectTeam,
-    activeTeam,
-    activeCategoryDetail,
-    scoreType,
-    activeSelectType,
+    optionCategories,
+    optionGenders,
+    getCategoryDetail,
   } = useCategoryFiltersSelection(eventId);
+
+  const [activeOptionCategory, setActiveOptionCategory] = React.useState(null);
+  const [activeOptionGender, setActiveOptionGender] = React.useState(null);
+  const [scoreType, setScoreType] = React.useState(3);
+
+  const activeCategory = getCategoryDetail({
+    competitionCategory: activeOptionCategory?.value.competitionCategory,
+    classCategory: activeOptionCategory?.value.classCategory,
+    teamCategory: activeOptionGender?.value,
+  });
+
+  React.useEffect(() => {
+    if (activeCategory) return;
+    setActiveOptionCategory(optionCategories?.[0]);
+    setActiveOptionGender(optionGenders?.[0]);
+  }, [activeCategory, optionCategories, optionGenders]);
 
   const isLoadingEvent = eventStatus === "loading";
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
-  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
-
-  const [filter, setFilter] = React.useState(1);
-
-  const handleFilter = (key) => {
-    setFilter(key);
-    scoreType(key);
-  };
+  // const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
 
   return (
     <StyledPageWrapper>
@@ -60,47 +63,51 @@ function PageScoreSelection() {
         {!eventDetail && isLoadingEvent ? (
           <SpinnerDotBlock />
         ) : (
-          <CategoryProvider eventId={eventId}>
-            <ContentHeader>
-              <div>
-                <EventName>{eventName}</EventName>
-                <MetaInfo>
-                  <LiveIndicator />
-                  <span>| Babak Kualifikasi</span>
-                </MetaInfo>
-                <FilterList>
-                  <li>
-                    <SelectCategories />
-                  </li>
-                  <li>
-                    <FilterItemButton
-                      className={filter == 3 ? "filter-item-active" : ""}
-                      onClick={() => handleFilter(3)}
-                    >
-                      Kualifikasi
-                    </FilterItemButton>
-                  </li>
-                  <li>
-                    <FilterItemButton
-                      className={filter == 4 ? "filter-item-active" : ""}
-                      onClick={() => handleFilter(4)}
-                    >
-                      Eliminasi
-                    </FilterItemButton>
-                  </li>
-                  <li>
-                    <FilterItemButton
-                      className={filter == 5 ? "filter-item-active" : ""}
-                      onClick={() => handleFilter(5)}
-                    >
-                      Hasil Akhir
-                    </FilterItemButton>
-                  </li>
-                </FilterList>
-              </div>
-              <div></div>
-            </ContentHeader>
-          </CategoryProvider>
+          <ContentHeader>
+            <div>
+              <EventName>{eventName}</EventName>
+
+              <MetaInfo>
+                <LiveIndicator />
+                <span>| Babak Kualifikasi</span>
+              </MetaInfo>
+
+              <FilterList>
+                <li>
+                  <SelectCategories
+                    options={optionCategories}
+                    value={activeOptionCategory}
+                    onChange={setActiveOptionCategory}
+                  />
+                </li>
+                <li>
+                  <FilterItemButton
+                    className={scoreType == 3 ? "filter-item-active" : ""}
+                    onClick={() => setScoreType(3)}
+                  >
+                    Kualifikasi
+                  </FilterItemButton>
+                </li>
+                <li>
+                  <FilterItemButton
+                    className={scoreType == 4 ? "filter-item-active" : ""}
+                    onClick={() => setScoreType(4)}
+                  >
+                    Eliminasi
+                  </FilterItemButton>
+                </li>
+                <li>
+                  <FilterItemButton
+                    className={scoreType == 5 ? "filter-item-active" : ""}
+                    onClick={() => setScoreType(5)}
+                  >
+                    Hasil Akhir
+                  </FilterItemButton>
+                </li>
+              </FilterList>
+            </div>
+            <div></div>
+          </ContentHeader>
         )}
 
         {isLoadingCategory ? (
@@ -110,27 +117,52 @@ function PageScoreSelection() {
             <PanelWithStickSidebar>
               <div>
                 <ListViewToolbar>
-                  <LabelCurrentCategory>{"Pilih kategori"}</LabelCurrentCategory>
+                  <LabelCurrentCategory>
+                    {`${activeCategory?.competitionCategoryId} - ${activeCategory?.classCategory}` ||
+                      "Pilih kategori"}
+                  </LabelCurrentCategory>
 
                   <ScrollX>
                     <SpaceButtonsGroup>
                       <TeamFilterChooser
-                        options={teamOptions}
-                        selected={activeTeam}
-                        onSelect={(opt) => selectTeam(opt.id)}
+                        options={optionGenders.map((option) => ({ ...option, id: option.value }))}
+                        selected={activeOptionGender?.value}
+                        onSelect={setActiveOptionGender}
                       />
                     </SpaceButtonsGroup>
                   </ScrollX>
                 </ListViewToolbar>
 
+                {/* TODO: hapus elemen <pre> di bawah kalau udah */}
+                <pre>activeCategory: {JSON.stringify(activeCategory, null, 2)}</pre>
+                <pre>standingType: {scoreType}</pre>
+
+                <pre style={{ whiteSpace: "pre-wrap" }}>
+                  API Kualifikasi: &quot;/api/v1/archery/scorer/qualificaiton?event_category_id=
+                  {activeCategory?.id}&score_type={scoreType}
+                  &quot;
+                </pre>
+
+                <pre style={{ whiteSpace: "pre-wrap" }}>
+                  API Eliminasi:
+                  &quot;/api/v1/archery/scorer/elimination-selection?event_category_id=
+                  {activeCategory?.id}&quot;
+                </pre>
+
+                <pre style={{ whiteSpace: "pre-wrap" }}>
+                  API Hasil Akhir:
+                  &quot;/api/v1/archery/scorer/all-result-selection?event_category_id=
+                  {activeCategory?.id}&quot;
+                </pre>
+
                 <ScrollX>
                   <ScoringTableSelection
-                    // ! Penting: wajib kasih prop key unik di komponen ini
-                    key={activeCategoryDetail?.id || "table-00"}
-                    categoryDetail={activeCategoryDetail}
-                    // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
-                    isEventEnded={isEventEnded}
-                    scoreType={activeSelectType}
+                  // ! Penting: wajib kasih prop key unik di komponen ini
+                  // key={activeCategoryDetail?.id || "table-00"}
+                  // categoryDetail={activeCategoryDetail}
+                  // // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
+                  // isEventEnded={isEventEnded}
+                  // scoreType={activeSelectType}
                   />
                 </ScrollX>
               </div>
@@ -326,12 +358,12 @@ const FilterItemButton = styled.button`
 /* ================================= */
 // utils
 
-function _checkIsEventEnded(dateString) {
-  if (!dateString) {
-    return false;
-  }
-  const endDate = datetime.parseServerDatetime(dateString);
-  return isAfter(new Date(), endDate);
-}
+// function _checkIsEventEnded(dateString) {
+//   if (!dateString) {
+//     return false;
+//   }
+//   const endDate = datetime.parseServerDatetime(dateString);
+//   return isAfter(new Date(), endDate);
+// }
 
 export default PageScoreSelection;
