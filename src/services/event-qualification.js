@@ -13,4 +13,7 @@ export default {
   getSelectionElemination(qs = null) {
     return API.get("/api/v1/archery/scorer/elimination-selection", qs);
   },
+  getSelectionAllResult(qs = null) {
+    return API.get("/api/v1/archery/scorer/all-result-selection", qs);
+  },
 };

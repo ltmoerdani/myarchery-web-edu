@@ -13,8 +13,8 @@ import { LiveIndicator } from "../components";
 import { TeamFilterChooser } from "../components/team-filter-chooser";
 import { SelectCategories } from "./components/select-categories";
 
-// import { isAfter } from "date-fns";
-// import { datetime } from "utils";
+import { isAfter } from "date-fns";
+import { datetime } from "utils";
 import { getLandingPagePath } from "../utils";
 
 function PageScoreSelection() {
@@ -47,7 +47,7 @@ function PageScoreSelection() {
 
   const isLoadingEvent = eventStatus === "loading";
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
-  // const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
+  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
 
   return (
     <StyledPageWrapper>
@@ -133,36 +133,14 @@ function PageScoreSelection() {
                   </ScrollX>
                 </ListViewToolbar>
 
-                {/* TODO: hapus elemen <pre> di bawah kalau udah */}
-                <pre>activeCategory: {JSON.stringify(activeCategory, null, 2)}</pre>
-                <pre>standingType: {scoreType}</pre>
-
-                <pre style={{ whiteSpace: "pre-wrap" }}>
-                  API Kualifikasi: &quot;/api/v1/archery/scorer/qualificaiton?event_category_id=
-                  {activeCategory?.id}&score_type={scoreType}
-                  &quot;
-                </pre>
-
-                <pre style={{ whiteSpace: "pre-wrap" }}>
-                  API Eliminasi:
-                  &quot;/api/v1/archery/scorer/elimination-selection?event_category_id=
-                  {activeCategory?.id}&quot;
-                </pre>
-
-                <pre style={{ whiteSpace: "pre-wrap" }}>
-                  API Hasil Akhir:
-                  &quot;/api/v1/archery/scorer/all-result-selection?event_category_id=
-                  {activeCategory?.id}&quot;
-                </pre>
-
                 <ScrollX>
                   <ScoringTableSelection
                   // ! Penting: wajib kasih prop key unik di komponen ini
-                  // key={activeCategoryDetail?.id || "table-00"}
-                  // categoryDetail={activeCategoryDetail}
+                  key={activeCategory?.id || "table-00"}
+                  categoryDetail={activeCategory}
                   // // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
-                  // isEventEnded={isEventEnded}
-                  // scoreType={activeSelectType}
+                  isEventEnded={isEventEnded}
+                  scoreType={scoreType}
                   />
                 </ScrollX>
               </div>
@@ -358,12 +336,12 @@ const FilterItemButton = styled.button`
 /* ================================= */
 // utils
 
-// function _checkIsEventEnded(dateString) {
-//   if (!dateString) {
-//     return false;
-//   }
-//   const endDate = datetime.parseServerDatetime(dateString);
-//   return isAfter(new Date(), endDate);
-// }
+function _checkIsEventEnded(dateString) {
+  if (!dateString) {
+    return false;
+  }
+  const endDate = datetime.parseServerDatetime(dateString);
+  return isAfter(new Date(), endDate);
+}
 
 export default PageScoreSelection;

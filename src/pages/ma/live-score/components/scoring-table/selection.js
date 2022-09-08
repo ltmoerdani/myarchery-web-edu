@@ -39,7 +39,6 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
                 <th className="text-uppercase">Klub</th>
                 <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
                 <th className="text-uppercase">Total</th>
-                <th className="text-uppercase">Jumlah Arrow</th>
                 <th className="text-uppercase">Irat</th>
               </tr>
             </thead>
@@ -58,7 +57,6 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
                   <SessionCellsData sessions={scoring.sessions} />
 
                   <td>{scoring.total}</td>
-                  <td>{scoring.totalArrow}</td>
                   <td>{scoring.totalIrat}</td>
                 </tr>
               ))}

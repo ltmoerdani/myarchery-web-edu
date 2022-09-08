@@ -16,6 +16,9 @@ function useSelectionScorings(categoryDetailId, teamType, scoreType, isEventEnde
       if(scoreType == 4){
         return EventQualificationService.getSelectionElemination({ event_category_id: categoryDetailId});
       }
+      if(scoreType == 5){
+        return EventQualificationService.getSelectionAllResult({ event_category_id: categoryDetailId});
+      }
       const queryParams = { event_category_id: categoryDetailId, score_type: scoreType }
       return EventQualificationService.getSelectionScoring(queryParams);
     };
