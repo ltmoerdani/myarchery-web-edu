@@ -32,7 +32,7 @@ RUN rm -f config/.env
 #RUN adduser -S -G docker -u 2001 -s /bin/bash -h myarchery-web docker
 #USER docker
 
-CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
+#CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
 
 #USER docker
 #RUN whoami
