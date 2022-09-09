@@ -77,12 +77,14 @@ function LandingPage() {
                 />
               )}
 
-              <SecondaryCTAItem
-                bgImg={clubRank}
-                heading="Pemeringkatan Klub"
-                subheading="Klik untuk melihat"
-                to={`/event-ranks/${slug}/clubs`}
-              />
+              {eventDetail.eventCompetition != 'Selection' &&(
+                <SecondaryCTAItem
+                  bgImg={clubRank}
+                  heading="Pemeringkatan Klub"
+                  subheading="Klik untuk melihat"
+                  to={`/event-ranks/${slug}/clubs`}
+                />
+              )}
             </SecondaryCTA>
           </LayoutBottom>
         </MainContent>

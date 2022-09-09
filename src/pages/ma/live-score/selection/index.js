@@ -69,7 +69,6 @@ function PageScoreSelection() {
 
               <MetaInfo>
                 <LiveIndicator />
-                <span>| Babak Kualifikasi</span>
               </MetaInfo>
 
               <FilterList>
