@@ -23,7 +23,7 @@ RUN npm install -g npm@8.5.5
 
 RUN npm install --force #--legacy-peer-deps
 RUN yarn add node-sass
-RUN npm i caniuse-lite
+RUN npm i caniuse-lite --legacy-peer-deps
 #RUN npm audit fix --force
 RUN npm run build #--threshold 10
 
