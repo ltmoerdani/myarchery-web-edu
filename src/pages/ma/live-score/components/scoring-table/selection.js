@@ -56,7 +56,7 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
 
                   <SessionCellsData sessions={scoring} scoreType={scoreType} />
                   {scoreType != 5 ? (
-                    <td>{scoring.total}</td>
+                    <td className="total">{scoring.total}</td>
                   ) : (
                     <td>{scoring?.elimination?.total + scoring?.qualification?.total}</td>
                   )}
@@ -148,7 +148,6 @@ function SessionCellsDataHeading({ sessions, scoreType }) {
             </th>
           ))
         : ""}
-      {scoreType == 3 || scoreType == 4 ? <th>Total {scoreType == 3 ? "Kual " : "Eli"}</th> : ""}
       {scoreType == 5 && sessions.qualification
         ? Object.keys(sessions?.qualification?.sessions).map((qualificatiSession) => (
             <th key={qualificatiSession}>Sesi {qualificatiSession}</th>
@@ -177,11 +176,6 @@ function SessionCellsData({ sessions, scoreType }) {
             <td key={currentSession}>{sessions?.sessions[currentSession]?.total}</td>
           ))
         : ""}
-      {(scoreType == 3 || scoreType == 4) && sessions.total ? (
-        <td className="total">{sessions.total}</td>
-      ) : (
-        ""
-      )}
       {scoreType == 5 && sessions.qualification
         ? Object.keys(sessions?.qualification?.sessions).map((qualificatiSession) => (
             <td key={qualificatiSession}>
