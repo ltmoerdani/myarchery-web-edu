@@ -22,7 +22,7 @@ RUN npm rebuild node-sass
 RUN npm i react-scripts --force #--legacy-peer-deps
 RUN npm install -g npm@8.5.5
 
-RUN npm install --force #--legacy-peer-deps
+RUN npm install --legacy-peer-deps
 #RUN yarn add node-sass
 RUN npm i caniuse-lite --legacy-peer-deps
 #RUN npm audit fix --force
