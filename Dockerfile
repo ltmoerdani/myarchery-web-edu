@@ -26,7 +26,8 @@ RUN npm install --legacy-peer-deps
 #RUN yarn add node-sass
 RUN npm i caniuse-lite --legacy-peer-deps
 #RUN npm audit fix --force
-RUN npm run build #--threshold 10
+RUN npm run build #--threshold 
+RUN npm install -g serve
 
 RUN rm -f config/.env
 
@@ -34,7 +35,8 @@ RUN rm -f config/.env
 #RUN adduser -S -G docker -u 2001 -s /bin/bash -h myarchery-web docker
 #USER docker
 
-CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
+CMD serve -s build
+#CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
 
 #USER docker
 #RUN whoami
