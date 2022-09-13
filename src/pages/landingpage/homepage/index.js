@@ -64,7 +64,7 @@ function LandingPage() {
                 bgImg={kalasemen}
                 heading="Klasemen Pertandingan"
                 subheading="Klik untuk melihat"
-                to={`/live-score/${slug}/qualification`}
+                to={`/live-score/${slug}/${eventDetail.eventCompetition == 'Selection' ? 'selection' : 'qualification'}`}
               />
 
               {Boolean(eventDetail?.handbook) && (
@@ -77,12 +77,14 @@ function LandingPage() {
                 />
               )}
 
-              <SecondaryCTAItem
-                bgImg={clubRank}
-                heading="Pemeringkatan Klub"
-                subheading="Klik untuk melihat"
-                to={`/event-ranks/${slug}/clubs`}
-              />
+              {eventDetail.eventCompetition != 'Selection' &&(
+                <SecondaryCTAItem
+                  bgImg={clubRank}
+                  heading="Pemeringkatan Klub"
+                  subheading="Klik untuk melihat"
+                  to={`/event-ranks/${slug}/clubs`}
+                />
+              )}
             </SecondaryCTA>
           </LayoutBottom>
         </MainContent>
