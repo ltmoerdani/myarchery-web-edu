@@ -28,7 +28,7 @@ RUN npm install --legacy-peer-deps #--force
 #RUN npm audit fix --force
 RUN npm i caniuse-lite --legacy-peer-deps
 RUN npm run build #--threshold 10
-RUN npm install -g serve
+#RUN npm install -g serve
 
 RUN rm -f .env
 
