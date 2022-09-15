@@ -29,11 +29,10 @@ RUN npm install --legacy-peer-deps #--force
 RUN npm i caniuse-lite --legacy-peer-deps
 RUN npm run build #--threshold 10
 RUN npm install -g serve
-RUN cat .env
 
-#RUN rm -f config/.env
+RUN rm -f .env
 
-CMD serve -s build
+#CMD serve -s build
 #CMD npm start >> /root/log/stdout.log 2>> /root/log/stderr.log
 
 #USER docker
