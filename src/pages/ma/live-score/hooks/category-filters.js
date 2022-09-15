@@ -1,6 +1,8 @@
 import * as React from "react";
 import { useCategoriesByGender } from "./event-categories-by-gender";
 
+import teamCategories from "constants/team-categories";
+
 function useCategoryFilters(eventId) {
   const { data: categories, status } = useCategoriesByGender(eventId);
   const [filters, dispatch] = React.useReducer(filterReducer, {
@@ -181,17 +183,10 @@ function _makeTeamOptions(categoryDetails, activeCategory) {
   if (!categoryDetails || !activeCategory) {
     return [];
   }
-  const teamFilterLabels = {
-    "individu male": "Individu Putra",
-    "individu female": "Individu Putri",
-    male_team: "Beregu Putra",
-    female_team: "Beregu Putri",
-    mix_team: "Beregu Campuran",
-  };
   const teams = categoryDetails[activeCategory];
   return Object.keys(teams).map((team) => ({
     id: team,
-    label: teamFilterLabels[team],
+    label: teamCategories.TEAM_LABELS[team],
   }));
 }
 
