@@ -26,6 +26,7 @@ RUN npm install -g npm@8.5.5
 RUN npm install --legacy-peer-deps #--force
 #RUN yarn add node-sass
 #RUN npm audit fix --force
+RUN npm i caniuse-lite --legacy-peer-deps
 RUN npm run build #--threshold 10
 RUN npm install -g serve
 
