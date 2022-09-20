@@ -9,7 +9,7 @@ stages:
   - build
   - push
   - deploy
-  #- switch
+  - switch
 
 stage_build:
   stage: build
@@ -117,17 +117,17 @@ revert:
   script:
     - ssh -p22 root@103.31.38.37 "/root/deployment/$CI_COMMIT_BRANCH-web-revert.sh"
 
-#switch:
-#  image: node:14
-#  stage: switch
-#  before_script:
-#  - apt-get update -qq
-#  - apt-get install -qq git
-#  # Setup SSH deploy keys
-#  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
-#  - eval $(ssh-agent -s)
-#  - ssh-add <(echo "$PRIVATEKEY_ARCHERY")
-#  - mkdir -p ~/.ssh
-#  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-#  script:
-#    - ssh -p22 root@103.31.38.37 "/root/deployment/$CI_COMMIT_BRANCH-web-switch.sh"
+switch:
+  image: node:14
+  stage: switch
+  before_script:
+  - apt-get update -qq
+  - apt-get install -qq git
+  # Setup SSH deploy keys
+  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$PRIVATEKEY_ARCHERY")
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh -p22 root@103.31.38.37 "/root/deployment/$CI_COMMIT_BRANCH-web-switch.sh"
