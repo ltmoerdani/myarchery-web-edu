@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
+import { useHistory,useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "../hooks/event-detail-slug";
 import { useCategoryFiltersSelection } from "./hooks/category-filters-selection";
@@ -12,6 +12,8 @@ import { ScoringTableSelection } from "../components";
 import { LiveIndicator } from "../components";
 import { TeamFilterChooser } from "../components/team-filter-chooser";
 import { SelectCategories } from "./components/select-categories";
+import { useSelector } from "react-redux";
+import { getAuthenticationStore } from "store/slice/authentication";
 
 import { isAfter } from "date-fns";
 import { datetime } from "utils";
@@ -32,6 +34,9 @@ function PageScoreSelection() {
   const [activeOptionCategory, setActiveOptionCategory] = React.useState(null);
   const [activeOptionGender, setActiveOptionGender] = React.useState(null);
   const [scoreType, setScoreType] = React.useState(3);
+  const { isLoggedIn } = useSelector(getAuthenticationStore);
+  const history = useHistory();
+  const path = window.location.pathname;
 
   const activeCategory = getCategoryDetail({
     competitionCategory: activeOptionCategory?.value.competitionCategory,
@@ -40,6 +45,9 @@ function PageScoreSelection() {
   });
 
   React.useEffect(() => {
+    if(!isLoggedIn){
+      history.push("/archer/login?path="+path);
+    }
     if (activeCategory) return;
     setActiveOptionCategory(optionCategories?.[0]);
     setActiveOptionGender(optionGenders?.[0]);
@@ -48,7 +56,6 @@ function PageScoreSelection() {
   const isLoadingEvent = eventStatus === "loading";
   const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
   const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
-
   return (
     <StyledPageWrapper>
       <MetaTags>
