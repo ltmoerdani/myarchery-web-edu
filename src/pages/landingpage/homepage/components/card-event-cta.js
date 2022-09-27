@@ -10,7 +10,7 @@ import Countdown from "react-countdown";
 import CurrencyFormat from "react-currency-format";
 
 import classnames from "classnames";
-import { isAfter, isBefore, isWithinInterval } from "date-fns";
+import { isAfter, isBefore } from "date-fns";
 import { datetime } from "utils";
 
 function CardEventCTA({ eventDetail }) {
@@ -137,17 +137,15 @@ function CardEventCTA({ eventDetail }) {
 
         <div>
           {!isRegistrationOpen ? (
-            <ButtonCTABig disabled>
-              {isBeforeRegistration ? "Pendaftaran Segera Dibuka" : "Pendaftaran Ditutup"}
-            </ButtonCTABig>
+            <ButtonCTABig disabled>Pendaftaran Ditutup</ButtonCTABig>
           ) : (
             <ButtonCTABig
               as={Link}
-              to={`${
+              to={
                 !isLoggedIn
                   ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
                   : `/event-registration/${eventDetail.eventSlug}`
-              }`}
+              }
             >
               Daftar Event
             </ButtonCTABig>
@@ -348,15 +346,17 @@ function _getTeamLabelFromTeamId(teamCategory) {
 }
 
 function _checkIsRegistrationOpen(eventDetail) {
+  const today = new Date();
   const registerEventStart = datetime.parseServerDatetime(eventDetail.registrationStartDatetime);
   const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
-  const interval = {
-    start: registerEventStart,
-    end: registerEventEnd,
-  };
-  const today = new Date();
 
-  const isRegistrationOpen = isWithinInterval(today, interval);
+  const isRegistrationOpen = Boolean(eventDetail.canRegister);
+  // "before" & "after" ini merujuk ke tanggal pendaftaran "default",
+  // yang berlaku secara umum untuk semua kategori, bukan tanggal
+  // pendaftaran khusus yang diset di pengaturan step 4.
+  // Timer countdown dirender berdasarkan tanggal default, sedangkan
+  // `isOpen`/`canRegister` dihitung dengan tanggal khusus tersebut
+  // juga.
   const isBeforeRegistration = isBefore(today, registerEventStart);
   const isAfterRegistration = isAfter(today, registerEventEnd);
 
