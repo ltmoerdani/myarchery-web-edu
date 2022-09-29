@@ -13,7 +13,7 @@ import classnames from "classnames";
 import { isAfter, isBefore } from "date-fns";
 import { datetime } from "utils";
 
-function CardEventCTA({ eventDetail }) {
+function CardEventCTA({ eventDetail, categories = [] }) {
   const { isLoggedIn } = useSelector(getAuthenticationStore);
 
   const captionCopy = "Segera daftarkan dirimu dan timmu pada kompetisi";
@@ -23,16 +23,32 @@ function CardEventCTA({ eventDetail }) {
     [eventDetail]
   );
 
-  // TODO: ekstrak custom hook sendiri (?)
-  const eventPriceOptions = React.useMemo(() => {
-    if (!eventDetail?.eventPrice) {
+  // Options untuk render harga menurut jenis regu
+  const priceOptions = React.useMemo(() => {
+    if (!eventDetail?.eventPrice || !categories?.length) {
       return [];
+    }
+
+    const teamTypes = {};
+    for (const category of categories) {
+      const types = {
+        "individu male": "individu",
+        "individu female": "individu",
+        individu_mix: "individu_mix",
+        male_team: "team",
+        female_team: "team",
+        mix_team: "mix",
+      };
+      const type = types[category.teamCategoryId.id];
+      teamTypes[type] = teamTypes[type] ? teamTypes[type] + 1 : 1;
     }
 
     // Kategori tim yang gak dibuka nilainya akan `null`.
     // Filter dulu yang ada nilainya aja sebelum di-map.
-    const visiblePrices = Object.keys(eventDetail.eventPrice).filter((teamCategory) => {
-      return Boolean(eventDetail.eventPrice[teamCategory]);
+    const teamsIdsFromPrices = Object.keys(eventDetail.eventPrice);
+    const visiblePrices = teamsIdsFromPrices.filter((teamCategory) => {
+      // Ambil objek hanya yang ada datanya sekaligus yang muncul di list kategori
+      return eventDetail.eventPrice[teamCategory] && teamTypes[teamCategory];
     });
 
     const priceOptions = visiblePrices.map((teamCategory) => {
@@ -51,15 +67,14 @@ function CardEventCTA({ eventDetail }) {
     });
 
     return priceOptions;
-  }, [eventDetail]);
+  }, [eventDetail, categories]);
 
-  // TODO: ekstrak custom hook sendiri (?)
   const earlyBird = React.useMemo(() => {
-    if (!eventPriceOptions?.length) {
+    if (!priceOptions?.length) {
       return null;
     }
 
-    const earlyBirdData = eventPriceOptions.reduce((earlyBirdData, option) => {
+    const earlyBirdData = priceOptions.reduce((earlyBirdData, option) => {
       if (
         !option.isEarlyBird ||
         earlyBirdData.earlyBirdExpirationDate ||
@@ -80,7 +95,7 @@ function CardEventCTA({ eventDetail }) {
     }
 
     return earlyBirdData;
-  }, [eventPriceOptions]);
+  }, [priceOptions]);
 
   if (!eventDetail) {
     return <ContentSheet>Sedang memuat data event...</ContentSheet>;
@@ -92,7 +107,7 @@ function CardEventCTA({ eventDetail }) {
         <RegistrationHeading>Biaya Pendaftaran</RegistrationHeading>
 
         <RegistrationPriceGrid>
-          {eventPriceOptions.map((option) => (
+          {priceOptions.map((option) => (
             <RegistrationPriceItem key={option.teamCategoryId}>
               <PriceTeamCategoryLabel>{option.teamLabel}</PriceTeamCategoryLabel>
               <PriceGroup>
@@ -242,6 +257,10 @@ const EarlyBirdPriceLabel = styled.div`
 /* ============================================= */
 
 function AmountWithCurrency({ amount }) {
+  if (!amount) {
+    return <span>Gratis</span>;
+  }
+
   return (
     <CurrencyFormat
       displayType={"text"}
