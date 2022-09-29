@@ -42,7 +42,10 @@ function LandingPage() {
         <MainContent>
           <LayoutTop>
             <MainCardEvent eventDetail={eventDetail} />
-            <CardEventCTA eventDetail={eventDetail} />
+            <CardEventCTA
+              eventDetail={eventDetail}
+              categories={eventDetailBySlug?.eventCategories}
+            />
           </LayoutTop>
 
           <LayoutBottom>
@@ -64,7 +67,9 @@ function LandingPage() {
                 bgImg={kalasemen}
                 heading="Klasemen Pertandingan"
                 subheading="Klik untuk melihat"
-                to={`/live-score/${slug}/${eventDetail.eventCompetition == 'Selection' ? 'selection' : 'qualification'}`}
+                to={`/live-score/${slug}/${
+                  eventDetail.eventCompetition == "Selection" ? "selection" : "qualification"
+                }`}
               />
 
               {Boolean(eventDetail?.handbook) && (
@@ -77,7 +82,7 @@ function LandingPage() {
                 />
               )}
 
-              {eventDetail.eventCompetition != 'Selection' &&(
+              {eventDetail.eventCompetition != "Selection" && (
                 <SecondaryCTAItem
                   bgImg={clubRank}
                   heading="Pemeringkatan Klub"
