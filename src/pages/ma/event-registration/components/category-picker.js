@@ -165,7 +165,8 @@ function PickerControl({
           <CategoryGrid>
             {groupedCategories[selectedFilter].map((category) => {
               const isQuotaAvailable = Number(category.totalParticipant) < Number(category.quota);
-              const shouldOptionDisabled = !isQuotaAvailable || !category.isOpen;
+              const shouldOptionDisabled =
+                !category.canRegister || !isQuotaAvailable || !category.isOpen;
               const categoryMatchesUser = _checkIsGenderMatchesCategory(
                 category.teamCategoryId,
                 userProfile?.gender
@@ -189,6 +190,11 @@ function PickerControl({
                     disabled={shouldOptionDisabled || !categoryMatchesUser}
                   />
                   <CategoryItemLabel
+                    title={
+                      !category.canRegister
+                        ? "Tanggal pendaftaran untuk kategori ini belum dibuka atau telah lewat"
+                        : undefined
+                    }
                     htmlFor={`category-item-${category.id}`}
                     className={classnames({
                       "not-available": shouldOptionDisabled || !categoryMatchesUser,
@@ -200,7 +206,7 @@ function PickerControl({
                         !category.isOpen ? (
                           <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
                         ) : isQuotaAvailable ? (
-                          <QuotaLabel>
+                          <QuotaLabel className={shouldOptionDisabled ? "label-muted" : undefined}>
                             {category.totalParticipant}&#47;{category.quota}
                           </QuotaLabel>
                         ) : (
@@ -343,6 +349,11 @@ const QuotaLabel = styled.span`
   padding: 0.25rem 0.5rem;
   border-radius: 2rem;
   background-color: #aeddc2;
+
+  &.label-muted {
+    background-color: var(--ma-gray-50);
+    color: var(--ma-gray-400);
+  }
 `;
 
 const QuotaLabelMuted = styled.span`
