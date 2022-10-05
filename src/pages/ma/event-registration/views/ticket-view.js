@@ -56,6 +56,8 @@ function TicketView({
 
   const participantCounts = _getParticipantCounts(category);
 
+  const clientData = formVerification.data
+
   const handleClickNext = () => {
     // TODO: mungkin kapan-kapan bisa diimprove pakai Promise aja,
     // biar lebih enak dibaca, dalam bentuk chaining atau kayak async/await
@@ -105,6 +107,10 @@ function TicketView({
     };
     submit(options);
   };
+
+  const isEarly = clientData.isWna ? category?.isEarlyBirdWna : category?.isEarlyBird;
+  const undiscountedTotal = clientData.isWna ? category?.normalPriceWna : category?.fee;
+  const total = clientData.isWna ? category?.earlyPriceWna : category?.earlyBird;
 
   if (isLoadingEventDetail) {
     return (
@@ -166,14 +172,13 @@ function TicketView({
                 <LabelTotal>Total Pembayaran</LabelTotal>
               </div>
               <div>
-                {category?.isEarlyBird ? (
+                {isEarly ?
                   <React.Fragment>
-                    <UndiscountedTotalWithCurrency value={_getPriceNumber(category?.fee)} />
-                    <TotalWithCurrency value={_getPriceNumber(category?.earlyBird)} />
+                    <UndiscountedTotalWithCurrency value={_getPriceNumber(undiscountedTotal)} />
+                    <TotalWithCurrency value={_getPriceNumber(total)} />
                   </React.Fragment>
-                ) : (
-                  <TotalWithCurrency value={_getPriceNumber(category?.fee)} />
-                )}
+                  : <TotalWithCurrency value={_getPriceNumber(undiscountedTotal)} />
+                }
               </div>
             </TicketSectionTotal>
 
