@@ -110,7 +110,6 @@ function TicketView({
     submit(options);
   };
 
-<<<<<<< HEAD
   const handleFeeAndTotal = (paymentMethode, amount) => {
     let fee = 0;
     if(paymentMethode.feeType === "percentage"){
@@ -122,11 +121,10 @@ function TicketView({
     console.log(totalPayment);
     return {fee : amount > 0 ? fee : 0, total : totalPayment};
   };
-=======
+  
   const isEarly = clientData.isWna ? category?.isEarlyBirdWna : category?.isEarlyBird;
   const undiscountedTotal = clientData.isWna ? category?.normalPriceWna : category?.fee;
   const total = clientData.isWna ? category?.earlyPriceWna : category?.earlyBird;
->>>>>>> feat-price-wna
 
   if (isLoadingEventDetail) {
     return (
