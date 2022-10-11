@@ -15,12 +15,22 @@ function FieldInputText({
   onChange,
   disabled,
   errors,
+  isFocus,
+  onFocus,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
+  const inputRef = React.useRef(null);
 
   const handleChange = (ev) => {
     onChange?.(ev.target.value);
   };
+
+  React.useEffect(() => {
+    if (!isFocus) {
+      return;
+    }
+    inputRef.current?.focus();
+  }, [isFocus]);
 
   return (
     <FieldInputTextWrapper>
@@ -34,6 +44,7 @@ function FieldInputText({
         </label>
       )}
       <input
+        ref={inputRef}
         className={classnames("field-input-text", { "field-invalid": errors?.length })}
         id={fieldID}
         name={name}
@@ -41,6 +52,7 @@ function FieldInputText({
         value={value || ""}
         onChange={handleChange}
         disabled={disabled}
+        onFocus={onFocus}
       />
       <FieldErrorMessage errors={errors} />
     </FieldInputTextWrapper>
@@ -92,7 +104,7 @@ const FieldInputTextWrapper = styled.div`
     &[readonly] {
       background-color: var(--ma-gray-50);
       border-color: var(--ma-gray-50);
-      color: var(--ma-gray-400);
+      color: var(--ma-gray-500);
       opacity: 1;
     }
 

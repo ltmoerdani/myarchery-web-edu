@@ -1,17 +1,22 @@
 import * as React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useQueueHeavyImageList } from "hooks/queue-heavy-image-list";
 import { useEventsList } from "../hooks/events-list";
 
 import { SpinnerDotBlock } from "components/ma";
+import { HeavyImage } from "components/ma/heavy-image";
 
 import IconCalendar from "components/ma/icons/mono/calendar";
 import IconMapPin from "components/ma/icons/mono/map-pin";
 
 import { datetime } from "utils";
 
+import logoLight from "assets/images/myachery/myachery.png";
+
 function LatestEvents() {
   const { data: events, isSettled } = useEventsList();
+  const { registerQueue, checkIsPending, onLoad, onError } = useQueueHeavyImageList();
 
   if (!isSettled) {
     return <SpinnerDotBlock />;
@@ -20,7 +25,7 @@ function LatestEvents() {
   return (
     <Wrapper>
       <EventsGrid>
-        {events.map((event) => {
+        {events.map((event, index) => {
           const showPoster = Boolean(event.poster);
           return (
             <CardEventItem key={event.id}>
@@ -28,7 +33,16 @@ function LatestEvents() {
                 <div className="image-container">
                   {showPoster && (
                     <Link to={_parseEventPath(event.eventUrl)}>
-                      <img className="event-item-banner-img" src={event.poster} alt="Banner" />
+                      <HeavyImage
+                        src={event.poster}
+                        onRegisterQueue={() => registerQueue(index)}
+                        onLoad={onLoad}
+                        onError={onError}
+                        isPending={checkIsPending(index)}
+                        fallback={<BannerLoadingQueue>memuat...</BannerLoadingQueue>}
+                        className="event-item-banner-img"
+                        alt="Banner"
+                      />
                     </Link>
                   )}
                 </div>
@@ -128,7 +142,7 @@ const CardEventItemHeader = styled.div`
     position: relative;
     width: 100%;
     padding-top: 42%;
-    background-color: var(--ma-gray-600);
+    background-color: var(--ma-gray-50);
 
     .event-item-banner-img {
       position: absolute;
@@ -218,6 +232,26 @@ const ButtonToEventsPage = styled.a`
     text-decoration: underline !important;
     background-color: #fafafa;
   }
+`;
+
+const BannerLoadingQueue = styled.span`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+
+  background-color: var(--ma-gray-50);
+  background-image: url(${logoLight});
+  background-size: 30%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  color: var(--ma-gray-400);
+  text-align: center;
 `;
 
 /* ============================== */

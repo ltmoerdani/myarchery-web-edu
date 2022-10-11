@@ -1,6 +1,8 @@
 import { parseISO, format } from "date-fns";
 import id from "date-fns/locale/id";
 
+const locale = id;
+
 function parseServerDatetime(dateString) {
   try {
     return parseISO(dateString);
@@ -25,11 +27,14 @@ function formatServerDate(date) {
   }
 }
 
-function formatFullDateLabel(date, { withDay = false } = {}) {
+function formatFullDateLabel(date, { withDay = false, withTime = false } = {}) {
   const dateObject = typeof date === "string" ? parseISO(date) : date;
   try {
     if (withDay) {
       return format(dateObject, "EEEE, d MMMM yyyy", { locale: id });
+    }
+    if (withTime) {
+      return format(dateObject, "d MMMM yyyy, HH:mm:ss", { locale: id });
     }
     return format(dateObject, "d MMMM yyyy", { locale: id });
   } catch {
@@ -37,4 +42,10 @@ function formatFullDateLabel(date, { withDay = false } = {}) {
   }
 }
 
-export default { parseServerDatetime, formatServerDatetime, formatServerDate, formatFullDateLabel };
+export default {
+  parseServerDatetime,
+  formatServerDatetime,
+  formatServerDate,
+  formatFullDateLabel,
+  locale,
+};

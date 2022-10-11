@@ -1,18 +1,15 @@
 import * as React from "react";
 import styled from "styled-components";
 
-const WIDTH = 560;
-const HEIGHT = 315;
-const ratio = HEIGHT / WIDTH;
-
-function EmbedYoutube() {
+function EmbedYoutube({ src, title, width, height }) {
+  const ratio = height / width;
   return (
-    <ResponsiveYoutubeVideo>
+    <ResponsiveYoutubeVideo style={{ "--ratio": `calc(${ratio} * 100%)` }}>
       <iframe
-        width={WIDTH}
-        height={HEIGHT}
-        src="https://www.youtube.com/embed/IFXGIXFq-EA"
-        title="Gold Final Standart Bow U-12 - Pro Jakarta Open 2022"
+        width={width}
+        height={height}
+        src={src}
+        title={title}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
@@ -24,7 +21,7 @@ function EmbedYoutube() {
 const ResponsiveYoutubeVideo = styled.div`
   position: relative;
   overflow: hidden;
-  padding-bottom: calc(${ratio} * 100%);
+  padding-bottom: var(--ratio);
   margin-bottom: 2.5rem;
   background-color: var(--ma-primary-blue-50);
 

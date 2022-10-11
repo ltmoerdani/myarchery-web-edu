@@ -22,6 +22,10 @@ import imgEndorseHub from "assets/images/home/endorsement-hub.png";
 import imgEndorseKarawang from "assets/images/home/endorsement-barebow-karawang.png";
 import imgEndorsePerpaniJkt from "assets/images/home/endorsement-perpani-jkt.jpg";
 import imgEndorsePerpaniKebumen from "assets/images/home/endorsement-perpani-kebumen.png";
+import imgEndorseBxp from "assets/images/home/endorsement-bxp.png";
+import imgEndorseTac from "assets/images/home/endorsement-tac.png";
+import imgEndorseKujang from "assets/images/home/endorsement-kujang.jpg";
+import imgEndorseFast from "assets/images/home/endorsement-fast.png";
 import imgFeaturesMac from "assets/images/home/features-illustration-mac.png";
 import imgFeaturesCircle from "assets/images/home/features-circle.svg";
 import imgFeatureItemEvent from "assets/images/home/feature-item-event.svg";
@@ -47,6 +51,18 @@ const partners = [
     imgSrc: imgQueen,
     webSrc: "https://www.instagram.com/queen_archery_proshop/",
   },
+];
+
+const logosTrustedBy = [
+  { imgSrc: imgEndorsePerpaniJkt },
+  { imgSrc: imgEndorsePerpaniKebumen },
+  { imgSrc: imgEndorsePro },
+  { imgSrc: imgEndorseHub },
+  { imgSrc: imgEndorseKarawang },
+  { imgSrc: imgEndorseBxp },
+  { imgSrc: imgEndorseTac },
+  { imgSrc: imgEndorseKujang },
+  { imgSrc: imgEndorseFast },
 ];
 
 function PageHome() {
@@ -165,11 +181,11 @@ function PageHome() {
                 </SectionDescription>
               </SectionHeader>
 
-              <PartnersLogosGrid>
+              <LogosGrid>
                 {partners.map((partner, index) => (
                   <PartnerItem key={index} partner={partner} />
                 ))}
-              </PartnersLogosGrid>
+              </LogosGrid>
             </PaddedWrapper>
           </InnerContainer>
         </SectionGray>
@@ -230,27 +246,7 @@ function PageHome() {
                   Dipercaya oleh berbagai klub, organisasi, dan penyedia perlengkapan panahan
                 </EndorsementHeading>
 
-                <PartnersLogosGrid>
-                  <PartnerPerpani>
-                    <img src={imgEndorsePerpaniJkt} className="img-fluid" />
-                  </PartnerPerpani>
-
-                  <PartnerPerpani>
-                    <img src={imgEndorsePerpaniKebumen} className="img-fluid" />
-                  </PartnerPerpani>
-
-                  <div>
-                    <img src={imgEndorsePro} className="img-fluid" />
-                  </div>
-
-                  <div>
-                    <img src={imgEndorseHub} className="img-fluid" />
-                  </div>
-
-                  <div>
-                    <img src={imgEndorseKarawang} className="img-fluid" />
-                  </div>
-                </PartnersLogosGrid>
+                <LogoList logos={logosTrustedBy} />
               </SectionHeader>
             </SectionAboutWrapper>
           </InnerContainer>
@@ -295,6 +291,21 @@ function PartnerItem({ partner }) {
         {imgElement}
       </a>
     </PartnerItemWrapper>
+  );
+}
+
+function LogoList({ logos }) {
+  if (!logos?.length) {
+    return <div>List logo tidak tersedia</div>;
+  }
+  return (
+    <LogosGrid>
+      {logos.map((logo, index) => (
+        <LogoContainerConstrained key={index}>
+          <img src={logo.imgSrc} />
+        </LogoContainerConstrained>
+      ))}
+    </LogosGrid>
   );
 }
 
@@ -483,20 +494,19 @@ const ActivityItemHeading = styled.h3`
   }
 `;
 
-const PartnersLogosGrid = styled.div`
+const LogosGrid = styled.div`
   margin-top: 2.75rem;
   margin-left: 1.5rem;
   margin-right: 1.5rem;
 
   display: flex;
+  flex-wrap: wrap;
   gap: 3rem 1rem;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
 
   @media (min-width: 768px) {
-    flex-direction: row;
     margin-left: 0;
     margin-right: 0;
   }
@@ -508,11 +518,13 @@ const PartnerItemWrapper = styled.div`
   }
 `;
 
-const PartnerPerpani = styled.div`
+const LogoContainerConstrained = styled.div`
   margin: 0 1.5rem;
 
   > img {
+    max-width: 122px;
     max-height: 122px;
+    height: auto;
   }
 `;
 

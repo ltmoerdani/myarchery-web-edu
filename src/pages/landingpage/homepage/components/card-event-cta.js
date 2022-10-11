@@ -9,26 +9,46 @@ import { ButtonCTABig } from "./button-cta-big";
 import Countdown from "react-countdown";
 import CurrencyFormat from "react-currency-format";
 
-import { isAfter } from "date-fns";
+import classnames from "classnames";
+import { isAfter, isBefore } from "date-fns";
 import { datetime } from "utils";
 
-function CardEventCTA({ eventDetail }) {
+function CardEventCTA({ eventDetail, categories = [] }) {
   const { isLoggedIn } = useSelector(getAuthenticationStore);
 
   const captionCopy = "Segera daftarkan dirimu dan timmu pada kompetisi";
   const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
-  const isRegistrationClosed = registerEventEnd ? isAfter(new Date(), registerEventEnd) : true;
+  const { isBeforeRegistration, isRegistrationOpen } = React.useMemo(
+    () => _checkIsRegistrationOpen(eventDetail),
+    [eventDetail]
+  );
 
-  // TODO: ekstrak custom hook sendiri (?)
-  const eventPriceOptions = React.useMemo(() => {
-    if (!eventDetail?.eventPrice) {
+  // Options untuk render harga menurut jenis regu
+  const priceOptions = React.useMemo(() => {
+    if (!eventDetail?.eventPrice || !categories?.length) {
       return [];
+    }
+
+    const teamTypes = {};
+    for (const category of categories) {
+      const types = {
+        "individu male": "individu",
+        "individu female": "individu",
+        individu_mix: "individu_mix",
+        male_team: "team",
+        female_team: "team",
+        mix_team: "mix",
+      };
+      const type = types[category.teamCategoryId.id];
+      teamTypes[type] = teamTypes[type] ? teamTypes[type] + 1 : 1;
     }
 
     // Kategori tim yang gak dibuka nilainya akan `null`.
     // Filter dulu yang ada nilainya aja sebelum di-map.
-    const visiblePrices = Object.keys(eventDetail.eventPrice).filter((teamCategory) => {
-      return Boolean(eventDetail.eventPrice[teamCategory]);
+    const teamsIdsFromPrices = Object.keys(eventDetail.eventPrice);
+    const visiblePrices = teamsIdsFromPrices.filter((teamCategory) => {
+      // Ambil objek hanya yang ada datanya sekaligus yang muncul di list kategori
+      return eventDetail.eventPrice[teamCategory] && teamTypes[teamCategory];
     });
 
     const priceOptions = visiblePrices.map((teamCategory) => {
@@ -47,15 +67,14 @@ function CardEventCTA({ eventDetail }) {
     });
 
     return priceOptions;
-  }, [eventDetail]);
+  }, [eventDetail, categories]);
 
-  // TODO: ekstrak custom hook sendiri (?)
   const earlyBird = React.useMemo(() => {
-    if (!eventPriceOptions?.length) {
+    if (!priceOptions?.length) {
       return null;
     }
 
-    const earlyBirdData = eventPriceOptions.reduce((earlyBirdData, option) => {
+    const earlyBirdData = priceOptions.reduce((earlyBirdData, option) => {
       if (
         !option.isEarlyBird ||
         earlyBirdData.earlyBirdExpirationDate ||
@@ -76,7 +95,7 @@ function CardEventCTA({ eventDetail }) {
     }
 
     return earlyBirdData;
-  }, [eventPriceOptions]);
+  }, [priceOptions]);
 
   if (!eventDetail) {
     return <ContentSheet>Sedang memuat data event...</ContentSheet>;
@@ -88,7 +107,7 @@ function CardEventCTA({ eventDetail }) {
         <RegistrationHeading>Biaya Pendaftaran</RegistrationHeading>
 
         <RegistrationPriceGrid>
-          {eventPriceOptions.map((option) => (
+          {priceOptions.map((option) => (
             <RegistrationPriceItem key={option.teamCategoryId}>
               <PriceTeamCategoryLabel>{option.teamLabel}</PriceTeamCategoryLabel>
               <PriceGroup>
@@ -129,19 +148,19 @@ function CardEventCTA({ eventDetail }) {
       </VerticalSpaced>
 
       <VerticalSpaced>
-        <Countdown date={registerEventEnd} renderer={HandlerCountDown} />
+        {!isBeforeRegistration && <Countdown date={registerEventEnd} renderer={renderCountDown} />}
 
         <div>
-          {isRegistrationClosed ? (
+          {!isRegistrationOpen ? (
             <ButtonCTABig disabled>Pendaftaran Ditutup</ButtonCTABig>
           ) : (
             <ButtonCTABig
               as={Link}
-              to={`${
+              to={
                 !isLoggedIn
                   ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
                   : `/event-registration/${eventDetail.eventSlug}`
-              }`}
+              }
             >
               Daftar Event
             </ButtonCTABig>
@@ -238,6 +257,10 @@ const EarlyBirdPriceLabel = styled.div`
 /* ============================================= */
 
 function AmountWithCurrency({ amount }) {
+  if (!amount) {
+    return <span>Gratis</span>;
+  }
+
   return (
     <CurrencyFormat
       displayType={"text"}
@@ -253,17 +276,9 @@ function AmountWithCurrency({ amount }) {
 
 /* ============================================= */
 
-function HandlerCountDown({ days, hours, minutes, seconds, completed }) {
-  if (completed) {
-    return (
-      <div>
-        <span>Event Berakhir</span>
-      </div>
-    );
-  }
-
+function renderCountDown({ days, hours, minutes, seconds, completed }) {
   return (
-    <CountdownWrapper>
+    <CountdownWrapper className={classnames({ "count-down-completed": completed })}>
       <CounterItem>
         <CounterNumber>{days}</CounterNumber>
         <CounterUnit>Hari</CounterUnit>
@@ -319,6 +334,10 @@ const CounterNumber = styled.span`
   color: var(--ma-text-black);
   font-size: 1.625rem;
   font-weight: 600;
+
+  .count-down-completed & {
+    color: var(--ma-gray-400);
+  }
 `;
 
 const CounterUnit = styled.span`
@@ -326,6 +345,11 @@ const CounterUnit = styled.span`
   background-color: #eff2f7;
   font-size: 0.75rem;
   font-weight: 400;
+
+  .count-down-completed & {
+    background-color: var(--ma-gray-50);
+    color: var(--ma-gray-400);
+  }
 `;
 
 /* =========================================== */
@@ -338,6 +362,28 @@ function _getTeamLabelFromTeamId(teamCategory) {
     mix: "Campuran",
   };
   return labels[teamCategory];
+}
+
+function _checkIsRegistrationOpen(eventDetail) {
+  const today = new Date();
+  const registerEventStart = datetime.parseServerDatetime(eventDetail.registrationStartDatetime);
+  const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
+
+  const isRegistrationOpen = Boolean(eventDetail.canRegister);
+  // "before" & "after" ini merujuk ke tanggal pendaftaran "default",
+  // yang berlaku secara umum untuk semua kategori, bukan tanggal
+  // pendaftaran khusus yang diset di pengaturan step 4.
+  // Timer countdown dirender berdasarkan tanggal default, sedangkan
+  // `isOpen`/`canRegister` dihitung dengan tanggal khusus tersebut
+  // juga.
+  const isBeforeRegistration = isBefore(today, registerEventStart);
+  const isAfterRegistration = isAfter(today, registerEventEnd);
+
+  return {
+    isRegistrationOpen,
+    isAfterRegistration,
+    isBeforeRegistration,
+  };
 }
 
 export { CardEventCTA };

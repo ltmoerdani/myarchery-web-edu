@@ -1,12 +1,13 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useUserProfile } from "hooks/user-profile";
 
 import MetaTags from "react-meta-tags";
 import { Container } from "reactstrap";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Button, ButtonBlue } from "components/ma";
+import { ProcessingToast, toast } from "components/ma/processing-toast";
 import DashboardMenus from "./components/menus";
 import LatestEventsList from "./components/latest-events";
 
@@ -15,7 +16,15 @@ import { misc } from "utils";
 import illustrationWarningAlert from "assets/images/alert-publication.svg";
 
 function PageDashboard() {
+  const { search } = useLocation();
   const { userProfile } = useUserProfile();
+
+  const qs = new URLSearchParams(search);
+  const loginSuccess = Boolean(qs.get("login_success"));
+
+  React.useEffect(() => {
+    loginSuccess && toast.success("Berhasil masuk.");
+  }, [loginSuccess]);
 
   return (
     <DashboardWrapper>
@@ -44,6 +53,7 @@ function PageDashboard() {
       </Container>
 
       <PromptPhotoUpload />
+      <ProcessingToast />
     </DashboardWrapper>
   );
 }
@@ -60,8 +70,8 @@ function PromptPhotoUpload() {
 
   const hasAvatar = Boolean(userProfile?.avatar);
   const verifyStatus = userProfile?.verifyStatus
-    ? parseInt(userProfile.verifyStatus)
-    : userProfile.verifyStatus;
+    ? parseInt(userProfile?.verifyStatus)
+    : userProfile?.verifyStatus;
 
   React.useEffect(() => {
     const openPromptAfterDelay = async () => {

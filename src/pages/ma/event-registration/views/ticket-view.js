@@ -58,6 +58,8 @@ function TicketView({
 
   const participantCounts = _getParticipantCounts(category);
 
+  const clientData = formVerification.data
+
   const handleClickNext = () => {
     // TODO: mungkin kapan-kapan bisa diimprove pakai Promise aja,
     // biar lebih enak dibaca, dalam bentuk chaining atau kayak async/await
@@ -108,17 +110,9 @@ function TicketView({
     submit(options);
   };
 
-  const handleFeeAndTotal = (paymentMethode, amount) => {
-    let fee = 0;
-    if(paymentMethode.feeType === "percentage"){
-      fee = Math.round(amount*(paymentMethode.fee/100));
-    }else{
-      fee = paymentMethode.fee;
-    }
-    let totalPayment = paymentMethode.active == true ? ((amount * 1) + (1 * fee)) : amount;
-    console.log(totalPayment);
-    return {fee : amount > 0 ? fee : 0, total : totalPayment};
-  };
+  const isEarly = clientData.isWna ? category?.isEarlyBirdWna : category?.isEarlyBird;
+  const undiscountedTotal = clientData.isWna ? category?.normalPriceWna : category?.fee;
+  const total = clientData.isWna ? category?.earlyPriceWna : category?.earlyBird;
 
   if (isLoadingEventDetail) {
     return (
@@ -192,14 +186,13 @@ function TicketView({
                 <LabelTotal>Tiket Event</LabelTotal>
               </div>
               <div>
-                {category?.isEarlyBird ? (
+                {isEarly ?
                   <React.Fragment>
-                    <UndiscountedTotalWithCurrency value={_getPriceNumber(category?.fee)} />
-                    <TotalWithCurrency value={_getPriceNumber(category?.earlyBird)} />
+                    <UndiscountedTotalWithCurrency value={_getPriceNumber(undiscountedTotal)} />
+                    <TotalWithCurrency value={_getPriceNumber(total)} />
                   </React.Fragment>
-                ) : (
-                  <TotalWithCurrency value={_getPriceNumber(category?.fee)} />
-                )}
+                  : <TotalWithCurrency value={_getPriceNumber(undiscountedTotal)} />
+                }
               </div>
             </TicketSectionTotal>
             <TicketSectionTotal>

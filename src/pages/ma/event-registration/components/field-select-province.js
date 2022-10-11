@@ -18,7 +18,7 @@ function FieldSelectProvince({
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
   const { provinces } = useLocation();
-  const options = provinces.map((province) => ({ value: province.id, label: province.name }));
+  const options = provinces?.map((province) => ({ value: province.id, label: province.name }));
   return (
     <FieldInputTextWrapper>
       {label && (

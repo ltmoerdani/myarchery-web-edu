@@ -2,7 +2,7 @@ import * as React from "react";
 import { useFetcher } from "hooks/fetcher-alt";
 import { EventsService } from "services";
 
-function useEventRanksClubs(eventId) {
+function useEventRanksClubs(eventId, params) {
   const fetcher = useFetcher();
 
   React.useEffect(() => {
@@ -11,9 +11,9 @@ function useEventRanksClubs(eventId) {
     }
 
     fetcher.runAsync(() => {
-      return EventsService.getEventRanksClubs({ event_id: eventId });
+      return EventsService.getEventRanksClubs({ ...params, event_id: eventId });
     });
-  }, [eventId]);
+  }, [eventId, params]);
 
   return fetcher;
 }

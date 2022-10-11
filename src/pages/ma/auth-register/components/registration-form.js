@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import toastr from "toastr";
 import { ArcherService } from "services";
 import * as AuthenticationStore from "store/slice/authentication";
@@ -19,7 +19,6 @@ const LOGIN_ROUTE_WITH_REDIRECT_PARAM = LOGIN_ROUTE_DEFAULT + "?path=";
 // ! Legacy, need refactoring...
 function RegistrationForm() {
   const { isLoggedIn } = useSelector(AuthenticationStore.getAuthenticationStore);
-  const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
   const redirectPath = new URLSearchParams(location.search).get("path");
@@ -36,7 +35,7 @@ function RegistrationForm() {
     const path = location.state?.from?.pathname || redirectPath;
 
     if (!path) {
-      history.push("/archer/dashboard");
+      history.push("/dashboard");
     } else {
       history.push(path);
     }
@@ -58,9 +57,22 @@ function RegistrationForm() {
     setSubmiting(false);
     if (result.success) {
       if (result.data) {
-        dispatch(AuthenticationStore.login(result.data));
-        const verificationPageURL = "/archer/register-verification?email=" + values.email;
-        history.push(verificationPageURL);
+        const needOTPForRegistration = result.data.registerOtp;
+        const qs = new URLSearchParams();
+        qs.set("register_success", 1);
+
+        if (!needOTPForRegistration) {
+          const queryString = qs.toString();
+          history.push("/archer/login?" + queryString);
+          return;
+        }
+
+        // 1. email
+        qs.set("email", values.email);
+        // 2. waktu expired OTP email
+        result.data.timeVerified && qs.set("expiresAt", result.data.timeVerified);
+        const queryString = qs.toString();
+        history.push("/archer/register-verification?" + queryString);
       }
     } else {
       _displayErrorToasts(result);

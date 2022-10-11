@@ -98,7 +98,7 @@ const ToggleButton = styled.label`
   input + &.option-disabled {
     cursor: default;
     background-color: var(--ma-gray-50);
-    color: var(--ma-gray-400);
+    color: var(--ma-gray-500);
   }
 
   input + &.option-disabled:hover > *:nth-child(1) {

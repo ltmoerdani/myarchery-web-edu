@@ -9,11 +9,7 @@ import { LoadingScreen } from "components";
 import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components/ma";
 import { AlertSubmitError } from "../../components/alert-submit-error";
 import { AlertSubmitSuccess } from "../../components/alert-submit-success";
-import {
-  FieldSelectEmailMember,
-  FieldSelectClub,
-  FieldInputText,
-} from "pages/ma/event-registration/components";
+import { FieldSelectClub } from "pages/ma/event-registration/components";
 
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
@@ -287,13 +283,10 @@ function ParticipantEditorTeam({
       {shouldAllowEdit && editMode.isOpen ? (
         <TeamInfoEditor>
           <DisplayTeamClub>
-            <FieldInputText
-              placeholder="Masukkan Nama Tim"
-              value={teamName}
-              onChange={(value) => setTeamName(value)}
-            >
-              Nama Tim
-            </FieldInputText>
+            <div>Nama Tim</div>
+            <div className="display-value">
+              {participantMembers.participant.teamName || <React.Fragment>&mdash;</React.Fragment>}
+            </div>
           </DisplayTeamClub>
 
           <DisplayTeamClub>
@@ -330,27 +323,16 @@ function ParticipantEditorTeam({
         </TeamInfoEditor>
       )}
 
-      {shouldAllowEdit && editMode.isOpen ? (
-        <EmailFieldsList
-          form={form}
-          dispatchForm={dispatchForm}
-          formData={{
-            category: { id: participantMembers.eventCategoryDetail.id },
-            club: participantMembers.club ? { detail: { id: participantMembers.club?.id } } : null,
-          }}
-        />
-      ) : (
-        <div>
-          {Boolean(participantMembers.member.length) &&
-            participantMembers.member.map((participant, index) => (
-              <ParticipantMemberInfo
-                key={participant.id}
-                participant={participant}
-                title={`Peserta ${index + 1}`}
-              />
-            ))}
-        </div>
-      )}
+      <div>
+        {Boolean(participantMembers.member.length) &&
+          participantMembers.member.map((participant, index) => (
+            <ParticipantMemberInfo
+              key={participant.id}
+              participant={participant}
+              title={`Peserta ${index + 1}`}
+            />
+          ))}
+      </div>
 
       <LoadingScreen loading={submitStatus.status === "loading"} />
       <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
@@ -381,33 +363,6 @@ const ToolbarActionButtons = styled.div`
 const TeamInfoEditor = styled.div`
   display: flex;
   gap: 1.25rem;
-`;
-
-function EmailFieldsList({ form, dispatchForm, formData }) {
-  const names = Object.keys(form);
-  return (
-    <GridInputEmailMember>
-      {names.map((name, index) => (
-        <FieldSelectEmailMember
-          key={name}
-          name={name}
-          placeholder="Pilih email peserta"
-          value={form[name] || null}
-          formData={formData}
-          onChange={(profile) => dispatchForm({ name: name, payload: profile })}
-          // errors={formErrors[participant.name]}
-        >
-          Peserta {index + 1}
-        </FieldSelectEmailMember>
-      ))}
-    </GridInputEmailMember>
-  );
-}
-
-const GridInputEmailMember = styled.div`
-  display: grid;
-  gap: 0 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
 `;
 
 const DisplayTeamClub = styled.div`

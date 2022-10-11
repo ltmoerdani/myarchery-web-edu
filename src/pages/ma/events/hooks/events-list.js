@@ -9,7 +9,7 @@ function useEventsList() {
     // TODO: (1.) get pakai pagination
     // TODO: (2.) get pakai filter
     const getFunction = () => {
-      return Landingpage.getEvent({ limit: 10 });
+      return Landingpage.getEvent({ limit: 30 });
     };
 
     fetcher.runAsync(getFunction);

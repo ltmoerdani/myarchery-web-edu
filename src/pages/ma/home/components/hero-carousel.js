@@ -1,14 +1,18 @@
 import * as React from "react";
 import styled from "styled-components";
 
+import { Link } from "react-router-dom";
 import { Carousel } from "react-responsive-carousel";
 
 import logoLight from "assets/images/myachery/myachery.png";
+import bannerVictory from "assets/images/home/home-banner-victory.jpg";
 import bannerPartnership from "assets/images/myachery/banner7 2.png";
 import bannerWelcomeKid from "assets/images/myachery/banner6 1.svg";
-import bannerWelcomeBro from "assets/images/myachery/banner6 3.svg";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+
+// * Pakai data dari API (?) Musti fetch dulu (?) Kemungkinan bakal dihapus lagi
+const VICTORY_EVENT_URL = "/event/victory-archery-club/1661786987-victory-purwakarta-open-2022";
 
 function HeroCarousel() {
   return (
@@ -20,9 +24,12 @@ function HeroCarousel() {
         autoPlay
         stopOnHover
         transitionTime={750}
+        interval={6000}
         renderIndicator={renderCustomIndicator}
         renderItem={renderCustomItem}
       >
+        <SlideImageFitContent imgSrc={bannerVictory} to={VICTORY_EVENT_URL} />
+
         <SlidePartnership>
           <PartnershipCTAContainer>
             <ButtonCTA href="https://wa.me/6281212241633" target="_blank" rel="noreferrer">
@@ -30,8 +37,8 @@ function HeroCarousel() {
             </ButtonCTA>
           </PartnershipCTAContainer>
         </SlidePartnership>
+
         <SlideWelcome imgSrc={bannerWelcomeKid} />
-        <SlideWelcome imgSrc={bannerWelcomeBro} />
       </Carousel>
     </CarouselWrapper>
   );
@@ -57,6 +64,15 @@ function renderCustomIndicator(onClickHandler, isSelected, index, label) {
 
 function renderCustomItem(children) {
   return <CarouselItemWrapper>{children}</CarouselItemWrapper>;
+}
+
+function SlideImageFitContent({ imgSrc, title, to }) {
+  const withLink = (children) => (to ? <Link to={to}>{children}</Link> : children);
+  return withLink(
+    <SlideFitContentWrapper>
+      <img src={imgSrc} alt={title} title={title} />
+    </SlideFitContentWrapper>
+  );
 }
 
 function SlideWelcome({ imgSrc }) {
@@ -200,6 +216,13 @@ const PartnershipCTAContainer = styled.div`
     margin-left: 2.75rem;
     margin-bottom: 3rem;
   }
+`;
+
+const SlideFitContentWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 `;
 
 const SlideWelcomeWrapper = styled.div`
