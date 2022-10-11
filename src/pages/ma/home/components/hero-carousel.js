@@ -12,7 +12,7 @@ import bannerWelcomeKid from "assets/images/myachery/banner6 1.svg";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 // * Pakai data dari API (?) Musti fetch dulu (?) Kemungkinan bakal dihapus lagi
-const VICTORY_EVENT_URL = "/event/victory-archery-club/1661786987-victory-purwakarta-open-2022";
+const VICTORY_EVENT_URL = "/event/victory-archery-club/1662864265-victory-purwakarta-open-2022";
 
 function HeroCarousel() {
   return (
