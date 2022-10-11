@@ -35,6 +35,7 @@ function PageTransactionDetail() {
   const [activeTab, setActiveTab] = useState("4");
   const [dataDetail, setDataDetail] = useState({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isOYAlertOpen, setIsOYAlertOpen] = useState(false);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
   const { orderId } = useParams();
@@ -85,7 +86,11 @@ function PageTransactionDetail() {
       if (data) {
         setDataDetail(data);
         if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
-          handleClickPayment();
+          if (dataDetail?.transactionInfo?.gateway == "OY") {
+            setIsOYAlertOpen(true);
+          } else {
+            handleClickPaymentMidtrans();
+          }
         }
         console.log(message);
       }
@@ -111,7 +116,12 @@ function PageTransactionDetail() {
     };
   }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
-  const handleClickPayment = () => {
+  const handleClickPayment = (transactionInfo) => {
+    if (transactionInfo?.gateway == "OY") return () => setIsOYAlertOpen(true);
+    //window.location = transactionInfo?.opt?.url;
+    else handleClickPaymentMidtrans;
+  };
+  const handleClickPaymentMidtrans = () => {
     window.snap?.pay(dataDetail?.transactionInfo?.snapToken, {
       onSuccess: function () {
         console.log("success");
@@ -231,7 +241,7 @@ function PageTransactionDetail() {
           <SweetAlert
             show={isAlertOpen}
             title=""
-            custom
+            custom="true"
             btnSize="md"
             onConfirm={onConfirm}
             style={{ padding: "1.25rem" }}
@@ -270,6 +280,36 @@ function PageTransactionDetail() {
         </>
       );
     }
+  };
+
+  const OYAlert = () => {
+    return (
+      <>
+        <SweetAlert
+          show={isOYAlertOpen}
+          title=""
+          custom
+          btnSize="md"
+          onConfirm={() => setIsOYAlertOpen(false)}
+          customClass="alert-full-height"
+          style={{ padding: 0, height: "100%" }}
+          customButtons={
+            <span
+              className="d-flex w-100 justify-content-center text-center"
+              style={{ padding: "0 0 1rem 0" }}
+            >
+              <Button onClick={() => setIsOYAlertOpen(false)}>Tutup Halaman Pembayaran</Button>
+            </span>
+          }
+        >
+          <object
+            type="text/html"
+            data={dataDetail?.transactionInfo?.opt?.url}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </SweetAlert>
+      </>
+    );
   };
 
   return (
@@ -661,7 +701,7 @@ function PageTransactionDetail() {
                                       userProfile?.verifyStatus != 1 &&
                                       dataDetail?.archeryEvent?.needVerify
                                         ? () => setIsAlertOpen(true)
-                                        : handleClickPayment
+                                        : handleClickPayment(dataDetail?.transactionInfo)
                                     }
                                     className="btn"
                                     style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
@@ -697,6 +737,7 @@ function PageTransactionDetail() {
         </div>
       </Container>
       {verifiedAlert()}
+      {OYAlert()}
     </React.Fragment>
   );
 }
