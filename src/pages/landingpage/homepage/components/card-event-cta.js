@@ -53,7 +53,7 @@ function CardEventCTA({ eventDetail, categories = [] }) {
 
     const priceOptions = visiblePrices.map((teamCategory) => {
       const priceByTeam = eventDetail.eventPrice[teamCategory];
-      const hasEarlyBirdPrice = Boolean(priceByTeam.endDateEarlyBird);
+      const hasEarlyBirdPrice = Boolean(priceByTeam.isEarlyBird);
       return {
         teamCategoryId: teamCategory,
         teamLabel: _getTeamLabelFromTeamId(teamCategory),

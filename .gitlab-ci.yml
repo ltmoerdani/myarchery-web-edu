@@ -12,6 +12,7 @@ stages:
   - switch
 
 stage_build:
+  image: docker:latest
   stage: build
   script:
     - rm -rf yarn.lock
