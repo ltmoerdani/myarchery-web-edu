@@ -5,8 +5,6 @@ import { useUserProfile } from "hooks/user-profile";
 import { useHistory } from "react-router-dom";
 import { useSubmitVerification } from "../hooks/submit-verification";
 import { useSubmitOrder } from "../hooks/submit-order";
-import { SelectRadio } from "../components/select-radio";
-import { Label } from "reactstrap";
 
 import CurrencyFormat from "react-currency-format";
 import SweetAlert from "react-bootstrap-sweetalert";
@@ -37,6 +35,10 @@ function TicketView({
 
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
   const { handleValidation: handleValidationVerification } = formVerification;
+  const LabelTotal = styled.span`
+  font-weight: 600;
+  font-size: 15px;
+`;
 
   const {
     submit: submitVerification,
@@ -45,8 +47,8 @@ function TicketView({
     errors: errorVerification,
   } = useSubmitVerification(formVerification.data);
 
-  const { data: formData, handleValidation: handleValidationOrder , setPaymentMethode} = formOrder;
-  const { category,paymentMethode } = formData;
+  const { data: formData, handleValidation: handleValidationOrder } = formOrder;
+  const { category } = formData;
 
   const {
     submit,
@@ -167,23 +169,10 @@ function TicketView({
               value={participantCounts && participantCounts + " Orang"}
             />
           </TicketSectionDetail>
-          <Label className="form-check-label" style={{ marginBottom: "0.25rem" }}>
-            Tentukan Metode Pembayaran
-          </Label>
-          <br></br>
-          <SelectRadio
-            options={[
-              { value: "bankTransfer", label: "Transfer bank" },
-              { value: "gopay", label: "Gopay" },
-            ]}
-            value={paymentMethode}
-            onChange={setPaymentMethode}
-          />
-
           <div className="d-flex flex-column justify-content-between">
             <TicketSectionTotal>
               <div>
-                <LabelTotal>Tiket Event</LabelTotal>
+              <LabelTotal>Total Pembayaran</LabelTotal>
               </div>
               <div>
                 {isEarly ?
@@ -193,29 +182,6 @@ function TicketView({
                   </React.Fragment>
                   : <TotalWithCurrency value={_getPriceNumber(undiscountedTotal)} />
                 }
-              </div>
-            </TicketSectionTotal>
-            <TicketSectionTotal>
-              <div>
-                <LabelTotal>Biaya Payment Gateway </LabelTotal>
-              </div>
-              <div>
-                {eventDetailData.paymentMethode[paymentMethode]?.active == false ? (
-                  <React.Fragment>
-                    <UndiscountedTotalWithCurrency value={_getPriceNumber(handleFeeAndTotal(eventDetailData.paymentMethode[paymentMethode],category?.isEarlyBird ? category?.earlyBird : category?.fee).fee)} />
-                    <TotalWithCurrency value={_getPriceNumber(0)} />
-                  </React.Fragment>
-                ) : (
-                  <TotalWithCurrency value={_getPriceNumber(handleFeeAndTotal(eventDetailData.paymentMethode[paymentMethode],category?.isEarlyBird ? category?.earlyBird : category?.fee).fee)} />
-                )}
-              </div>
-            </TicketSectionTotal>
-            <TicketSectionTotal>
-              <div>
-                <LabelTotal>Total Pembayaran</LabelTotal>
-              </div>
-              <div>
-                <TotalWithCurrency value={_getPriceNumber(handleFeeAndTotal(eventDetailData.paymentMethode[paymentMethode],category?.isEarlyBird ? category?.earlyBird : category?.fee).total)} />
               </div>
             </TicketSectionTotal>
 
@@ -388,10 +354,6 @@ const TicketSectionTotal = styled.div`
   align-items: baseline;
 `;
 
-const LabelTotal = styled.span`
-  font-weight: 600;
-  font-size: 15px;
-`;
 
 const StyledTotalWithCurrency = styled(CurrencyFormat)`
   color: var(--ma-blue);
