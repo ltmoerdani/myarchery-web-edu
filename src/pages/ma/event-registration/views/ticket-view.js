@@ -35,6 +35,10 @@ function TicketView({
 
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
   const { handleValidation: handleValidationVerification } = formVerification;
+  const LabelTotal = styled.span`
+  font-weight: 600;
+  font-size: 15px;
+`;
 
   const {
     submit: submitVerification,
@@ -159,17 +163,16 @@ function TicketView({
             />
 
             <DetailItem label="Kategori" value={category?.categoryLabel} />
-
+                
             <DetailItem
               label="Jumlah Peserta"
               value={participantCounts && participantCounts + " Orang"}
             />
           </TicketSectionDetail>
-
           <div className="d-flex flex-column justify-content-between">
             <TicketSectionTotal>
               <div>
-                <LabelTotal>Total Pembayaran</LabelTotal>
+              <LabelTotal>Total Pembayaran</LabelTotal>
               </div>
               <div>
                 {isEarly ?
@@ -351,10 +354,6 @@ const TicketSectionTotal = styled.div`
   align-items: baseline;
 `;
 
-const LabelTotal = styled.span`
-  font-weight: 600;
-  font-size: 15px;
-`;
 
 const StyledTotalWithCurrency = styled(CurrencyFormat)`
   color: var(--ma-blue);
