@@ -5,14 +5,16 @@ import { Link } from "react-router-dom";
 import { Carousel } from "react-responsive-carousel";
 
 import logoLight from "assets/images/myachery/myachery.png";
-import bannerVictory from "assets/images/home/home-banner-victory.jpg";
+import bannerVictory from "assets/images/home/home-banner-victory-new.jpg";
+import bannerQueen from "assets/images/home/home-banner-queen.jpg";
 import bannerPartnership from "assets/images/myachery/banner7 2.png";
 import bannerWelcomeKid from "assets/images/myachery/banner6 1.svg";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 // * Pakai data dari API (?) Musti fetch dulu (?) Kemungkinan bakal dihapus lagi
-const VICTORY_EVENT_URL = "/event/victory-archery-club/1661786987-victory-purwakarta-open-2022";
+const VICTORY_EVENT_URL = "/event/victory-archery-club/1662864265-victory-purwakarta-open-2022";
+const QUEEN_EVENT_URL = "/event/queen-archery-proshop/queen-archery-competition-2022";
 
 function HeroCarousel() {
   return (
@@ -28,6 +30,7 @@ function HeroCarousel() {
         renderIndicator={renderCustomIndicator}
         renderItem={renderCustomItem}
       >
+        <SlideImageFitContent imgSrc={bannerQueen} to={QUEEN_EVENT_URL} />
         <SlideImageFitContent imgSrc={bannerVictory} to={VICTORY_EVENT_URL} />
 
         <SlidePartnership>

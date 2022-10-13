@@ -117,11 +117,12 @@ function PageTransactionDetail() {
   }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
   const handleClickPayment = (transactionInfo) => {
-    if (transactionInfo?.gateway == "OY") return () => setIsOYAlertOpen(true);
-    //window.location = transactionInfo?.opt?.url;
-    else handleClickPaymentMidtrans;
+    if (transactionInfo?.gateway != undefined && transactionInfo?.gateway == "OY") return () => setIsOYAlertOpen(true);
+    
+    else handleClickPaymentMidtrans();
   };
   const handleClickPaymentMidtrans = () => {
+    console.log("masuk midtrans");
     window.snap?.pay(dataDetail?.transactionInfo?.snapToken, {
       onSuccess: function () {
         console.log("success");
