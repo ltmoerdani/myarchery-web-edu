@@ -61,7 +61,7 @@ function PageTransactionDetailOfficial() {
       return "gagal";
     }
     if (status == 2) {
-      return "kadarluarsa";
+      return "kedaluwarsa";
     }
     if (status == 1) {
       return "di-ikuti";
