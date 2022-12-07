@@ -10,6 +10,9 @@ export default {
     profile(qs = null) {
         return API.get("/app/v1/user", qs)
     },
+    cancelRegister(data = null, qs = null) {
+        return API.post("/app/v1/archery/event-order/cancel-buy-event",  data, qs, true)
+    },
     updateProfile(data = null, qs = null) {
         return API.put("/app/v1/user/update-profile", data, qs, true)
     },
