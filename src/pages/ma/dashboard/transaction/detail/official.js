@@ -684,7 +684,8 @@ function PageTransactionDetailOfficial() {
                                 <>
                                   <button
                                     onClick={
-                                      userProfile?.verifyStatus != 1
+                                      userProfile?.verifyStatus != 1 &&
+                                      dataDetail?.eventOfficialDetail?.detailEvent?.needVerify
                                         ? () => setIsAlertOpen(true)
                                         : handleClickPayment(dataDetail?.transactionInfo)
                                     }
