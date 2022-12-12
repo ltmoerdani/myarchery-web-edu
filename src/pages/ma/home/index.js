@@ -16,6 +16,7 @@ import imgManageEvent from "assets/images/home/section-activity-illustration-man
 import imgClub from "assets/images/home/section-activity-illustration-club.svg";
 import imgPro from "assets/images/partners/pro.png";
 import imgHammam from "assets/images/partners/hammam.jpg";
+import imgVictory from "assets/images/partners/victory.png";
 import imgQueen from "assets/images/partners/queen.png";
 import imgEndorsePro from "assets/images/home/endorsement-pro-shop.png";
 import imgEndorseHub from "assets/images/home/endorsement-hub.png";
@@ -47,9 +48,9 @@ const partners = [
     webSrc: "https://www.instagram.com/hammam_archery_shop/",
   },
   {
-    name: "Queen Archery Proshop",
-    imgSrc: imgQueen,
-    webSrc: "https://www.instagram.com/queen_archery_proshop/",
+    name: "Victory Archer Club",
+    imgSrc: imgVictory,
+    webSrc: "https://instagram.com/victoryarcheryclub?igshid=MTg0ZDhmNDA=",
   },
 ];
 
@@ -63,6 +64,7 @@ const logosTrustedBy = [
   { imgSrc: imgEndorseTac },
   { imgSrc: imgEndorseKujang },
   { imgSrc: imgEndorseFast },
+  { imgSrc: imgQueen },
 ];
 
 function PageHome() {
@@ -72,7 +74,10 @@ function PageHome() {
   return (
     <React.Fragment>
       <MetaTags>
-        <title>MyArchery.id - Temukan dan ikuti berbagai macam event panahan di MyArchery</title>
+        <title>
+          MyArchery.id - Temukan dan ikuti berbagai macam event panahan di
+          MyArchery
+        </title>
       </MetaTags>
 
       <PageWrapper>
@@ -103,8 +108,9 @@ function PageHome() {
               <SeriesFloatingContent>
                 <SectionHeading>Pertandingan Series</SectionHeading>
                 <SectionDescription>
-                  Rangkaian pertandingan panahan dari DKI Jakarta Series sebagai wadah atlet untuk
-                  menjadi pemain inti dalam pertandingan bertaraf nasional.
+                  Rangkaian pertandingan panahan dari DKI Jakarta Series sebagai
+                  wadah atlet untuk menjadi pemain inti dalam pertandingan
+                  bertaraf nasional.
                 </SectionDescription>
 
                 <ButtonBlue as={Link} to={linkToJakartaSeriesLeaderboard}>
@@ -119,20 +125,25 @@ function PageHome() {
           <InnerContainer>
             <PaddedWrapper>
               <SectionHeader>
-                <SectionHeading>Ragam Aktivitas bersama MyArchery</SectionHeading>
+                <SectionHeading>
+                  Ragam Aktivitas bersama MyArchery
+                </SectionHeading>
                 <SectionDescription>
-                  Menjadi bagian dari panahan lebih mudah melalui MyArchery. Mengadakan
-                  pertandingan, turnamen, dan berkumpul dengan komunitas dengan fitur buat event
-                  serta komunitas.
+                  Menjadi bagian dari panahan lebih mudah melalui MyArchery.
+                  Mengadakan pertandingan, turnamen, dan berkumpul dengan
+                  komunitas dengan fitur buat event serta komunitas.
                 </SectionDescription>
               </SectionHeader>
 
               <ActivitiesGrid>
                 <ActivityItemManage>
                   <ActivityItemFloatingContent>
-                    <ActivityItemHeading>Buat dan Atur Event</ActivityItemHeading>
+                    <ActivityItemHeading>
+                      Buat dan Atur Event
+                    </ActivityItemHeading>
                     <SectionDescription>
-                      Buat berbagai event panahan dengan pengaturan sistem skoring dan pemeringkatan
+                      Buat berbagai event panahan dengan pengaturan sistem
+                      skoring dan pemeringkatan
                     </SectionDescription>
 
                     <div>
@@ -150,10 +161,12 @@ function PageHome() {
 
                 <ActivityItemClub>
                   <ActivityItemFloatingContent>
-                    <ActivityItemHeading>Jadi Bagian dari Klub</ActivityItemHeading>
+                    <ActivityItemHeading>
+                      Jadi Bagian dari Klub
+                    </ActivityItemHeading>
                     <SectionDescription>
-                      Berkumpul dan memantau kegiatan klub secara virtual lebih mudah melalui
-                      MyArchery
+                      Berkumpul dan memantau kegiatan klub secara virtual lebih
+                      mudah melalui MyArchery
                     </SectionDescription>
 
                     <div>
@@ -175,9 +188,9 @@ function PageHome() {
                 <SectionHeading>Partner MyArchery</SectionHeading>
 
                 <SectionDescription>
-                  Bersama berbagai komunitas, klub, organisasi, dan toko perlengkapan panah,
-                  MyArchery memastikan kegiatan panahan selalu nyaman dan menyenangkan untuk
-                  berbagai kalangan.
+                  Bersama berbagai komunitas, klub, organisasi, dan toko
+                  perlengkapan panah, MyArchery memastikan kegiatan panahan
+                  selalu nyaman dan menyenangkan untuk berbagai kalangan.
                 </SectionDescription>
               </SectionHeader>
 
@@ -196,8 +209,9 @@ function PageHome() {
               <SectionHeader>
                 <SectionHeading>Tentang Kami</SectionHeading>
                 <SectionDescription>
-                  Berbagai fitur dan layanan dapat Anda manfaatkan untuk mendukung kegiatan panahan
-                  pribadi dan komunitas. Tersedia di berbagai perangkat sesuai kebutuhan Anda.
+                  Berbagai fitur dan layanan dapat Anda manfaatkan untuk
+                  mendukung kegiatan panahan pribadi dan komunitas. Tersedia di
+                  berbagai perangkat sesuai kebutuhan Anda.
                 </SectionDescription>
               </SectionHeader>
 
@@ -243,7 +257,8 @@ function PageHome() {
 
               <SectionHeader>
                 <EndorsementHeading>
-                  Dipercaya oleh berbagai klub, organisasi, dan penyedia perlengkapan panahan
+                  Dipercaya oleh berbagai klub, organisasi, dan penyedia
+                  perlengkapan panahan
                 </EndorsementHeading>
 
                 <LogoList logos={logosTrustedBy} />
@@ -280,7 +295,12 @@ function FeatureItemRight({ icon, title, description }) {
 
 function PartnerItem({ partner }) {
   const imgElement = (
-    <img src={partner.imgSrc} alt={partner.name} title={partner.name} className="img-fluid" />
+    <img
+      src={partner.imgSrc}
+      alt={partner.name}
+      title={partner.name}
+      className="img-fluid"
+    />
   );
   if (!partner.webSrc) {
     return <PartnerItemWrapper>{imgElement}</PartnerItemWrapper>;
