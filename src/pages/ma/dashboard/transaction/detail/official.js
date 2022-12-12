@@ -32,6 +32,7 @@ function PageTransactionDetailOfficial() {
   const [dataDetail, setDataDetail] = useState({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
+  const [isOYAlertOpen, setIsOYAlertOpen] = useState(false);
 
   const { slug } = useParams();
   // eslint-disable-next-line no-unused-vars
@@ -70,7 +71,7 @@ function PageTransactionDetailOfficial() {
   };
 
   useEffect(() => {
-    if (userProfile?.verifyStatus != 3) {
+    if (userProfile?.verifyStatus != 3 && dataDetail?.eventOfficialDetail?.detailEvent?.needVerify) {
       setIsAlertOpen(true);
     }
   }, []);
@@ -82,14 +83,18 @@ function PageTransactionDetailOfficial() {
 
     //   const { data, message, errors } = await OrderEventService.get({id: orderId});
 
-      if (data) {
-        setDataDetail(data);
-        if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
-          handleClickPayment();
+    if (data) {
+      setDataDetail(data);
+      if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
+        if (dataDetail?.transactionInfo?.gateway == "OY") {
+          setIsOYAlertOpen(true);
+        } else {
+          handleClickPaymentMidtrans();
         }
-        console.log(message);
       }
-      console.log(errors);
+      console.log(message);
+    }
+    console.log(errors);
     };
 
     getOrderEventBySlug();
@@ -111,7 +116,13 @@ function PageTransactionDetailOfficial() {
     };
   }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
 
-  const handleClickPayment = () => {
+  const handleClickPayment = (transactionInfo) => {
+    if (transactionInfo?.gateway != undefined && transactionInfo?.gateway == "OY") return () => setIsOYAlertOpen(true);
+    
+    else handleClickPaymentMidtrans();
+  };
+
+  const handleClickPaymentMidtrans = () => {
     window.snap?.pay(dataDetail?.transactionInfo?.snapToken, {
       onSuccess: function () {
         console.log("success");
@@ -259,6 +270,36 @@ function PageTransactionDetailOfficial() {
         </>
       );
     }
+  };
+
+  const OYAlert = () => {
+    return (
+      <>
+        <SweetAlert
+          show={isOYAlertOpen}
+          title=""
+          custom
+          btnSize="md"
+          onConfirm={() => setIsOYAlertOpen(false)}
+          customClass="alert-full-height"
+          style={{ padding: 0, height: "100%" }}
+          customButtons={
+            <span
+              className="d-flex w-100 justify-content-center text-center"
+              style={{ padding: "0 0 1rem 0" }}
+            >
+              <Button onClick={() => setIsOYAlertOpen(false)}>Tutup Halaman Pembayaran</Button>
+            </span>
+          }
+        >
+          <object
+            type="text/html"
+            data={dataDetail?.transactionInfo?.opt?.url}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </SweetAlert>
+      </>
+    );
   };
 
   return (
@@ -643,9 +684,10 @@ function PageTransactionDetailOfficial() {
                                 <>
                                   <button
                                     onClick={
-                                      userProfile?.verifyStatus != 1
+                                      userProfile?.verifyStatus != 1 &&
+                                      dataDetail?.eventOfficialDetail?.detailEvent?.needVerify
                                         ? () => setIsAlertOpen(true)
-                                        : handleClickPayment
+                                        : handleClickPayment(dataDetail?.transactionInfo)
                                     }
                                     className="btn"
                                     style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
@@ -681,6 +723,7 @@ function PageTransactionDetailOfficial() {
         </div>
       </Container>
       {verifiedAlert()}
+      {OYAlert()}
     </React.Fragment>
   );
 }

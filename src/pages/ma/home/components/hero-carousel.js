@@ -6,15 +6,14 @@ import { Carousel } from "react-responsive-carousel";
 
 import logoLight from "assets/images/myachery/myachery.png";
 import bannerVictory from "assets/images/home/home-banner-victory-new.jpg";
-import bannerQueen from "assets/images/home/home-banner-queen.jpg";
 import bannerPartnership from "assets/images/myachery/banner7 2.png";
 import bannerWelcomeKid from "assets/images/myachery/banner6 1.svg";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 // * Pakai data dari API (?) Musti fetch dulu (?) Kemungkinan bakal dihapus lagi
-const VICTORY_EVENT_URL = "/event/victory-archery-club/1662864265-victory-purwakarta-open-2022";
-const QUEEN_EVENT_URL = "/event/queen-archery-proshop/queen-archery-competition-2022";
+const VICTORY_EVENT_URL =
+  "/event/victory-archery-club/1662864265-victory-purwakarta-open-2022";
 
 function HeroCarousel() {
   return (
@@ -30,12 +29,15 @@ function HeroCarousel() {
         renderIndicator={renderCustomIndicator}
         renderItem={renderCustomItem}
       >
-        <SlideImageFitContent imgSrc={bannerQueen} to={QUEEN_EVENT_URL} />
         <SlideImageFitContent imgSrc={bannerVictory} to={VICTORY_EVENT_URL} />
 
         <SlidePartnership>
           <PartnershipCTAContainer>
-            <ButtonCTA href="https://wa.me/6281212241633" target="_blank" rel="noreferrer">
+            <ButtonCTA
+              href="https://wa.me/6281212241633"
+              target="_blank"
+              rel="noreferrer"
+            >
               Informasi Partnership
             </ButtonCTA>
           </PartnershipCTAContainer>
@@ -49,7 +51,13 @@ function HeroCarousel() {
 
 function renderCustomIndicator(onClickHandler, isSelected, index, label) {
   if (isSelected) {
-    return <CarouselIndicator className="slide-selected" aria-label={label} title={label} />;
+    return (
+      <CarouselIndicator
+        className="slide-selected"
+        aria-label={label}
+        title={label}
+      />
+    );
   }
   return (
     <CarouselIndicator
@@ -70,7 +78,8 @@ function renderCustomItem(children) {
 }
 
 function SlideImageFitContent({ imgSrc, title, to }) {
-  const withLink = (children) => (to ? <Link to={to}>{children}</Link> : children);
+  const withLink = (children) =>
+    to ? <Link to={to}>{children}</Link> : children;
   return withLink(
     <SlideFitContentWrapper>
       <img src={imgSrc} alt={title} title={title} />

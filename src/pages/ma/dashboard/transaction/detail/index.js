@@ -22,6 +22,7 @@ import { Button, ButtonBlue } from "components/ma";
 import SweetAlert from "react-bootstrap-sweetalert";
 import * as AuthStore from "store/slice/authentication";
 import logoBuatAkun from "assets/images/myachery/Illustration.png";
+import { ArcherService } from "services";
 
 import event_img from "assets/images/myachery/a-1.jpg";
 
@@ -30,12 +31,15 @@ import Avatar from "./components/Avatar";
 
 import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
+import { LoadingScreen } from "components";
 
 function PageTransactionDetail() {
   const [activeTab, setActiveTab] = useState("4");
+  const [loading, setLoading] = useState(false);
   const [dataDetail, setDataDetail] = useState({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isOYAlertOpen, setIsOYAlertOpen] = useState(false);
+  const [isCancelAlert, setIsCancelAlert] = useState(false);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
   const { orderId } = useParams();
@@ -46,6 +50,23 @@ function PageTransactionDetail() {
 
   const onConfirm = () => {
     push("/dashboard/profile/verifikasi");
+  };
+
+  const onConfirmCancel = async (participant_id) => {
+    setLoading(true)
+    const { data, message, errors } = await ArcherService.cancelRegister({participant_id:participant_id});
+    if (data) {
+      setIsCancelAlert(false)
+      console.log(message)
+      console.log(errors)
+      console.log(participant_id)
+      window.location.reload();
+    }
+    if (!data) {
+      console.log(message)
+      console.log(errors)
+    }
+    setLoading(false)
   };
 
   const onCancel = () => {
@@ -313,6 +334,52 @@ function PageTransactionDetail() {
     );
   };
 
+  const cancelAlert = () => {
+    return (
+      <>
+       <SweetAlert
+            show={isCancelAlert}
+            title=""
+            custom
+            btnSize="md"
+            onConfirm={() => {onConfirmCancel(dataDetail?.participant?.id)}}
+            style={{ padding: "1.25rem" }}
+            customButtons={
+              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+                <Button onClick={()=> setIsCancelAlert(false)} style={{ color: "var(--ma-blue)" }}>
+                  Tidak
+                </Button>
+                <ButtonBlue onClick={() => {onConfirmCancel(dataDetail?.participant?.id)}}>Ya, batalkan</ButtonBlue>
+              </span>
+            }
+          >
+            <div className="d-flex justify-content-center flex-column">
+              <div style={{ width: "60%", margin: "0 auto" }}>
+                <div style={{ width: "214px", height: "145px" }}>
+                  <img
+                    src={logoBuatAkun}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+              <span
+                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
+                className="mt-3"
+              >
+                Batal Mendaftar
+              </span>
+              <p>
+                Apakah anda yakin ?
+                <br />
+              </p>
+            </div>
+          </SweetAlert>
+      </>
+    );
+  };
+
   return (
     <React.Fragment>
       <MetaTags>
@@ -320,6 +387,8 @@ function PageTransactionDetail() {
       </MetaTags>
 
       <Container>
+        <LoadingScreen loading={loading} />
+
         <BreadcrumbDashboard to="/dashboard/list-transaction">
           {breadcrumpCurrentPageLabel}
         </BreadcrumbDashboard>
@@ -699,6 +768,16 @@ function PageTransactionDetail() {
                                 <>
                                   <button
                                     onClick={
+                                     () => setIsCancelAlert(true)
+                                    }
+                                    className="btn"
+                                    style={{ backgroundColor: "#ffb420", color: "#FFF" }}
+                                  >
+                                    Batal Beli
+                                  </button>
+                                   | 
+                                  <button
+                                    onClick={
                                       userProfile?.verifyStatus != 1 &&
                                       dataDetail?.archeryEvent?.needVerify
                                         ? () => setIsAlertOpen(true)
@@ -738,6 +817,7 @@ function PageTransactionDetail() {
         </div>
       </Container>
       {verifiedAlert()}
+      {cancelAlert()}
       {OYAlert()}
     </React.Fragment>
   );
