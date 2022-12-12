@@ -71,7 +71,7 @@ function PageTransactionDetailOfficial() {
   };
 
   useEffect(() => {
-    if (userProfile?.verifyStatus != 3) {
+    if (userProfile?.verifyStatus != 3 && dataDetail?.eventOfficialDetail?.detailEvent?.needVerify) {
       setIsAlertOpen(true);
     }
   }, []);
