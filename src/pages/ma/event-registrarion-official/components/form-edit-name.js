@@ -1,40 +1,22 @@
-import * as React from "react";
-import styled from "styled-components";
-import { useUserProfile } from "hooks/user-profile";
-import { useSubmitProfile } from "../hooks/submit-profile";
-
-import { Modal as BSModal, ModalBody } from "reactstrap";
 import {
   ButtonBlue,
   Button,
   LoadingScreen,
   AlertServerError,
 } from "components/ma";
-import { toast } from "components/ma/processing-toast";
+import React from "react";
+import { Modal as BSModal, ModalBody } from "reactstrap";
+import styled from "styled-components";
 import { FieldInputText } from "../components";
+import { useSubmitProfile } from "../hooks/submit-profile";
+import { toast } from "components/ma/processing-toast";
 
-function EditName({ children, title, onProfileUpdated }) {
-  const [isOpen, setOpen] = React.useState(false);
-  const buttonLabel = children || "ubah nama";
-  return (
-    <React.Fragment>
-      <LinkText title={title} onClick={() => setOpen((open) => !open)}>
-        {buttonLabel}
-      </LinkText>
-      {isOpen && (
-        <EditNameModal
-          toggle={() => setOpen((open) => !open)}
-          onClose={() => setOpen(false)}
-          onProfileUpdated={onProfileUpdated}
-        />
-      )}
-    </React.Fragment>
-  );
-}
-
-function EditNameModal({ onClose, toggle, onProfileUpdated }) {
-  const { userProfile } = useUserProfile();
+const ContentModal = (props) => {
+  const { userProfile, isModal, handlerModal, onProfileUpdated } = props;
   const [nameValue, setNameValue] = React.useState(userProfile?.name);
+
+  const isDirty = nameValue !== userProfile?.name;
+
   const {
     submit,
     isLoading: isSubmiting,
@@ -42,13 +24,11 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
     errors: submitErrors,
   } = useSubmitProfile();
 
-  const isDirty = nameValue !== userProfile?.name;
-
-  const handleSubmit = () => {
+  const handlerSubmit = () => {
     const payload = { name: nameValue };
     const options = {
       onSuccess: () => {
-        onClose();
+        handlerModal();
         toast.success("Berhasil memperbarui data nama lengkap");
         onProfileUpdated();
       },
@@ -57,11 +37,11 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
   };
 
   const modalProps = {
-    isOpen: true,
+    isOpen: isModal,
     centered: true,
     unmountOnClose: true,
     scrollable: false,
-    toggle: toggle,
+    toggle: handlerModal,
   };
 
   if (!userProfile?.canUpdateName) {
@@ -69,14 +49,13 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
       <Modal {...modalProps}>
         <ModalBody>
           <ModalContentLayout>
-            <HeaderTitle>Nama Peserta</HeaderTitle>
+            <HeaderTitle>Ubah Nama Official</HeaderTitle>
             <div>
               <p>
                 Telah mencapai limit untuk mengubah data nama. Anda hanya dapat
                 mengubah nama profil 2 kali.
               </p>
             </div>
-
             <div>
               <FieldInputText
                 placeholder="Masukkan nama lengkap"
@@ -85,18 +64,17 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
                 value={nameValue}
               />
               <SubtleFieldNote>
-                Nama digunakan sebagai nama peserta untuk keperluan data dan
-                berkas cetak (ID card, sertifikat, dsb.)
+                Nama akan digunakan sebagai nama official untuk keperluan data
+                dan berkas cetak (ID card, dsb.)
               </SubtleFieldNote>
             </div>
 
             <ButtonListVertical>
-              <ButtonBlue block onClick={onClose}>
+              <ButtonBlue block onClick={handlerModal}>
                 Tutup
               </ButtonBlue>
             </ButtonListVertical>
           </ModalContentLayout>
-
           <LoadingScreen loading={isSubmiting} />
           <AlertServerError isError={isErrorSubmit} errors={submitErrors} />
         </ModalBody>
@@ -108,7 +86,7 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
     <Modal {...modalProps}>
       <ModalBody>
         <ModalContentLayout>
-          <HeaderTitle>Ubah Nama Peserta</HeaderTitle>
+          <HeaderTitle>Ubah Nama Official</HeaderTitle>
           <div>
             <p>
               Anda hanya dapat mengubah nama profil 2 kali. Pastikan nama yang
@@ -120,7 +98,6 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
               (alamat, KTP/KK beserta bukti)
             </p>
           </div>
-
           <div>
             <FieldInputText
               placeholder="Masukkan nama lengkap"
@@ -131,14 +108,13 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
               onFocus={(ev) => ev.target.select()}
             />
             <SubtleFieldNote>
-              Nama akan digunakan sebagai nama peserta untuk keperluan data dan
-              berkas cetak (ID card, sertifikat, dsb.)
+              Nama akan digunakan sebagai nama official untuk keperluan data dan
+              berkas cetak (ID card, dsb.)
             </SubtleFieldNote>
           </div>
-
           <ButtonListVertical>
             {isDirty ? (
-              <ButtonBlue block onClick={handleSubmit}>
+              <ButtonBlue block onClick={handlerSubmit}>
                 Simpan
               </ButtonBlue>
             ) : (
@@ -146,17 +122,56 @@ function EditNameModal({ onClose, toggle, onProfileUpdated }) {
                 Simpan
               </ButtonBlue>
             )}
-
-            <Button block onClick={onClose}>
+            <Button block onClick={handlerModal}>
               Batal
             </Button>
           </ButtonListVertical>
         </ModalContentLayout>
-
         <LoadingScreen loading={isSubmiting} />
         <AlertServerError isError={isErrorSubmit} errors={submitErrors} />
       </ModalBody>
     </Modal>
+  );
+};
+
+function FormEditName(props) {
+  const { children, userProfile, onProfileUpdated } = props;
+  const [isModal, setIsModal] = React.useState(false);
+  const [titleText, setTitleText] = React.useState("");
+
+  const labelButton = children || "Modal";
+
+  const handlerModal = () => {
+    const status = isModal ? false : true;
+    setIsModal(status);
+  };
+
+  // component
+  const _renderEditNameTitle = (limitCount) => {
+    if (!limitCount) {
+      return "Telah melebihi limit, tidak dapat lagi mengubah data.";
+    }
+    return `Tersisa kesempatan mengubah data ${limitCount} kali.`;
+  };
+
+  // useEffect
+  React.useEffect(() => {
+    setTitleText(_renderEditNameTitle(userProfile?.canUpdateName));
+  }, [userProfile]);
+
+  return (
+    <>
+      <LinkText title={titleText} onClick={handlerModal}>
+        {labelButton}
+      </LinkText>
+      <ContentModal
+        userProfile={userProfile}
+        onClose={handlerModal}
+        handlerModal={handlerModal}
+        isModal={isModal}
+        onProfileUpdated={onProfileUpdated}
+      />
+    </>
   );
 }
 
@@ -179,15 +194,15 @@ const Modal = styled(BSModal)`
   max-width: 360px;
 `;
 
+const HeaderTitle = styled.h2`
+  text-align: center;
+  font-weight: 600;
+`;
+
 const ModalContentLayout = styled.div`
   > * + * {
     margin-top: 1.5rem;
   }
-`;
-
-const HeaderTitle = styled.h2`
-  text-align: center;
-  font-weight: 600;
 `;
 
 const SubtleFieldNote = styled.div`
@@ -201,4 +216,4 @@ const ButtonListVertical = styled.div`
   }
 `;
 
-export { EditName };
+export { FormEditName };

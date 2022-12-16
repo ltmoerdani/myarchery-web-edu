@@ -2,7 +2,11 @@ import * as React from "react";
 import styled from "styled-components";
 
 import { Label } from "reactstrap";
-import { FieldInputText, FieldSelectCategory, FieldSelectClub } from "../components";
+import {
+  FieldInputText,
+  FieldSelectCategory,
+  FieldSelectClub,
+} from "../components";
 import { Show } from "../components/show-when";
 import { FieldErrorMessage } from "../components/field-error-message";
 import { PickerMatchDate } from "../components/picker-match-date";
@@ -19,8 +23,20 @@ import IconAddress from "components/ma/icons/mono/address";
 
 import { checkIsIndividu } from "../utils";
 
-function FormView({ userProfile, eventCategories, formOrder, formVerification, onProfileUpdated }) {
-  const { errors: orderErrors, updateField, setCategory, setWithClub, setClub } = formOrder;
+function FormView({
+  userProfile,
+  eventCategories,
+  formOrder,
+  formVerification,
+  onProfileUpdated,
+}) {
+  const {
+    errors: orderErrors,
+    updateField,
+    setCategory,
+    setWithClub,
+    setClub,
+  } = formOrder;
   const { category, matchDate, withClub, club } = formOrder.data;
 
   const {
@@ -31,12 +47,15 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification, o
     updateWithDependence,
   } = formVerification;
 
-  const { isWna, province, city, nik, address, imageKTP } = formVerification.data;
+  const { isWna, province, city, nik, address, imageKTP } =
+    formVerification.data;
   const { wnaCountry, wnaCity, wnaPassportNumber, wnaAddress, imagePassport } =
     formVerification.data;
 
   const isCategoryIndividu = checkIsIndividu(category);
-  const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
+  const isVerificationDone = _checkIsVerificationDone(
+    userProfile?.verifyStatus
+  );
 
   return (
     <ContentCard>
@@ -77,8 +96,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification, o
             Nama Pendaftar
           </FieldInputText>
           <SubtleFieldNote>
-            Nama pendaftar merupakan nama peserta yang akan mengikuti pertandingan. Untuk mengubah
-            nama silakan klik{" "}
+            Nama pendaftar merupakan nama peserta yang akan mengikuti
+            pertandingan. Untuk mengubah nama silakan klik{" "}
             <EditName
               title={_renderEditNameTitle(userProfile?.canUpdateName)}
               onProfileUpdated={onProfileUpdated}
@@ -162,8 +181,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification, o
             required
           />
           <SubtleFieldNote>
-            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada perubahan nama, Anda perlu
-            mengisi ulang data.
+            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada
+            perubahan nama, Anda perlu mengisi ulang data.
           </SubtleFieldNote>
 
           <FieldInputText
@@ -182,7 +201,9 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification, o
             label="Negara"
             placeholder="Pilih negara sesuai paspor"
             value={wnaCountry}
-            onChange={(opt) => updateWithDependence("wnaCountry", opt, "wnaCity")}
+            onChange={(opt) =>
+              updateWithDependence("wnaCountry", opt, "wnaCity")
+            }
             disabled={isVerificationDone}
             errors={verificationErrors.wnaCountry}
             required
@@ -220,8 +241,8 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification, o
             required
           />
           <SubtleFieldNote>
-            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada perubahan nama, Anda perlu
-            mengisi ulang data.
+            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada
+            perubahan nama, Anda perlu mengisi ulang data.
           </SubtleFieldNote>
 
           <FieldInputText
@@ -243,7 +264,10 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification, o
 
       <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
         <div>
-          <Label className="form-check-label" style={{ marginBottom: "0.25rem" }}>
+          <Label
+            className="form-check-label"
+            style={{ marginBottom: "0.25rem" }}
+          >
             Apakah Anda mewakili klub?
           </Label>
         </div>
@@ -273,7 +297,9 @@ function FormView({ userProfile, eventCategories, formOrder, formVerification, o
       </FieldSelectClub>
 
       <Show when={isCategoryIndividu}>
-        <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
+        <SubtleFieldNote>
+          Dapat dikosongkan jika tidak mewakili klub
+        </SubtleFieldNote>
       </Show>
 
       <SegmentByTeamCategory

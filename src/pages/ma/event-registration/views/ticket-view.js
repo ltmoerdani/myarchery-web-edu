@@ -36,9 +36,9 @@ function TicketView({
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
   const { handleValidation: handleValidationVerification } = formVerification;
   const LabelTotal = styled.span`
-  font-weight: 600;
-  font-size: 15px;
-`;
+    font-weight: 600;
+    font-size: 15px;
+  `;
 
   const {
     submit: submitVerification,
@@ -60,7 +60,7 @@ function TicketView({
 
   const participantCounts = _getParticipantCounts(category);
 
-  const clientData = formVerification.data
+  const clientData = formVerification.data;
 
   const handleClickNext = () => {
     // TODO: mungkin kapan-kapan bisa diimprove pakai Promise aja,
@@ -69,7 +69,9 @@ function TicketView({
     // 1. validate form verifikasi
     handleValidationVerification({
       onValid: () => {
-        const isVerificationDone = _checkIsVerificationDone(userProfile?.verifyStatus);
+        const isVerificationDone = _checkIsVerificationDone(
+          userProfile?.verifyStatus
+        );
         const validationOrderOptions = {
           onValid: () => {
             goToNextStep();
@@ -112,9 +114,15 @@ function TicketView({
     submit(options);
   };
 
-  const isEarly = clientData.isWna ? category?.isEarlyBirdWna : category?.isEarlyBird;
-  const undiscountedTotal = clientData.isWna ? category?.normalPriceWna : category?.fee;
-  const total = clientData.isWna ? category?.earlyPriceWna : category?.earlyBird;
+  const isEarly = clientData.isWna
+    ? category?.isEarlyBirdWna
+    : category?.isEarlyBird;
+  const undiscountedTotal = clientData.isWna
+    ? category?.normalPriceWna
+    : category?.fee;
+  const total = clientData.isWna
+    ? category?.earlyPriceWna
+    : category?.earlyBird;
 
   if (isLoadingEventDetail) {
     return (
@@ -150,7 +158,9 @@ function TicketView({
 
             <EventMediaObjectContent>
               <h5>{eventDetailData?.publicInformation.eventName}</h5>
-              <p className="mb-0">{eventDetailData?.publicInformation.eventLocation}</p>
+              <p className="mb-0">
+                {eventDetailData?.publicInformation.eventLocation}
+              </p>
             </EventMediaObjectContent>
           </EventMediaObject>
 
@@ -159,11 +169,13 @@ function TicketView({
           <TicketSectionDetail>
             <DetailItem
               label="Jenis Regu"
-              value={category?.teamCategoryDetail?.label || category?.teamCategoryId}
+              value={
+                category?.teamCategoryDetail?.label || category?.teamCategoryId
+              }
             />
 
             <DetailItem label="Kategori" value={category?.categoryLabel} />
-                
+
             <DetailItem
               label="Jumlah Peserta"
               value={participantCounts && participantCounts + " Orang"}
@@ -172,16 +184,21 @@ function TicketView({
           <div className="d-flex flex-column justify-content-between">
             <TicketSectionTotal>
               <div>
-              <LabelTotal>Total Pembayaran</LabelTotal>
+                <LabelTotal>Total Pembayaran</LabelTotal>
               </div>
               <div>
-                {isEarly ?
+                {isEarly ? (
                   <React.Fragment>
-                    <UndiscountedTotalWithCurrency value={_getPriceNumber(undiscountedTotal)} />
+                    <UndiscountedTotalWithCurrency
+                      value={_getPriceNumber(undiscountedTotal)}
+                    />
                     <TotalWithCurrency value={_getPriceNumber(total)} />
                   </React.Fragment>
-                  : <TotalWithCurrency value={_getPriceNumber(undiscountedTotal)} />
-                }
+                ) : (
+                  <TotalWithCurrency
+                    value={_getPriceNumber(undiscountedTotal)}
+                  />
+                )}
               </div>
             </TicketSectionTotal>
 
@@ -190,7 +207,10 @@ function TicketView({
                 <ButtonBlue disabled={!category} onClick={handleClickNext}>
                   Selanjutnya
                 </ButtonBlue>
-                <AlertSubmitError isError={isErrorVerification} errors={errorVerification} />
+                <AlertSubmitError
+                  isError={isErrorVerification}
+                  errors={errorVerification}
+                />
               </React.Fragment>
             ) : (
               <React.Fragment>
@@ -198,7 +218,11 @@ function TicketView({
                   onConfirm={() => handleSubmitOrder()}
                   onCancel={() => goToPreviousStep()}
                 />
-                <AlertSubmitError isError={isErrorSubmit} errors={errorsSubmit} onConfirm={reset} />
+                <AlertSubmitError
+                  isError={isErrorSubmit}
+                  errors={errorsSubmit}
+                  onConfirm={reset}
+                />
               </React.Fragment>
             )}
           </div>
@@ -275,7 +299,9 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
 
   return (
     <React.Fragment>
-      <ButtonBlue onClick={() => setAlertOpen(true)}>Lanjutkan Pembayaran</ButtonBlue>
+      <ButtonBlue onClick={() => setAlertOpen(true)}>
+        Lanjutkan Pembayaran
+      </ButtonBlue>
       <SweetAlert
         show={isAlertOpen}
         title=""
@@ -285,7 +311,10 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
         style={{ padding: "1.25rem" }}
         customButtons={
           <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
-            <Button onClick={handleCancelSubmit} style={{ color: "var(--ma-blue)" }}>
+            <Button
+              onClick={handleCancelSubmit}
+              style={{ color: "var(--ma-blue)" }}
+            >
               Cek Kembali
             </Button>
             <ButtonBlue onClick={handleConfirmSubmit}>Benar</ButtonBlue>
@@ -296,8 +325,8 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
           <IconAlertTriangle size="36" />
         </p>
         <p>
-          Pastikan data Anda sudah benar. Penyelenggara dapat mendiskualifikasi Anda dari
-          pertandingan jika data tidak sesuai.
+          Pastikan data Anda sudah benar. Penyelenggara dapat mendiskualifikasi
+          Anda dari pertandingan jika data tidak sesuai.
         </p>
       </SweetAlert>
     </React.Fragment>
@@ -353,7 +382,6 @@ const TicketSectionTotal = styled.div`
   justify-content: space-between;
   align-items: baseline;
 `;
-
 
 const StyledTotalWithCurrency = styled(CurrencyFormat)`
   color: var(--ma-blue);
