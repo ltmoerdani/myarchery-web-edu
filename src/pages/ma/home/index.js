@@ -16,7 +16,7 @@ import imgManageEvent from "assets/images/home/section-activity-illustration-man
 import imgClub from "assets/images/home/section-activity-illustration-club.svg";
 import imgPro from "assets/images/partners/pro.png";
 import imgHammam from "assets/images/partners/hammam.jpg";
-import imgVictory from "assets/images/partners/victory.png";
+import imgVictory from "assets/images/partners/victory-lg.png";
 import imgQueen from "assets/images/partners/queen.png";
 import imgEndorsePro from "assets/images/home/endorsement-pro-shop.png";
 import imgEndorseHub from "assets/images/home/endorsement-hub.png";
