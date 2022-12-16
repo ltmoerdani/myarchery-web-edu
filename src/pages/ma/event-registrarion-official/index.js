@@ -1,40 +1,47 @@
-import * as React from "react";
-import { useParams, useLocation, useHistory } from "react-router-dom";
-import styled from "styled-components";
-import queryString from "query-string";
-import { useSelector } from "react-redux";
-import * as AuthStore from "store/slice/authentication";
 import { useWizardView } from "hooks/wizard-view";
+import queryString from "query-string";
+import * as React from "react";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import { EventsService, OrderEventService } from "services";
+import styled from "styled-components";
 
-
-import IconInfo from "components/ma/icons/mono/info";
-import MetaTags from "react-meta-tags";
-import { Container as BSContainer, Table as BSTable } from "reactstrap";
-import CurrencyFormat from "react-currency-format";
-import SweetAlert from "react-bootstrap-sweetalert";
 import { LoadingScreen } from "components";
 import {
-  WizardView,
-  WizardViewContent,
+  AlertSubmitError,
+  AvatarDefault,
   Button,
   ButtonBlue,
-  AvatarDefault,
-  AlertSubmitError,
+  WizardView,
+  WizardViewContent,
 } from "components/ma";
+import { toast } from "components/ma/processing-toast";
+import IconInfo from "components/ma/icons/mono/info";
+import SweetAlert from "react-bootstrap-sweetalert";
+import CurrencyFormat from "react-currency-format";
+import MetaTags from "react-meta-tags";
+import { Container as BSContainer, Table as BSTable } from "reactstrap";
 import { BreadcrumbDashboard } from "../dashboard/components/breadcrumb";
-import { 
-  FieldInputText, 
-  // FieldSelectCategory, 
-  FieldSelectClub 
-} from "./components";
+import { FieldInputText, FieldSelectClub } from "./components";
 
-import IconAddress from "components/ma/icons/mono/address";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
+import IconAddress from "components/ma/icons/mono/address";
+// import toastr from "toastr";
 
 import classnames from "classnames";
-import { stringUtil, errorsUtil } from "utils";
+import { useUserProfile } from "hooks/user-profile";
+import { errorsUtil, stringUtil } from "utils";
+import { FieldSelectNationality } from "../event-registration/components/field-select-nationality";
 import AdsBanner from "./components/ads-banner";
+import { FormEditName } from "./components/form-edit-name";
+import { Show } from "./components/show-when";
+import { useFormVerification } from "./hooks/form-verification";
+import { useVerificationDetail } from "./hooks/verification-detail";
+import { FieldSelectCountry } from "../event-registration/components/field-select-country";
+import { FieldSelectProvince } from "./components/field-select-province";
+import { FieldSelectCity } from "./components/field-select-city";
+import { FieldSelectCityByCountry } from "./components/field-select-city-country";
+import { FieldUploadImage } from "./components/field-upload-image";
+import { useSubmitVerification } from "./hooks/submit-verification";
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
@@ -60,40 +67,83 @@ function PageEventRegistration() {
   const { categoryId } = queryString.parse(search);
   const history = useHistory();
 
-  const { currentStep, goToNextStep, goToPreviousStep, goToStep } = useWizardView(tabList);
-  const [eventDetail, updateEventDetail] = React.useReducer(eventDetailReducer, {
-    status: "idle",
-    data: null,
-    errors: null,
-  });
-  const [eventCategories, updateEventCategories] = React.useReducer(eventCategoriesReducer, {
-    status: "idle",
-    data: null,
-    errors: null,
-  });
-  const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
-  const [formData, updateFormData] = React.useReducer(formReducer, initialFormState);
+  const { currentStep, goToNextStep, goToPreviousStep, goToStep } =
+    useWizardView(tabList);
+  const [eventDetail, updateEventDetail] = React.useReducer(
+    eventDetailReducer,
+    {
+      status: "idle",
+      data: null,
+      errors: null,
+    }
+  );
+  const [eventCategories, updateEventCategories] = React.useReducer(
+    eventCategoriesReducer,
+    {
+      status: "idle",
+      data: null,
+      errors: null,
+    }
+  );
+
+  const { userProfile, refresh: refreshUserProfile } = useUserProfile();
+  const { data: verificationDetail, fetchVerificationDetail } =
+    useVerificationDetail(userProfile?.id);
+
+  const [formData, updateFormData] = React.useReducer(
+    formReducer,
+    initialFormState
+  );
+
   const [submitStatus, dispatchSubmitStatus] = React.useReducer(
     (state, action) => ({ ...state, ...action }),
     { status: "idle", errors: null }
   );
 
-  const { category, club, 
-    // participants 
-  } = formData.data;
+  const { category, club } = formData.data;
+
+  const {
+    updateField: updateVerification,
+    data: dataVerification,
+    errors: verificationErrors,
+    handleValidation: handleValidationVerification,
+    updateWithDependence,
+    updateNIK,
+    updateImage,
+  } = useFormVerification(verificationDetail);
+
+  const {
+    submit: submitVerification,
+    isLoading: isLoadingVerification,
+    isError: isErrorVerification,
+    errors: errorVerification,
+  } = useSubmitVerification(dataVerification);
+
   const formErrors = formData.errors;
   const eventDetailData = eventDetail?.data;
+
   const isLoadingEventDetail = eventDetail.status === "loading";
   const eventId = eventDetailData?.id;
   const breadcrumpCurrentPageLabel = `Pendaftaran ${
     eventDetailData?.publicInformation.eventName || ""
   }`;
+
   const isLoadingSubmit = submitStatus.status === "loading";
   const isErrorSubmit = submitStatus.status === "error";
-  // const participantCounts = participants.filter((member) => Boolean(member.data))?.length;
 
   const matchesTeamCategoryId = (id) => category?.teamCategoryId === id;
-  const isCategoryIndividu = ["individu male", "individu female"].some(matchesTeamCategoryId);
+  const isCategoryIndividu = ["individu male", "individu female"].some(
+    matchesTeamCategoryId
+  );
+
+  const _checkIsVerificationDone = (verifyStatus) => {
+    const acceptedStatuses = [1, 3];
+    return acceptedStatuses.indexOf(verifyStatus) > -1;
+  };
+
+  const isVerificationDone = _checkIsVerificationDone(
+    userProfile?.verifyStatus
+  );
 
   const getLandingPagePath = (url) => {
     if (!url) {
@@ -101,24 +151,49 @@ function PageEventRegistration() {
     }
     const segments = url.split("/");
     const segmentLength = segments.length;
-    const path = `/${segments[segmentLength - 3]}/${segments[segmentLength - 2]}/${
-      segments[segmentLength - 1]
-    }`;
+    const path = `/${segments[segmentLength - 3]}/${
+      segments[segmentLength - 2]
+    }/${segments[segmentLength - 1]}`;
     return path;
   };
 
   const handleClickNext = () => {
-    goToNextStep();
+    handleValidationVerification({
+      onValid: () => {
+        const isVerificationDoneNext = _checkIsVerificationDone(
+          userProfile?.verifyStatus
+        );
+
+        // const validationOrderOptions = {
+        //   onValid: () => {
+        //     goToNextStep();
+        //   },
+        //   oninvalid: (invalidErrors) => {
+        //     _displayToasts(invalidErrors);
+        //   },
+        // };
+
+        if (!isVerificationDoneNext) {
+          submitVerification({
+            onSuccess: () => {
+              toast.success("Data verifikasi berhasil disimpan");
+              refreshUserProfile();
+              goToNextStep();
+            },
+          });
+        } else {
+          refreshUserProfile();
+          goToNextStep();
+          // handleValidationOrder(validationOrderOptions);
+        }
+      },
+    });
   };
 
   const handleSubmitOrder = async () => {
     dispatchSubmitStatus({ status: "loading", errors: null });
 
     const payload = {
-      // team_category_id : category.teamCategoryId,
-      // age_category_id : category.ageCategoryId,
-      // competition_category_id : category.competitionCategoryId,
-      // distance_id : category.distanceId,
       club_id: club?.detail.id || 0,
       event_id: eventDetail?.data?.id,
     };
@@ -126,12 +201,42 @@ function PageEventRegistration() {
     const result = await OrderEventService.registerOfficial(payload);
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
-      history.push(`/dashboard/transactions-official/${result?.data?.archeryEventOfficial?.id}`);
+      history.push(
+        `/dashboard/transactions-official/${result?.data?.archeryEventOfficial?.id}`
+      );
     } else {
       const errorData = errorsUtil.interpretServerErrors(result);
       dispatchSubmitStatus({ status: "error", errors: errorData });
     }
   };
+
+  // function _displayToasts(errors) {
+  //   const messages = _makeErrorMessageList(errors);
+  //   for (const message of messages) {
+  //     toastr.error(message);
+  //   }
+  // }
+
+  // function _makeErrorMessageList(errors) {
+  //   if (errors && typeof errors === "string") {
+  //     return [errors];
+  //   }
+
+  //   if (errors) {
+  //     const messages = [];
+  //     for (const field in errors) {
+  //       for (const message of errors[field]) {
+  //         messages.push(message);
+  //       }
+  //     }
+
+  //     if (messages.length) {
+  //       return messages;
+  //     }
+  //   }
+
+  //   return ["Error tidak diketahui."];
+  // }
 
   React.useEffect(() => {
     const getEventDetail = async () => {
@@ -190,14 +295,21 @@ function PageEventRegistration() {
     <StyledPageWrapper>
       <MetaTags>
         <title>
-          Pendaftaran {eventDetailData?.publicInformation.eventName || ""} | MyArchery.id
+          Pendaftaran {eventDetailData?.publicInformation.eventName || ""} |
+          MyArchery.id
         </title>
-        <meta id="meta-description" name="description" content="Bergabunglah bersama MyArchery.id" />
+        <meta
+          id="meta-description"
+          name="description"
+          content="Bergabunglah bersama MyArchery.id"
+        />
         <meta id="og-title" property="og:title" content="MyArchery.id" />
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to={getLandingPagePath(eventDetailData?.publicInformation.eventUrl)}>
+        <BreadcrumbDashboard
+          to={getLandingPagePath(eventDetailData?.publicInformation.eventUrl)}
+        >
           {breadcrumpCurrentPageLabel}
         </BreadcrumbDashboard>
 
@@ -212,13 +324,15 @@ function PageEventRegistration() {
             1. Pendaftaran
           </Step>
           <StepArrow>&#10097;</StepArrow>
-          <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
+          <Step className={classnames({ "step-active": currentStep === 2 })}>
+            2. Pemesanan
+          </Step>
         </StepIndicator>
 
         <SplitDisplay>
           <div>
             <WizardView currentStep={currentStep}>
-            <WizardViewContent noContainer>
+              <WizardViewContent noContainer>
                 <ContentCard>
                   <MainCardHeader>
                     <WrappedIcon>
@@ -247,7 +361,16 @@ function PageEventRegistration() {
                       >
                         Nama Pendaftar
                       </FieldInputText>
-
+                      <SubtleFieldNote>
+                        Nama pendaftar merupakan nama yang akan menjadi
+                        official. Untuk merubah nama, silahkan klik{" "}
+                        <FormEditName
+                          userProfile={userProfile}
+                          onProfileUpdated={fetchVerificationDetail}
+                        >
+                          di sini
+                        </FormEditName>
+                      </SubtleFieldNote>
                       <SplitFields>
                         <SplitFieldItem>
                           <FieldInputText
@@ -275,37 +398,158 @@ function PageEventRegistration() {
                   ) : (
                     <div>Sedang memuat data pengguna...</div>
                   )}
-                  <NoticeBar>Kartu ID Official tidak bisa dipindahtangankan</NoticeBar>
+
+                  <NoticeBar>
+                    Kartu ID Official tidak bisa dipindahtangankan
+                  </NoticeBar>
+
+                  <FieldSelectNationality
+                    value={dataVerification.isWna || 0}
+                    onChange={(value) =>
+                      updateVerification("isWna", parseInt(value))
+                    }
+                    disabled={isVerificationDone}
+                  />
+
+                  <Show when={!dataVerification.isWna}>
+                    <FieldSelectProvince
+                      value={dataVerification.province}
+                      onChange={(opt) =>
+                        updateWithDependence("province", opt, "city")
+                      }
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.province}
+                      required
+                    />
+
+                    <FieldSelectCity
+                      provinceId={dataVerification.province?.value}
+                      value={dataVerification.city}
+                      onChange={(opt) => updateVerification("city", opt)}
+                      disabled={
+                        isVerificationDone || !dataVerification.province?.value
+                      }
+                      errors={verificationErrors.city}
+                      required
+                    />
+
+                    <FieldInputText
+                      label="NIK"
+                      placeholder="Masukkan 16 digit nomor KTP/KK"
+                      value={dataVerification.nik}
+                      onChange={updateNIK}
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.nik}
+                      required
+                    />
+
+                    <FieldUploadImage
+                      label="Foto KTP/KK"
+                      placeholder="Unggah gambar dengan file JPG/PNG"
+                      name="imageKTP"
+                      value={dataVerification.imageKTP}
+                      onChange={(value) => updateImage("imageKTP", value)}
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.imageKTP}
+                      required
+                    />
+
+                    <SubtleFieldNote>
+                      Anda cukup melakukan verifikasi umur sekali di sini. Jika
+                      ada perubahan nama, Anda perlu mengisi ulang data.
+                    </SubtleFieldNote>
+
+                    <FieldInputText
+                      label="Alamat Lengkap"
+                      placeholder="Masukkan alamat sesuai KTP/KK"
+                      value={dataVerification.address}
+                      onChange={(value) => updateVerification("address", value)}
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.address}
+                      required
+                    />
+                  </Show>
+
+                  <Show when={dataVerification.isWna}>
+                    <FieldSelectCountry
+                      label="Negara"
+                      placeholder="Pilih negara sesuai paspor"
+                      value={dataVerification.wnaCountry}
+                      onChange={(opt) =>
+                        updateWithDependence("wnaCountry", opt, "wnaCity")
+                      }
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.wnaCountry}
+                      required
+                    />
+                    <FieldSelectCityByCountry
+                      label="Kota (Sesuai dengan paspor)"
+                      placeholder="Pilih kota"
+                      countryId={dataVerification.wnaCountry?.value}
+                      value={dataVerification.wnaCity}
+                      onChange={(opt) => updateVerification("wnaCity", opt)}
+                      disabled={
+                        isVerificationDone ||
+                        !dataVerification.wnaCountry?.value
+                      }
+                      errors={verificationErrors.wnaCity}
+                      required
+                    />
+                    <FieldInputText
+                      label="Nomor Paspor"
+                      placeholder="Masukkan nomor paspor"
+                      value={dataVerification.wnaPassportNumber}
+                      onChange={(value) =>
+                        updateVerification("wnaPassportNumber", value)
+                      }
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.wnaPassportNumber}
+                      required
+                    />
+                    <FieldUploadImage
+                      label="Foto Paspor"
+                      placeholder="Unggah gambar dengan file JPG/PNG"
+                      name="imagePassport"
+                      value={dataVerification.imagePassport}
+                      onChange={(value) => updateImage("imagePassport", value)}
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.imagePassport}
+                      required
+                    />
+                    <SubtleFieldNote>
+                      Anda cukup melakukan verifikasi umur sekali di sini. Jika
+                      ada perubahan nama, Anda perlu mengisi ulang data.
+                    </SubtleFieldNote>
+                    <FieldInputText
+                      label="Alamat Lengkap"
+                      placeholder="Masukkan alamat sesuai paspor"
+                      value={dataVerification.wnaAddress}
+                      onChange={(value) =>
+                        updateVerification("wnaAddress", value)
+                      }
+                      disabled={isVerificationDone}
+                      errors={verificationErrors.wnaAddress}
+                      required
+                    />
+                  </Show>
+
                   <h4 className="mt-3">Data Official</h4>
 
                   <FieldSelectClub
                     required={category?.id && !isCategoryIndividu}
                     value={club}
-                    onChange={(clubValue) => updateFormData({ club: clubValue })}
+                    onChange={(clubValue) =>
+                      updateFormData({ club: clubValue })
+                    }
                     errors={formErrors.club}
                   >
                     Nama Klub
                   </FieldSelectClub>
                   {isCategoryIndividu && (
-                    <SubtleFieldNote>Dapat dikosongkan jika tidak mewakili klub</SubtleFieldNote>
+                    <SubtleFieldNote>
+                      Dapat dikosongkan jika tidak mewakili klub
+                    </SubtleFieldNote>
                   )}
-                  {/* <FieldSelectCategory
-                    required
-                    groupedOptions={eventCategories?.data}
-                    value={category}
-                    onChange={(category) => {
-                      updateFormData({ type: "FORM_INVALID", errors: {} });
-                      updateFormData({
-                        type: "CHANGE_CATEGORY",
-                        default: userProfile,
-                        payload: category,
-                      });
-                    }}
-                    errors={formErrors.category}
-                  >
-                    Kategori Lomba
-                  </FieldSelectCategory> */}
-                  
                 </ContentCard>
               </WizardViewContent>
 
@@ -338,7 +582,9 @@ function PageEventRegistration() {
                         <tr>
                           <td>No. Telepon</td>
                           <td width="16">:</td>
-                          <td>{userProfile.phoneNumber || <span>&ndash;</span>}</td>
+                          <td>
+                            {userProfile.phoneNumber || <span>&ndash;</span>}
+                          </td>
                         </tr>
                       </tbody>
                     </BSTable>
@@ -347,15 +593,51 @@ function PageEventRegistration() {
                   )}
                 </ContentCard>
 
-                {isCategoryIndividu && (
+                <ParticipantCard>
+                  <ParticipantHeadingLabel>
+                    Data Official
+                  </ParticipantHeadingLabel>
+
+                  <ParticipantMediaObject>
+                    <MediaParticipantAvatar>
+                      <ParticipantAvatar>
+                        {userProfile?.avatar ? (
+                          <img
+                            className="club-logo-img"
+                            src={userProfile?.avatar}
+                          />
+                        ) : (
+                          <AvatarDefault fullname={userProfile?.name} />
+                        )}
+                      </ParticipantAvatar>
+                    </MediaParticipantAvatar>
+
+                    <MediaParticipantContent>
+                      <ParticipantName>
+                        <span>{userProfile?.name}</span>
+                        <span>
+                          <IconBadgeVerified />
+                        </span>
+                      </ParticipantName>
+
+                      <LabelWithIcon>{club?.detail.name}</LabelWithIcon>
+                    </MediaParticipantContent>
+                  </ParticipantMediaObject>
+                </ParticipantCard>
+                {/* {isCategoryIndividu && (
                   <ParticipantCard>
-                    <ParticipantHeadingLabel>Data Official</ParticipantHeadingLabel>
+                    <ParticipantHeadingLabel>
+                      Data Official
+                    </ParticipantHeadingLabel>
 
                     <ParticipantMediaObject>
                       <MediaParticipantAvatar>
                         <ParticipantAvatar>
                           {userProfile?.avatar ? (
-                            <img className="club-logo-img" src={userProfile?.avatar} />
+                            <img
+                              className="club-logo-img"
+                              src={userProfile?.avatar}
+                            />
                           ) : (
                             <AvatarDefault fullname={userProfile?.name} />
                           )}
@@ -370,15 +652,11 @@ function PageEventRegistration() {
                           </span>
                         </ParticipantName>
 
-                        <LabelWithIcon >
-                          {club?.detail.name}
-                        </LabelWithIcon>
-
+                        <LabelWithIcon>{club?.detail.name}</LabelWithIcon>
                       </MediaParticipantContent>
                     </ParticipantMediaObject>
                   </ParticipantCard>
-                )}
-
+                )} */}
               </WizardViewContent>
             </WizardView>
           </div>
@@ -403,14 +681,20 @@ function PageEventRegistration() {
                     >
                       <img
                         src={eventDetailData?.publicInformation.eventBanner}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
                       />
                     </span>
                   </div>
 
                   <EventMediaObjectContent>
                     <h5>{eventDetailData?.publicInformation.eventName}</h5>
-                    <p className="mb-0">{eventDetailData?.publicInformation.eventLocation}</p>
+                    <p className="mb-0">
+                      {eventDetailData?.publicInformation.eventLocation}
+                    </p>
                   </EventMediaObjectContent>
                 </EventMediaObject>
 
@@ -419,24 +703,8 @@ function PageEventRegistration() {
                 <TicketSectionDetail>
                   <div>
                     <DetailLabel>Jenis Regu</DetailLabel>
-                    <DetailValue>
-                      Official 
-                      {/* {category?.categoryLabel || category?.teamCategoryId || (
-                        <React.Fragment>&ndash;</React.Fragment>
-                      )} */}
-                    </DetailValue>
+                    <DetailValue>Official</DetailValue>
                   </div>
-
-                  {/* <div>
-                    <DetailLabel>Jumlah Peserta</DetailLabel>
-                    {isCategoryIndividu ? (
-                      <DetailValue>1 Orang</DetailValue>
-                    ) : participantCounts > 0 ? (
-                      <DetailValue>{participantCounts} Orang</DetailValue>
-                    ) : (
-                      <DetailValue muted>&mdash;</DetailValue>
-                    )}
-                  </div> */}
                 </TicketSectionDetail>
 
                 <div className="d-flex flex-column justify-content-between">
@@ -447,17 +715,6 @@ function PageEventRegistration() {
                     <div>
                       {eventDetail?.data?.officialFee ? (
                         <>
-                          {/* <CurrencyFormat
-                            style={{ textDecoration: "line-through" }}
-                            className="me-2"
-                            displayType={"text"}
-                            value={category?.fee ? Number(eventDetail?.data?.officialFee) : 0}
-                            prefix="Rp"
-                            thousandSeparator={"."}
-                            decimalSeparator={","}
-                            decimalScale={0}
-                            fixedDecimalScale
-                          /> */}
                           <TotalWithCurrency
                             displayType={"text"}
                             value={Number(eventDetail?.data?.officialFee)}
@@ -485,7 +742,18 @@ function PageEventRegistration() {
                   </TicketSectionTotal>
 
                   {currentStep === 1 ? (
-                    <ButtonBlue onClick={handleClickNext}>Selanjutnya</ButtonBlue>
+                    <>
+                      <ButtonBlue onClick={() => handleClickNext()}>
+                        Selanjutnya
+                      </ButtonBlue>
+                      <AlertSubmitError
+                        isError={isErrorVerification}
+                        errors={errorVerification}
+                        onConfirm={() =>
+                          dispatchSubmitStatus({ status: "idle" })
+                        }
+                      />
+                    </>
                   ) : (
                     <React.Fragment>
                       <ButtonConfirmPayment
@@ -495,7 +763,9 @@ function PageEventRegistration() {
                       <AlertSubmitError
                         isError={isErrorSubmit}
                         errors={submitStatus.errors}
-                        onConfirm={() => dispatchSubmitStatus({ status: "idle" })}
+                        onConfirm={() =>
+                          dispatchSubmitStatus({ status: "idle" })
+                        }
                       />
                     </React.Fragment>
                   )}
@@ -506,9 +776,9 @@ function PageEventRegistration() {
             )}
           </div>
         </SplitDisplay>
-        <AdsBanner/>
+        <AdsBanner />
       </Container>
-      <LoadingScreen loading={isLoadingSubmit} />
+      <LoadingScreen loading={isLoadingSubmit || isLoadingVerification} />
     </StyledPageWrapper>
   );
 }
@@ -758,7 +1028,9 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
 
   return (
     <React.Fragment>
-      <ButtonBlue onClick={() => setAlertOpen(true)}>Lanjutkan Pembayaran</ButtonBlue>
+      <ButtonBlue onClick={() => setAlertOpen(true)}>
+        Lanjutkan Pembayaran
+      </ButtonBlue>
       <SweetAlert
         show={isAlertOpen}
         title=""
@@ -768,7 +1040,10 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
         style={{ padding: "1.25rem" }}
         customButtons={
           <span className="d-flex flex-column w-100" style={{ gap: "0.5rem" }}>
-            <Button onClick={handleCancelSubmit} style={{ color: "var(--ma-blue)" }}>
+            <Button
+              onClick={handleCancelSubmit}
+              style={{ color: "var(--ma-blue)" }}
+            >
               Cek Kembali
             </Button>
             <ButtonBlue onClick={handleConfirmSubmit}>Sudah Benar</ButtonBlue>

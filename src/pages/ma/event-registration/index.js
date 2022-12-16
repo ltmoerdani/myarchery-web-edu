@@ -30,11 +30,11 @@ function PageEventRegistration() {
   const history = useHistory();
   const { userProfile, refresh: refreshUserProfile } = useUserProfile();
 
-  const { data: eventDetailData, isLoading: isLoadingEventDetail } = useEventDetail(slug);
+  const { data: eventDetailData, isLoading: isLoadingEventDetail } =
+    useEventDetail(slug);
   const { data: eventCategories } = useCategoriesByTeam(eventDetailData?.id);
-  const { data: verificationDetail, fetchVerificationDetail } = useVerificationDetail(
-    userProfile?.id
-  );
+  const { data: verificationDetail, fetchVerificationDetail } =
+    useVerificationDetail(userProfile?.id);
 
   const wizardView = useWizardView(tabList);
   const { currentStep, goToStep } = wizardView;
@@ -46,8 +46,11 @@ function PageEventRegistration() {
 
   const [isOrderSuccess, setOrderSuccess] = React.useState(false);
 
-  const pageTitle = "Pendaftaran " + (eventDetailData?.publicInformation.eventName || "");
-  const breadcrumbLink = _getLandingPagePath(eventDetailData?.publicInformation.eventUrl);
+  const pageTitle =
+    "Pendaftaran " + (eventDetailData?.publicInformation.eventName || "");
+  const breadcrumbLink = _getLandingPagePath(
+    eventDetailData?.publicInformation.eventUrl
+  );
 
   React.useEffect(() => {
     // Scroll to top tiap klik next/previous
@@ -55,7 +58,11 @@ function PageEventRegistration() {
   }, [currentStep]);
 
   return (
-    <PageWrapper pageTitle={pageTitle} breadcrumbText={pageTitle} breadcrumbLink={breadcrumbLink}>
+    <PageWrapper
+      pageTitle={pageTitle}
+      breadcrumbText={pageTitle}
+      breadcrumbLink={breadcrumbLink}
+    >
       <ErrorBoundary>
         <ViewLayout>
           <StepIndicator>
@@ -71,7 +78,9 @@ function PageEventRegistration() {
 
             <StepArrow>&#10097;</StepArrow>
 
-            <Step className={classnames({ "step-active": currentStep === 2 })}>2. Pemesanan</Step>
+            <Step className={classnames({ "step-active": currentStep === 2 })}>
+              2. Pemesanan
+            </Step>
           </StepIndicator>
 
           <BannerReservation
@@ -97,7 +106,10 @@ function PageEventRegistration() {
 
                 <WizardViewContent noContainer>
                   <ErrorBoundary>
-                    <SummaryView userProfile={userProfile} formOrder={formOrder} />
+                    <SummaryView
+                      userProfile={userProfile}
+                      formOrder={formOrder}
+                    />
                   </ErrorBoundary>
                 </WizardViewContent>
               </WizardView>
@@ -188,9 +200,9 @@ function _getLandingPagePath(url) {
   }
   const segments = url.split("/");
   const segmentLength = segments.length;
-  const path = `/${segments[segmentLength - 3]}/${segments[segmentLength - 2]}/${
-    segments[segmentLength - 1]
-  }`;
+  const path = `/${segments[segmentLength - 3]}/${
+    segments[segmentLength - 2]
+  }/${segments[segmentLength - 1]}`;
   return path;
 }
 
