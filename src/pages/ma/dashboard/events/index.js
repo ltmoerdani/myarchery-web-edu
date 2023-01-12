@@ -58,7 +58,7 @@ function PageEventsHome() {
           <div>Belum mengikuti event</div>
         ) : (
           <EventsList>
-            {events.map((event) => (
+            {events.reverse().map((event) => (
               <EventItem key={event.id}>
                 {event.publicInformation.eventBanner ? (
                   <PosterThumb>

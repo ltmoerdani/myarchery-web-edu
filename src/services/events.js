@@ -43,4 +43,7 @@ export default {
     getEventRanksClubs(qs = null) {
         return API.get("/api/event-ranked/club", qs);
     },
+    async addParticipantEntry(payload){
+        return await API.post("/app/v1/archery-event/entry-by-name-participant-team", payload, null, true)
+    }
 }
