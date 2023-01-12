@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Redirect, Switch } from "react-router-dom";
 import { AuthLayout, LandingPageLayout, LayoutArcher } from "./layouts";
 import { AuthenticationArcherMiddleware } from "./middlewares";
@@ -29,10 +29,14 @@ import {
 
 import "./assets/scss/theme.scss";
 import "react-datepicker/dist/react-datepicker.css";
+import { ParticipantContext } from "context";
 
 const App = () => {
+  const [selectedParticipans, setSelectedParticipans] = useState([])
+  const [editMode, setEditMode] = useState({ isOpen: false, previousData: null })
   return (
-    <React.Fragment>
+    
+    <ParticipantContext.Provider value={{ selectedParticipans, setSelectedParticipans, editMode, setEditMode }}>
       <Router>
         <Switch>
           {workingRoutes.map((route, idx) => (
@@ -45,7 +49,6 @@ const App = () => {
               exact
             />
           ))}
-
           {eventRouters.map((route, idx) => (
             <AuthenticationArcherMiddleware
               path={route.path}
@@ -170,7 +173,7 @@ const App = () => {
           <Redirect to="/working/not-found" />
         </Switch>
       </Router>
-    </React.Fragment>
+    </ParticipantContext.Provider>
   );
 };
 
