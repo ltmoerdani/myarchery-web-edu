@@ -49,6 +49,13 @@ const ButtonWrapper = styled.button`
 `;
 
 const variantStyles = {
+  green: {
+    "--button-bg-color": "#05944F",
+    "--button-bg-color-hover": "#05944F",
+    "--button-outline-color": "#05944F",
+    "--button-font-color": "#ffffff",
+    "--button-font-color-hover": "#ffffff",
+  },
   blue: {
     "--button-bg-color": "var(--ma-blue)",
     "--button-bg-color-hover": "#0f53bb",
@@ -61,6 +68,13 @@ const variantStyles = {
     "--button-bg-color-hover": "#cf1730",
     "--button-outline-color": "var(--ma-red)",
     "--button-font-color": "#ffffff",
+    "--button-font-color-hover": "#ffffff",
+  },
+  "outline-red": {
+    "--button-bg-color": "none",
+    "--button-bg-color-hover": "var(--ma-red)",
+    "--button-outline-color": "var(--ma-red)",
+    "--button-font-color": "var(--ma-red)",
     "--button-font-color-hover": "#ffffff",
   },
   outline: {

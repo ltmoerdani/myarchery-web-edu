@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import * as AuthStore from "store/slice/authentication";
@@ -10,6 +10,11 @@ import { Button, ButtonBlue, ButtonOutlineBlue, AvatarDefault } from "components
 import { AlertSubmitError } from "../../components/alert-submit-error";
 import { AlertSubmitSuccess } from "../../components/alert-submit-success";
 import { FieldSelectClub } from "pages/ma/event-registration/components";
+import { SelectRadio } from "pages/ma/event-registration/components/select-radio";
+import { Show } from "pages/ma/event-registration/components/show-when";
+
+import SweetAlert from "react-bootstrap-sweetalert";
+import illustrationAlert from "assets/images/events/Illustration.png";
 
 import IconGender from "components/ma/icons/mono/gender";
 import IconAge from "components/ma/icons/mono/age";
@@ -18,6 +23,8 @@ import IconInfo from "components/ma/icons/mono/info";
 import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
 import { parseISO, isBefore, subDays } from "date-fns";
+import { ParticipantContext } from "context";
+import { useParams } from "react-router-dom";
 
 function TabPeserta({ eventState, participantMembersState }) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
@@ -92,8 +99,56 @@ const PanelContainer = styled.div`
   }
 `;
 
+function BackAlert({
+  onCancel,
+  onConfirm,
+  messageDescription,
+  buttonCancelLabel,
+  showAlert,
+}) {
+  const handleCancel = () => {
+    onCancel?.();
+  };
+  const handleConfirm = () => {
+    onConfirm?.();
+  };
+
+  return (
+    <SweetAlert
+      show={showAlert}
+      title=""
+      custom
+      btnSize="md"
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
+      style={{ width: 800, padding: "35px 88px", borderRadius: "1.25rem" }}
+      customButtons={
+        <span className="d-flex justify-content-center" style={{ gap: "0.5rem", width: "100%" }}>
+          <React.Fragment>
+            <ButtonBlue onClick={handleCancel}>{buttonCancelLabel || "Kembali"}</ButtonBlue>
+          </React.Fragment>
+        </span>
+      }
+    >
+      <IllustationBackAlert />
+      {messageDescription && <p className="text-muted">{messageDescription}</p>}
+    </SweetAlert>
+  );
+}
+
+const IllustationBackAlert = styled.div`
+  margin-bottom: 2rem;
+  width: 100%;
+  min-height: 188px;
+  background-image: url(${illustrationAlert});
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+`;
+
+
 function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refetch }) {
-  const [editMode, setEditMode] = React.useState({ isOpen: false, previousData: null });
+  const {editMode, setEditMode} = React.useContext(ParticipantContext)
   const [{ club }, dispatchForm] = React.useReducer(clubPickerReducer, {
     club: transformClubDataForPicker(participantMembers.club),
   });
@@ -113,6 +168,7 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
       club_id: club?.detail?.id || 0,
     };
     const result = await EventsService.updateEventParticipantMembers(payload);
+
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
       setEditMode({ isOpen: false, previousData: null });
@@ -120,6 +176,7 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
     } else {
       dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
     }
+
   };
 
   return (
@@ -195,19 +252,25 @@ function ParticipantEditorTeam({
   refetch,
   shouldAllowEdit,
 }) {
-  const [editMode, setEditMode] = React.useState({ isOpen: false, previousData: null });
+  const { order_id } = useParams()
+  const {selectedParticipans, setSelectedParticipans, editMode, setEditMode} = React.useContext(ParticipantContext)
   const [teamName, setTeamName] = React.useState(participantMembers.participant.teamName || "");
+  const [teamSystem, setTeamSystem] = React.useState(null)
+  const [showAlert, setShowAlert] = React.useState(false);
   const [{ club }, dispatchClub] = React.useReducer(clubPickerReducer, {
     club: transformClubDataForPicker(participantMembers.club),
   });
+  const isByName = participantMembers.member.some(member => member.isSelectedForTeam)
   const [form, dispatchForm] = React.useReducer(
     emailFormReducer,
     mapMembersToState(participantMembers.member)
-  );
+    );
   const [submitStatus, dispatchSubmitStatus] = React.useReducer(
     (state, action) => ({ ...state, ...action }),
     { status: "idle", errors: null }
   );
+
+  let category = participantMembers.eventCategoryDetail.genderCategory
 
   React.useEffect(() => {
     dispatchForm({ type: "RESET_FORM", payload: mapMembersToState(participantMembers.member) });
@@ -221,22 +284,64 @@ function ParticipantEditorTeam({
     dispatchClub({ type: "RESET_FORM", payload: { club } });
   }, [participantMembers, club]);
 
+  const handleSetParticipant = (selected) => {
+    if (
+      selectedParticipans.some(participant => participant.participantId === selected.participantId)
+    ) setSelectedParticipans(selectedParticipans.filter(p_id => p_id.participantId !== selected.participantId))
+    else setSelectedParticipans([...selectedParticipans, selected])
+  }
+
   const handleClickSave = async () => {
-    dispatchSubmitStatus({ status: "loading", errors: null });
-    const payload = makeSavePayoad(
-      participantMembers.participant.participantId,
-      form,
-      teamName,
-      club?.detail?.id
-    );
-    const result = await EventsService.updateEventParticipantMembers(payload);
-    if (result.success) {
+    if (teamSystem === 1 && selectedParticipans.length < 3 && category !== 'mix'){
+      setShowAlert(true);
+      return
+    }
+    if (
+      (teamSystem === 1 && selectedParticipans.length < 2 && category === 'mix') ||
+      teamSystem === 1 && category === 'mix' && selectedParticipans?.every(sp => sp?.gender === selectedParticipans[0]?.gender)
+    ){
+      setShowAlert(true);
+      return
+    }
+
+    try {
+      dispatchSubmitStatus({ status: "loading", errors: null });
+      const members = selectedParticipans.map(participant => {
+        return {
+          "participant_id" : participant.participantId
+        }
+      })
+      if (isByName && category === 'male' || category === 'mix' || category === 'female') await EventsService.addParticipantEntry({
+        "is_entry_by_name": 0,
+        "participant_team_id": order_id,
+        members
+      })
+      await EventsService.addParticipantEntry({
+        "is_entry_by_name": parseInt(teamSystem),
+        "participant_team_id": order_id,
+        members
+      })
+      setSelectedParticipans([]);
+      setTeamSystem(null);
+      const payload = makeSavePayoad(
+        participantMembers.participant.participantId,
+        form,
+        teamName,
+        club?.detail?.id
+      );
+
+      await EventsService.updateEventParticipantMembers(payload);
+
       dispatchSubmitStatus({ status: "success" });
       setEditMode({ isOpen: false, previousData: null });
       refetch();
-    } else {
-      dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
+    } catch (error) {
+      dispatchSubmitStatus({ status: "error", errors: error });
     }
+  }
+
+  const handleCancel = () => {
+    setShowAlert(false);
   };
 
   return (
@@ -259,6 +364,8 @@ function ParticipantEditorTeam({
                     });
                     setTeamName(editMode.previousData.teamName);
                     setEditMode({ isOpen: false, previousData: null });
+                    setSelectedParticipans([]);
+                    setTeamSystem(null);
                   }}
                 >
                   Batal
@@ -283,19 +390,22 @@ function ParticipantEditorTeam({
       {shouldAllowEdit && editMode.isOpen ? (
         <TeamInfoEditor>
           <DisplayTeamClub>
-            <div>Nama Tim</div>
-            <div className="display-value">
-              {participantMembers.participant.teamName || <React.Fragment>&mdash;</React.Fragment>}
-            </div>
-          </DisplayTeamClub>
-
-          <DisplayTeamClub>
             <FieldSelectClub
               value={club}
               onChange={(clubValue) => dispatchClub({ name: "club", payload: clubValue })}
             >
               Nama Klub
             </FieldSelectClub>
+            <div className="display-name">Atur Sistem Tim Beregu untuk mengikuti pertandingan</div>
+            <SelectRadio
+              options={[
+                { value: 0, label: category === 'mix' ? "Gunakan sistem best core berdasarkan ranking" : "Gunakan sistem best three berdasarkan ranking"},
+                { value: 1, label: "Gunakan sistem entry by name" },
+              ]}
+              value={teamSystem}
+              onChange={e => setTeamSystem(parseInt(e))}
+            />
+            <Show></Show>
           </DisplayTeamClub>
         </TeamInfoEditor>
       ) : (
@@ -303,7 +413,8 @@ function ParticipantEditorTeam({
           <DisplayTeamClub>
             <div>Nama Tim</div>
             <div className="display-value">
-              {participantMembers.participant.teamName || <React.Fragment>&mdash;</React.Fragment>}
+              {isByName ? 'Sistem Entry by Name'
+              : !isByName && category === 'mix' ? 'Sistem Best Core Berdasarkan Ranking' : 'Sistem Best Three Berdasarkan Ranking' || <React.Fragment>&mdash;</React.Fragment>}
             </div>
           </DisplayTeamClub>
 
@@ -313,13 +424,6 @@ function ParticipantEditorTeam({
               {participantMembers.club?.name || <React.Fragment>&mdash;</React.Fragment>}
             </div>
           </DisplayTeamClub>
-
-          <DisplayJumlahPeserta>
-            <div>Jumlah Peserta</div>
-            <div className="display-value">
-              {participantMembers.member.length || <React.Fragment>&ndash;</React.Fragment>} dari 5
-            </div>
-          </DisplayJumlahPeserta>
         </TeamInfoEditor>
       )}
 
@@ -329,16 +433,38 @@ function ParticipantEditorTeam({
             <ParticipantMemberInfo
               key={participant.id}
               participant={participant}
+              participantMembers={participantMembers}
               title={`Peserta ${index + 1}`}
+              showOption={teamSystem}
+              onSelectParticipant={handleSetParticipant}
             />
           ))}
       </div>
 
       <LoadingScreen loading={submitStatus.status === "loading"} />
       <AlertSubmitError isError={submitStatus.status === "error"} errors={submitStatus.errors} />
-      <AlertSubmitSuccess isSuccess={submitStatus.status === "success"}>
-        Data peserta berhasil disimpan
-      </AlertSubmitSuccess>
+      {showAlert ? (
+        <BackAlert
+          showAlert={showAlert}
+          buttonCancelLabel={""}
+          onCancel={handleCancel}
+          messageDescription={ category !== 'mix' ?
+            <React.Fragment>
+              Peserta beregu putra atau putri dengan sistem entry by
+              <br />
+              name harus terdiri dari 3 peserta.
+            </React.Fragment>
+            :
+            <React.Fragment>
+              Mix Team harus terdiri dari peserta Putra dan Putri
+            </React.Fragment>
+          }
+        />
+      ):(
+        <AlertSubmitSuccess>
+          Data peserta berhasil disimpannn
+        </AlertSubmitSuccess>
+      )}
     </React.Fragment>
   );
 }
@@ -371,10 +497,9 @@ const DisplayTeamClub = styled.div`
   > .display-value {
     font-weight: 600;
   }
-`;
-
-const DisplayJumlahPeserta = styled.div`
-  > .display-value {
+  > .display-name {
+    margin-top: 0.8rem;
+    margin-bottom: 0.5rem;
     font-weight: 600;
   }
 `;
@@ -403,42 +528,67 @@ const StyledNoticeBar = styled.div`
   color: var(--ma-blue);
 `;
 
-function ParticipantMemberInfo({ participant, title = "Peserta" }) {
+function ParticipantMemberInfo({ participant, participantMembers, title = "Peserta", showOption, onSelectParticipant }) {
+  const [isSelectedParticipant, setIsSelectedParticipant] =  useState(false)
+  const {selectedParticipans, editMode} = React.useContext(ParticipantContext)
+  let category = participantMembers.eventCategoryDetail.genderCategory
+
+  useEffect(() => {
+    setIsSelectedParticipant(selectedParticipans.some(sp => sp.participantId === participant.participantId))
+  }, [selectedParticipans])
+
   return (
     <ParticipantCard>
       <ParticipantHeadingLabel>{title}</ParticipantHeadingLabel>
+      <ParticipanContent>
+        <ParticipantMediaObject>
+          <MediaParticipantAvatar>
+            <ParticipantAvatar>
+              {participant.avatar ? (
+                <img className="avatar-img" src={participant.avatar} />
+              ) : (
+                <AvatarDefault fullname={participant.name} />
+              )}
+            </ParticipantAvatar>
+          </MediaParticipantAvatar>
 
-      <ParticipantMediaObject>
-        <MediaParticipantAvatar>
-          <ParticipantAvatar>
-            {participant.avatar ? (
-              <img className="avatar-img" src={participant.avatar} />
-            ) : (
-              <AvatarDefault fullname={participant.name} />
-            )}
-          </ParticipantAvatar>
-        </MediaParticipantAvatar>
+          <MediaParticipantContent>
+            <ParticipantName>
+              <span>{participant.name}</span>
+              <span>
+                <IconBadgeVerified />
+              </span>
+            </ParticipantName>
 
-        <MediaParticipantContent>
-          <ParticipantName>
-            <span>{participant.name}</span>
-            <span>
-              <IconBadgeVerified />
-            </span>
-          </ParticipantName>
+            <LabelWithIcon icon={<IconMail size="20" />}>{participant.email}</LabelWithIcon>
 
-          <LabelWithIcon icon={<IconMail size="20" />}>{participant.email}</LabelWithIcon>
+            <RowedLabel>
+              <LabelWithIcon icon={<IconGender size="20" />}>
+                {(participant.gender === "male" && "Laki-laki") ||
+                  (participant.gender === "female" && "Perempuan")}
+              </LabelWithIcon>
 
-          <RowedLabel>
-            <LabelWithIcon icon={<IconGender size="20" />}>
-              {(participant.gender === "male" && "Laki-laki") ||
-                (participant.gender === "female" && "Perempuan")}
-            </LabelWithIcon>
-
-            <LabelWithIcon icon={<IconAge size="20" />}>{participant.age} Tahun</LabelWithIcon>
-          </RowedLabel>
-        </MediaParticipantContent>
-      </ParticipantMediaObject>
+              <LabelWithIcon icon={<IconAge size="20" />}>{participant.age} Tahun</LabelWithIcon>
+            </RowedLabel>
+          </MediaParticipantContent>
+        </ParticipantMediaObject>
+        <ToolbarActionButtons>
+          {!!showOption && (!participant.isSelectedForTeam || editMode.isOpen) && (
+            <ButtonOutlineBlue
+              color={isSelectedParticipant ? "outline-red" : "outline-blue"}
+              disabled={
+                (!isSelectedParticipant && selectedParticipans.length >= 3 || (!isSelectedParticipant && selectedParticipans.length >= 2 && category === 'mix'))
+                }
+              onClick={() => onSelectParticipant(participant)}
+            >
+              {isSelectedParticipant ? "Batalkan sebagai peserta" : "Pilih sebagai peserta"}
+            </ButtonOutlineBlue>
+          )}
+          {!!participant.isSelectedForTeam && !editMode.isOpen && (
+            <ButtonOutlineBlue color="green">Terpilih sebagai peserta</ButtonOutlineBlue>
+          )}
+        </ToolbarActionButtons>
+      </ParticipanContent>
     </ParticipantCard>
   );
 }
@@ -460,6 +610,11 @@ const ParticipantMediaObject = styled.div`
   margin: 1.25rem 0;
   display: flex;
   gap: 1.5rem;
+`;
+
+const ParticipanContent = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
 
 const MediaParticipantAvatar = styled.div`
