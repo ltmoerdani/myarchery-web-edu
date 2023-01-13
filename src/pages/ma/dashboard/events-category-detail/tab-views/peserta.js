@@ -168,6 +168,7 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
       club_id: club?.detail?.id || 0,
     };
     const result = await EventsService.updateEventParticipantMembers(payload);
+
     if (result.success) {
       dispatchSubmitStatus({ status: "success" });
       setEditMode({ isOpen: false, previousData: null });
@@ -263,11 +264,13 @@ function ParticipantEditorTeam({
   const [form, dispatchForm] = React.useReducer(
     emailFormReducer,
     mapMembersToState(participantMembers.member)
-  );
+    );
   const [submitStatus, dispatchSubmitStatus] = React.useReducer(
     (state, action) => ({ ...state, ...action }),
     { status: "idle", errors: null }
   );
+
+  let category = participantMembers.eventCategoryDetail.genderCategory
 
   React.useEffect(() => {
     dispatchForm({ type: "RESET_FORM", payload: mapMembersToState(participantMembers.member) });
@@ -281,18 +284,22 @@ function ParticipantEditorTeam({
     dispatchClub({ type: "RESET_FORM", payload: { club } });
   }, [participantMembers, club]);
 
-  const handleSetParticipant = (id) => {
-    if (selectedParticipans.includes(id)) setSelectedParticipans(selectedParticipans.filter(p_id => p_id !== id))
-    else setSelectedParticipans([...selectedParticipans, id])
+  const handleSetParticipant = (selected) => {
+    if (
+      selectedParticipans.some(participant => participant.participantId === selected.participantId)
+    ) setSelectedParticipans(selectedParticipans.filter(p_id => p_id.participantId !== selected.participantId))
+    else setSelectedParticipans([...selectedParticipans, selected])
   }
 
   const handleClickSave = async () => {
-    let category = participantMembers.eventCategoryDetail.genderCategory
     if (teamSystem === 1 && selectedParticipans.length < 3 && category !== 'mix'){
       setShowAlert(true);
       return
     }
-    if (teamSystem === 1 && selectedParticipans.length < 2 || selectedParticipans.length >= 3 && category === 'mix'){
+    if (
+      (teamSystem === 1 && selectedParticipans.length < 2 && category === 'mix') ||
+      teamSystem === 1 && category === 'mix' && selectedParticipans?.every(sp => sp?.gender === selectedParticipans[0]?.gender)
+    ){
       setShowAlert(true);
       return
     }
@@ -301,7 +308,7 @@ function ParticipantEditorTeam({
       dispatchSubmitStatus({ status: "loading", errors: null });
       const members = selectedParticipans.map(participant => {
         return {
-          "participant_id" : participant
+          "participant_id" : participant.participantId
         }
       })
       if (isByName && category === 'male' || category === 'mix' || category === 'female') await EventsService.addParticipantEntry({
@@ -322,6 +329,7 @@ function ParticipantEditorTeam({
         teamName,
         club?.detail?.id
       );
+
       await EventsService.updateEventParticipantMembers(payload);
 
       dispatchSubmitStatus({ status: "success" });
@@ -391,7 +399,7 @@ function ParticipantEditorTeam({
             <div className="display-name">Atur Sistem Tim Beregu untuk mengikuti pertandingan</div>
             <SelectRadio
               options={[
-                { value: 0, label: "Gunakan sistem base three berdasarkan ranking" },
+                { value: 0, label: category === 'mix' ? "Gunakan sistem best core berdasarkan ranking" : "Gunakan sistem best three berdasarkan ranking"},
                 { value: 1, label: "Gunakan sistem entry by name" },
               ]}
               value={teamSystem}
@@ -405,7 +413,8 @@ function ParticipantEditorTeam({
           <DisplayTeamClub>
             <div>Nama Tim</div>
             <div className="display-value">
-              {isByName ? 'Sistem Entry by Name' : 'Sistem Best Three berdasarkan ranking' || <React.Fragment>&mdash;</React.Fragment>}
+              {isByName ? 'Sistem Entry by Name'
+              : !isByName && category === 'mix' ? 'Sistem Best Core Berdasarkan Ranking' : 'Sistem Best Three Berdasarkan Ranking' || <React.Fragment>&mdash;</React.Fragment>}
             </div>
           </DisplayTeamClub>
 
@@ -424,6 +433,7 @@ function ParticipantEditorTeam({
             <ParticipantMemberInfo
               key={participant.id}
               participant={participant}
+              participantMembers={participantMembers}
               title={`Peserta ${index + 1}`}
               showOption={teamSystem}
               onSelectParticipant={handleSetParticipant}
@@ -438,16 +448,20 @@ function ParticipantEditorTeam({
           showAlert={showAlert}
           buttonCancelLabel={""}
           onCancel={handleCancel}
-          messageDescription={
+          messageDescription={ category !== 'mix' ?
             <React.Fragment>
               Peserta beregu putra atau putri dengan sistem entry by
               <br />
               name harus terdiri dari 3 peserta.
             </React.Fragment>
+            :
+            <React.Fragment>
+              Mix Team harus terdiri dari peserta Putra dan Putri
+            </React.Fragment>
           }
         />
       ):(
-        <AlertSubmitSuccess isSuccess={submitStatus.status === "success"}>
+        <AlertSubmitSuccess>
           Data peserta berhasil disimpannn
         </AlertSubmitSuccess>
       )}
@@ -514,12 +528,13 @@ const StyledNoticeBar = styled.div`
   color: var(--ma-blue);
 `;
 
-function ParticipantMemberInfo({ participant, title = "Peserta", showOption, onSelectParticipant }) {
+function ParticipantMemberInfo({ participant, participantMembers, title = "Peserta", showOption, onSelectParticipant }) {
   const [isSelectedParticipant, setIsSelectedParticipant] =  useState(false)
   const {selectedParticipans, editMode} = React.useContext(ParticipantContext)
+  let category = participantMembers.eventCategoryDetail.genderCategory
 
   useEffect(() => {
-    setIsSelectedParticipant(selectedParticipans.includes(participant.participantId))
+    setIsSelectedParticipant(selectedParticipans.some(sp => sp.participantId === participant.participantId))
   }, [selectedParticipans])
 
   return (
@@ -562,9 +577,9 @@ function ParticipantMemberInfo({ participant, title = "Peserta", showOption, onS
             <ButtonOutlineBlue
               color={isSelectedParticipant ? "outline-red" : "outline-blue"}
               disabled={
-                (!isSelectedParticipant && selectedParticipans.length >= 3)
+                (!isSelectedParticipant && selectedParticipans.length >= 3 || (!isSelectedParticipant && selectedParticipans.length >= 2 && category === 'mix'))
                 }
-              onClick={() => onSelectParticipant(participant.participantId)}
+              onClick={() => onSelectParticipant(participant)}
             >
               {isSelectedParticipant ? "Batalkan sebagai peserta" : "Pilih sebagai peserta"}
             </ButtonOutlineBlue>
