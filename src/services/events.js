@@ -45,5 +45,8 @@ export default {
     },
     async addParticipantEntry(payload){
         return await API.post("/app/v1/archery-event/entry-by-name-participant-team", payload, null, true)
+    },
+    async addMemberKontingenIndividu(payload){
+        return await API.post("/api/download-template/member-contingent", payload, null, true)
     }
 }
