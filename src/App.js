@@ -31,11 +31,13 @@ import "./assets/scss/theme.scss";
 import "react-datepicker/dist/react-datepicker.css";
 import { ParticipantContext } from "context";
 
+// import { FormLigaJabar } from "pages/ma/event-registration/views/form-liga-jabar";
+
 const App = () => {
   const [selectedParticipans, setSelectedParticipans] = useState([])
   const [editMode, setEditMode] = useState({ isOpen: false, previousData: null })
   return (
-    
+
     <ParticipantContext.Provider value={{ selectedParticipans, setSelectedParticipans, editMode, setEditMode }}>
       <Router>
         <Switch>
@@ -70,6 +72,14 @@ const App = () => {
               exact
             />
           ))}
+
+          {/* <AuthenticationArcherMiddleware
+            path="/DaftarLigajabar2023"
+            layout={LayoutLandingPage}
+            component={FormLigaJabar}
+            isAuthProtected={false}
+            exact
+          /> */}
 
           {liveScoreRoutes.map((route, idx) => (
             <AuthenticationArcherMiddleware

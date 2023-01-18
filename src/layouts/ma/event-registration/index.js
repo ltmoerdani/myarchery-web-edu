@@ -13,7 +13,7 @@ function LayoutEventRegistration({ children }) {
   return (
     <StyledLayoutWrapper id="layout-wrapper">
       <Header />
-      <div className="main-content">{children}</div>
+      <div className="main-content" style={{overflow:'unset'}}>{children}</div>
       <Footer />
     </StyledLayoutWrapper>
   );
