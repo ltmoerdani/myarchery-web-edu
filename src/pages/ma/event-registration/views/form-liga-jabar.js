@@ -69,8 +69,8 @@ function FormLigaJabar() {
     setListMembers(listMembers.filter(participan => participan !== selectedParticipan))
   }
 
-  const checkEmail =  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-  const checkPhoneNumber = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
+  const checkEmail =  /^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/
+  const checkPhoneNumber = /^[+]?[(]?[0-9]{3}[)]?[-\s]?[0-9]{3}[-\s]?[0-9]{4,6}$/
 
   const handleSubmitForm = async () => {
     listMembers.map(member => (
