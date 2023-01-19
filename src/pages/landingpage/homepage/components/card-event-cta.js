@@ -160,7 +160,7 @@ function CardEventCTA({ eventDetail, categories = [] }) {
               as={Link}
               to={
                 !isLoggedIn
-                  ? `/archer/login?path=/${registrationRoute}`
+                  ? `/archer/login?path=${registrationRoute}`
                   : registrationRoute
               }
             >
