@@ -8,7 +8,7 @@ function useSubmitOrder(formData) {
 
   const submit = (options) => {
     const postFunction = () => {
-      const { category, matchDate, teamName, withClub, club, paymentMethode } = formData;
+      const { category, matchDate, teamName, withClub, club, paymentMethode, city_id } = formData;
 
       const payload = {
         event_category_id: category.id,
@@ -17,6 +17,7 @@ function useSubmitOrder(formData) {
         team_name: teamName || undefined,
         with_club: withClub,
         payment_methode: paymentMethode,
+        city_id: city_id.value
       };
 
       return OrderEventService.register(payload);

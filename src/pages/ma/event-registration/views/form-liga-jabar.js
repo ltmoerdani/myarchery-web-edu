@@ -70,7 +70,7 @@ function FormLigaJabar() {
   }
 
   const checkEmail =  /^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/
-  const checkPhoneNumber = /^[+]?[(]?[0-9]{3}[)]?[-\s]?[0-9]{3}[-\s]?[0-9]{4,6}$/
+  const checkPhoneNumber = /\+62\s\d{3}[-\s]??\d{3}[-\s]??\d{3,4}|\(0\d{2,3}\)\s?\d+|0\d{2,3}\s?\d{6,7}|\+62\s?361\s?\d+|\+62\d+|\+62\s?(?:\d{3,}-)*\d{3,5}/
 
   const handleSubmitForm = async () => {
     listMembers.map(member => (
@@ -83,9 +83,13 @@ function FormLigaJabar() {
       member.ktp_kk === null ? setError(true) : null,
       member.binaan_later === 0 ? setError(true) : null,
 
+      new Date(member.date_of_birth).getFullYear() < 2011 && (member.category_id === 1091 || member.category_id === 1090) ? setError(true) :null,
+      new Date(member.date_of_birth).getFullYear() < 2008 && (member.category_id === 1096 || member.category_id === 1095) ? setError(true) :null,
+
       checkEmail.test(member.email) === false ? setError(true) : null,
       checkPhoneNumber.test(member.phone_number) === false ? setError(true) : null
-    ))
+
+      ))
 
     cityId.length === 0 ? setError(true) : null
 
@@ -124,8 +128,14 @@ function FormLigaJabar() {
   React.useEffect(() => {
     const getCategory = async () => {
       const {data: lists} = await GeneralService.getListCategory({event_id: 79})
-      const listCategoryIndividu = lists.filter(filterCategory => filterCategory.categoryTeam === 'Individual')
-      setListCategory(listCategoryIndividu.map(list => {
+      let listCategoryGender
+      listMembers.map(member => (
+        listCategoryGender = member.gender === 'female'
+        ? lists.filter(filterGender => filterGender.categoryTeam === 'Individual' && filterGender.genderCategory === 'female')
+        : member.gender === 'male' ? lists.filter(filterGender => filterGender.categoryTeam === 'Individual' && filterGender.genderCategory === 'male')
+        : lists.filter(filterGender => filterGender.categoryTeam === 'Individual')
+      ))
+      setListCategory(listCategoryGender.map(list => {
         return {
           value : list.id,
           label: list.labelCategory
@@ -133,7 +143,7 @@ function FormLigaJabar() {
       }))
     }
     getCategory()
-  }, [])
+  }, [listMembers])
 
   const gender = [
     {
@@ -275,7 +285,7 @@ function FormLigaJabar() {
                       />
                       {
                         error&&participan.phone_number.length <= 0 ? <LabelError>Nomer WA Harus Diisi</LabelError> : null ||
-                        error&&checkPhoneNumber.test(participan.phone_number) === false  && participan.email.length >= 14 ? <LabelError>Format Nomor Salah</LabelError> : null
+                        (error&&checkPhoneNumber.test(participan.phone_number) === false  || participan.email.length >= 14) ? <LabelError>Format Nomor Salah</LabelError> : null
                       }
                     </div>
                     <ContentOption>
@@ -286,7 +296,7 @@ function FormLigaJabar() {
                         onChange={({value}) => handleChangeInput(value, index, "gender")}
                       />
                       {
-                        error&&participan.gender.length <= 0 ? <LabelError>Gender Harus Diisi</LabelError> : null
+                        error && participan.gender.length <= 0 ? <LabelError>Gender Harus Diisi</LabelError> : null
                       }
                     </ContentOption>
                     <ContentOption>
@@ -298,7 +308,9 @@ function FormLigaJabar() {
                         onChange={(e) => handleChangeInput(e.target.value, index, "date_of_birth")}
                       />
                       {
-                        error&&participan.date_of_birth.length <= 0 ? <LabelError>Tanggal Lahir Harus Diisi</LabelError> : null
+                        error && participan.date_of_birth.length <= 0 ? <LabelError>Tanggal Lahir Harus Diisi</LabelError> : null ||
+                        error && new Date(participan.date_of_birth).getFullYear() < 2011 && (participan.category_id === 1091 || participan.category_id === 1090) ? <LabelError>Melebihi Batas Usia</LabelError> : null ||
+                        error && new Date(participan.date_of_birth).getFullYear() < 2008 && (participan.category_id === 1096 || participan.category_id === 1095) ? <LabelError>Melebihi Batas Usia</LabelError> : null
                       }
                     </ContentOption>
                     <img src={deleteLogo} style={{ marginTop:'50px' }} role="button" height={16} onClick={() => handleRemoveData(participan)} />

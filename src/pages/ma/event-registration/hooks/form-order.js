@@ -11,6 +11,7 @@ const _makeDefaultValues = () => ({
   withClub: "yes",
   paymentMethode:"bankTransfer",
   club: null,
+  city_id: null,
   participants: [
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -42,6 +43,10 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories })
     dispatch({ type: "CHANGE_CLUB", payload: club });
   };
 
+  const setCityId = (city_id) => {
+    dispatch({ type: "CHANGE_CITYID", payload: city_id });
+  };
+
   const handleValidation = ({ onValid, onInvalid }) => {
     const errors = _validateFields(form.data);
     const isError = Object.keys(errors)?.length;
@@ -62,6 +67,7 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories })
     setCategory,
     setClub,
     setWithClub,
+    setCityId,
     handleValidation,
     setPaymentMethode,
   };
@@ -114,6 +120,13 @@ function _formReducer(state, action) {
 
   if (action.type === "CHANGE_CLUB") {
     const data = { ...state.data, club: action.payload };
+    const errorsAfterReset = { ...state.errors };
+    delete errorsAfterReset.club;
+    return { ...state, data: data, errors: errorsAfterReset };
+  }
+
+  if (action.type === "CHANGE_CITYID") {
+    const data = { ...state.data, city_id: action.payload };
     const errorsAfterReset = { ...state.errors };
     delete errorsAfterReset.club;
     return { ...state, data: data, errors: errorsAfterReset };
