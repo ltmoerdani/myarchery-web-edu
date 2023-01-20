@@ -32,6 +32,7 @@ function TicketView({
 }) {
   const history = useHistory();
   const { userProfile } = useUserProfile();
+  const [showAlert, setShowAlert] = React.useState(false);
 
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
   const { handleValidation: handleValidationVerification } = formVerification;
@@ -74,7 +75,11 @@ function TicketView({
         );
         const validationOrderOptions = {
           onValid: () => {
-            goToNextStep();
+            if(userProfile.addressProvince.id !== '32' && eventDetailData.id === 79){
+              setShowAlert(true);
+            }else{
+              goToNextStep();
+            }
           },
           onInvalid: (invalidErrors) => {
             _displayToasts(invalidErrors);
@@ -101,6 +106,11 @@ function TicketView({
         _displayToasts(invalidErrors);
       },
     });
+  };
+
+  const handleConfirm = () => {
+    setShowAlert(false);
+    history.goBack()
   };
 
   const handleSubmitOrder = () => {
@@ -225,6 +235,12 @@ function TicketView({
                 />
               </React.Fragment>
             )}
+            {showAlert ? (
+              <ButtonBackToHome
+                showAlert= {showAlert}
+                onConfirm= {handleConfirm}
+              />
+            ) : null}
           </div>
         </TicketCard>
 
@@ -332,6 +348,37 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
     </React.Fragment>
   );
 }
+
+function ButtonBackToHome({ onConfirm, showAlert }) {
+
+  const handleConfirm = () => {
+    onConfirm?.();
+  };
+
+  return (
+    <React.Fragment>
+      <SweetAlert
+        show={showAlert}
+        title=""
+        custom
+        btnSize="md"
+        onConfirm={handleConfirm}
+        style={{ padding: "1.25rem" }}
+        customButtons={
+          <ButtonBlue onClick={handleConfirm}>Kembali ke landing page</ButtonBlue>
+        }
+      >
+        <p style={{ color: "var(--ma-orange-300)" }}>
+          <IconAlertTriangle size="36" />
+        </p>
+        <p>
+          Event Liga 1 Jawa Barat 2023 khusus bagi peserta dari provinsi Jawa Barat. Anda masih bisa mengikuti event lainnya di MyArchery.id
+        </p>
+      </SweetAlert>
+    </React.Fragment>
+  );
+}
+
 
 /* ================================ */
 // styles

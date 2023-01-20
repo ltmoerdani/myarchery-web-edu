@@ -16,6 +16,7 @@ import { FieldSelectCity } from "../components/field-select-city";
 import { FieldSelectCountry } from "../components/field-select-country";
 import { FieldSelectCityByCountry } from "../components/field-select-city-country";
 import { FieldUploadImage } from "../components/field-upload-image";
+import { FieldSelectKontingen } from "../components/field-select-kontingen";
 import { SelectRadio } from "../components/select-radio";
 import { EditName } from "../components/edit-name-inline";
 
@@ -29,6 +30,7 @@ function FormView({
   formOrder,
   formVerification,
   onProfileUpdated,
+  eventDetailData,
 }) {
   const {
     errors: orderErrors,
@@ -36,8 +38,9 @@ function FormView({
     setCategory,
     setWithClub,
     setClub,
+    setCityId,
   } = formOrder;
-  const { category, matchDate, withClub, club } = formOrder.data;
+  const { category, matchDate, withClub, club, cityId } = formOrder.data;
 
   const {
     errors: verificationErrors,
@@ -46,6 +49,8 @@ function FormView({
     updateImage,
     updateWithDependence,
   } = formVerification;
+
+  // if (formVerification.data.province === null) formVerification.data.province = {value: 32, label: 'JAWA BARAT'}
 
   const { isWna, province, city, nik, address, imageKTP } =
     formVerification.data;
@@ -261,6 +266,15 @@ function FormView({
         <h5>Data Peserta</h5>
         <p>Atur Detail Klub Peserta</p>
       </div>
+
+      {eventDetailData?.id === 79 ? (
+        <FieldSelectKontingen
+          provinceId={32}
+          required
+          value={cityId}
+          onChange={setCityId}
+        />
+      ): null}
 
       <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
         <div>
