@@ -51,4 +51,8 @@ export default {
   getClubRankingCategories(queryString = null) {
     return API.get("/api/general/get-list-tab-category-by-event-id", queryString);
   },
+
+  getListCategory(queryString = null) {
+    return API.get("/general/v2/category-details", queryString);
+  },
 };
