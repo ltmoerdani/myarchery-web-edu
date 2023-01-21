@@ -29,6 +29,7 @@ function TicketView({
   formOrder,
   onSuccessVerification,
   onSuccessOrder,
+  withContingen
 }) {
   const history = useHistory();
   const { userProfile } = useUserProfile();
@@ -75,7 +76,7 @@ function TicketView({
         );
         const validationOrderOptions = {
           onValid: () => {
-            if(userProfile.addressProvince.id !== '32' && eventDetailData.id === 79){
+            if(userProfile.addressProvince.id !== eventDetailData.publicInformation.eventCity.provinceId && withContingen){
               setShowAlert(true);
             }else{
               goToNextStep();
