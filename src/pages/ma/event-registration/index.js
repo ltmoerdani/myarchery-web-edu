@@ -18,6 +18,9 @@ import { SummaryView } from "./views/summary-view";
 import { TicketView } from "./views/ticket-view";
 import AdsBanner from "./components/ads-banner";
 
+import { Landingpage } from "services";
+
+
 import classnames from "classnames";
 
 const tabList = [
@@ -27,6 +30,16 @@ const tabList = [
 
 function PageEventRegistration() {
   const { slug } = useParams();
+  const [withContingen, setWithContingen] = React.useState(0)
+
+  React.useEffect(() => {
+    (async() => {
+      const { data: { withContingent } } = await Landingpage.getEventBySlug({ slug })
+
+      setWithContingen(withContingent)
+    })()
+  }, [])
+
   const history = useHistory();
   const { userProfile, refresh: refreshUserProfile } = useUserProfile();
 
@@ -41,7 +54,7 @@ function PageEventRegistration() {
 
   const formVerification = useFormVerification(verificationDetail);
 
-  const formOrder = useFormOrder({ eventCategories });
+  const formOrder = useFormOrder({ ...eventCategories, withContingen });
   const { category } = formOrder.data;
 
   const [isOrderSuccess, setOrderSuccess] = React.useState(false);
@@ -98,6 +111,7 @@ function PageEventRegistration() {
                       userProfile={userProfile}
                       eventCategories={eventCategories}
                       formOrder={formOrder}
+                      withContingen={withContingen}
                       formVerification={formVerification}
                       onProfileUpdated={fetchVerificationDetail}
                       eventDetailData={eventDetailData}
@@ -123,6 +137,7 @@ function PageEventRegistration() {
                   eventDetailData={eventDetailData}
                   wizardView={wizardView}
                   formVerification={formVerification}
+                  withContingen={withContingen}
                   formOrder={formOrder}
                   onSuccessVerification={() => {
                     fetchVerificationDetail();

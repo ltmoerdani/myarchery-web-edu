@@ -160,8 +160,9 @@ function CardEventCTA({ eventDetail, categories = [] }) {
               as={Link}
               to={
                 !isLoggedIn
-                  ? `/archer/login?path=$/event-registration/regular/${eventDetail.eventSlug}`
-                  : `/event-registration/regular/${eventDetail.eventSlug}`
+                  ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
+                  : `/event-registration/${eventDetail.eventSlug}`
+
               }
             >
               Daftar Event

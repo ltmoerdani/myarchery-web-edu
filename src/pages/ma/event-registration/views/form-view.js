@@ -31,6 +31,7 @@ function FormView({
   formVerification,
   onProfileUpdated,
   eventDetailData,
+  withContingen,
 }) {
   const {
     errors: orderErrors,
@@ -40,7 +41,7 @@ function FormView({
     setClub,
     setCityId,
   } = formOrder;
-  const { category, matchDate, withClub, club, cityId } = formOrder.data;
+  const { category, matchDate, withClub, club, city_id } = formOrder.data;
 
   const {
     errors: verificationErrors,
@@ -267,13 +268,16 @@ function FormView({
         <p>Atur Detail Klub Peserta</p>
       </div>
 
-      {eventDetailData?.id === 79 ? (
-        <FieldSelectKontingen
-          provinceId={32}
-          required
-          value={cityId}
-          onChange={setCityId}
-        />
+      {withContingen ? (
+        <div>
+          <FieldSelectKontingen
+            provinceId={parseInt(eventDetailData?.publicInformation?.eventCity?.provinceId)}
+            required
+            value={city_id}
+            onChange={setCityId}
+          />
+          <FieldErrorMessage errors={orderErrors.city_id} />
+        </div>
       ): null}
 
       <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>

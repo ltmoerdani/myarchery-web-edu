@@ -4,6 +4,7 @@ import { stringUtil } from "utils";
 
 // Dibuat function, biar tiap formnya di-initiate,
 // name-nya di field participant tergenerate string random baru
+
 const _makeDefaultValues = () => ({
   category: null,
   matchDate: null,
@@ -19,7 +20,7 @@ const _makeDefaultValues = () => ({
   ],
 });
 
-function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories }) {
+function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories, withContingen }) {
   const [form, dispatch] = React.useReducer(_formReducer, {
     data: initialValues,
     errors: {},
@@ -48,7 +49,7 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories })
   };
 
   const handleValidation = ({ onValid, onInvalid }) => {
-    const errors = _validateFields(form.data);
+    const errors = _validateFields({...form.data, withContingen});
     const isError = Object.keys(errors)?.length;
 
     dispatch({ type: "UPDATE_VALIDATION_ERRORS", errors: errors });
@@ -203,12 +204,13 @@ function _isTeam(category) {
 }
 
 function _validateFields(data) {
-  const { category, matchDate, withClub, club } = data;
+
+  const { category, matchDate, withClub, club, city_id, withContingen } = data;
   const isTeam = _isTeam(category);
   let validationErrors = {};
 
-  if (!category?.id) {
-    validationErrors = { ...validationErrors, category: ["Kategori harus dipilih"] };
+  if (withContingen && !city_id?.value) {
+    validationErrors = { ...validationErrors, city_id: ["Kontingen harus dipilih"] };
   }
 
   if (category?.id && isTeam && withClub == "no") {
