@@ -17,7 +17,7 @@ function useSubmitOrder(formData) {
         team_name: teamName || undefined,
         with_club: withClub,
         payment_methode: paymentMethode,
-        city_id: city_id.value
+        city_id: city_id?.value
       };
 
       return OrderEventService.register(payload);
