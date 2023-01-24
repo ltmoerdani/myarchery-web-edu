@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import toastr from "toastr";
 import { useUserProfile } from "hooks/user-profile";
-import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSubmitVerification } from "../hooks/submit-verification";
 import { useSubmitOrder } from "../hooks/submit-order";
 
@@ -31,7 +31,6 @@ function TicketView({
   onSuccessOrder,
   withContingen
 }) {
-  const history = useHistory();
   const { userProfile } = useUserProfile();
   const [showAlert, setShowAlert] = React.useState(false);
 
@@ -111,7 +110,6 @@ function TicketView({
 
   const handleConfirm = () => {
     setShowAlert(false);
-    history.goBack()
   };
 
   const handleSubmitOrder = () => {
@@ -237,10 +235,12 @@ function TicketView({
               </React.Fragment>
             )}
             {showAlert ? (
-              <ButtonBackToHome
-                showAlert= {showAlert}
-                onConfirm= {handleConfirm}
-              />
+              <Link to="/">
+                <ButtonBackToHome
+                  showAlert= {showAlert}
+                  onConfirm= {handleConfirm}
+                />
+              </Link>
             ) : null}
           </div>
         </TicketCard>
