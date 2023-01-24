@@ -4,7 +4,7 @@ import { useParticipantScorings } from "../../hooks/participant-scorings";
 
 import { SessionCellsDataHeading, SessionCellsData, FullPageLoadingIndicator } from "../index";
 
-function ScoringTable({ categoryDetail, isEventEnded }) {
+function ScoringTable({ categoryDetail, isEventEnded, eventDetail }) {
   const teamType = categoryDetail?.categoryTeam?.toLowerCase?.();
   const { data: scorings, isLoading } = useParticipantScorings(
     categoryDetail?.id,
@@ -35,7 +35,11 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
                 <th>Peringkat</th>
                 <th>Bantalan</th>
                 <th className="text-uppercase">Nama</th>
-                <th className="text-uppercase">Klub</th>
+                {!eventDetail.withContingent ? (
+                  <th className="text-uppercase">Klub</th>
+                 ) :
+                  <th className="text-uppercase">Kontingen</th>
+                }
                 <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
                 <th className="text-uppercase">Total</th>
                 <th className="text-uppercase">X+10</th>
@@ -53,7 +57,11 @@ function ScoringTable({ categoryDetail, isEventEnded }) {
                   </td>
                   <td>{_getBudrestNumber(scoring.member)}</td>
                   <td>{scoring.member.name}</td>
-                  <td>{scoring.member.clubName || <React.Fragment>&ndash;</React.Fragment>}</td>
+                  {!eventDetail.withContingent ? (
+                    <td>{scoring.member.clubName || <React.Fragment>&ndash;</React.Fragment>}</td>
+                  ) :
+                    <td>{scoring.member.cityName || <React.Fragment>&ndash;</React.Fragment>}</td>
+                  }
 
                   <SessionCellsData sessions={scoring.sessions} />
 

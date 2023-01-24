@@ -265,7 +265,6 @@ function FormView({
 
       <div className="mt-5 mb-0">
         <h5>Data Peserta</h5>
-        <p>Atur Detail Klub Peserta</p>
       </div>
 
       {withContingen ? (
@@ -280,45 +279,50 @@ function FormView({
         </div>
       ): null}
 
-      <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
+      {!withContingen ? (
         <div>
-          <Label
-            className="form-check-label"
-            style={{ marginBottom: "0.25rem" }}
+          <p>Atur Detail Klub Peserta</p>
+          <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
+            <div>
+              <Label
+                className="form-check-label"
+                style={{ marginBottom: "0.25rem" }}
+              >
+                Apakah Anda mewakili klub?
+              </Label>
+            </div>
+
+            <div>
+              <SelectRadio
+                options={[
+                  { value: "yes", label: "Iya, saya mewakili klub" },
+                  { value: "no", label: "Tidak, saya individu" },
+                ]}
+                value={withClub}
+                onChange={setWithClub}
+              />
+
+              <FieldErrorMessage errors={orderErrors.withClub} />
+            </div>
+          </div>
+
+          <FieldSelectClub
+            required={category?.id && !isCategoryIndividu}
+            disabled={!category?.id || withClub == "no"}
+            value={club}
+            onChange={setClub}
+            errors={orderErrors.club}
           >
-            Apakah Anda mewakili klub?
-          </Label>
+            Pilih Klub yang diwakilkan
+          </FieldSelectClub>
+
+          <Show when={isCategoryIndividu}>
+            <SubtleFieldNote>
+              Dapat dikosongkan jika tidak mewakili klub
+            </SubtleFieldNote>
+          </Show>
         </div>
-
-        <div>
-          <SelectRadio
-            options={[
-              { value: "yes", label: "Iya, saya mewakili klub" },
-              { value: "no", label: "Tidak, saya individu" },
-            ]}
-            value={withClub}
-            onChange={setWithClub}
-          />
-
-          <FieldErrorMessage errors={orderErrors.withClub} />
-        </div>
-      </div>
-
-      <FieldSelectClub
-        required={category?.id && !isCategoryIndividu}
-        disabled={!category?.id || withClub == "no"}
-        value={club}
-        onChange={setClub}
-        errors={orderErrors.club}
-      >
-        Pilih Klub yang diwakilkan
-      </FieldSelectClub>
-
-      <Show when={isCategoryIndividu}>
-        <SubtleFieldNote>
-          Dapat dikosongkan jika tidak mewakili klub
-        </SubtleFieldNote>
-      </Show>
+      ): null}
 
       <SegmentByTeamCategory
         teamFilters={["individu male", "individu female"]}
