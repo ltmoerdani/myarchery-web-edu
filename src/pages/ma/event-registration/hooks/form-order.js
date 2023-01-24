@@ -213,22 +213,22 @@ function _validateFields(data) {
     validationErrors = { ...validationErrors, city_id: ["Kontingen harus dipilih"] };
   }
 
-  if (category?.id && isTeam && withClub == "no") {
+  if (!withContingen && category?.id && isTeam && withClub == "no") {
     validationErrors = { ...validationErrors, withClub: ["Kategori beregu harus mewakili klub"] };
   }
 
-  if (category?.id && !club?.detail.id && withClub == "yes") {
+  if (!withContingen && category?.id && !club?.detail.id && withClub == "yes") {
     validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
   }
 
   // Kategori tim secara umum
   if (
-    category?.id &&
+    !withContingen && category?.id &&
     ["individu male", "individu female", "individu_mix"].every(
       (team) => team !== category?.teamCategoryId
     )
   ) {
-    if (!club?.detail.id) {
+    if (!withContingen && !club?.detail.id) {
       validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
     }
   }

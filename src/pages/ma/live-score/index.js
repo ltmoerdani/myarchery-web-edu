@@ -44,6 +44,7 @@ function poolStaticData(eventDetail) {
 function PageScoreQualification() {
   const { slug } = useParams();
   const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
+
   const eventId = eventDetail?.id;
   const {
     isLoading: isLoadingCategory,
@@ -135,6 +136,7 @@ function PageScoreQualification() {
                     categoryDetail={activeCategoryDetail}
                     // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
                     isEventEnded={isEventEnded}
+                    eventDetail={eventDetail}
                   />
                 </ScrollX>
               </div>
