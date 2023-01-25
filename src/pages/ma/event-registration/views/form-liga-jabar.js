@@ -10,7 +10,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 
 import { useEventDetail } from "pages/landingpage/homepage/hooks/event-detail";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { useUserProfile } from "hooks/user-profile";
 import { EventsService, GeneralService } from "services";
 import { ButtonBlueOutline } from "components/ma";
@@ -169,14 +169,15 @@ function FormLigaJabar() {
     },
   ]
 
-  return step ? <TicketViewCard onBack={() => setStep(0)} totalMembers={listMembers.length} eventDetail={eventDetail}/> : (<section>
+  return step ? <TicketViewCard onBack={() => setStep(0)} totalMembers={listMembers.length} eventDetail={eventDetail} /> : (<section>
       <Container>
         <div className="mt-3 d-flex justify-content-between align-items-center">
           <MainCardHeader>
             <img src={backLogo} onClick={() => history.goBack()} height={40} role="button" />
             <h3 className="mt-2">Pendaftaran Liga 1 Jawa Barat 2023</h3>
           </MainCardHeader>
-          <ButtonBlue as={Link} to={`/event-registration/regular/beregu/${eventDetail?.eventSlug}`}>Daftar Beregu di Sini</ButtonBlue>
+          <ButtonBlue>Daftar Beregu di Sini</ButtonBlue>
+          {/* <ButtonBlue as={Link} to={`/event-registration/regular/beregu/${eventDetail?.eventSlug}`}>Daftar Beregu di Sini</ButtonBlue> */}
         </div>
 
         <div className="mt-3">
