@@ -4,10 +4,9 @@ import styled from "styled-components";
 import posterLigaJabar from "../../../../assets/images/events/posterLigaJabar.png";
 
 import { ButtonBlue } from "components/ma"
-import { Link } from "react-router-dom";
 import { useOnClickOutside } from "utils/hooks";
 
-export function TicketViewCard({ totalMembers, eventDetail }) {
+export function TicketViewCard({ totalMembers }) {
   const [openPayment, setOpenPayment] = React.useState(false)
   const paymentRef = React.useRef(null)
   useOnClickOutside(paymentRef, () => setOpenPayment(false))
@@ -19,7 +18,7 @@ export function TicketViewCard({ totalMembers, eventDetail }) {
           <MainCardHeader>
             <h3 className="mt-2">Pendaftaran Liga 1 Jawa Barat 2023</h3>
           </MainCardHeader>
-          <ButtonBlue as={Link} to={`/event-registration/regular/${eventDetail?.eventSlug}`}>Daftar Individu di Sini</ButtonBlue>
+          {/* <ButtonBlue as={Link} to={`/event-registration/regular/${eventDetail?.eventSlug}`}>Daftar Individu di Sini</ButtonBlue> */}
         </div>
 
 
