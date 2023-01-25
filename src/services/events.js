@@ -48,5 +48,8 @@ export default {
     },
     async addMemberKontingenIndividu(payload){
         return await API.post("/api/download-template/member-contingent", payload, null, true)
+    },
+    async addMemberKontingenTeam(payload){
+        return await API.post("/api/download-template/member-contingent-team", payload, null, true)
     }
 }
