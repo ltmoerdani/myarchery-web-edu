@@ -6,8 +6,11 @@ import IconAddress from "components/ma/icons/mono/address";
 import backLogo from "../../../../assets/icons/big-icon.png";
 import warningIcon from "../../../../assets/icons/warning_icon.png";
 import uploadIcon from "../../../../assets/icons/upload_icon.png";
+import SweetAlert from "react-bootstrap-sweetalert";
+import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
 
-import { useHistory } from "react-router-dom";
+import { useEventDetail } from "pages/landingpage/homepage/hooks/event-detail";
+import { useHistory, useParams } from "react-router-dom";
 import { useUserProfile } from "hooks/user-profile";
 import { EventsService, GeneralService } from "services";
 import { ButtonBlueOutline } from "components/ma";
@@ -19,6 +22,8 @@ import { TicketViewCard } from "./ticket-view-card";
 
 function FormLigaJabar() {
   const { userProfile } = useUserProfile();
+  const { slug } = useParams();
+  const { data: eventDetail } = useEventDetail(slug);
 
   let history = useHistory();
 
@@ -72,6 +77,13 @@ function FormLigaJabar() {
   const checkEmail =  /^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/
   const checkPhoneNumber = /\+62\s\d{3}[-\s]??\d{3}[-\s]??\d{3,4}|\(0\d{2,3}\)\s?\d+|0\d{2,3}\s?\d{6,7}|\+62\s?361\s?\d+|\+62\d+|\+62\s?(?:\d{3,}-)*\d{3,5}/
 
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [message, setMessage] = React.useState('');
+
+  const handleConfirm = () => {
+    setShowAlert(false);
+  };
+
   const handleSubmitForm = async () => {
     listMembers.map(member => (
       member.name.length === 0 ? setError(true) : null,
@@ -84,12 +96,11 @@ function FormLigaJabar() {
       member.binaan_later === 0 ? setError(true) : null,
 
       new Date(member.date_of_birth).getFullYear() < 2011 && (member.category_id === 1091 || member.category_id === 1090) ? setError(true) :null,
-      new Date(member.date_of_birth).getFullYear() < 2008 && (member.category_id === 1096 || member.category_id === 1095) ? setError(true) :null,
+      new Date(member.date_of_birth).getFullYear() < 2008 && (member.category_id === 1096 || member.category_id === 1095 || member.category_id === 1105 || member.category_id === 1104 || member.category_id === 1109 || member.category_id === 1110) ? setError(true) :null,
 
       checkEmail.test(member.email) === false ? setError(true) : null,
       checkPhoneNumber.test(member.phone_number) === false ? setError(true) : null
-
-      ))
+    ))
 
     cityId.length === 0 ? setError(true) : null
 
@@ -101,7 +112,10 @@ function FormLigaJabar() {
       "responsible_email": userProfile.email,
       "list_members": listMembers.map(member => { return { ...member, binaan_later: member.binaan_later?.base64, ktp_kk: member.ktp_kk?.base64 } })
     }).then((response) => {
-      if (!response.success) alert("Failed")
+      if (!response.success){
+        setShowAlert(true)
+        setMessage(response.message)
+      }
       else setStep(1)
     })
   }
@@ -123,7 +137,6 @@ function FormLigaJabar() {
       ]
     )
   }
-
 
   React.useEffect(() => {
     const getCategory = async () => {
@@ -156,7 +169,7 @@ function FormLigaJabar() {
     },
   ]
 
-  return step ? <TicketViewCard onBack={() => setStep(0)} totalMembers={listMembers.length}/> : (<section>
+  return step ? <TicketViewCard onBack={() => setStep(0)} totalMembers={listMembers.length} eventDetail={eventDetail} /> : (<section>
       <Container>
         <div className="mt-3 d-flex justify-content-between align-items-center">
           <MainCardHeader>
@@ -164,6 +177,7 @@ function FormLigaJabar() {
             <h3 className="mt-2">Pendaftaran Liga 1 Jawa Barat 2023</h3>
           </MainCardHeader>
           <ButtonBlue>Daftar Beregu di Sini</ButtonBlue>
+          {/* <ButtonBlue as={Link} to={`/event-registration/regular/beregu/${eventDetail?.eventSlug}`}>Daftar Beregu di Sini</ButtonBlue> */}
         </div>
 
         <div className="mt-3">
@@ -272,20 +286,20 @@ function FormLigaJabar() {
                       onChange={(value) => handleChangeInput(value, index, "email")}
                       />
                       {
-                        error&&participan.email.length <= 0 ? <LabelError>Email Harus Diisi</LabelError> : null ||
-                        error&&checkEmail.test(participan.email) === false ? <LabelError>Format Email Salah</LabelError> : null
+                        error && participan.email.length <= 0 ? <LabelError>Email Harus Diisi</LabelError> : null ||
+                        error && checkEmail.test(participan.email) === false ? <LabelError>Format Email Salah</LabelError> : null
                       }
                     </div>
                     <div>
-                      <FieldInputText
+                    <FieldInputText
                       label="No WhatsApp"
                       placeholder="Input Data"
                       value={participan.phone_number}
                       onChange={(value) => handleChangeInput(value, index, "phone_number")}
-                      />
+                    />
                       {
-                        error&&participan.phone_number.length <= 0 ? <LabelError>Nomer WA Harus Diisi</LabelError> : null ||
-                        (error&&checkPhoneNumber.test(participan.phone_number) === false  || participan.email.length >= 14) ? <LabelError>Format Nomor Salah</LabelError> : null
+                        error && participan.phone_number.length <= 0 ? <LabelError>Nomer WA Harus Diisi</LabelError> : null ||
+                        error && (checkPhoneNumber.test(participan.phone_number) === false  || participan.phone_number.length >= 14) ? <LabelError>Format Nomor Salah</LabelError> : null
                       }
                     </div>
                     <ContentOption>
@@ -310,7 +324,7 @@ function FormLigaJabar() {
                       {
                         error && participan.date_of_birth.length <= 0 ? <LabelError>Tanggal Lahir Harus Diisi</LabelError> : null ||
                         error && new Date(participan.date_of_birth).getFullYear() < 2011 && (participan.category_id === 1091 || participan.category_id === 1090) ? <LabelError>Melebihi Batas Usia</LabelError> : null ||
-                        error && new Date(participan.date_of_birth).getFullYear() < 2008 && (participan.category_id === 1096 || participan.category_id === 1095) ? <LabelError>Melebihi Batas Usia</LabelError> : null
+                        error && new Date(participan.date_of_birth).getFullYear() < 2008 && (participan.category_id === 1096 || participan.category_id === 1095 || participan.category_id === 1105 || participan.category_id === 1104 || participan.category_id === 1109 || participan.category_id === 1110) ? <LabelError>Melebihi Batas Usia</LabelError> : null
                       }
                     </ContentOption>
                     <img src={deleteLogo} style={{ marginTop:'50px' }} role="button" height={16} onClick={() => handleRemoveData(participan)} />
@@ -377,9 +391,45 @@ function FormLigaJabar() {
           <ButtonBlueOutline>Batalkan</ButtonBlueOutline>
           <ButtonBlue onClick={handleSubmitForm}>Kirim</ButtonBlue>
         </div>
+        {showAlert ? (
+          <ErrorMessage
+            showAlert={showAlert}
+            messageDescription={message}
+            onConfirm={handleConfirm}
+          />
+        ) : null }
       </Container>
     </section>
   )
+}
+
+function ErrorMessage({ onConfirm, showAlert, messageDescription }) {
+
+  const handleConfirm = () => {
+    onConfirm?.();
+  };
+
+  return (
+    <React.Fragment>
+      <SweetAlert
+        show={showAlert}
+        title=""
+        custom
+        btnSize="md"
+        onConfirm={handleConfirm}
+        style={{ padding: "1.25rem" }}
+        customButtons={
+          <ButtonBlue onClick={handleConfirm}>Cek Kembali</ButtonBlue>
+        }
+      >
+        <p style={{ color: "var(--ma-orange-300)" }}>
+          <IconAlertTriangle size="36" />
+        </p>
+        {messageDescription && <p>{messageDescription}</p>}
+
+      </SweetAlert>
+    </React.Fragment>
+  );
 }
 
 export { FormLigaJabar };
