@@ -101,7 +101,7 @@ function CardEventCTA({ eventDetail, categories = [] }) {
     return <ContentSheet>Sedang memuat data event...</ContentSheet>;
   }
 
-  // const registrationRoute = eventDetail.withContingent ? `/event-registration/${eventDetail.eventSlug}` : `/event-registration/regular/${eventDetail.eventSlug}`
+  const registrationRoute = !eventDetail.withContingent ? `/event-registration/${eventDetail.eventSlug}` : `/event-registration/regular/${eventDetail.eventSlug}`
 
   return (
     <ContentSheet>
@@ -160,8 +160,8 @@ function CardEventCTA({ eventDetail, categories = [] }) {
               as={Link}
               to={
                 !isLoggedIn
-                  ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
-                  : `/event-registration/${eventDetail.eventSlug}`
+                  ? `/archer/login?path=${registrationRoute}`
+                  : registrationRoute
 
               }
             >
