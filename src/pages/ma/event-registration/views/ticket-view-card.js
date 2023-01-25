@@ -4,6 +4,7 @@ import styled from "styled-components";
 import posterLigaJabar from "../../../../assets/images/events/posterLigaJabar.png";
 
 import { ButtonBlue } from "components/ma"
+import { Link } from "react-router-dom";
 import { useOnClickOutside } from "utils/hooks";
 
 export function TicketViewCard({ totalMembers, eventDetail }) {
