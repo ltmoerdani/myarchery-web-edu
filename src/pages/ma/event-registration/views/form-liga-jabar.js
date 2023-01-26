@@ -359,6 +359,9 @@ function FormLigaJabar() {
                         <img src={uploadIcon} height={15} />
                       </div>
                     </InputFile>
+                    {
+                      error&&participan.ktp_kk === null ? <LabelError>KTP/KK harus Diisi</LabelError> : null
+                    }
                   </div>
                 </div>
               </div>
