@@ -5,7 +5,7 @@ import { FieldErrorMessage } from "./field-error-message";
 
 import classnames from "classnames";
 
-function FieldInputText({
+function FieldInputTextLigaJabar({
   children,
   label,
   required,
@@ -60,8 +60,7 @@ function FieldInputText({
 }
 
 const FieldInputTextWrapper = styled.div`
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
+margin-top: 0.2rem;
 
   .field-label {
     display: inline-block;
@@ -114,4 +113,4 @@ const FieldInputTextWrapper = styled.div`
   }
 `;
 
-export { FieldInputText };
+export { FieldInputTextLigaJabar };
