@@ -18,7 +18,6 @@ export function TicketViewCard({ totalMembers }) {
           <MainCardHeader>
             <h3 className="mt-2">Pendaftaran Liga 1 Jawa Barat 2023</h3>
           </MainCardHeader>
-          {/* <ButtonBlue as={Link} to={`/event-registration/regular/${eventDetail?.eventSlug}`}>Daftar Individu di Sini</ButtonBlue> */}
         </div>
 
 
