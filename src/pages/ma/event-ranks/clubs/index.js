@@ -88,6 +88,7 @@ function PageEventRanksClubs() {
                 <RankingTable
                   eventId={eventDetail.id}
                   params={rankingCategory?.data?.paramRequestRank}
+                  eventDetail={eventDetail}
                 />
               ) : (
                 <EmptyBar>Data tidak tersedia</EmptyBar>

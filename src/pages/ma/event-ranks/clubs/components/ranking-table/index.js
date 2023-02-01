@@ -11,7 +11,7 @@ import IconMedalBronze from "components/ma/icons/color/medal-bronze";
 
 import { misc } from "utils";
 
-function RankingTable({ eventId, params }) {
+function RankingTable({ eventId, params, eventDetail }) {
   const { data: rankedClubs, isLoading: isLoadingRankedClubs } = useEventRanksClubs(
     eventId,
     params
@@ -46,7 +46,7 @@ function RankingTable({ eventId, params }) {
           <TableHeadScores>
             <div>
               <span>Peringkat</span>
-              <span className="text-uppercase">Klub</span>
+              <span className="text-uppercase">{!eventDetail.withContingent? 'Klub' : 'Kontingen'}</span>
             </div>
 
             <div>
@@ -71,8 +71,9 @@ function RankingTable({ eventId, params }) {
                 <li key={index}>
                   <RankItem>
                     <BlockRankNo>{index + 1}</BlockRankNo>
-
                     <BlockMain>
+
+                    {!club.withContingent ? (
                       <BlockClub>
                         <BlockAvatar>
                           <AvatarContainer>
@@ -96,6 +97,9 @@ function RankingTable({ eventId, params }) {
                           <CityName>{club.clubCity}</CityName>
                         </BlockClubInfo>
                       </BlockClub>
+                    ) : (
+                      <ContingentName>{club.contingentName}</ContingentName>
+                    )}
 
                       <BlockPoints>
                         <BlockMedalCounts>
@@ -110,6 +114,7 @@ function RankingTable({ eventId, params }) {
                         <span>{club.total}</span>
                       </BlockPoints>
                     </BlockMain>
+
                   </RankItem>
                 </li>
               ))}
@@ -301,6 +306,11 @@ const BlockClubInfo = styled.div`
 `;
 
 const ArcherName = styled.h6`
+  margin: 0;
+  font-weight: 600;
+`;
+
+const ContingentName = styled.h5`
   margin: 0;
   font-weight: 600;
 `;
