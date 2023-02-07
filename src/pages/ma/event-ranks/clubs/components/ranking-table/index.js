@@ -98,7 +98,9 @@ function RankingTable({ eventId, params, eventDetail }) {
                         </BlockClubInfo>
                       </BlockClub>
                     ) : (
-                      <ContingentName>{club.contingentName}</ContingentName>
+                      <div className="d-flex align-items-center">
+                        <ContingentName>{club.contingentName}</ContingentName>
+                      </div>
                     )}
 
                       <BlockPoints>
@@ -312,6 +314,7 @@ const ArcherName = styled.h6`
 
 const ContingentName = styled.h5`
   margin: 0;
+  padding-left: 20px;
   font-weight: 600;
 `;
 
