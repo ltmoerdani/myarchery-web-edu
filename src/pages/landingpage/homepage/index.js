@@ -85,7 +85,7 @@ function LandingPage() {
               {eventDetail.eventCompetition != "Selection" && (
                 <SecondaryCTAItem
                   bgImg={clubRank}
-                  heading="Pemeringkatan Klub"
+                  heading={!eventDetail.withContingent ? "Pemeringkatan Klub" : "Pemeringkatan Kontingen"}
                   subheading="Klik untuk melihat"
                   to={`/event-ranks/${slug}/clubs`}
                 />
