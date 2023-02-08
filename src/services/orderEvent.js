@@ -17,7 +17,12 @@ export default {
     return API.get("/app/v1/archery-event/my-event", qs);
   },
   setSerieCategory(data = null, qs = null) {
-    return API.post("/app/v1/archery-series/join-archery-series", data, qs, true);
+    return API.post(
+      "/app/v1/archery-series/join-archery-series",
+      data,
+      qs,
+      true
+    );
   },
   getEventCategoriesByAuthUser(qs = null) {
     return API.get("/app/v1/archery-event/my-category-event", qs);
@@ -37,13 +42,24 @@ export default {
   listOfficial(qs = null) {
     return API.get("/api/general/list-official", qs);
   },
+  checkEmailRegister(data = null) {
+    return API.post("/app/v1/archery/users/check-email-is-register", data);
+  },
+  createOrder(data = null, qs = null) {
+    return API.post("/app/v2/archery/event-order", data, qs, true);
+  },
 
   /**
    * @param {Params} qs { category_id }
    * @returns {Promise} { success, data, errors, message }
    */
   createBooking(qs = null) {
-    return API.post("/app/v1/archery/event-order/booking-temporary", null, qs, true);
+    return API.post(
+      "/app/v1/archery/event-order/booking-temporary",
+      null,
+      qs,
+      true
+    );
   },
 
   /**
