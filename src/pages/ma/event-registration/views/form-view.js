@@ -64,6 +64,7 @@ function FormView({
     listParticipants,
     asParticipant,
     isCollective,
+    club,
   } = formOrder.data;
 
   const selectClassRef = React.useRef(null);
@@ -151,12 +152,19 @@ function FormView({
       }
     }
   };
-
   React.useEffect(() => {
     if (dataClass) {
       setCategory(dataClass, userProfile);
     }
   }, [dataClass]);
+
+  const shouldDisableWithContigent = asParticipant
+    ? !category || !city_id || !selectClassCategories
+    : (!category && !city_id && !selectClassCategories) ||
+      !listParticipants?.length;
+  const shouldDisableWithoutContigent = asParticipant
+    ? !category || !club || !selectClassCategories
+    : !category && !listParticipants?.length && !selectClassCategories;
   return (
     <>
       <ContentCardLayout
@@ -257,12 +265,9 @@ function FormView({
         </Button>
         <ButtonBlue
           disabled={
-            asParticipant
-              ? !category || !city_id || !selectClassCategories
-              : !category ||
-                !city_id ||
-                !listParticipants?.length ||
-                !selectClassCategories
+            eventDetailData?.withContingent === 1
+              ? shouldDisableWithContigent
+              : shouldDisableWithoutContigent
           }
           onClick={handleNextValidation}
         >

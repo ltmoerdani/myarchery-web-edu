@@ -126,7 +126,6 @@ function TicketView({
     };
     submit(options, eventDetailData);
   };
-
   const isEarly = clientData.isWna
     ? selectCategoryUser?.isEarlyBirdWna
     : selectCategoryUser?.isEarlyBird;

@@ -71,13 +71,13 @@ const checkVerification = (data = [], category, eventDetail) => {
             filterEventCatgeories?.ageRules?.minAge === 0
           ) {
             dataVerification.ageIsValid =
-              age >= filterEventCatgeories?.ageRules?.minAge;
+              age <= filterEventCatgeories?.ageRules?.maxAge;
           } else if (
             filterEventCatgeories?.ageRules?.maxAge === 0 &&
             filterEventCatgeories?.ageRules?.minAge !== 0
           ) {
             dataVerification.ageIsValid =
-              age <= filterEventCatgeories?.ageRules?.maxAge;
+              age >= filterEventCatgeories?.ageRules?.minAge;
           } else if (
             filterEventCatgeories?.ageRules?.maxAge !== 0 &&
             filterEventCatgeories?.ageRules?.minAge !== 0
