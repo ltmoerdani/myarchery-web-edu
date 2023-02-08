@@ -5,15 +5,15 @@ import { Link } from "react-router-dom";
 import { Carousel } from "react-responsive-carousel";
 
 import logoLight from "assets/images/myachery/myachery.png";
-import bannerVictory from "assets/images/home/home-banner-victory-new.jpg";
+import bannerLigaJabar from "assets/images/home/banner-liga-jabar.png";
 import bannerPartnership from "assets/images/myachery/banner7 2.png";
 import bannerWelcomeKid from "assets/images/myachery/banner6 1.svg";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 // * Pakai data dari API (?) Musti fetch dulu (?) Kemungkinan bakal dihapus lagi
-const VICTORY_EVENT_URL =
-  "/event/victory-archery-club/1662864265-victory-purwakarta-open-2022";
+const LIGAJABAR_EVENT_URL =
+  "/event/perpani-jawa-barat/liga-1-jawa-barat-2023";
 
 function HeroCarousel() {
   return (
@@ -29,7 +29,7 @@ function HeroCarousel() {
         renderIndicator={renderCustomIndicator}
         renderItem={renderCustomItem}
       >
-        <SlideImageFitContent imgSrc={bannerVictory} to={VICTORY_EVENT_URL} />
+        <SlideImageFitContent imgSrc={bannerLigaJabar} to={LIGAJABAR_EVENT_URL} />
 
         <SlidePartnership>
           <PartnershipCTAContainer>
