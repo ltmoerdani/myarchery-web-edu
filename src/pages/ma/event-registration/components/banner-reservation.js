@@ -13,8 +13,9 @@ function BannerReservation({ category, onTimeout, isSuccess }) {
     return (
       <React.Fragment>
         <BannerTimerWrapper className="timer-muted">
-          Tiket akan tereservasi ketika kategori lomba sudah dipilih. Form dapat diisi selama{" "}
-          <TimerTextWrapper>15 menit</TimerTextWrapper>.
+          Tiket Anda sudah ter-reservasi. Selesaikan isi form dalam {" "}
+          <TimerTextWrapper> 00:15:00 </TimerTextWrapper>
+          Jika melebihi batas waktu, reservasi akan dibuka kembali
         </BannerTimerWrapper>
         <LoadingScreen loading={isLoading} />
       </React.Fragment>
@@ -63,6 +64,7 @@ const BannerTimerWrapper = styled.div`
 
 const TimerTextWrapper = styled.span`
   font-weight: 600;
+  margin: 0 10px;
 `;
 
 /* ==================================== */
