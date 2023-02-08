@@ -12,7 +12,9 @@ function useSubmitOrder(formData) {
       const payload = {
         event_id: selectCategoryUser?.eventId,
         club_or_city_id:
-          eventDetailData?.withContingent === 1 ? city_id.value : club?.id,
+          eventDetailData?.withContingent === 1
+            ? city_id.value
+            : club?.detail?.id ?? 0,
       };
       if (dataParticipant.length === 1) {
         payload.members = dataParticipant;

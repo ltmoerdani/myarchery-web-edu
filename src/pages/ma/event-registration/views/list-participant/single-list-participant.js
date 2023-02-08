@@ -134,11 +134,11 @@ const SingleListParticipant = ({
   });
   const handleNextToOrder = async () => {
     const participant = [];
-    const user = listParticipants[0];
-    const temp = {};
-    temp.email = user.email;
-    temp.event_category_id = categorySelect[0]?.id;
     if (asParticipant === false) {
+      const user = listParticipants[0];
+      const temp = {};
+      temp.email = user.email;
+      temp.event_category_id = categorySelect[0]?.id;
       temp.name = user.name?.length ? user.name : fullNameUser;
       temp.gender = user.gender?.length ? user.gender : genderUser;
       temp.date_of_birth = user.date_of_birth?.length
@@ -152,14 +152,16 @@ const SingleListParticipant = ({
       participant.push(temp);
       setDataParticipants(participant);
     } else {
-      const user = listParticipants[0];
       const temp = {};
+      const user = listParticipants[0];
+      temp.email = user.email;
+      temp.event_category_id = categorySelect[0]?.id;
       temp.name = user.name;
       temp.gender = user.gender;
       temp.date_of_birth = user.date_of_birth;
       temp.country_id = user.country?.id;
-      temp.province_id = user.province?.id;
-      temp.city_id = user.city?.id;
+      temp.province_id = user.province?.id ?? provinceUser?.id;
+      temp.city_id = user.city?.id ?? cityUser?.id ?? 0;
       participant.push(temp);
       setDataParticipants(participant);
     }
