@@ -157,7 +157,6 @@ function CardEventCTA({ eventDetail, categories = [] }) {
             <ButtonCTABig disabled>Pendaftaran Ditutup</ButtonCTABig>
           ) : (
             <div>
-              {!eventDetail.withContingent ? (
                 <ButtonCTABig
                   as={Link}
                   to={
@@ -168,13 +167,6 @@ function CardEventCTA({ eventDetail, categories = [] }) {
                 >
                   Daftar Event
                 </ButtonCTABig>
-              ) : (
-                <a href={!isLoggedIn ? `/archer/login?path=/event/perpani-jawa-barat/${eventDetail.eventSlug}` : "https://api.whatsapp.com/send/?phone=6281212241633"}>
-                  <ButtonCTABig>
-                    Daftar Event
-                  </ButtonCTABig>
-                </a>
-              )}
             </div>
           )}
         </div>
