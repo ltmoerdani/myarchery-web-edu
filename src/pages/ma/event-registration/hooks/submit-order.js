@@ -1,26 +1,25 @@
 import { useFetcher } from "hooks/fetcher-alt";
 import { OrderEventService } from "services";
 
-import { datetime } from "utils";
+// import { datetime } from "utils";
 
 function useSubmitOrder(formData) {
   const fetcher = useFetcher();
 
-  const submit = (options) => {
+  const submit = (options, eventDetailData) => {
     const postFunction = () => {
-      const { category, matchDate, teamName, withClub, club, paymentMethode, city_id } = formData;
-
+      const { dataParticipant, selectCategoryUser, city_id, club } = formData;
       const payload = {
-        event_category_id: category.id,
-        day_choice: datetime.formatServerDate(matchDate) || undefined,
-        club_id: club?.detail.id || 0,
-        team_name: teamName || undefined,
-        with_club: withClub,
-        payment_methode: paymentMethode,
-        city_id: city_id?.value
+        event_id: selectCategoryUser?.eventId,
+        club_or_city_id:
+          eventDetailData?.withContingent === 1
+            ? city_id.value
+            : club?.detail?.id ?? 0,
       };
-
-      return OrderEventService.register(payload);
+      if (dataParticipant.length === 1) {
+        payload.members = dataParticipant;
+      }
+      return OrderEventService.createOrder(payload);
     };
 
     fetcher.runAsync(postFunction, options);

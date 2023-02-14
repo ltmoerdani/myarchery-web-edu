@@ -9,7 +9,7 @@ import { useVerificationDetail } from "./hooks/verification-detail";
 import { useFormVerification } from "./hooks/form-verification";
 import { useFormOrder } from "./hooks/form-order";
 
-import { WizardView, WizardViewContent } from "components/ma";
+import { ButtonBlue, WizardView, WizardViewContent } from "components/ma";
 import { PageWrapper } from "components/ma/page-wrapper";
 import { ErrorBoundary } from "components/ma/error-boundary";
 import { BannerReservation } from "./components/banner-reservation";
@@ -20,32 +20,39 @@ import AdsBanner from "./components/ads-banner";
 
 import { Landingpage } from "services";
 
-
 import classnames from "classnames";
+import ListParticipant from "./views/list-participant";
+// import ListParticipant from "./views/list-participant/index";
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
-  { step: 2, label: "Pemesanan" },
+  { step: 2, label: "Data Peserta" },
+  { step: 3, label: "Pemesanan" },
 ];
 
 function PageEventRegistration() {
   const { slug } = useParams();
-  const [withContingen, setWithContingen] = React.useState(0)
+  const [withContingen, setWithContingen] = React.useState(0);
 
   React.useEffect(() => {
-    (async() => {
-      const { data: { withContingent } } = await Landingpage.getEventBySlug({ slug })
+    (async () => {
+      const {
+        data: { withContingent },
+      } = await Landingpage.getEventBySlug({ slug });
 
-      setWithContingen(withContingent)
-    })()
-  }, [])
+      setWithContingen(withContingent);
+    })();
+  }, []);
 
   const history = useHistory();
-  const { userProfile, refresh: refreshUserProfile } = useUserProfile();
+  const { userProfile } = useUserProfile();
+  // const { userProfile, refresh: refreshUserProfile } = useUserProfile();
 
   const { data: eventDetailData, isLoading: isLoadingEventDetail } =
     useEventDetail(slug);
+
   const { data: eventCategories } = useCategoriesByTeam(eventDetailData?.id);
+
   const { data: verificationDetail, fetchVerificationDetail } =
     useVerificationDetail(userProfile?.id);
 
@@ -55,7 +62,7 @@ function PageEventRegistration() {
   const formVerification = useFormVerification(verificationDetail);
 
   const formOrder = useFormOrder({ ...eventCategories, withContingen });
-  const { category } = formOrder.data;
+  const { selectCategoryUser, city_id } = formOrder.data;
 
   const [isOrderSuccess, setOrderSuccess] = React.useState(false);
 
@@ -69,7 +76,6 @@ function PageEventRegistration() {
     // Scroll to top tiap klik next/previous
     window.scrollTo(0, 0);
   }, [currentStep]);
-
   return (
     <PageWrapper
       pageTitle={pageTitle}
@@ -91,13 +97,25 @@ function PageEventRegistration() {
 
             <StepArrow>&#10097;</StepArrow>
 
-            <Step className={classnames({ "step-active": currentStep === 2 })}>
-              2. Pemesanan
+            <Step
+              className={classnames({
+                "step-active": currentStep === 2,
+                "step-done": currentStep > 2,
+              })}
+              onClick={() => currentStep > 2 && goToStep(2)}
+            >
+              2. Data Peserta
+            </Step>
+
+            <StepArrow>&#10097;</StepArrow>
+
+            <Step className={classnames({ "step-active": currentStep === 3 })}>
+              3. Pemesanan
             </Step>
           </StepIndicator>
 
           <BannerReservation
-            category={category}
+            category={selectCategoryUser}
             onTimeout={() => history.push(breadcrumbLink)}
             isSuccess={isOrderSuccess}
           />
@@ -108,6 +126,8 @@ function PageEventRegistration() {
                 <WizardViewContent noContainer>
                   <ErrorBoundary>
                     <FormView
+                      pageTitle={pageTitle}
+                      wizardView={wizardView}
                       userProfile={userProfile}
                       eventCategories={eventCategories}
                       formOrder={formOrder}
@@ -121,31 +141,56 @@ function PageEventRegistration() {
 
                 <WizardViewContent noContainer>
                   <ErrorBoundary>
-                    <SummaryView
-                      userProfile={userProfile}
+                    <ListParticipant
                       formOrder={formOrder}
+                      wizardView={wizardView}
+                      eventDetailData={eventDetailData}
+                      userProfile={userProfile}
                     />
                   </ErrorBoundary>
                 </WizardViewContent>
-              </WizardView>
-            </div>
+                <SplitDisplay>
+                  <WizardViewContent noContainer>
+                    <SummaryWrapper>
+                      <ErrorBoundary>
+                        <SummaryView
+                          userProfile={userProfile}
+                          formOrder={formOrder}
+                        />
+                      </ErrorBoundary>
+                      {eventDetailData?.withContingent === 1 ? (
+                        <ContigentBox>
+                          <ContigentTitle>Kontingen</ContigentTitle>
+                          <ContigentContentText>
+                            {city_id?.label}
+                          </ContigentContentText>
+                        </ContigentBox>
+                      ) : null}
+                    </SummaryWrapper>
+                  </WizardViewContent>
+                  <div>
+                    <ErrorBoundary>
+                      <TicketView
+                        isLoadingEventDetail={isLoadingEventDetail}
+                        eventDetailData={eventDetailData}
+                        wizardView={wizardView}
+                        formVerification={formVerification}
+                        withContingen={withContingen}
+                        formOrder={formOrder}
+                        onSuccessVerification={() => {
+                          fetchVerificationDetail();
+                          refreshUserProfile();
+                        }}
+                        onSuccessOrder={() => setOrderSuccess(true)}
+                      />
+                    </ErrorBoundary>
+                  </div>
+                </SplitDisplay>
 
-            <div>
-              <ErrorBoundary>
-                <TicketView
-                  isLoadingEventDetail={isLoadingEventDetail}
-                  eventDetailData={eventDetailData}
-                  wizardView={wizardView}
-                  formVerification={formVerification}
-                  withContingen={withContingen}
-                  formOrder={formOrder}
-                  onSuccessVerification={() => {
-                    fetchVerificationDetail();
-                    refreshUserProfile();
-                  }}
-                  onSuccessOrder={() => setOrderSuccess(true)}
-                />
-              </ErrorBoundary>
+                <ButtonBlue onClick={() => setOrderSuccess(true)}>
+                  ok
+                </ButtonBlue>
+              </WizardView>
             </div>
           </SplitDisplay>
         </ViewLayout>
@@ -205,6 +250,34 @@ const SplitDisplay = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 2rem 1rem;
+`;
+
+const SummaryWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ContigentBox = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+`;
+
+const ContigentTitle = styled.span`
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: #000000;
+`;
+
+const ContigentContentText = styled.span`
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1c1c1c;
 `;
 
 /* ==================================== */
