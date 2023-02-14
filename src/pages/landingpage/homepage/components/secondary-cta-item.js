@@ -50,13 +50,14 @@ const SecondaryCTAItemWrapper = styled.div`
   padding: 1.5rem;
   height: 6.25rem;
   border-radius: 8px;
-  border: 3px solid var(--ma-blue);
-  background-color: var(--ma-blue);
+  border: 12px solid var(--ma-blue-primary-50);
+  background-color: var(--ma-blue-primary-50);
   background-image: var(--bg-image);
   background-repeat: no-repeat;
   background-position: -2.5rem center;
   background-size: contain;
   cursor: var(--cursor-clickable);
+  color: #000;
 
   @media (min-width: 455px) {
     background-position: left center;
@@ -69,6 +70,12 @@ const SecondaryCTAItemWrapper = styled.div`
   @media (min-width: 1024px) {
     background-position: left center;
   }
+
+  &:hover {
+    border: 12px solid var(--ma-blue);
+    background-color: var(--ma-blue);
+    color: #ffffff;
+  }
 `;
 
 const Link = styled(RouterLink)`
@@ -76,10 +83,9 @@ const Link = styled(RouterLink)`
 `;
 
 const SecondaryCTAContent = styled.div`
-  width: max-content;
+  width: 100%;
   height: 100%;
-  margin-left: auto;
-
+  margin-left: 3.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -87,7 +93,6 @@ const SecondaryCTAContent = styled.div`
   gap: 1rem;
 
   text-align: center;
-  color: #ffffff;
 
   @media (min-width: 455px) {
     gap: 0;
@@ -102,9 +107,8 @@ const SecondaryCTAContent = styled.div`
   }
 `;
 
-const SecondaryCTAHeading = styled.h4`
+const SecondaryCTAHeading = styled.p`
   margin: 0;
-  color: #ffffff;
   font-size: 0.875rem;
   font-weight: 600;
 

@@ -70,6 +70,13 @@ const variantStyles = {
     "--button-font-color": "#ffffff",
     "--button-font-color-hover": "#ffffff",
   },
+  white: {
+    "--button-bg-color": "var(--ma-white)",
+    "--button-bg-color-hover": "#ffffff",
+    "--button-outline-color": "var(--ma-white)",
+    "--button-font-color": "#0f53bb",
+    "--button-font-color-hover": "#0f53bb",
+  },
   "outline-red": {
     "--button-bg-color": "none",
     "--button-bg-color-hover": "var(--ma-red)",
@@ -138,6 +145,10 @@ function ButtonRed(props) {
   return <ButtonBase color="red" {...props} />;
 }
 
+function ButtonWhite(props) {
+  return <ButtonBase color="white" {...props} />;
+}
+
 function ButtonOutline(props) {
   return <ButtonBase color="outline" {...props} />;
 }
@@ -185,4 +196,5 @@ export {
   ButtonGhostBlue,
   ButtonSmallBlue,
   ButtonSmallOutlineBlue,
+  ButtonWhite
 };
