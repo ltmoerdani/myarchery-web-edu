@@ -48,6 +48,9 @@ export default {
   createOrder(data = null, qs = null) {
     return API.post("/app/v2/archery/event-order", data, qs, true);
   },
+  createOrderTeam(data = null, qs = null) {
+    return API.post("/app/v1/archery/event-order/team", data, qs, true);
+  },
 
   /**
    * @param {Params} qs { category_id }

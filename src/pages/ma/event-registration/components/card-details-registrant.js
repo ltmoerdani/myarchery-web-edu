@@ -49,7 +49,7 @@ const DetailsRegistrant = ({
         <div>Sedang memuat data pengguna...</div>
       )}
 
-      {selectCategoriesType !== "team" ? (
+      {selectCategoriesType === "individual" ? (
         <SelectRadioSectionWrapper>
           <SelectRadioSectionBox>
             <SelectRadioTitle>Pendaftar ikut sebagai peserta?</SelectRadioTitle>

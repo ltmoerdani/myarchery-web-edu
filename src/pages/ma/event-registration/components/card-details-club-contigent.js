@@ -14,7 +14,7 @@ const DetailsClubContigent = ({
   withContingen,
 }) => {
   const { errors: orderErrors, setWithClub, setClub, setCityId } = formOrder;
-  const { category, withClub, club, city_id, registrationType } =
+  const { category, withClub, club, city_id, selectCategoriesType } =
     formOrder.data;
   const isCategoryIndividu = checkIsIndividu(category);
   return (
@@ -33,40 +33,51 @@ const DetailsClubContigent = ({
         </div>
       ) : (
         <div>
-          <p>Atur Detail Klub Peserta</p>
-          <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
-            <div>
-              <Label
-                className="form-check-label"
-                style={{ marginBottom: "0.25rem" }}
-              >
-                Apakah Anda mewakili klub?
-              </Label>
-            </div>
+          {selectCategoriesType === "individual" ? (
+            <>
+              <p>Atur Detail Klub Peserta</p>
+              <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
+                <div>
+                  <Label
+                    className="form-check-label"
+                    style={{ marginBottom: "0.25rem" }}
+                  >
+                    Apakah Anda mewakili klub?
+                  </Label>
+                </div>
 
-            <div>
-              <SelectRadio
-                options={[
-                  { value: "yes", label: "Iya, saya mewakili klub" },
-                  { value: "no", label: "Tidak, saya individu" },
-                ]}
-                value={withClub}
-                onChange={setWithClub}
-              />
+                <div>
+                  <SelectRadio
+                    options={[
+                      { value: "yes", label: "Iya, saya mewakili klub" },
+                      { value: "no", label: "Tidak, saya individu" },
+                    ]}
+                    value={withClub}
+                    onChange={setWithClub}
+                  />
 
-              <FieldErrorMessage errors={orderErrors.withClub} />
-            </div>
-          </div>
+                  <FieldErrorMessage errors={orderErrors.withClub} />
+                </div>
+              </div>
+            </>
+          ) : null}
 
           <FieldSelectClub
             required={!category && !isCategoryIndividu}
-            disabled={!category || withClub == "no"}
+            disabled={
+              selectCategoriesType === "individual"
+                ? !category || withClub == "no"
+                : false
+            }
             value={club}
             onChange={setClub}
             errors={orderErrors.club}
+            placeholder={
+              selectCategoriesType === "individual" ? "Pilih" : "Pilih klub"
+            }
           >
-            {registrationType
-              ? "Klub (Kontingen/Tim/Kelompok, dst)?"
+            {selectCategoriesType === "individual"
+              ? "Mewakili (Klub/Kontingen/Tim/Kelompok)?"
               : "Pilih Klub yang diwakilkan"}
           </FieldSelectClub>
 

@@ -15,6 +15,7 @@ const _makeDefaultValues = () => ({
   withClub: "yes",
   paymentMethode: "bankTransfer",
   genderOfTeam: "male",
+  teamCategory: null,
   selectCategoryTab: null,
   selectCategoriesType: null,
   selectClassCategories: null,
@@ -23,6 +24,7 @@ const _makeDefaultValues = () => ({
   club: null,
   city_id: null,
   dataParticipant: [],
+  multiParticipants: [],
   listParticipants: [],
   participants: [
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -75,11 +77,17 @@ function useFormOrder({
   const setListParticipants = (value) =>
     dispatch({ type: "ADD_LIST_PARTICIPANT_TYPE", payload: value });
 
+  const setMultiParticipants = (value) =>
+    dispatch({ type: "ADD_LIST_MULTI_PARTICIPANT_TYPE", payload: value });
+
   const setDataParticipants = (value) =>
     dispatch({ type: "ADD_DATA_PARTICIPANT_TYPE", payload: value });
 
   const setSelectCategoriesUser = (value) =>
     dispatch({ type: "ADD_CATEGORIES_USER_TYPE", payload: value });
+
+  const setTeamCategory = (value) =>
+    dispatch({ type: "CHANGE_TEAM_CATEGORY_TYPE", payload: value });
 
   const setCategory = (category, userProfile) => {
     dispatch({
@@ -136,6 +144,8 @@ function useFormOrder({
     setListParticipants,
     setDataParticipants,
     setSelectCategoriesUser,
+    setTeamCategory,
+    setMultiParticipants,
   };
 }
 
@@ -201,6 +211,11 @@ function _formReducer(state, action) {
     return { ...state, data: data };
   }
 
+  if (action.type === "ADD_LIST_MULTI_PARTICIPANT_TYPE") {
+    const data = { ...state.data, multiParticipants: action.payload };
+    return { ...state, data: data };
+  }
+
   if (action.type === "CHANGE_SELECT_CATEGORY_TYPE") {
     const data = { ...state.data, selectCategoriesType: action.payload?.value };
     return { ...state, data: data };
@@ -219,6 +234,11 @@ function _formReducer(state, action) {
       ...state.data,
       genderOfTeam: action.payload,
     };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_TEAM_CATEGORY_TYPE") {
+    const data = { ...state.data, teamCategory: action.payload };
     return { ...state, data: data };
   }
 

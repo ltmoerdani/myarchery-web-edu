@@ -1,6 +1,7 @@
 import React from "react";
 import Select from "react-select";
 import styled from "styled-components";
+import { useCategorySelect } from "../hooks/categories";
 
 const CategorySelect = ({
   formOrder,
@@ -9,20 +10,18 @@ const CategorySelect = ({
   handleChangeSelect,
   selectClassRef,
   selectTypeRef,
+  eventCategories,
 }) => {
-  const { category, selectCategoriesType, selectCategoryTab } = formOrder.data;
-  const competitionCategoryTypeMenu = [
-    { value: "recurveCategory", label: "Recurve" },
-    { value: "compoundCategory", label: "Compound" },
-    { value: "nationalCategory", label: "National" },
-    { value: "barebowCategory", label: "Barebow" },
-    { value: "traditionalBowCategory", label: "Traditional Bow" },
-  ];
-  const teamCategoriesType = [
-    { value: "individual", label: "Individu" },
-    { value: "team", label: "Beregu" },
-    { value: "mix", label: "Campuran" },
-  ];
+  const {
+    category,
+    selectCategoriesType,
+    selectCategoryTab,
+    selectClassCategories,
+  } = formOrder.data;
+  const [competitionCategoryTypeMenu, teamCategoriesType] = useCategorySelect(
+    eventCategories,
+    selectCategoryTab
+  );
   const optionMenu = [
     { id: "categoryField", label: "Kategori", name: "category" },
     { id: "teamField", label: "Jenis Regu", name: "team" },
@@ -41,21 +40,23 @@ const CategorySelect = ({
   const tabDefaultValue = React.useMemo(() => {
     let result;
     if (selectCategoryTab) {
-      result = competitionCategoryTypeMenu.filter(
-        (e) => e.value === selectCategoryTab
-      );
+      result =
+        competitionCategoryTypeMenu &&
+        competitionCategoryTypeMenu?.filter(
+          (e) => e.value === selectCategoryTab
+        );
     }
     return result;
-  }, [selectCategoryTab]);
+  }, [selectCategoryTab, competitionCategoryTypeMenu]);
   const tpyeDefaultValue = React.useMemo(() => {
     let result;
-    if (selectCategoriesType) {
-      result = teamCategoriesType.filter(
+    if (selectCategoriesType && teamCategoriesType) {
+      result = teamCategoriesType?.filter(
         (e) => e.value === selectCategoriesType
       );
     }
     return result;
-  }, [selectCategoriesType]);
+  }, [selectCategoriesType, teamCategoriesType]);
   const classDefaultValue = React.useMemo(() => {
     let result;
     if (category?.value) {
@@ -79,9 +80,9 @@ const CategorySelect = ({
           dataClass?.maleCanRegister === 0 ||
           dataClass?.mixCanRegister === 0 ||
           !isQuotaAvailable ||
-          dataClass?.femaleIsOpen === false ||
-          dataClass?.maleIsOpen === false ||
-          dataClass?.mixIsOpen === false;
+          ((dataClass?.femaleIsOpen === false ||
+            dataClass?.maleIsOpen === false) &&
+            dataClass?.mixIsOpen === false);
         return (
           <OptionBoxWrapper key={option.id}>
             <OptionBoxTitle>{option.label}</OptionBoxTitle>
@@ -105,7 +106,7 @@ const CategorySelect = ({
                     placeholder={
                       idx === 0 ? "Pilih Kategori..." : "Pilih Jenis Regu..."
                     }
-                    defaultValue={
+                    value={
                       idx === 0 ? tabDefaultValue ?? "" : tpyeDefaultValue ?? ""
                     }
                     options={
@@ -120,8 +121,8 @@ const CategorySelect = ({
               </>
             ) : (
               <QuotaLabel>
-                {dataClass?.femaleIsOpen === false ||
-                dataClass?.maleIsOpen === false ||
+                {(dataClass?.femaleIsOpen === false ||
+                  dataClass?.maleIsOpen === false) &&
                 dataClass?.mixIsOpen === false ? (
                   <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
                 ) : isQuotaAvailable ? (
@@ -167,7 +168,15 @@ const CategorySelect = ({
                     )}
                   </QuotaLabel>
                 ) : (
-                  <QuotaLabelMuted>Habis</QuotaLabelMuted>
+                  <>
+                    {selectClassCategories && selectCategoriesType ? (
+                      <QuotaLabelMuted>Habis</QuotaLabelMuted>
+                    ) : (
+                      <QuotaLabelMuted>
+                        Tidak ada kategori dipilih
+                      </QuotaLabelMuted>
+                    )}
+                  </>
                 )}
               </QuotaLabel>
             )}

@@ -57,6 +57,16 @@ export default {
   getListCity(qs = null) {
     return API.get("/api/general/get-city-country", qs);
   },
+  getIndividualParticipant(data = null, qs = null) {
+    return API.get(
+      "/app/v1/archery/event-order/get-member-individual-by-category-team",
+      data,
+      qs
+    );
+  },
+  checkEmailRegistered(data = null, qs = null) {
+    return API.post("/app/v1/archery/users/check-email-is-register", data, qs);
+  },
 
   /**
    * Cek kode verifikasi untuk user baru
