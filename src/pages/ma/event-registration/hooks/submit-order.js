@@ -6,20 +6,34 @@ import { OrderEventService } from "services";
 function useSubmitOrder(formData) {
   const fetcher = useFetcher();
 
-  const submit = (options, eventDetailData) => {
+  const submit = (options, eventDetailData, selectCategoriesType) => {
     const postFunction = () => {
-      const { dataParticipant, selectCategoryUser, city_id, club } = formData;
-      const payload = {
-        event_id: selectCategoryUser?.eventId,
-        club_or_city_id:
-          eventDetailData?.withContingent === 1
-            ? city_id.value
-            : club?.detail?.id ?? 0,
-      };
-      if (dataParticipant.length === 1) {
-        payload.members = dataParticipant;
+      if (selectCategoriesType === "individual") {
+        const { dataParticipant, selectCategoryUser, city_id, club } = formData;
+        const payload = {
+          event_id: selectCategoryUser?.eventId,
+          club_or_city_id:
+            eventDetailData?.withContingent === 1
+              ? city_id.value
+              : club?.detail?.id ?? 0,
+        };
+        if (dataParticipant.length === 1) {
+          payload.members = dataParticipant;
+        }
+        return OrderEventService.createOrder(payload);
+      } else {
+        const { numberOfTeam, selectCategoryUser, city_id, club } = formData;
+        const payload = {
+          event_id: selectCategoryUser?.eventId,
+          total_slot: Number(numberOfTeam) ?? 0,
+          club_or_city_id:
+            eventDetailData?.withContingent === 1
+              ? city_id.value
+              : club?.detail?.id ?? 0,
+          event_category_id: selectCategoryUser?.id,
+        };
+        return OrderEventService.createOrderTeam(payload);
       }
-      return OrderEventService.createOrder(payload);
     };
 
     fetcher.runAsync(postFunction, options);

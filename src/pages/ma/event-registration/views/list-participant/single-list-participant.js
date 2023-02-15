@@ -14,7 +14,7 @@ import {
   listAllProvince,
 } from "../../hooks/country";
 
-const PopupWarning = ({ children, showPopup }) => {
+export const PopupWarning = ({ children, showPopup }) => {
   return <>{showPopup ? <PopupWrapper>{children}</PopupWrapper> : null}</>;
 };
 
@@ -145,7 +145,7 @@ const SingleListParticipant = ({
         ? user.date_of_birth
         : dateBirthUser;
       temp.country_id = user?.country?.id
-        ? user?.country_id?.id
+        ? user?.country?.id
         : countryUser?.id ?? 0; //belum fix
       temp.province_id = user?.province?.id ?? provinceUser?.id;
       temp.city_id = user?.city?.id ?? cityUser?.id ?? 0;
@@ -160,7 +160,7 @@ const SingleListParticipant = ({
       temp.gender = user.gender;
       temp.date_of_birth = user.date_of_birth;
       temp.country_id = user.country?.id;
-      temp.province_id = user.province?.id ?? provinceUser?.id;
+      temp.province_id = user.province?.id ?? provinceUser?.id ?? 0;
       temp.city_id = user.city?.id ?? cityUser?.id ?? 0;
       participant.push(temp);
       setDataParticipants(participant);
@@ -256,6 +256,7 @@ const SingleListParticipant = ({
     (!userVerification[0]?.ageIsValid ||
       !userVerification[0]?.genderIsValid ||
       !userVerification[0]?.quoteIsValid);
+
   return (
     <ContentCard>
       <HeaderTitleText>
@@ -301,65 +302,103 @@ const SingleListParticipant = ({
                   </TableCellText>
                 </td>
                 <td>
-                  <div style={{ width: "94px" }}>
+                  <div>
                     {!e.gender ? (
-                      <Select
-                        options={genderList}
-                        placeholder={"gender"}
-                        defaultValue={genderUser}
-                        onChange={handleChangeGender}
-                      />
+                      <div style={{ width: "120px" }}>
+                        <Select
+                          options={genderList}
+                          placeholder={"gender"}
+                          defaultValue={genderUser}
+                          onChange={handleChangeGender}
+                        />
+                      </div>
                     ) : (
-                      <>{e.gender}</>
+                      <div
+                        style={{
+                          width: "60px",
+                          paddingLeft: 2,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {e.gender}
+                      </div>
                     )}
                   </div>
                 </td>
                 <td>
-                  <div style={{ width: "150px" }}>
+                  <div>
                     {!e.date_of_birth ? (
-                      <DateInput
-                        placeholder={"DD/MM/YY"}
-                        value={dateBirthUser}
-                        onChange={handleChangeDateBirth}
-                      />
+                      <div style={{ width: "120px" }}>
+                        <DateInput
+                          placeholder={"DD/MM/YY"}
+                          value={dateBirthUser}
+                          onChange={handleChangeDateBirth}
+                        />
+                      </div>
                     ) : (
-                      <>
+                      <div
+                        style={{
+                          width: "60px",
+                          paddingLeft: 2,
+                          textTransform: "capitalize",
+                        }}
+                      >
                         {Math.floor(
                           (new Date() - new Date(e.date_of_birth).getTime()) /
                             3.15576e10
                         )}{" "}
                         Tahun
-                      </>
+                      </div>
                     )}
                   </div>
                 </td>
                 <td>
-                  <div style={{ width: "144px" }}>
+                  <div>
                     {!e.country ? (
-                      <Select
-                        options={countryList}
-                        defaultValue={countryUser}
-                        onChange={(val) => setCountryUser(val)}
-                        placeholder={"kewarganegaraan"}
-                      />
+                      <div style={{ width: "144px" }}>
+                        <Select
+                          options={countryList}
+                          defaultValue={countryUser}
+                          onChange={(val) => setCountryUser(val)}
+                          placeholder={"kewarganegaraan"}
+                        />
+                      </div>
                     ) : (
-                      <>{e.country?.name}</>
+                      <div
+                        style={{
+                          width: "80px",
+                          paddingLeft: 2,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {e.country?.name}
+                      </div>
                     )}
                   </div>
                 </td>
                 <td>
-                  <div style={{ width: "134px" }}>
+                  <div>
                     {!e.province ? (
-                      <Select
-                        options={provinceList ?? []}
-                        onInputChange={handleOptionChangeProvince}
-                        value={provinceUser ?? ""}
-                        onChange={(val) => setProvinceUser(val)}
-                        placeholder={"provinsi"}
-                        style={{ height: "50px" }}
-                      />
+                      <div style={{ width: "134px" }}>
+                        <Select
+                          options={provinceList ?? []}
+                          onInputChange={handleOptionChangeProvince}
+                          value={provinceUser ?? ""}
+                          onChange={(val) => setProvinceUser(val)}
+                          placeholder={"provinsi"}
+                          style={{ height: "50px" }}
+                        />
+                      </div>
                     ) : (
-                      <>{e.province?.name ?? "-"}</>
+                      <div
+                        style={{
+                          width: "80px",
+                          paddingLeft: 2,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {e.province?.name ?? "-"}
+                      </div>
                     )}
                   </div>
                 </td>
@@ -459,7 +498,7 @@ const ContentCard = styled.div`
   background-color: #ffffff;
 `;
 
-const TableListParticipant = styled.table`
+export const TableListParticipant = styled.table`
   width: 100%;
   min-height: 50vh;
   border-collapse: separate;
@@ -504,14 +543,14 @@ const TableListParticipant = styled.table`
   }
 `;
 
-const TableCellText = styled.div`
-  width: 196px;
+export const TableCellText = styled.div`
+  width: 156px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 
   &.name-field {
-    width: 213px;
+    width: 80px;
   }
 `;
 
@@ -529,7 +568,7 @@ const VerifyBox = styled.div`
   position: relative;
 `;
 
-const HeaderTitleText = styled.div`
+export const HeaderTitleText = styled.div`
   font-size: 1rem;
   font-weight: 600;
   padding: 0.75rem 0 0.75rem 1rem;

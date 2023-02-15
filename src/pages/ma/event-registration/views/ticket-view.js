@@ -38,7 +38,6 @@ function TicketView({
     font-weight: 600;
     font-size: 15px;
   `;
-
   const {
     submit: submitVerification,
     isLoading: isLoadingVerification,
@@ -46,7 +45,7 @@ function TicketView({
     errors: errorVerification,
   } = useSubmitVerification(formVerification.data);
   const { data: formData, handleValidation: handleValidationOrder } = formOrder;
-  const { selectCategoryUser, asParticipant } = formData;
+  const { selectCategoryUser, selectCategoriesType } = formData;
   const history = useHistory();
   const {
     submit,
@@ -111,20 +110,15 @@ function TicketView({
   const handleConfirm = () => {
     setShowAlert(false);
   };
-
   const handleSubmitOrder = () => {
     const options = {
       onSuccess: (data) => {
         onSuccessOrder?.();
-        const { orderId } = data?.paymentInfo;
-        if (orderId && asParticipant === true) {
-          history.push("/dashboard/transactions/" + orderId);
-        } else {
-          history.push("/dashboard/events");
-        }
+        const { orderEventId } = data;
+        history.push("/dashboard/transactions/" + orderEventId);
       },
     };
-    submit(options, eventDetailData);
+    submit(options, eventDetailData, selectCategoriesType);
   };
   const isEarly = clientData.isWna
     ? selectCategoryUser?.isEarlyBirdWna

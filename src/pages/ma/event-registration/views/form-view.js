@@ -64,7 +64,9 @@ function FormView({
     listParticipants,
     asParticipant,
     isCollective,
+    numberOfTeam,
     club,
+    withClub,
   } = formOrder.data;
 
   const selectClassRef = React.useRef(null);
@@ -91,11 +93,15 @@ function FormView({
 
   const dataClass = React.useMemo(
     () => groupDataClass(filterClassCategoryGroup, selectClassCategories),
-    [selectClassCategories]
+    [selectClassCategories, filterClassCategoryGroup]
   );
 
   const handleNextValidation = async () => {
-    if (asParticipant && isCollective === false) {
+    if (
+      asParticipant &&
+      isCollective === false &&
+      selectCategoriesType === "individual"
+    ) {
       const dataUser = {
         email: userProfile?.email,
         name: userProfile?.name,
@@ -129,6 +135,8 @@ function FormView({
           goToNextStep();
         }
       }
+    } else {
+      goToNextStep();
     }
   };
 
@@ -157,14 +165,24 @@ function FormView({
       setCategory(dataClass, userProfile);
     }
   }, [dataClass]);
-
-  const shouldDisableWithContigent = asParticipant
-    ? !category || !city_id || !selectClassCategories
-    : (!category && !city_id && !selectClassCategories) ||
-      !listParticipants?.length;
-  const shouldDisableWithoutContigent = asParticipant
-    ? !category || !club || !selectClassCategories
-    : !category && !listParticipants?.length && !selectClassCategories;
+  const noChooseFormField =
+    !category || eventDetailData?.withContingent === 0
+      ? selectCategoriesType === "individual"
+        ? withClub === "yes"
+          ? !club
+          : !selectClassCategories
+        : !club
+      : !city_id;
+  const userAsParticipant = !asParticipant
+    ? noChooseFormField || !listParticipants?.length
+    : noChooseFormField;
+  const noInputNumber =
+    selectCategoriesType === "team"
+      ? numberOfTeam < 1 || numberOfTeam * 3 > listParticipants?.length
+      : selectCategoriesType === "mix"
+      ? numberOfTeam < 1 || numberOfTeam * 2 > listParticipants?.length
+      : userAsParticipant;
+  const shouldDisableButton = noChooseFormField || noInputNumber;
   return (
     <>
       <ContentCardLayout
@@ -179,37 +197,80 @@ function FormView({
           handleChangeSelect={handleChangeSelect}
           selectClassRef={selectClassRef}
           selectTypeRef={selectTypeRef}
+          eventCategories={eventCategories}
         />
       </ContentCardLayout>
 
-      <ContentCardLayout title={"Detail Pendaftaran"}>
-        <DetailsRegistrant
-          handleTypeChangeRegistration={handleTypeChangeRegistration}
-          onProfileUpdated={onProfileUpdated}
-          formOrder={formOrder}
-          userProfile={userProfile}
-        />
-      </ContentCardLayout>
+      {selectCategoriesType === "individual" ? (
+        <ContentCardLayout title={"Detail Pendaftar"}>
+          <DetailsRegistrant
+            handleTypeChangeRegistration={handleTypeChangeRegistration}
+            onProfileUpdated={onProfileUpdated}
+            formOrder={formOrder}
+            userProfile={userProfile}
+          />
+        </ContentCardLayout>
+      ) : (
+        <ContentCardLayout
+          title={withContingen ? "Detail Kontingen" : "Detail Klub"}
+        >
+          <DetailsClubContigent
+            formOrder={formOrder}
+            eventDetailData={eventDetailData}
+            withContingen={withContingen}
+          />
+        </ContentCardLayout>
+      )}
+      {selectCategoriesType === "individual" ? (
+        <ContentCardLayout title={"Detail Peserta"}>
+          <DetailsParticipant
+            formOrder={formOrder}
+            userProfile={userProfile}
+            eventDetailData={eventDetailData}
+          />
+          <PickerMatchDate
+            category={category}
+            value={matchDate}
+            onChange={(date) => updateField({ matchDate: date })}
+            errors={orderErrors.matchDate}
+          />
+        </ContentCardLayout>
+      ) : (
+        <ContentCardLayout title={"Detail Pendaftar"}>
+          <DetailsRegistrant
+            handleTypeChangeRegistration={handleTypeChangeRegistration}
+            onProfileUpdated={onProfileUpdated}
+            formOrder={formOrder}
+            userProfile={userProfile}
+          />
+        </ContentCardLayout>
+      )}
 
-      <ContentCardLayout
-        title={withContingen ? "Detail Kontingen" : "Detail Klub"}
-      >
-        <DetailsClubContigent
-          formOrder={formOrder}
-          eventDetailData={eventDetailData}
-          withContingen={withContingen}
-        />
-      </ContentCardLayout>
-
-      <ContentCardLayout title={"Detail Peserta"}>
-        <DetailsParticipant formOrder={formOrder} userProfile={userProfile} />
-        <PickerMatchDate
-          category={category}
-          value={matchDate}
-          onChange={(date) => updateField({ matchDate: date })}
-          errors={orderErrors.matchDate}
-        />
-      </ContentCardLayout>
+      {selectCategoriesType === "individual" ? (
+        <ContentCardLayout
+          title={withContingen ? "Detail Kontingen" : "Detail Klub"}
+        >
+          <DetailsClubContigent
+            formOrder={formOrder}
+            eventDetailData={eventDetailData}
+            withContingen={withContingen}
+          />
+        </ContentCardLayout>
+      ) : (
+        <ContentCardLayout title={"Detail Peserta"}>
+          <DetailsParticipant
+            formOrder={formOrder}
+            userProfile={userProfile}
+            eventDetailData={eventDetailData}
+          />
+          <PickerMatchDate
+            category={category}
+            value={matchDate}
+            onChange={(date) => updateField({ matchDate: date })}
+            errors={orderErrors.matchDate}
+          />
+        </ContentCardLayout>
+      )}
 
       <StyledBSModal
         size="xl"
@@ -263,12 +324,9 @@ function FormView({
         >
           Batalkan
         </Button>
+
         <ButtonBlue
-          disabled={
-            eventDetailData?.withContingent === 1
-              ? shouldDisableWithContigent
-              : shouldDisableWithoutContigent
-          }
+          disabled={shouldDisableButton}
           onClick={handleNextValidation}
         >
           Selanjutnya
@@ -345,70 +403,72 @@ const groupClassCategory = (
   if (!selectedCategoryTab || !selectedCategoriesType) {
     return;
   }
-  const newData = data[selectedCategoryTab][selectedCategoriesType];
-  const classCategoryArr = [];
-  const labelCategoryArr = [];
-  for (const categoryClass in newData) {
-    classCategoryArr.push(newData[categoryClass]?.classCategory);
-    labelCategoryArr.push(newData[categoryClass].categoryLabel);
+  if (data) {
+    const newData = data[selectedCategoryTab][selectedCategoriesType];
+    const classCategoryArr = [];
+    const labelCategoryArr = [];
+    for (const categoryClass in newData) {
+      classCategoryArr.push(newData[categoryClass]?.classCategory);
+      labelCategoryArr.push(newData[categoryClass].categoryLabel);
+    }
+    const uniqueKeyClassCategory = [...new Set(classCategoryArr)];
+    const result = {};
+    const finalResult = [];
+    for (const uniqueVal of uniqueKeyClassCategory) {
+      result[uniqueVal] = {};
+      result[uniqueVal].title = uniqueVal;
+      result[uniqueVal].label = uniqueVal;
+      result[uniqueVal].data = newData.filter((e) =>
+        e.classCategory.includes(uniqueVal)
+      );
+      result[uniqueVal]?.data?.map((e) => {
+        result[uniqueVal].categoryLabel = e.categoryLabel;
+        result[uniqueVal].value = e.categoryLabel;
+        if (e.genderCategory === "female") {
+          result[uniqueVal].femaleQuota = e.quota;
+          result[uniqueVal].femaleParticipant = e.totalParticipant;
+          result[uniqueVal].femaleCanRegister = e.canRegister;
+          result[uniqueVal].femaleIsOpen = e.isOpen;
+          result[uniqueVal].femaleEarlyBird = e.earlyBird;
+          result[uniqueVal].femaleEarlyPriceWna = e.earlyPriceWna;
+          result[uniqueVal].femaleNormalPriceWna = e.normalPriceWna;
+          result[uniqueVal].femaleIsEarlyBird = e.isEarlyBird;
+          result[uniqueVal].femaleIisEarlyBirdWna = e.isEarlyBirdWna;
+        } else if (e.genderCategory === "male") {
+          result[uniqueVal].maleQuota = e.quota;
+          result[uniqueVal].maleParticipant = e.totalParticipant;
+          result[uniqueVal].maleCanRegister = e.canRegister;
+          result[uniqueVal].maleIsOpen = e.isOpen;
+          result[uniqueVal].maleEarlyBird = e.earlyBird;
+          result[uniqueVal].maleEarlyPriceWna = e.earlyPriceWna;
+          result[uniqueVal].maleNormalPriceWna = e.normalPriceWna;
+          result[uniqueVal].maleIsEarlyBird = e.isEarlyBird;
+          result[uniqueVal].maleIisEarlyBirdWna = e.isEarlyBirdWna;
+        } else if (e.genderCategory === "mix") {
+          result[uniqueVal].mixQuota = e.quota;
+          result[uniqueVal].mixParticipant = e.totalParticipant;
+          result[uniqueVal].mixCanRegister = e.canRegister;
+          result[uniqueVal].mixIsOpen = e.isOpen;
+          result[uniqueVal].mixEarlyBird = e.earlyBird;
+          result[uniqueVal].mixEarlyPriceWna = e.earlyPriceWna;
+          result[uniqueVal].mixNormalPriceWna = e.normalPriceWna;
+          result[uniqueVal].mixIsEarlyBird = e.isEarlyBird;
+          result[uniqueVal].mixIisEarlyBirdWna = e.isEarlyBirdWna;
+        }
+        if (e.teamCategoryDetail.label.includes("Individu")) {
+          result[uniqueVal].teamCategoryId = "Individu";
+        } else if (e.teamCategoryDetail.label.includes("Beregu")) {
+          result[uniqueVal].teamCategoryId = "Beregu";
+        } else if (e.teamCategoryDetail.label.includes("Mix")) {
+          result[uniqueVal].teamCategoryId = "Campuran";
+        }
+      });
+      const classCategoryResult = {};
+      classCategoryResult[uniqueVal] = result[uniqueVal];
+      finalResult.push(result[uniqueVal]);
+    }
+    return finalResult;
   }
-  const uniqueKeyClassCategory = [...new Set(classCategoryArr)];
-  const result = {};
-  const finalResult = [];
-  for (const uniqueVal of uniqueKeyClassCategory) {
-    result[uniqueVal] = {};
-    result[uniqueVal].title = uniqueVal;
-    result[uniqueVal].label = uniqueVal;
-    result[uniqueVal].data = newData.filter((e) =>
-      e.classCategory.includes(uniqueVal)
-    );
-    result[uniqueVal]?.data?.map((e) => {
-      result[uniqueVal].categoryLabel = e.categoryLabel;
-      result[uniqueVal].value = e.categoryLabel;
-      if (e.genderCategory === "female") {
-        result[uniqueVal].femaleQuota = e.quota;
-        result[uniqueVal].femaleParticipant = e.totalParticipant;
-        result[uniqueVal].femaleCanRegister = e.canRegister;
-        result[uniqueVal].femaleIsOpen = e.isOpen;
-        result[uniqueVal].femaleEarlyBird = e.earlyBird;
-        result[uniqueVal].femaleEarlyPriceWna = e.earlyPriceWna;
-        result[uniqueVal].femaleNormalPriceWna = e.normalPriceWna;
-        result[uniqueVal].femaleIsEarlyBird = e.isEarlyBird;
-        result[uniqueVal].femaleIisEarlyBirdWna = e.isEarlyBirdWna;
-      } else if (e.genderCategory === "male") {
-        result[uniqueVal].maleQuota = e.quota;
-        result[uniqueVal].maleParticipant = e.totalParticipant;
-        result[uniqueVal].maleCanRegister = e.canRegister;
-        result[uniqueVal].maleIsOpen = e.isOpen;
-        result[uniqueVal].maleEarlyBird = e.earlyBird;
-        result[uniqueVal].maleEarlyPriceWna = e.earlyPriceWna;
-        result[uniqueVal].maleNormalPriceWna = e.normalPriceWna;
-        result[uniqueVal].maleIsEarlyBird = e.isEarlyBird;
-        result[uniqueVal].maleIisEarlyBirdWna = e.isEarlyBirdWna;
-      } else if (e.genderCategory === "mix") {
-        result[uniqueVal].mixQuota = e.quota;
-        result[uniqueVal].mixParticipant = e.totalParticipant;
-        result[uniqueVal].mixCanRegister = e.canRegister;
-        result[uniqueVal].mixIsOpen = e.isOpen;
-        result[uniqueVal].mixEarlyBird = e.earlyBird;
-        result[uniqueVal].mixEarlyPriceWna = e.earlyPriceWna;
-        result[uniqueVal].mixNormalPriceWna = e.normalPriceWna;
-        result[uniqueVal].mixIsEarlyBird = e.isEarlyBird;
-        result[uniqueVal].mixIisEarlyBirdWna = e.isEarlyBirdWna;
-      }
-      if (e.teamCategoryDetail.label.includes("Individu")) {
-        result[uniqueVal].teamCategoryId = "Individu";
-      } else if (e.teamCategoryDetail.label.includes("Beregu")) {
-        result[uniqueVal].teamCategoryId = "Beregu";
-      } else if (e.teamCategoryDetail.label.includes("Mix")) {
-        result[uniqueVal].teamCategoryId = "Campuran";
-      }
-    });
-    const classCategoryResult = {};
-    classCategoryResult[uniqueVal] = result[uniqueVal];
-    finalResult.push(result[uniqueVal]);
-  }
-  return finalResult;
 };
 
 const groupDataClass = (data, selectClassCategories) => {
