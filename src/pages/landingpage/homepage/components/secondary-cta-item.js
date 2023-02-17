@@ -58,6 +58,7 @@ const SecondaryCTAItemWrapper = styled.div`
   background-size: contain;
   cursor: var(--cursor-clickable);
   color: #000;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.10);
 
   @media (min-width: 455px) {
     background-position: left center;
