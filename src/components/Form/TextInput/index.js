@@ -14,8 +14,9 @@ const TextInput = ({
   readOnly,
   disabled,
   defaultValue,
+  placeholder,
 }) => {
-  const handleChange = e => {
+  const handleChange = (e) => {
     if (onChange)
       onChange({
         key: name,
@@ -33,14 +34,14 @@ const TextInput = ({
           id={id}
           onChange={handleChange}
           value={value}
-          placeholder={label}
+          placeholder={placeholder}
           readOnly={readOnly}
           disabled={disabled}
           defaultValue={defaultValue}
         />
         {accessoryRight}
       </InputGroup>
-      {_.get(error, name)?.map(message => (
+      {_.get(error, name)?.map((message) => (
         <div className="invalid-feedback" key={message}>
           {message}
         </div>

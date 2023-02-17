@@ -9,7 +9,13 @@ import IconClear from "components/ma/icons/mono/x-circle";
 
 import classnames from "classnames";
 
-function ClubPicker({ placeholder = "Pilih klub", value, errors, disabled, ...props }) {
+function ClubPicker({
+  placeholder = "Pilih klub",
+  value,
+  errors,
+  disabled,
+  ...props
+}) {
   const [isPickerOpen, setPickerOpen] = React.useState(false);
   return (
     <div>
@@ -59,7 +65,9 @@ function PickerButton({
   shouldShowClearButton,
 }) {
   return (
-    <StyledPickerButton className={classnames(className, { "field-disabled": disabled })}>
+    <StyledPickerButton
+      className={classnames(className, { "field-disabled": disabled })}
+    >
       <StyledPickerButtonBody
         className={classnames({ "field-disabled": disabled })}
         onClick={onClick}

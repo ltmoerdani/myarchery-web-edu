@@ -2,23 +2,26 @@ import * as React from "react";
 import styled from "styled-components";
 
 import { Table } from "reactstrap";
-import { AvatarDefault } from "components/ma";
+// import { AvatarDefault } from "components/ma";
 import { Show } from "../components/show-when";
 
 import IconAddress from "components/ma/icons/mono/address";
-import IconGender from "components/ma/icons/mono/gender";
-import IconAge from "components/ma/icons/mono/age";
-import IconMail from "components/ma/icons/mono/mail";
-import IconBadgeVerified from "components/ma/icons/color/badge-verified";
+// import IconGender from "components/ma/icons/mono/gender";
+// import IconAge from "components/ma/icons/mono/age";
+// import IconMail from "components/ma/icons/mono/mail";
+// import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 
-import { checkIsIndividu } from "../utils";
+// import { checkIsIndividu } from "../utils";
 
 function SummaryView({ userProfile, formOrder }) {
   const { data: formData } = formOrder;
-  const { category, club, participants } = formData;
+  // const { category, club, participants } = formData;
+  const { club, asParticipant, dataParticipant } = formData;
 
-  const isCategoryIndividu = checkIsIndividu(category);
-  const visibleParticipants = participants.filter((member) => Boolean(member.data));
+  // const isCategoryIndividu = checkIsIndividu(category);
+  // const visibleParticipants = participants.filter((member) =>
+  //   Boolean(member.data)
+  // );
 
   return (
     <React.Fragment>
@@ -37,20 +40,34 @@ function SummaryView({ userProfile, formOrder }) {
                 <td>Nama Pendaftar</td>
                 <td width="16">:</td>
                 <td>
-                  <div>{userProfile?.name}</div>
+                  <div>
+                    {asParticipant
+                      ? userProfile?.name
+                      : dataParticipant[0]?.name}
+                  </div>
                 </td>
               </tr>
               <tr>
                 <td>Email</td>
                 <td width="16">:</td>
                 <td>
-                  <div>{userProfile?.email}</div>
+                  <div>
+                    {asParticipant
+                      ? userProfile?.email
+                      : dataParticipant[0]?.email}
+                  </div>
                 </td>
               </tr>
               <tr>
                 <td>No. Telepon</td>
                 <td width="16">:</td>
-                <td>{userProfile?.phoneNumber || <span>&ndash;</span>}</td>
+                <td>
+                  {asParticipant ? (
+                    userProfile?.phoneNumber
+                  ) : (
+                    <span>&ndash;</span>
+                  )}
+                </td>
               </tr>
             </tbody>
           </Table>
@@ -70,7 +87,7 @@ function SummaryView({ userProfile, formOrder }) {
         </ContentCard>
       </Show>
 
-      <Show when={isCategoryIndividu}>
+      {/* <Show when={isCategoryIndividu}>
         <ParticipantCard>
           <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
 
@@ -93,7 +110,9 @@ function SummaryView({ userProfile, formOrder }) {
                 </span>
               </ParticipantName>
 
-              <LabelWithIcon icon={<IconMail size="20" />}>{userProfile?.email}</LabelWithIcon>
+              <LabelWithIcon icon={<IconMail size="20" />}>
+                {userProfile?.email}
+              </LabelWithIcon>
 
               <RowedLabel>
                 <LabelWithIcon icon={<IconGender size="20" />}>
@@ -101,14 +120,16 @@ function SummaryView({ userProfile, formOrder }) {
                     (userProfile?.gender === "female" && "Perempuan")}
                 </LabelWithIcon>
 
-                <LabelWithIcon icon={<IconAge size="20" />}>{userProfile?.age} Tahun</LabelWithIcon>
+                <LabelWithIcon icon={<IconAge size="20" />}>
+                  {userProfile?.age} Tahun
+                </LabelWithIcon>
               </RowedLabel>
             </MediaParticipantContent>
           </ParticipantMediaObject>
         </ParticipantCard>
-      </Show>
+      </Show> */}
 
-      {visibleParticipants.map((participant) => (
+      {/* {visibleParticipants.map((participant) => (
         <ParticipantCard key={participant.name}>
           <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
 
@@ -116,7 +137,10 @@ function SummaryView({ userProfile, formOrder }) {
             <MediaParticipantAvatar>
               <ParticipantAvatar>
                 {participant.data.avatar ? (
-                  <img className="club-logo-img" src={participant.data.avatar} />
+                  <img
+                    className="club-logo-img"
+                    src={participant.data.avatar}
+                  />
                 ) : (
                   <AvatarDefault fullname={participant.data.name} />
                 )}
@@ -131,7 +155,9 @@ function SummaryView({ userProfile, formOrder }) {
                 </span>
               </ParticipantName>
 
-              <LabelWithIcon icon={<IconMail size="20" />}>{participant.data.email}</LabelWithIcon>
+              <LabelWithIcon icon={<IconMail size="20" />}>
+                {participant.data.email}
+              </LabelWithIcon>
 
               <RowedLabel>
                 <LabelWithIcon icon={<IconGender size="20" />}>
@@ -146,22 +172,22 @@ function SummaryView({ userProfile, formOrder }) {
             </MediaParticipantContent>
           </ParticipantMediaObject>
         </ParticipantCard>
-      ))}
+      ))} */}
     </React.Fragment>
   );
 }
 
-function LabelWithIcon({ icon, children }) {
-  return (
-    <StyledLabelWithIcon>
-      <Show when={icon}>
-        <span className="label-icon">{icon}</span>
-      </Show>
+// function LabelWithIcon({ icon, children }) {
+//   return (
+//     <StyledLabelWithIcon>
+//       <Show when={icon}>
+//         <span className="label-icon">{icon}</span>
+//       </Show>
 
-      <span>{children}</span>
-    </StyledLabelWithIcon>
-  );
-}
+//       <span>{children}</span>
+//     </StyledLabelWithIcon>
+//   );
+// }
 
 /* =================================== */
 // styles
@@ -215,69 +241,69 @@ const ClubDetailValue = styled.p`
   font-weight: 600;
 `;
 
-const ParticipantCard = styled.div`
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background-color: #ffffff;
-`;
+// const ParticipantCard = styled.div`
+//   margin-bottom: 1rem;
+//   padding: 0.5rem;
+//   border-radius: 0.5rem;
+//   background-color: #ffffff;
+// `;
 
-const ParticipantHeadingLabel = styled.div`
-  padding: 0.75rem 1rem;
-  border-radius: 0.25rem;
-  background-color: var(--ma-blue-primary-50);
-  font-size: 15px;
-  font-weight: 600;
-`;
+// const ParticipantHeadingLabel = styled.div`
+//   padding: 0.75rem 1rem;
+//   border-radius: 0.25rem;
+//   background-color: var(--ma-blue-primary-50);
+//   font-size: 15px;
+//   font-weight: 600;
+// `;
 
-const ParticipantMediaObject = styled.div`
-  margin: 1.25rem 0;
-  display: flex;
-  gap: 1.5rem;
-`;
+// const ParticipantMediaObject = styled.div`
+//   margin: 1.25rem 0;
+//   display: flex;
+//   gap: 1.5rem;
+// `;
 
-const MediaParticipantAvatar = styled.div`
-  flex-grow: 0;
-`;
+// const MediaParticipantAvatar = styled.div`
+//   flex-grow: 0;
+// `;
 
-const ParticipantAvatar = styled.div`
-  overflow: hidden;
-  width: 6rem;
-  height: 6rem;
-  border-radius: 50%;
+// const ParticipantAvatar = styled.div`
+//   overflow: hidden;
+//   width: 6rem;
+//   height: 6rem;
+//   border-radius: 50%;
 
-  > img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-  }
-`;
+//   > img {
+//     object-fit: cover;
+//     width: 100%;
+//     height: 100%;
+//   }
+// `;
 
-const MediaParticipantContent = styled.div`
-  margin: auto 0;
-`;
+// const MediaParticipantContent = styled.div`
+//   margin: auto 0;
+// `;
 
-const ParticipantName = styled.h5`
-  margin-bottom: 0.5rem;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0.5rem;
-`;
+// const ParticipantName = styled.h5`
+//   margin-bottom: 0.5rem;
+//   display: flex;
+//   justify-content: flex-start;
+//   align-items: center;
+//   gap: 0.5rem;
+// `;
 
-const StyledLabelWithIcon = styled.p`
-  margin: 0;
-  margin-bottom: 0.5rem;
-  color: var(--ma-gray-500);
+// const StyledLabelWithIcon = styled.p`
+//   margin: 0;
+//   margin-bottom: 0.5rem;
+//   color: var(--ma-gray-500);
 
-  .label-icon {
-    margin-right: 0.5rem;
-  }
-`;
+//   .label-icon {
+//     margin-right: 0.5rem;
+//   }
+// `;
 
-const RowedLabel = styled.div`
-  display: flex;
-  gap: 1.5rem;
-`;
+// const RowedLabel = styled.div`
+//   display: flex;
+//   gap: 1.5rem;
+// `;
 
 export { SummaryView };

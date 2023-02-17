@@ -15,7 +15,7 @@ function FieldSelectCategory({
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
   const pickerProps = { groupedOptions, value, onChange, errors };
-
+  
   return (
     <StyledFieldWrapper>
       {(children || label) && (

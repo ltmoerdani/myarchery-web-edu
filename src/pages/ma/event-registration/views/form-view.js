@@ -1,351 +1,339 @@
 import * as React from "react";
 import styled from "styled-components";
-
-import { Label } from "reactstrap";
-import {
-  FieldInputText,
-  FieldSelectCategory,
-  FieldSelectClub,
-} from "../components";
-import { Show } from "../components/show-when";
-import { FieldErrorMessage } from "../components/field-error-message";
-import { PickerMatchDate } from "../components/picker-match-date";
-import { FieldSelectNationality } from "../components/field-select-nationality";
-import { FieldSelectProvince } from "../components/field-select-province";
-import { FieldSelectCity } from "../components/field-select-city";
-import { FieldSelectCountry } from "../components/field-select-country";
-import { FieldSelectCityByCountry } from "../components/field-select-city-country";
-import { FieldUploadImage } from "../components/field-upload-image";
-import { FieldSelectKontingen } from "../components/field-select-kontingen";
-import { SelectRadio } from "../components/select-radio";
-import { EditName } from "../components/edit-name-inline";
-
 import IconAddress from "components/ma/icons/mono/address";
+import { Button, ButtonBlue } from "components/ma";
+import { Modal, ModalBody } from "reactstrap";
+import { PickerMatchDate } from "../components/picker-match-date";
+import CategorySelect from "../components/card-category-select";
+import DetailsRegistrant from "../components/card-details-registrant";
+import DetailsParticipant from "../components/card-details-participant";
+import DetailsClubContigent from "../components/card-details-club-contigent";
+import { OrderEventService } from "services";
 
-import { checkIsIndividu } from "../utils";
+const ContentCardLayout = ({
+  withHeaderTitle,
+  headerTitle,
+  title,
+  children,
+}) => {
+  return (
+    <ContentCard>
+      {withHeaderTitle ? (
+        <HeaderTitleText>{headerTitle}</HeaderTitleText>
+      ) : null}
+      <MainCardHeader>
+        <WrappedIcon>
+          <IconAddress />
+        </WrappedIcon>
+        <MainCardHeaderText>{title}</MainCardHeaderText>
+      </MainCardHeader>
+      {children}
+    </ContentCard>
+  );
+};
 
 function FormView({
   userProfile,
   eventCategories,
   formOrder,
-  formVerification,
   onProfileUpdated,
   eventDetailData,
   withContingen,
+  pageTitle,
+  wizardView,
 }) {
   const {
     errors: orderErrors,
     updateField,
+    setRegistrationType,
+    setIsColective,
     setCategory,
-    setWithClub,
-    setClub,
-    setCityId,
+    setSelectCategoryTab,
+    setSelectCategoriesType,
+    setSelectClassCategories,
+    setListParticipants,
   } = formOrder;
-  const { category, matchDate, withClub, club, city_id } = formOrder.data;
-
+  const { goToNextStep } = wizardView;
   const {
-    errors: verificationErrors,
-    updateField: updateVerification,
-    updateNIK,
-    updateImage,
-    updateWithDependence,
-  } = formVerification;
+    category,
+    matchDate,
+    selectCategoryTab,
+    selectCategoriesType,
+    selectClassCategories,
+    city_id,
+    listParticipants,
+    asParticipant,
+    isCollective,
+    numberOfTeam,
+    club,
+    withClub,
+  } = formOrder.data;
 
-  // if (formVerification.data.province === null) formVerification.data.province = {value: 32, label: 'JAWA BARAT'}
+  const selectClassRef = React.useRef(null);
+  const selectTypeRef = React.useRef(null);
 
-  const { isWna, province, city, nik, address, imageKTP } =
-    formVerification.data;
-  const { wnaCountry, wnaCity, wnaPassportNumber, wnaAddress, imagePassport } =
-    formVerification.data;
-
-  const isCategoryIndividu = checkIsIndividu(category);
-  const isVerificationDone = _checkIsVerificationDone(
-    userProfile?.verifyStatus
+  const [showModal, setShowModal] = React.useState(false);
+  const [modalMessage, setModalMessage] = React.useState("");
+  const filterClassCategoryGroup = React.useMemo(
+    () =>
+      groupClassCategory(
+        eventCategories,
+        selectCategoryTab,
+        selectCategoriesType
+      ),
+    [selectCategoryTab, selectCategoriesType]
   );
 
+  const handleTypeChangeRegistration = (value) => {
+    setRegistrationType(value);
+    if (value === "collective") {
+      setIsColective(true);
+    }
+  };
+
+  const dataClass = React.useMemo(
+    () => groupDataClass(filterClassCategoryGroup, selectClassCategories),
+    [selectClassCategories, filterClassCategoryGroup]
+  );
+
+  const handleNextValidation = async () => {
+    if (
+      asParticipant &&
+      isCollective === false &&
+      selectCategoriesType === "individual"
+    ) {
+      const dataUser = {
+        email: userProfile?.email,
+        name: userProfile?.name,
+        gender: userProfile?.gender,
+        date_of_birth: userProfile?.dateOfBirth,
+        country: userProfile?.isWna === 0 ? { id: 102, name: "indonesia" } : "",
+        province: userProfile?.addressProvince,
+        city: userProfile?.addressCity,
+      };
+      setListParticipants([dataUser]);
+      goToNextStep();
+    } else if (asParticipant === false && isCollective === false) {
+      const { data } = await checkEmailIndividuParticipant(
+        listParticipants[0]?.email
+      );
+      if (data?.data === null) {
+        setShowModal(true);
+        setModalMessage(data?.message);
+      } else {
+        if (data?.message?.includes("sudah terdaftar sebagai user")) {
+          const payload = {
+            email: data?.data?.email,
+            name: data?.data?.name,
+            gender: data?.data?.gender,
+            date_of_birth: data?.data?.dateOfBirth,
+            country: data?.data?.country,
+            province: data?.data?.province,
+            city: data?.data?.city ?? "noCity",
+          };
+          setListParticipants([payload]);
+          goToNextStep();
+        }
+      }
+    } else {
+      goToNextStep();
+    }
+  };
+
+  const handleChangeSelect = (val, index) => {
+    if (formOrder) {
+      switch (index) {
+        case 0:
+          setSelectCategoryTab(val);
+          selectClassRef.current?.select.clearValue();
+          selectTypeRef.current?.select.clearValue();
+          break;
+        case 1:
+          setSelectCategoriesType(val);
+          selectClassRef.current?.select.clearValue();
+          break;
+        default:
+          if (selectCategoryTab && selectCategoriesType) {
+            setSelectClassCategories(val);
+          }
+          break;
+      }
+    }
+  };
+  React.useEffect(() => {
+    if (dataClass) {
+      setCategory(dataClass, userProfile);
+    }
+  }, [dataClass]);
+  const noChooseFormField =
+    !category || eventDetailData?.withContingent === 0
+      ? selectCategoriesType === "individual"
+        ? withClub === "yes"
+          ? !club
+          : !selectClassCategories
+        : !club
+      : !city_id;
+  const userAsParticipant = !asParticipant
+    ? noChooseFormField || !listParticipants?.length
+    : noChooseFormField;
+  const noInputNumber =
+    selectCategoriesType === "team"
+      ? numberOfTeam < 1 || numberOfTeam * 3 > listParticipants?.length
+      : selectCategoriesType === "mix"
+      ? numberOfTeam < 1 || numberOfTeam * 2 > listParticipants?.length
+      : userAsParticipant;
+  const shouldDisableButton = noChooseFormField || noInputNumber;
   return (
-    <ContentCard>
-      <MainCardHeader>
-        <WrappedIcon>
-          <IconAddress />
-        </WrappedIcon>
-        <MainCardHeaderText>Detail Pendaftaran</MainCardHeaderText>
-      </MainCardHeader>
-
-      <FieldSelectCategory
-        required
-        groupedOptions={eventCategories}
-        value={category}
-        onChange={(category) => {
-          setCategory(category, userProfile);
-        }}
-        errors={orderErrors.category}
+    <>
+      <ContentCardLayout
+        withHeaderTitle
+        headerTitle={pageTitle && pageTitle.split("Pendaftaran ")[1]}
+        title={"Kategori Lomba"}
       >
-        Kategori Lomba
-      </FieldSelectCategory>
+        <CategorySelect
+          formOrder={formOrder}
+          filterClassCategoryGroup={filterClassCategoryGroup}
+          dataClass={dataClass}
+          handleChangeSelect={handleChangeSelect}
+          selectClassRef={selectClassRef}
+          selectTypeRef={selectTypeRef}
+          eventCategories={eventCategories}
+        />
+      </ContentCardLayout>
 
-      <PickerMatchDate
-        category={category}
-        value={matchDate}
-        onChange={(date) => updateField({ matchDate: date })}
-        errors={orderErrors.matchDate}
-      />
-
-      {userProfile ? (
-        <React.Fragment>
-          <FieldInputText
-            placeholder="Nama Pendaftar"
-            disabled
-            value={userProfile?.name}
-            onChange={() => {}}
-          >
-            Nama Pendaftar
-          </FieldInputText>
-          <SubtleFieldNote>
-            Nama pendaftar merupakan nama peserta yang akan mengikuti
-            pertandingan. Untuk mengubah nama silakan klik{" "}
-            <EditName
-              title={_renderEditNameTitle(userProfile?.canUpdateName)}
-              onProfileUpdated={onProfileUpdated}
-            >
-              di sini
-            </EditName>
-            .
-          </SubtleFieldNote>
-
-          <SplitFields>
-            <SplitFieldItem>
-              <FieldInputText
-                placeholder="Email"
-                disabled
-                value={userProfile?.email}
-                onChange={() => {}}
-              >
-                Email
-              </FieldInputText>
-            </SplitFieldItem>
-
-            <SplitFieldItem>
-              <FieldInputText
-                placeholder="No. Telepon"
-                disabled
-                value={userProfile?.phoneNumber}
-                onChange={() => {}}
-              >
-                No. Telepon
-              </FieldInputText>
-            </SplitFieldItem>
-          </SplitFields>
-        </React.Fragment>
+      {selectCategoriesType === "individual" ? (
+        <ContentCardLayout title={"Detail Pendaftar"}>
+          <DetailsRegistrant
+            handleTypeChangeRegistration={handleTypeChangeRegistration}
+            onProfileUpdated={onProfileUpdated}
+            formOrder={formOrder}
+            userProfile={userProfile}
+          />
+        </ContentCardLayout>
       ) : (
-        <div>Sedang memuat data pengguna...</div>
+        <ContentCardLayout
+          title={withContingen ? "Detail Kontingen" : "Detail Klub"}
+        >
+          <DetailsClubContigent
+            formOrder={formOrder}
+            eventDetailData={eventDetailData}
+            withContingen={withContingen}
+          />
+        </ContentCardLayout>
+      )}
+      {selectCategoriesType === "individual" ? (
+        <ContentCardLayout title={"Detail Peserta"}>
+          <DetailsParticipant
+            formOrder={formOrder}
+            userProfile={userProfile}
+            eventDetailData={eventDetailData}
+          />
+          <PickerMatchDate
+            category={category}
+            value={matchDate}
+            onChange={(date) => updateField({ matchDate: date })}
+            errors={orderErrors.matchDate}
+          />
+        </ContentCardLayout>
+      ) : (
+        <ContentCardLayout title={"Detail Pendaftar"}>
+          <DetailsRegistrant
+            handleTypeChangeRegistration={handleTypeChangeRegistration}
+            onProfileUpdated={onProfileUpdated}
+            formOrder={formOrder}
+            userProfile={userProfile}
+          />
+        </ContentCardLayout>
       )}
 
-      <Show when={category}>
-        <FieldSelectNationality
-          value={isWna || 0}
-          onChange={(value) => updateVerification("isWna", parseInt(value))}
-          disabled={isVerificationDone}
-        />
-
-        <Show when={!isWna}>
-          <FieldSelectProvince
-            value={province}
-            onChange={(opt) => updateWithDependence("province", opt, "city")}
-            disabled={isVerificationDone}
-            errors={verificationErrors.province}
-            required
-          />
-
-          <FieldSelectCity
-            provinceId={province?.value}
-            value={city}
-            onChange={(opt) => updateVerification("city", opt)}
-            disabled={isVerificationDone || !province?.value}
-            errors={verificationErrors.city}
-            required
-          />
-
-          <FieldInputText
-            label="NIK"
-            placeholder="Masukkan 16 digit nomor KTP/KK"
-            value={nik}
-            onChange={updateNIK}
-            disabled={isVerificationDone}
-            errors={verificationErrors.nik}
-            required
-          />
-
-          <FieldUploadImage
-            label="Foto KTP/KK"
-            placeholder="Unggah gambar dengan file JPG/PNG"
-            name="imageKTP"
-            value={imageKTP}
-            onChange={(value) => updateImage("imageKTP", value)}
-            disabled={isVerificationDone}
-            errors={verificationErrors.imageKTP}
-            required
-          />
-          <SubtleFieldNote>
-            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada
-            perubahan nama, Anda perlu mengisi ulang data.
-          </SubtleFieldNote>
-
-          <FieldInputText
-            label="Alamat Lengkap"
-            placeholder="Masukkan alamat sesuai KTP/KK"
-            value={address}
-            onChange={(value) => updateVerification("address", value)}
-            disabled={isVerificationDone}
-            errors={verificationErrors.address}
-            required
-          />
-        </Show>
-
-        <Show when={isWna}>
-          <FieldSelectCountry
-            label="Negara"
-            placeholder="Pilih negara sesuai paspor"
-            value={wnaCountry}
-            onChange={(opt) =>
-              updateWithDependence("wnaCountry", opt, "wnaCity")
-            }
-            disabled={isVerificationDone}
-            errors={verificationErrors.wnaCountry}
-            required
-          />
-
-          <FieldSelectCityByCountry
-            label="Kota (Sesuai dengan paspor)"
-            placeholder="Pilih kota"
-            countryId={wnaCountry?.value}
-            value={wnaCity}
-            onChange={(opt) => updateVerification("wnaCity", opt)}
-            disabled={isVerificationDone || !wnaCountry?.value}
-            errors={verificationErrors.wnaCity}
-            required
-          />
-
-          <FieldInputText
-            label="Nomor Paspor"
-            placeholder="Masukkan nomor paspor"
-            value={wnaPassportNumber}
-            onChange={(value) => updateVerification("wnaPassportNumber", value)}
-            disabled={isVerificationDone}
-            errors={verificationErrors.wnaPassportNumber}
-            required
-          />
-
-          <FieldUploadImage
-            label="Foto Paspor"
-            placeholder="Unggah gambar dengan file JPG/PNG"
-            name="imagePassport"
-            value={imagePassport}
-            onChange={(value) => updateImage("imagePassport", value)}
-            disabled={isVerificationDone}
-            errors={verificationErrors.imagePassport}
-            required
-          />
-          <SubtleFieldNote>
-            Anda cukup melakukan verifikasi umur sekali di sini. Jika ada
-            perubahan nama, Anda perlu mengisi ulang data.
-          </SubtleFieldNote>
-
-          <FieldInputText
-            label="Alamat Lengkap"
-            placeholder="Masukkan alamat sesuai paspor"
-            value={wnaAddress}
-            onChange={(value) => updateVerification("wnaAddress", value)}
-            disabled={isVerificationDone}
-            errors={verificationErrors.wnaAddress}
-            required
-          />
-        </Show>
-      </Show>
-
-      <div className="mt-5 mb-0">
-        <h5>Data Peserta</h5>
-      </div>
-
-      {withContingen ? (
-        <div>
-          <FieldSelectKontingen
-            provinceId={parseInt(eventDetailData?.publicInformation?.eventCity?.provinceId)}
-            required
-            value={city_id}
-            onChange={setCityId}
-          />
-          <FieldErrorMessage errors={orderErrors.city_id} />
-        </div>
-      ): null}
-
-      {!withContingen ? (
-        <div>
-          <p>Atur Detail Klub Peserta</p>
-          <div style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>
-            <div>
-              <Label
-                className="form-check-label"
-                style={{ marginBottom: "0.25rem" }}
-              >
-                Apakah Anda mewakili klub?
-              </Label>
-            </div>
-
-            <div>
-              <SelectRadio
-                options={[
-                  { value: "yes", label: "Iya, saya mewakili klub" },
-                  { value: "no", label: "Tidak, saya individu" },
-                ]}
-                value={withClub}
-                onChange={setWithClub}
-              />
-
-              <FieldErrorMessage errors={orderErrors.withClub} />
-            </div>
-          </div>
-
-          <FieldSelectClub
-            required={category?.id && !isCategoryIndividu}
-            disabled={!category?.id || withClub == "no"}
-            value={club}
-            onChange={setClub}
-            errors={orderErrors.club}
-          >
-            Pilih Klub yang diwakilkan
-          </FieldSelectClub>
-
-          <Show when={isCategoryIndividu}>
-            <SubtleFieldNote>
-              Dapat dikosongkan jika tidak mewakili klub
-            </SubtleFieldNote>
-          </Show>
-        </div>
-      ): null}
-
-      <SegmentByTeamCategory
-        teamFilters={["individu male", "individu female"]}
-        teamCategoryId={category?.teamCategoryId}
-      >
-        <FieldInputText
-          name={"member-individual"}
-          placeholder="Nama Peserta"
-          disabled
-          value={userProfile?.email}
+      {selectCategoriesType === "individual" ? (
+        <ContentCardLayout
+          title={withContingen ? "Detail Kontingen" : "Detail Klub"}
         >
-          Peserta
-        </FieldInputText>
-      </SegmentByTeamCategory>
-    </ContentCard>
-  );
-}
+          <DetailsClubContigent
+            formOrder={formOrder}
+            eventDetailData={eventDetailData}
+            withContingen={withContingen}
+          />
+        </ContentCardLayout>
+      ) : (
+        <ContentCardLayout title={"Detail Peserta"}>
+          <DetailsParticipant
+            formOrder={formOrder}
+            userProfile={userProfile}
+            eventDetailData={eventDetailData}
+          />
+          <PickerMatchDate
+            category={category}
+            value={matchDate}
+            onChange={(date) => updateField({ matchDate: date })}
+            errors={orderErrors.matchDate}
+          />
+        </ContentCardLayout>
+      )}
 
-function SegmentByTeamCategory({ children, teamFilters, teamCategoryId }) {
-  if (teamFilters.some((filter) => filter === teamCategoryId)) {
-    return children;
-  }
-  return null;
+      <StyledBSModal
+        size="xl"
+        isOpen={showModal}
+        onClosed={() => setShowModal(false)}
+      >
+        <StyledBSModalBody>
+          <div>
+            <h5>Email Belum Terdaftar</h5>
+            <p>{modalMessage}, apakah anda ingin melanjutkan?</p>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+              gap: "20px",
+              padding: "20px 0",
+            }}
+          >
+            <Button
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid #0D47A1",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                color: "#0D47A1",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+              onClick={() => setShowModal(false)}
+            >
+              Tidak
+            </Button>
+            <ButtonBlue onClick={() => goToNextStep()}>Lanjutkan</ButtonBlue>
+          </div>
+        </StyledBSModalBody>
+      </StyledBSModal>
+
+      <ButtonSectionWrapper>
+        <Button
+          style={{
+            backgroundColor: "transparent",
+            border: "1px solid #0D47A1",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            color: "#0D47A1",
+            fontWeight: 600,
+            fontSize: "14px",
+          }}
+          onClick={() => history.back()}
+        >
+          Batalkan
+        </Button>
+
+        <ButtonBlue
+          disabled={shouldDisableButton}
+          onClick={handleNextValidation}
+        >
+          Selanjutnya
+        </ButtonBlue>
+      </ButtonSectionWrapper>
+    </>
+  );
 }
 
 /* ======================================= */
@@ -359,14 +347,26 @@ const ContentCard = styled.div`
   background-color: #ffffff;
 `;
 
+const HeaderTitleText = styled.h1`
+  color: #35405a;
+  font-size: 1.5rem;
+  font-weight: 600;
+`;
+
 const MainCardHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 0.5px solid #dee2ee;
+  margin-bottom: 0.75rem;
 `;
 
 const MainCardHeaderText = styled.h4`
   margin: 0;
+  font-size: 1.25rem;
+  color: #35405a;
+  font-weight: 600;
 `;
 
 const WrappedIcon = styled.div`
@@ -379,40 +379,123 @@ const WrappedIcon = styled.div`
   border: solid 1px #c4c4c4;
 `;
 
-const SplitFields = styled.div`
+const ButtonSectionWrapper = styled.span`
+  margin-bottom: 2.875rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.375rem;
+  justify-content: space-between;
 `;
 
-const SplitFieldItem = styled.div`
-  flex: 1 1 13.75rem;
-`;
-
-const SubtleFieldNote = styled.div`
-  color: var(--ma-gray-400);
-`;
-
-/* ================================= */
-// utils
-
-/**
- * Verifikasi tidak diminta lagi ketika statusnya "terverifikasi" (kode 1)
- * atau "menunggu diverifikasi" (kode 3). Status lainnya akan tetap ditawarkan
- * form untuk isi data verifikasi user.
- * @param {int} verifyStatus 1 | 2 | 3 | 4
- * @returns {Boolean}
- */
-function _checkIsVerificationDone(verifyStatus) {
-  const acceptedStatuses = [1, 3];
-  return acceptedStatuses.indexOf(verifyStatus) > -1;
-}
-
-function _renderEditNameTitle(limitCount) {
-  if (!limitCount) {
-    return "Telah melebihi limit, tidak dapat lagi mengubah data.";
+const StyledBSModal = styled(Modal)`
+  .modal-content {
+    border-radius: 1.25rem;
   }
-  return `Tersisa kesempatan mengubah data ${limitCount} kali.`;
-}
+`;
 
+const StyledBSModalBody = styled(ModalBody)`
+  font-family: "Inter", sans-serif;
+`;
+
+const groupClassCategory = (
+  data,
+  selectedCategoryTab,
+  selectedCategoriesType
+) => {
+  if (!selectedCategoryTab || !selectedCategoriesType) {
+    return;
+  }
+  if (data) {
+    const newData = data[selectedCategoryTab][selectedCategoriesType];
+    const classCategoryArr = [];
+    const labelCategoryArr = [];
+    for (const categoryClass in newData) {
+      classCategoryArr.push(newData[categoryClass]?.classCategory);
+      labelCategoryArr.push(newData[categoryClass].categoryLabel);
+    }
+    const uniqueKeyClassCategory = [...new Set(classCategoryArr)];
+    const result = {};
+    const finalResult = [];
+    for (const uniqueVal of uniqueKeyClassCategory) {
+      result[uniqueVal] = {};
+      result[uniqueVal].title = uniqueVal;
+      result[uniqueVal].label = uniqueVal;
+      result[uniqueVal].data = newData.filter((e) =>
+        e.classCategory.includes(uniqueVal)
+      );
+      result[uniqueVal]?.data?.map((e) => {
+        result[uniqueVal].categoryLabel = e.categoryLabel;
+        result[uniqueVal].value = e.categoryLabel;
+        if (e.genderCategory === "female") {
+          result[uniqueVal].femaleQuota = e.quota;
+          result[uniqueVal].femaleParticipant = e.totalParticipant;
+          result[uniqueVal].femaleCanRegister = e.canRegister;
+          result[uniqueVal].femaleIsOpen = e.isOpen;
+          result[uniqueVal].femaleEarlyBird = e.earlyBird;
+          result[uniqueVal].femaleEarlyPriceWna = e.earlyPriceWna;
+          result[uniqueVal].femaleNormalPriceWna = e.normalPriceWna;
+          result[uniqueVal].femaleIsEarlyBird = e.isEarlyBird;
+          result[uniqueVal].femaleIisEarlyBirdWna = e.isEarlyBirdWna;
+        } else if (e.genderCategory === "male") {
+          result[uniqueVal].maleQuota = e.quota;
+          result[uniqueVal].maleParticipant = e.totalParticipant;
+          result[uniqueVal].maleCanRegister = e.canRegister;
+          result[uniqueVal].maleIsOpen = e.isOpen;
+          result[uniqueVal].maleEarlyBird = e.earlyBird;
+          result[uniqueVal].maleEarlyPriceWna = e.earlyPriceWna;
+          result[uniqueVal].maleNormalPriceWna = e.normalPriceWna;
+          result[uniqueVal].maleIsEarlyBird = e.isEarlyBird;
+          result[uniqueVal].maleIisEarlyBirdWna = e.isEarlyBirdWna;
+        } else if (e.genderCategory === "mix") {
+          result[uniqueVal].mixQuota = e.quota;
+          result[uniqueVal].mixParticipant = e.totalParticipant;
+          result[uniqueVal].mixCanRegister = e.canRegister;
+          result[uniqueVal].mixIsOpen = e.isOpen;
+          result[uniqueVal].mixEarlyBird = e.earlyBird;
+          result[uniqueVal].mixEarlyPriceWna = e.earlyPriceWna;
+          result[uniqueVal].mixNormalPriceWna = e.normalPriceWna;
+          result[uniqueVal].mixIsEarlyBird = e.isEarlyBird;
+          result[uniqueVal].mixIisEarlyBirdWna = e.isEarlyBirdWna;
+        }
+        if (e.teamCategoryDetail.label.includes("Individu")) {
+          result[uniqueVal].teamCategoryId = "Individu";
+        } else if (e.teamCategoryDetail.label.includes("Beregu")) {
+          result[uniqueVal].teamCategoryId = "Beregu";
+        } else if (e.teamCategoryDetail.label.includes("Mix")) {
+          result[uniqueVal].teamCategoryId = "Campuran";
+        }
+      });
+      const classCategoryResult = {};
+      classCategoryResult[uniqueVal] = result[uniqueVal];
+      finalResult.push(result[uniqueVal]);
+    }
+    return finalResult;
+  }
+};
+
+const groupDataClass = (data, selectClassCategories) => {
+  if (!data || !selectClassCategories) return;
+  const filterDataByClass = data?.filter(
+    (e) => e.value === selectClassCategories
+  );
+  return filterDataByClass[0] || {};
+};
+
+const checkEmailIndividuParticipant = async (email) => {
+  if (!email) return;
+  let result = { status: "idle", errors: null, data: null };
+  try {
+    result = { status: "loading", errors: null, data: null };
+    const payload = { emails: [email] };
+    const response = await OrderEventService.checkEmailRegister(payload);
+    if (response?.data && response.data[0]?.message) {
+      result = {
+        status: "success",
+        errors: null,
+        data: response.data[0],
+      };
+      return result;
+    }
+  } catch (error) {
+    return error?.message;
+  }
+};
 export { FormView };
