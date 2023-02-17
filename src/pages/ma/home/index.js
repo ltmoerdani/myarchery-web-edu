@@ -6,12 +6,12 @@ import * as AuthStore from "store/slice/authentication";
 
 import MetaTags from "react-meta-tags";
 import { ButtonBlue } from "components/ma";
+import { ButtonWhite } from "components/ma";
 import { LatestEvents } from "./components/latest-events";
 import { HeroCarousel } from "./components/hero-carousel";
 
 import { url } from "utils";
 
-import imgSectionSeries from "assets/images/home/section-series.png";
 import imgManageEvent from "assets/images/home/section-activity-illustration-manage-event.svg";
 import imgClub from "assets/images/home/section-activity-illustration-club.svg";
 import imgPro from "assets/images/partners/pro.png";
@@ -35,6 +35,10 @@ import imgFeatureItemLeaderboard from "assets/images/home/feature-item-leaderboa
 import imgFeatureItemClub from "assets/images/home/feature-item-club.svg";
 import imgFeatureItemSeries from "assets/images/home/feature-item-series.svg";
 import imgFeatureItemLiveScore from "assets/images/home/feature-item-live-score.svg";
+
+import posterJakSeries from "assets/images/home/flyer-jak-series-poster.png"
+import posterLigaJabar from "assets/images/home/liga-jabar-poster.png"
+import lines from "assets/images/home/lines.png"
 
 const partners = [
   {
@@ -71,6 +75,8 @@ function PageHome() {
   const { isLoggedIn } = useSelector(AuthStore.getAuthenticationStore);
   // TODO: masih hardcoded, ubah dinamis kalau series udah ready
   const linkToJakartaSeriesLeaderboard = `/series/1/leaderboard`;
+  const linkToLigaJabar = `/series/2/leaderboard`;
+
   return (
     <React.Fragment>
       <MetaTags>
@@ -103,21 +109,48 @@ function PageHome() {
         </SectionWhite>
 
         <SectionGray>
+          <RoundedBackgound />
           <InnerContainer>
-            <SeriesWrapper>
-              <SeriesFloatingContent>
-                <SectionHeading>Pertandingan Series</SectionHeading>
-                <SectionDescription>
-                  Rangkaian pertandingan panahan dari DKI Jakarta Series sebagai
-                  wadah atlet untuk menjadi pemain inti dalam pertandingan
-                  bertaraf nasional.
-                </SectionDescription>
-
-                <ButtonBlue as={Link} to={linkToJakartaSeriesLeaderboard}>
-                  Leaderboard
-                </ButtonBlue>
-              </SeriesFloatingContent>
-            </SeriesWrapper>
+            <PaddedWrapper>
+              <ActivitiesGridSeries>
+                <SeriesContent>
+                  <ImagePosterShadow src={posterJakSeries} height={400}/>
+                </SeriesContent>
+                <SeriesContent>
+                  <ImagePosterShadow src={posterLigaJabar} height={400}/>
+                </SeriesContent>
+                <SeriesContent>
+                  <div
+                    className="h-100 d-flex align-items-center justify-content-center row"
+                    style={{paddingBottom:'60px',
+                          paddingLeft:'10px',
+                          paddingRight: '10px',
+                          backgroundColor: 'var(--ma-blue)',
+                          borderTopRightRadius: '20px',
+                          borderBottomRightRadius: '20px',
+                          marginLeft: '0',
+                          width: '380px'}}
+                  >
+                    <RelativeContentSeries>
+                      <LineBackground src={lines} height={101} />
+                    </RelativeContentSeries>
+                    <HeadingSeries>Event Series</HeadingSeries>
+                    <SubHeadingSeries>
+                      Rangkaian pertandingan panahan sebagai wadah atlet untuk menjadi pemain inti dalam pertandingan bertaraf nasional.
+                    </SubHeadingSeries>
+                    <div className="d-flex align-items-center justify-content-center row px-4">
+                      <ButtonWhite as={Link} to={linkToJakartaSeriesLeaderboard}>
+                        Leaderboard Jakarta Series
+                      </ButtonWhite>
+                      <div className="mb-3" />
+                      <ButtonWhite as={Link} to={linkToLigaJabar}>
+                        Leaderboard Liga Jabar
+                      </ButtonWhite>
+                    </div>
+                  </div>
+                </SeriesContent>
+              </ActivitiesGridSeries>
+            </PaddedWrapper>
           </InnerContainer>
         </SectionGray>
 
@@ -340,6 +373,7 @@ const PageWrapper = styled.div`
 const InnerContainer = styled.div`
   max-width: 73.75rem;
   margin: 0 auto;
+  position: relative;
 
   @media (min-width: 768px) {
     margin: 0 0.75rem;
@@ -355,7 +389,8 @@ const SectionWhite = styled.section`
 `;
 
 const SectionGray = styled.section`
-  background-color: var(--ma-gray-50);
+  background-color: #F8F8FA;
+  position: relative;
 `;
 
 const PaddedWrapper = styled.div`
@@ -395,68 +430,58 @@ const SectionLatestEvents = styled.div`
   }
 `;
 
-const SeriesWrapper = styled.div`
-  display: flex;
-  align-items: flex-end;
-  min-height: calc(32.5rem + 5.625rem);
-
-  margin-left: 1rem;
-  margin-right: 1rem;
-
-  background-image: url(${imgSectionSeries});
-  background-repeat: no-repeat;
-  background-size: 17.5rem;
-  background-position-x: center;
-  background-position-y: 3.75rem;
-
-  @media (min-width: 520px) {
-    min-height: calc(45rem + 5.625rem);
-    background-size: 70vw;
-    background-position-y: 5.625rem;
-  }
-
-  @media (min-width: 720px) {
-    min-height: calc(32.5rem + 5.625rem);
-    align-items: center;
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
-    background-size: 50vw;
-    background-position-x: right;
-    background-position-y: center;
-  }
-
-  @media (min-width: 1180px) {
-    min-height: calc(45rem + 5.625rem);
-    margin-left: 0;
-    margin-right: 0;
-    background-size: auto;
-  }
+const RelativeContentSeries = styled.div`
+  position: relative;
 `;
 
-const SeriesFloatingContent = styled.div`
-  max-width: 20rem;
+const ImagePosterShadow = styled.img`
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+`;
+
+const LineBackground = styled.img`
+  position: absolute;
+  right: 5px;
+  top: 10px;
+`;
+
+const HeadingSeries = styled.h1`
+  color: #ffffff;
+  text-align: center;
+  font-weight: bold;
+  padding-top: 50px;
+`;
+
+const SubHeadingSeries = styled.p`
+  color: #ffffff;
+  text-align: center;
+  font-size: 18px;
+`;
+
+const RoundedBackgound = styled.div`
+  width: 60%;
+  border-radius: 0rem 50rem 50rem 0rem;
+  height: 100%;
+  background-size: 17.5rem;
+  background-color: #EEF3FE;
+  position: absolute;
+`;
+
+const SeriesContent = styled.div`
+  max-width: 30rem;
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 3.75rem;
-  text-align: center;
+`;
 
-  @media (min-width: 520px) {
-    margin-bottom: 5.625rem;
-  }
-
-  @media (min-width: 720px) {
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    text-align: left;
-  }
+const ActivitiesGridSeries = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem 2rem;
 
   @media (min-width: 960px) {
-    max-width: 23.75rem;
-  }
-
-  @media (min-width: 1180px) {
-    max-width: 23.75rem;
+    flex-direction: row;
+    padding-left: 10rem;
+    padding-right: 10rem;
   }
 `;
 

@@ -15,10 +15,11 @@ import { SecondaryCTAItem } from "./components/secondary-cta-item";
 
 import { url } from "utils";
 
-import kalasemen from "assets/images/myachery/kalasemen.png";
-import book from "assets/images/myachery/book.png";
-import clubRank from "assets/images/myachery/club-rank.png";
-import official from "assets/images/myachery/official.png";
+import kalasemen from "assets/images/myachery/klasemen-logo.png";
+import book from "assets/images/myachery/handbook-logo.png";
+import clubRank from "assets/images/myachery/pemeringkatan-logo.png";
+import official from "assets/images/myachery/official-logo.png";
+import ligajabar from "assets/images/myachery/ligajabar-logo.png";
 
 function LandingPage() {
   const { slug } = useParams();
@@ -27,6 +28,8 @@ function LandingPage() {
   const { data: eventDetail } = useEventDetail(slug);
   const { data: dataFAQ } = useEventFAQ(eventDetail?.id);
   const { data: eventDetailBySlug } = useDetailEventBySlug(slug);
+
+  const linkToLigaJabar = `/series/2/leaderboard`;
 
   if (!eventDetail) {
     return <SpinnerDotBlock />;
@@ -62,6 +65,16 @@ function LandingPage() {
                   to={_getOfficialRegistrationURL(isLoggedIn, slug)}
                 />
               )}
+
+              {eventDetail.withContingent ? (
+                <SecondaryCTAItem
+                  bgImg={ligajabar}
+                  heading="Pemeringkatan Liga Jabar"
+                  subheading="Klik untuk melihat"
+                  to={linkToLigaJabar}
+                />
+              ): null
+              }
 
               <SecondaryCTAItem
                 bgImg={kalasemen}
