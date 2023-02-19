@@ -3,7 +3,10 @@ import IconCheckVerify from "components/ma/icons/color/check-verify";
 import React from "react";
 import styled from "styled-components";
 import { stringUtil } from "utils";
-import checkVerification from "../../hooks/check-verification";
+import {
+  checkVerification,
+  useQuotaVerification,
+} from "../../hooks/check-verification";
 import {
   HeaderTitleText,
   PopupWarning,
@@ -28,6 +31,10 @@ const TeamListParticipant = ({ formOrder, wizardView, eventDetailData }) => {
   ];
   const [userVerification, setUserVerification] = React.useState(null);
   const [showPopup, setShowPopup] = React.useState([]);
+  const [quotaMale, quotaFemale] = useQuotaVerification(
+    category,
+    listParticipants
+  );
   React.useEffect(() => {
     const checkUserVerification = checkVerification(
       listParticipants,
@@ -36,7 +43,7 @@ const TeamListParticipant = ({ formOrder, wizardView, eventDetailData }) => {
     );
     setUserVerification(checkUserVerification);
   }, [listParticipants, category]);
-
+  const shouldDisabledButton = quotaFemale === 0 || quotaMale === 0;
   return (
     <div>
       <HeaderTitleText>Peserta yang bisa ikut kategori beregu</HeaderTitleText>
@@ -170,7 +177,10 @@ const TeamListParticipant = ({ formOrder, wizardView, eventDetailData }) => {
         >
           Kembali
         </Button>
-        <ButtonBlue disabled={false} onClick={() => goToNextStep()}>
+        <ButtonBlue
+          disabled={shouldDisabledButton}
+          onClick={() => goToNextStep()}
+        >
           Selanjutnya
         </ButtonBlue>
       </ButtonSectionWrapper>

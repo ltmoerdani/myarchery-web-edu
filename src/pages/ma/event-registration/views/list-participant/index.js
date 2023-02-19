@@ -1,8 +1,13 @@
 import React from "react";
+import { Button, ButtonBlue } from "components/ma";
+import { Modal, ModalBody } from "reactstrap";
+import AsyncCreatableSelect from "react-select/async-creatable";
 import styled from "styled-components";
 import MultiListParticipant from "./multi-list-participant";
 import SingleListParticipant from "./single-list-participant";
 import TeamListParticipant from "./team-list-participant";
+import { ArcherService } from "services";
+import { stringUtil } from "utils";
 
 const ListParticipant = ({
   formOrder,
@@ -10,19 +15,126 @@ const ListParticipant = ({
   eventDetailData,
   userProfile,
 }) => {
-  const { selectCategoriesType, isCollective } = formOrder.data;
+  const { setMultiParticipants } = formOrder;
+  const { selectCategoriesType, isCollective, multiParticipants, category } =
+    formOrder.data;
+  const [loadingOption, setLoadingOption] = React.useState(false);
+  const [checkInputLength, setCheckInputLength] = React.useState("");
+  const [showModal, setShowModal] = React.useState(false);
+  const [quotaMale, setQuotaMale] = React.useState(
+    category?.maleQuota - category?.maleParticipant
+  );
+  const [quotaFemale, setQuotaFemale] = React.useState(
+    category?.femaleQuota - category?.femaleParticipant
+  );
+  const [optionsUser, setOptionsUser] = React.useState([]);
+  React.useEffect(() => {
+    let countQuotaMale = category?.maleQuota - category?.maleParticipant;
+    let countQuotaFemale = category?.femaleQuota - category?.femaleParticipant;
+    if (optionsUser?.length) {
+      optionsUser.map((e) => {
+        if (e.gender === "male") {
+          countQuotaMale -= 1;
+        } else if (e.gender === "female") {
+          countQuotaFemale -= 1;
+        }
+      });
+      setQuotaFemale(countQuotaFemale);
+      setQuotaMale(countQuotaMale);
+      if (!checkInputLength.length) {
+        setLoadingOption(false);
+      }
+    } else {
+      setQuotaFemale(countQuotaFemale);
+      setQuotaMale(countQuotaMale);
+      if (!checkInputLength.length) {
+        setLoadingOption(false);
+      }
+    }
+  }, [optionsUser, checkInputLength]);
+  const handleAddNewParticipant = () => {
+    if (optionsUser?.length) {
+      const newDataUser = optionsUser?.map((e) => {
+        return {
+          id: stringUtil.createRandom(),
+          email: e.email || e.value,
+          ...e,
+        };
+      });
+      const checkUserHasBeenAdded = multiParticipants?.filter(
+        (e) => newDataUser && newDataUser?.find((el) => el.email === e.email)
+      );
+      if (!checkUserHasBeenAdded?.length) {
+        const mergeData = [...multiParticipants, ...newDataUser];
+        setMultiParticipants(mergeData);
+      } else {
+        const mergeData = [...multiParticipants];
+        setMultiParticipants(mergeData);
+      }
+      setShowModal(false);
+    } else {
+      setShowModal(false);
+    }
+    setOptionsUser([]);
+  };
+  const findOptionsUser = async (input = "", callback) => {
+    setLoadingOption(true);
+    const res = await ArcherService.checkEmailRegistered({
+      emails: [input],
+    });
+    const result = [];
+    if (res?.data?.length) {
+      let { data } = res;
+      if (data[0].data) {
+        data.map((e) => {
+          result.push({
+            ...e.data,
+            value: e.data?.email,
+            label: e.data?.email,
+            email: e.data?.email,
+          });
+        });
+        callback(result);
+      } else {
+        callback(result);
+        setLoadingOption(false);
+      }
+    } else {
+      callback(result);
+    }
+  };
   return (
     <>
       {selectCategoriesType === "team" ||
       selectCategoriesType === "mix" ||
       isCollective ? (
-        <HeaderWrapper>
-          <HeaderTitleText>Data Peserta</HeaderTitleText>
-          <HeaderSubtitleText>
-            Silakan periksa kembali kelengkapan data peserta dan lengkapi data
-            peserta yang belum memiliki email
-          </HeaderSubtitleText>
-        </HeaderWrapper>
+        <HeaderBox>
+          <HeaderWrapper>
+            <HeaderTitleText>Data Peserta</HeaderTitleText>
+            <HeaderSubtitleText>
+              Silakan periksa kembali kelengkapan data peserta dan lengkapi data
+              peserta yang belum memiliki email
+            </HeaderSubtitleText>
+          </HeaderWrapper>
+          <ButtonWrapper>
+            <Button
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid #0D47A1",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                color: "#0D47A1",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+              disabled={quotaMale === 0 || quotaFemale === 0}
+              onClick={() => setShowModal(true)}
+            >
+              Tambah Peserta{" "}
+              <span style={{ fontSize: "16px", paddingLeft: "10px" }}>+</span>
+            </Button>
+          </ButtonWrapper>
+        </HeaderBox>
       ) : null}
       <ContentCard>
         {selectCategoriesType === "individual" && isCollective === false ? (
@@ -48,9 +160,130 @@ const ListParticipant = ({
           />
         ) : null}
       </ContentCard>
+      <StyledBSModal
+        size="xl"
+        isOpen={showModal}
+        onClosed={() => setShowModal(false)}
+        centered
+      >
+        <StyledBSModalBody>
+          <ModalHeaderWrapper>
+            <ModalTitle>Data Peserta</ModalTitle>
+            <ModalSubTitle>Email Peserta yang Didaftarkan</ModalSubTitle>
+            <ModalDescText>
+              Anda bisa memasukkan peserta yang belum memiliki akun MyArchery.
+              Siapkan data peserta (Nama, Gender, Usia, Kewarganegaraan, Kota
+              Asal) untuk diinput pada tahap selanjutnya.
+            </ModalDescText>
+          </ModalHeaderWrapper>
+          <AsyncCreatableSelect
+            cacheOptions
+            isMulti
+            value={optionsUser}
+            isLoading={loadingOption}
+            isSearchable={quotaMale === 0 && quotaFemale === 0 ? false : true}
+            onChange={(val) => setOptionsUser(val)}
+            onInputChange={(newValue) => setCheckInputLength(newValue)}
+            loadOptions={findOptionsUser}
+          />
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "end",
+              paddingTop: "15px",
+            }}
+          >
+            <QuoteText>
+              Kuota Tersisa: {quotaMale} (Pria) {quotaFemale} (Wanita)
+            </QuoteText>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+              gap: "20px",
+              padding: "20px 0",
+            }}
+          >
+            <Button
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid #0D47A1",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                color: "#0D47A1",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+              onClick={() => setShowModal(false)}
+            >
+              Batal
+            </Button>
+            <ButtonBlue onClick={handleAddNewParticipant}>Simpan</ButtonBlue>
+          </div>
+        </StyledBSModalBody>
+      </StyledBSModal>
     </>
   );
 };
+
+const StyledBSModal = styled(Modal)`
+  .modal-content {
+    border-radius: 1.25rem;
+  }
+`;
+
+const StyledBSModalBody = styled(ModalBody)`
+  font-family: "Inter", sans-serif;
+  margin: auto auto;
+`;
+
+const ModalHeaderWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ModalTitle = styled.span`
+  font-weight: 600;
+  font-size: 20px;
+  color: #1c1c1c;
+`;
+
+const ModalSubTitle = styled.span`
+  font-weight: 600;
+  font-size: 14px;
+  color: #1c1c1c;
+  margin-top: 20px;
+  margin-bottm: 4px;
+`;
+
+const ModalDescText = styled.span`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 15px;
+  color: #757575;
+`;
+
+const HeaderBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  @media (max-width: 920px) {
+    align-items: start;
+    flex-direction: column;
+  }
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: end;
+  @media (max-width: 920px) {
+    padding-bottom: 20px;
+  }
+`;
 
 const ContentCard = styled.div`
   margin-bottom: 1rem;
@@ -77,6 +310,12 @@ const HeaderSubtitleText = styled.span`
   font-weight: 400;
   font-size: 14px;
   color: #545454;
+`;
+
+const QuoteText = styled.span`
+  font-weight: 400;
+  font-size: 12px;
+  color: #757575;
 `;
 
 export default ListParticipant;

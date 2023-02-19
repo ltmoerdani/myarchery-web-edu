@@ -22,7 +22,8 @@ import { Landingpage } from "services";
 
 import classnames from "classnames";
 import ListParticipant from "./views/list-participant";
-// import ListParticipant from "./views/list-participant/index";
+import { HeaderTitleText } from "./views/list-participant/single-list-participant";
+// const ListParticipant = React.lazy(() => import("./views/list-participant"));
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
@@ -62,7 +63,15 @@ function PageEventRegistration() {
   const formVerification = useFormVerification(verificationDetail);
 
   const formOrder = useFormOrder({ ...eventCategories, withContingen });
-  const { selectCategoryUser, city_id } = formOrder.data;
+  const {
+    selectCategoryUser,
+    city_id,
+    category,
+    isCollective,
+    asParticipant,
+    emailRegisteredList,
+    dataParticipant,
+  } = formOrder.data;
 
   const [isOrderSuccess, setOrderSuccess] = React.useState(false);
 
@@ -76,6 +85,18 @@ function PageEventRegistration() {
     // Scroll to top tiap klik next/previous
     window.scrollTo(0, 0);
   }, [currentStep]);
+
+  const [isRegisterUser, setIsRegisterUser] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!isCollective && !asParticipant) {
+      if (!emailRegisteredList?.length) {
+        setIsRegisterUser(false);
+      } else {
+        setIsRegisterUser(true);
+      }
+    }
+  }, [isCollective, asParticipant, emailRegisteredList]);
   return (
     <PageWrapper
       pageTitle={pageTitle}
@@ -115,7 +136,7 @@ function PageEventRegistration() {
           </StepIndicator>
 
           <BannerReservation
-            category={selectCategoryUser}
+            category={!isCollective ? selectCategoryUser : category}
             onTimeout={() => history.push(breadcrumbLink)}
             isSuccess={isOrderSuccess}
           />
@@ -140,14 +161,16 @@ function PageEventRegistration() {
                 </WizardViewContent>
 
                 <WizardViewContent noContainer>
-                  <ErrorBoundary>
-                    <ListParticipant
-                      formOrder={formOrder}
-                      wizardView={wizardView}
-                      eventDetailData={eventDetailData}
-                      userProfile={userProfile}
-                    />
-                  </ErrorBoundary>
+                  <React.Suspense>
+                    <ErrorBoundary>
+                      <ListParticipant
+                        formOrder={formOrder}
+                        wizardView={wizardView}
+                        eventDetailData={eventDetailData}
+                        userProfile={userProfile}
+                      />
+                    </ErrorBoundary>
+                  </React.Suspense>
                 </WizardViewContent>
                 <SplitDisplay>
                   <WizardViewContent noContainer>
@@ -158,12 +181,34 @@ function PageEventRegistration() {
                           formOrder={formOrder}
                         />
                       </ErrorBoundary>
+
                       {eventDetailData?.withContingent === 1 ? (
                         <ContigentBox>
                           <ContigentTitle>Kontingen</ContigentTitle>
                           <ContigentContentText>
                             {city_id?.label}
                           </ContigentContentText>
+                        </ContigentBox>
+                      ) : null}
+
+                      {!isCollective && !asParticipant ? (
+                        <ContigentBox>
+                          <HeaderTitleText>
+                            {isRegisterUser
+                              ? "Email Sudah Terdaftar"
+                              : "Email Belum Terdaftar"}
+                          </HeaderTitleText>
+                          <div
+                            style={{
+                              fontWeight: 400,
+                              fontSize: "14px",
+                              color: "#1C1C1C",
+                              paddingLeft: "10px",
+                            }}
+                          >
+                            {dataParticipant[0]?.email} (
+                            {dataParticipant[0]?.name})
+                          </div>
                         </ContigentBox>
                       ) : null}
                     </SummaryWrapper>
@@ -250,6 +295,12 @@ const SplitDisplay = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 2rem 1rem;
+  @media (max-width: 460px) {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  @media (max-width: 300px) {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
 `;
 
 const SummaryWrapper = styled.div`

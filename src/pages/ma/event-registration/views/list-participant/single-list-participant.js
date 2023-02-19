@@ -3,7 +3,10 @@ import React from "react";
 import styled from "styled-components";
 import { stringUtil } from "utils";
 import Select from "react-select";
-import checkVerification from "../../hooks/check-verification";
+import {
+  checkVerification,
+  useQuotaVerification,
+} from "../../hooks/check-verification";
 import IconCheckVerify from "components/ma/icons/color/check-verify";
 import IconAlertCircle from "components/ma/icons/color/alert-circle";
 import IconDeleteTrash from "components/ma/icons/color/delete-trash";
@@ -79,6 +82,10 @@ const SingleListParticipant = ({
   const [cityUser, setCityUser] = React.useState("");
   const [categorySelect, setCategorySelect] = React.useState(null);
   const [userVerification, setUserVerification] = React.useState(null);
+  const [quotaMale, quotaFemale] = useQuotaVerification(
+    category,
+    listParticipants
+  );
   const allCountry = async () => {
     const data = await listAllCountry();
     setCountryList(data);
@@ -241,7 +248,6 @@ const SingleListParticipant = ({
     allCountry();
     allProvince(countryUser, inputProvince);
     allCity(countryUser, provinceUser);
-    return () => {};
   }, [
     listParticipants,
     registrationType,
@@ -256,7 +262,7 @@ const SingleListParticipant = ({
     (!userVerification[0]?.ageIsValid ||
       !userVerification[0]?.genderIsValid ||
       !userVerification[0]?.quoteIsValid);
-
+  quotaFemale === 0 || quotaMale === 0;
   return (
     <ContentCard>
       <HeaderTitleText>
@@ -571,10 +577,13 @@ const VerifyBox = styled.div`
 export const HeaderTitleText = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  padding: 0.75rem 0 0.75rem 1rem;
+  padding: 0.75rem 1rem;
   background: #e7edf6;
   border-radius: 4px;
   margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const ButtonSectionWrapper = styled.span`

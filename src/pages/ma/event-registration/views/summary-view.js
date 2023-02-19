@@ -2,27 +2,125 @@ import * as React from "react";
 import styled from "styled-components";
 
 import { Table } from "reactstrap";
-// import { AvatarDefault } from "components/ma";
 import { Show } from "../components/show-when";
 
 import IconAddress from "components/ma/icons/mono/address";
-// import IconGender from "components/ma/icons/mono/gender";
-// import IconAge from "components/ma/icons/mono/age";
-// import IconMail from "components/ma/icons/mono/mail";
-// import IconBadgeVerified from "components/ma/icons/color/badge-verified";
+import { TableCellText } from "./list-participant/single-list-participant";
+import { stringUtil } from "utils";
 
-// import { checkIsIndividu } from "../utils";
+const SummaryMultipleParticipant = ({ formOrder }) => {
+  const headTable = ["No", "Email", "Nama", "Usia"];
+  const { dataParticipant } = formOrder.data;
+  return (
+    <TableListParticipant className="list-table-participant">
+      <thead>
+        <tr>
+          {headTable.map((e) => (
+            <th key={stringUtil.createRandom()}>{e}</th>
+          ))}
+        </tr>
+      </thead>
+
+      <tbody>
+        {dataParticipant &&
+          dataParticipant.map((e, i) => (
+            <tr key={e.email}>
+              <td className="number-text" style={{ width: "10px" }}>
+                {i + 1}
+              </td>
+              <td>
+                <TableCellText>{e.email}</TableCellText>
+              </td>
+              <td>
+                <TableCellText>{e.name}</TableCellText>
+              </td>
+              <td>
+                <div
+                  style={{
+                    width: "60px",
+                    paddingLeft: 2,
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {Math.floor(
+                    (new Date() - new Date(e.date_of_birth).getTime()) /
+                      3.15576e10
+                  )}{" "}
+                  Tahun
+                </div>
+              </td>
+            </tr>
+          ))}
+      </tbody>
+    </TableListParticipant>
+  );
+};
+
+const TableListParticipant = styled.table`
+  width: 100%;
+  min-height: 50vh;
+  border-collapse: separate;
+  border-spacing: 0 0.25rem;
+  display: block;
+  overflow: auto;
+  &.list-table-participant {
+    &::-webkit-scrollbar {
+      height: 5px;
+      background: #eff2f7;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 20px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c0c0c0;
+      border-radius: 20px;
+    }
+  }
+
+  th,
+  td {
+    cursor: auto;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  thead > tr > th {
+    padding: 0.75rem;
+    background-color: var(--ma-primary-blue-50);
+  }
+
+  tbody > tr > td {
+    padding: 0.8125rem 0.625rem;
+    background-color: #ffffff;
+    font-size: 0.875em;
+    border-bottom: 2px solid #eff2f7;
+
+    .css-1okebmr-indicatorSeparator {
+      background-color: white;
+    }
+
+    .number-text {
+      width: 10px;
+    }
+  }
+  @media (max-width: 780px) {
+    th,
+    td {
+      width: 40%;
+      cursor: auto;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    th,
+    td.number-text {
+      width: 10%;
+    }
+  }
+`;
 
 function SummaryView({ userProfile, formOrder }) {
   const { data: formData } = formOrder;
-  // const { category, club, participants } = formData;
-  const { club, asParticipant, dataParticipant } = formData;
-
-  // const isCategoryIndividu = checkIsIndividu(category);
-  // const visibleParticipants = participants.filter((member) =>
-  //   Boolean(member.data)
-  // );
-
+  const { club, isCollective } = formData;
   return (
     <React.Fragment>
       <ContentCard>
@@ -30,50 +128,46 @@ function SummaryView({ userProfile, formOrder }) {
           <WrappedIcon>
             <IconAddress />
           </WrappedIcon>
-          <MainCardHeaderText>Detail Pendaftar</MainCardHeaderText>
+          <MainCardHeaderText>
+            {isCollective ? "DETAIL PESERTA" : "Detail Pendaftar"}
+          </MainCardHeaderText>
         </MainCardHeader>
 
-        {userProfile ? (
-          <Table responsive className="mt-3">
-            <tbody>
-              <tr>
-                <td>Nama Pendaftar</td>
-                <td width="16">:</td>
-                <td>
-                  <div>
-                    {asParticipant
-                      ? userProfile?.name
-                      : dataParticipant[0]?.name}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Email</td>
-                <td width="16">:</td>
-                <td>
-                  <div>
-                    {asParticipant
-                      ? userProfile?.email
-                      : dataParticipant[0]?.email}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>No. Telepon</td>
-                <td width="16">:</td>
-                <td>
-                  {asParticipant ? (
-                    userProfile?.phoneNumber
-                  ) : (
-                    <span>&ndash;</span>
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </Table>
-        ) : (
-          <div>Sedang memuat data pengguna...</div>
-        )}
+        <div style={{ width: "100%", marginTop: "20px" }}>
+          {!isCollective ? (
+            <>
+              {userProfile ? (
+                <Table responsive className="mt-3">
+                  <tbody>
+                    <tr>
+                      <td>Nama Pendaftar</td>
+                      <td width="16">:</td>
+                      <td>
+                        <div>{userProfile?.name}</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Email</td>
+                      <td width="16">:</td>
+                      <td>
+                        <div>{userProfile?.email}</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>No. Telepon</td>
+                      <td width="16">:</td>
+                      <td>
+                        {userProfile?.phoneNumber ?? <span>&ndash;</span>}
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
+              ) : null}
+            </>
+          ) : (
+            <SummaryMultipleParticipant formOrder={formOrder} />
+          )}
+        </div>
       </ContentCard>
 
       <Show when={club}>
@@ -86,108 +180,9 @@ function SummaryView({ userProfile, formOrder }) {
           </SplitFields>
         </ContentCard>
       </Show>
-
-      {/* <Show when={isCategoryIndividu}>
-        <ParticipantCard>
-          <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
-
-          <ParticipantMediaObject>
-            <MediaParticipantAvatar>
-              <ParticipantAvatar>
-                {userProfile?.avatar ? (
-                  <img className="club-logo-img" src={userProfile?.avatar} />
-                ) : (
-                  <AvatarDefault fullname={userProfile?.name} />
-                )}
-              </ParticipantAvatar>
-            </MediaParticipantAvatar>
-
-            <MediaParticipantContent>
-              <ParticipantName>
-                <span>{userProfile?.name}</span>
-                <span>
-                  <IconBadgeVerified />
-                </span>
-              </ParticipantName>
-
-              <LabelWithIcon icon={<IconMail size="20" />}>
-                {userProfile?.email}
-              </LabelWithIcon>
-
-              <RowedLabel>
-                <LabelWithIcon icon={<IconGender size="20" />}>
-                  {(userProfile?.gender === "male" && "Laki-laki") ||
-                    (userProfile?.gender === "female" && "Perempuan")}
-                </LabelWithIcon>
-
-                <LabelWithIcon icon={<IconAge size="20" />}>
-                  {userProfile?.age} Tahun
-                </LabelWithIcon>
-              </RowedLabel>
-            </MediaParticipantContent>
-          </ParticipantMediaObject>
-        </ParticipantCard>
-      </Show> */}
-
-      {/* {visibleParticipants.map((participant) => (
-        <ParticipantCard key={participant.name}>
-          <ParticipantHeadingLabel>Data Peserta</ParticipantHeadingLabel>
-
-          <ParticipantMediaObject>
-            <MediaParticipantAvatar>
-              <ParticipantAvatar>
-                {participant.data.avatar ? (
-                  <img
-                    className="club-logo-img"
-                    src={participant.data.avatar}
-                  />
-                ) : (
-                  <AvatarDefault fullname={participant.data.name} />
-                )}
-              </ParticipantAvatar>
-            </MediaParticipantAvatar>
-
-            <MediaParticipantContent>
-              <ParticipantName>
-                <span>{participant.data.name}</span>
-                <span>
-                  <IconBadgeVerified />
-                </span>
-              </ParticipantName>
-
-              <LabelWithIcon icon={<IconMail size="20" />}>
-                {participant.data.email}
-              </LabelWithIcon>
-
-              <RowedLabel>
-                <LabelWithIcon icon={<IconGender size="20" />}>
-                  {(participant.data.gender === "male" && "Laki-laki") ||
-                    (participant.data.gender === "female" && "Perempuan")}
-                </LabelWithIcon>
-
-                <LabelWithIcon icon={<IconAge size="20" />}>
-                  {participant.data.age} Tahun
-                </LabelWithIcon>
-              </RowedLabel>
-            </MediaParticipantContent>
-          </ParticipantMediaObject>
-        </ParticipantCard>
-      ))} */}
     </React.Fragment>
   );
 }
-
-// function LabelWithIcon({ icon, children }) {
-//   return (
-//     <StyledLabelWithIcon>
-//       <Show when={icon}>
-//         <span className="label-icon">{icon}</span>
-//       </Show>
-
-//       <span>{children}</span>
-//     </StyledLabelWithIcon>
-//   );
-// }
 
 /* =================================== */
 // styles
@@ -240,70 +235,5 @@ const ClubDetailValue = styled.p`
   font-size: 15px;
   font-weight: 600;
 `;
-
-// const ParticipantCard = styled.div`
-//   margin-bottom: 1rem;
-//   padding: 0.5rem;
-//   border-radius: 0.5rem;
-//   background-color: #ffffff;
-// `;
-
-// const ParticipantHeadingLabel = styled.div`
-//   padding: 0.75rem 1rem;
-//   border-radius: 0.25rem;
-//   background-color: var(--ma-blue-primary-50);
-//   font-size: 15px;
-//   font-weight: 600;
-// `;
-
-// const ParticipantMediaObject = styled.div`
-//   margin: 1.25rem 0;
-//   display: flex;
-//   gap: 1.5rem;
-// `;
-
-// const MediaParticipantAvatar = styled.div`
-//   flex-grow: 0;
-// `;
-
-// const ParticipantAvatar = styled.div`
-//   overflow: hidden;
-//   width: 6rem;
-//   height: 6rem;
-//   border-radius: 50%;
-
-//   > img {
-//     object-fit: cover;
-//     width: 100%;
-//     height: 100%;
-//   }
-// `;
-
-// const MediaParticipantContent = styled.div`
-//   margin: auto 0;
-// `;
-
-// const ParticipantName = styled.h5`
-//   margin-bottom: 0.5rem;
-//   display: flex;
-//   justify-content: flex-start;
-//   align-items: center;
-//   gap: 0.5rem;
-// `;
-
-// const StyledLabelWithIcon = styled.p`
-//   margin: 0;
-//   margin-bottom: 0.5rem;
-//   color: var(--ma-gray-500);
-
-//   .label-icon {
-//     margin-right: 0.5rem;
-//   }
-// `;
-
-// const RowedLabel = styled.div`
-//   display: flex;
-//   gap: 1.5rem;
-// `;
 
 export { SummaryView };
