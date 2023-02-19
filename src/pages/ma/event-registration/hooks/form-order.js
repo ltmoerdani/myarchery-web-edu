@@ -24,6 +24,8 @@ const _makeDefaultValues = () => ({
   club: null,
   city_id: null,
   dataParticipant: [],
+  emailRegisteredList: [],
+  emailNotRegisteredList: [],
   multiParticipants: [],
   listParticipants: [],
   participants: [
@@ -82,6 +84,13 @@ function useFormOrder({
 
   const setDataParticipants = (value) =>
     dispatch({ type: "ADD_DATA_PARTICIPANT_TYPE", payload: value });
+  const setEmailRegisteredList = (value) =>
+    dispatch({ type: "ADD_EMAIL_REGISTERED_PARTICIPANT_TYPE", payload: value });
+  const setEmailNotRegisteredList = (value) =>
+    dispatch({
+      type: "ADD_EMAIL_NOT_REGISTERED_PARTICIPANT_TYPE",
+      payload: value,
+    });
 
   const setSelectCategoriesUser = (value) =>
     dispatch({ type: "ADD_CATEGORIES_USER_TYPE", payload: value });
@@ -146,6 +155,8 @@ function useFormOrder({
     setSelectCategoriesUser,
     setTeamCategory,
     setMultiParticipants,
+    setEmailRegisteredList,
+    setEmailNotRegisteredList,
   };
 }
 
@@ -213,6 +224,16 @@ function _formReducer(state, action) {
 
   if (action.type === "ADD_LIST_MULTI_PARTICIPANT_TYPE") {
     const data = { ...state.data, multiParticipants: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_EMAIL_REGISTERED_PARTICIPANT_TYPE") {
+    const data = { ...state.data, emailRegisteredList: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_EMAIL_NOT_REGISTERED_PARTICIPANT_TYPE") {
+    const data = { ...state.data, emailNotRegisteredList: action.payload };
     return { ...state, data: data };
   }
 

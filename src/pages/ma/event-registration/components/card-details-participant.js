@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { FieldInputText } from "./field-input-text";
 import { SelectRadio } from "./select-radio";
 import CreatableSelect from "react-select/async-creatable";
+import { stringUtil } from "utils";
 const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
   const {
     setNumberOfTeam,
@@ -41,7 +42,7 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
   const [userRegisteredIndividu, setUserRegisteredIndividu] =
     React.useState(null);
   const [checkInputEmail, setCheckInputEmail] = React.useState("");
-  const [multiEmail, setMultiEmail] = React.useState([]);
+  const [multiEmail, setMultiEmail] = React.useState(multiParticipants ?? []);
 
   const checkIndivualParticipant = async (
     category = [],
@@ -123,36 +124,88 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
       case "Enter":
       case "Tab":
       case "Space":
-        setMultiEmail((prev) => [
-          ...prev,
-          { value: checkInputEmail, label: checkInputEmail },
-        ]);
+        if (multiEmail?.length) {
+          const checkEmailHasBeenAdd = multiEmail.filter(
+            (e) => e.value === checkInputEmail
+          );
+          if (!checkEmailHasBeenAdd?.length) {
+            setMultiEmail((prev) => [
+              ...prev,
+              {
+                id: stringUtil.createRandom(),
+                value: checkInputEmail,
+                label: checkInputEmail,
+                email: checkInputEmail,
+              },
+            ]);
+          }
+        } else {
+          setMultiEmail([
+            {
+              id: stringUtil.createRandom(),
+              value: checkInputEmail,
+              label: checkInputEmail,
+              email: checkInputEmail,
+            },
+          ]);
+        }
         setCheckInputEmail("");
         e.preventDefault();
     }
   };
   React.useEffect(() => {
     if (multiEmail?.length) {
-      setMultiParticipants(multiEmail);
+      setMultiParticipants([...multiEmail]);
+    } else {
+      setMultiParticipants([]);
     }
-  }, [multiEmail]);
-
+  }, [multiEmail, asParticipant, isCollective]);
   return (
     <div>
       {isCollective ? (
-        <CreatableSelect
-          cacheOptions
-          defaultOptions
-          isMulti
-          isClearable
-          components={{ DropdownIndicator: null }}
-          menuIsOpen={false}
-          onChange={(val) => setMultiEmail(val)}
-          onInputChange={(val) => setCheckInputEmail(val)}
-          value={multiParticipants ?? multiEmail}
-          inputValue={checkInputEmail}
-          onKeyDown={handleKeyDown}
-        />
+        <>
+          {asParticipant ? (
+            <>
+              <FieldInputText
+                placeholder="Email"
+                type={"email"}
+                disabled={true}
+                value={userProfile?.email}
+                onChange={handleChangeEmail}
+              >
+                <TextAddOthersHeader>Email Saya</TextAddOthersHeader>
+              </FieldInputText>
+              <div style={{ padding: "6px 0" }} />
+            </>
+          ) : null}
+          <TextAddOthersHeader>
+            <span>Masukkan email peserta yang didaftarkan</span>
+            <span
+              style={{ fontSize: "12px", color: "#757575", fontWeight: 400 }}
+            >
+              {multiEmail?.length ?? 0} Peserta
+            </span>
+          </TextAddOthersHeader>
+          <CreatableSelect
+            cacheOptions
+            defaultOptions
+            isMulti
+            isClearable
+            components={{ DropdownIndicator: null }}
+            menuIsOpen={false}
+            onChange={(val) => setMultiEmail(val)}
+            onInputChange={(val) => setCheckInputEmail(val)}
+            value={multiEmail}
+            defaultValue={multiEmail}
+            inputValue={checkInputEmail}
+            onKeyDown={handleKeyDown}
+          />
+          <DescAddOthers>
+            Anda dapat memasukkan email peserta yang belum memiliki akun
+            MyArchery. Siapkan data pribadi peserta untuk diinput pada tahap
+            selanjutnya.
+          </DescAddOthers>
+        </>
       ) : (
         <>
           {selectCategoriesType !== "team" && selectCategoriesType !== "mix" ? (
@@ -162,6 +215,7 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
                   placeholder="Email"
                   type={"email"}
                   disabled={asParticipant ? true : false}
+                  multiUser={!isCollective}
                   value={
                     asParticipant === true
                       ? userProfile?.email
@@ -169,8 +223,33 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
                   }
                   onChange={handleChangeEmail}
                 >
-                  Email
+                  <TextAddOthersHeader>
+                    <span>
+                      {asParticipant
+                        ? "Email Saya"
+                        : "Masukkan email peserta yang didaftarkan"}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        color: "#757575",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {listParticipants && listParticipants[0]?.email
+                        ? listParticipants?.length
+                        : 0}{" "}
+                      Peserta
+                    </span>
+                  </TextAddOthersHeader>
                 </FieldInputText>
+                {!asParticipant ? (
+                  <DescAddOthers>
+                    Anda dapat memasukkan email peserta yang belum memiliki akun
+                    MyArchery. Siapkan data pribadi peserta untuk diinput pada
+                    tahap selanjutnya.
+                  </DescAddOthers>
+                ) : null}
               </SplitFieldItem>
             </SplitFields>
           ) : (
@@ -279,6 +358,23 @@ const ValidationError = styled.span`
   color: #e11900;
   font-weight: 400;
   font-size: 12px;
+`;
+
+const TextAddOthersHeader = styled.div`
+  font-weight: 600;
+  font-size: 14px;
+  color: #1c1c1c;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const DescAddOthers = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  color: #757575;
+  margin-top: 4px;
 `;
 
 export default DetailsParticipant;

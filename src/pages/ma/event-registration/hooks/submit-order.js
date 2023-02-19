@@ -11,13 +11,13 @@ function useSubmitOrder(formData) {
       if (selectCategoriesType === "individual") {
         const { dataParticipant, selectCategoryUser, city_id, club } = formData;
         const payload = {
-          event_id: selectCategoryUser?.eventId,
+          event_id: selectCategoryUser?.eventId ?? eventDetailData?.id ?? 0,
           club_or_city_id:
             eventDetailData?.withContingent === 1
               ? city_id.value
               : club?.detail?.id ?? 0,
         };
-        if (dataParticipant.length === 1) {
+        if (dataParticipant?.length) {
           payload.members = dataParticipant;
         }
         return OrderEventService.createOrder(payload);

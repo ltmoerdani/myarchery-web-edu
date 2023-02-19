@@ -1,3 +1,5 @@
+import React from "react";
+
 const { ArcherService } = require("services");
 
 const listAllProvince = async (countryUser, keywordProvince) => {
@@ -116,4 +118,83 @@ const listAllCountry = async () => {
   }
 };
 
-export { listAllCountry, listAllProvince, listAllCity };
+const useCountry = (
+  countryInput,
+  selectCountry,
+  provinceInput,
+  selectProvince,
+  cityInput
+) => {
+  const [countryList, setCountryList] = React.useState([]);
+  const [provinceList, setProvinceList] = React.useState([]);
+  const [cityList, setCityyList] = React.useState([]);
+  const fetchCountry = async (keyword) => {
+    const result = await ArcherService.getListCountry({
+      limit: 200,
+      name: keyword ?? "",
+      page: 1,
+    });
+    const newCountry = result?.data?.map((country) => {
+      return { ...country, value: country?.name, label: country?.name };
+    });
+    setCountryList(newCountry);
+  };
+  const fetchProvince = async (country, keyword) => {
+    if (country?.name === "Indonesia" || country?.id === 102) {
+      const provinces = await ArcherService.getListProvinceIndonesian({
+        limit: 200,
+      });
+      const newProvince = provinces?.data?.map((province) => {
+        return { ...province, value: province?.name, label: province?.name };
+      });
+      setProvinceList(newProvince);
+    } else {
+      const provinces = await ArcherService.getListProvince({
+        limit: 500,
+        page: 1,
+        name: keyword ?? "",
+        country_id: country?.id ?? null,
+      });
+      const newProvince = provinces?.data?.map((province) => {
+        return { ...province, value: province?.name, label: province?.name };
+      });
+      setProvinceList(newProvince);
+    }
+  };
+  const fetchCity = async (country, province) => {
+    if (country?.name === "Indonesia" || country?.id === 102) {
+      const cities = await ArcherService.getListCityIndonesian({
+        limit: 200,
+        province_id: province?.id,
+      });
+      const newCity = cities?.data?.map((city) => {
+        return { ...city, value: city?.name, label: city?.name };
+      });
+      setCityyList(newCity);
+    } else {
+      const cities = await ArcherService.getListCity({
+        limit: 500,
+        page: 1,
+        country_id: country?.id ?? null,
+        province_id: province?.id ?? null,
+      });
+      const newCity = cities?.data?.map((city) => {
+        return { ...city, value: city?.name, label: city?.name };
+      });
+      setCityyList(newCity);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchCountry(countryInput);
+    if (selectCountry) {
+      fetchProvince(selectCountry, provinceInput);
+    }
+    if (selectProvince) {
+      fetchCity(selectCountry, selectProvince, cityInput);
+    }
+  }, [countryInput, selectCountry, selectProvince, provinceInput]);
+  return [countryList, provinceList, cityList];
+};
+
+export { listAllCountry, listAllProvince, listAllCity, useCountry };

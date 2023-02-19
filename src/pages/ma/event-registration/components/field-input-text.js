@@ -7,6 +7,7 @@ import classnames from "classnames";
 
 function FieldInputText({
   children,
+  multiUser,
   label,
   required,
   name,
@@ -37,7 +38,11 @@ function FieldInputText({
     <FieldInputTextWrapper>
       {(children || label) && (
         <label
-          className={classnames("field-label", { "field-disabled": disabled })}
+          className={classnames(
+            "field-label",
+            { "field-disabled": disabled },
+            { "field-multi": multiUser }
+          )}
           htmlFor={fieldID}
         >
           {children || label}
@@ -87,6 +92,11 @@ const FieldInputTextWrapper = styled.div`
 
     &.field-disabled {
       color: var(--ma-gray-400);
+    }
+
+    &.field-multi {
+      display: flex;
+      width: 100%;
     }
   }
 

@@ -45,7 +45,13 @@ function TicketView({
     errors: errorVerification,
   } = useSubmitVerification(formVerification.data);
   const { data: formData, handleValidation: handleValidationOrder } = formOrder;
-  const { selectCategoryUser, selectCategoriesType } = formData;
+  const {
+    selectCategoryUser,
+    selectCategoriesType,
+    category,
+    isCollective,
+    dataParticipant,
+  } = formData;
   const history = useHistory();
   const {
     submit,
@@ -120,16 +126,77 @@ function TicketView({
     };
     submit(options, eventDetailData, selectCategoriesType);
   };
-  const isEarly = clientData.isWna
+  const notCollectiveEarly = clientData.isWna
     ? selectCategoryUser?.isEarlyBirdWna
     : selectCategoryUser?.isEarlyBird;
-  const undiscountedTotal = clientData.isWna
+  const collectiveEarly = dataParticipant?.map((e) => {
+    if (Number(e.country_id) !== 102) {
+      if (e.gender === "female") {
+        return category?.femaleIisEarlyBirdWna;
+      } else {
+        return category?.maleIisEarlyBirdWna;
+      }
+    } else {
+      if (e.gender === "female") {
+        return category?.femaleIsEarlyBird;
+      } else {
+        return category?.maleIsEarlyBird;
+      }
+    }
+  });
+  const undiscountNotCollective = clientData.isWna
     ? selectCategoryUser?.normalPriceWna
     : selectCategoryUser?.fee;
-  const total = clientData.isWna
+  const undiscountCollective = dataParticipant?.map((e) => {
+    if (Number(e.country_id) !== 102) {
+      if (e.gender === "female") {
+        return category?.femaleNormalPriceWna;
+      } else {
+        return category?.maleNormalPriceWna;
+      }
+    } else {
+      if (e.gender === "female") {
+        return category?.femaleFee;
+      } else {
+        return category?.maleFee;
+      }
+    }
+  });
+  const totalNotCollective = clientData.isWna
     ? selectCategoryUser?.earlyPriceWna
     : selectCategoryUser?.earlyBird;
-
+  const totalCollective = dataParticipant?.map((e) => {
+    if (Number(e.country_id) !== 102) {
+      if (e.gender === "female") {
+        return category?.femaleEarlyPriceWna;
+      } else {
+        return category?.maleEarlyPriceWna;
+      }
+    } else {
+      if (e.gender === "female") {
+        return category?.femaleEarlyBird;
+      } else {
+        return category?.maleEarlyBird;
+      }
+    }
+  });
+  let countUndiscount = 0;
+  const countUndiscountCollective = undiscountCollective?.map((e) => {
+    return (countUndiscount += Number(e));
+  });
+  let countTotal = 0;
+  const countTotalCollective = totalCollective?.map((e) => {
+    return (countTotal += Number(e));
+  });
+  const isEarly = !isCollective
+    ? notCollectiveEarly
+    : collectiveEarly?.every(Boolean);
+  const undiscountedTotal = !isCollective
+    ? undiscountNotCollective
+    : Math.max(...countUndiscountCollective);
+  const total = !isCollective
+    ? totalNotCollective
+    : Math.max(...countTotalCollective);
   if (isLoadingEventDetail) {
     return (
       <TicketCard>
@@ -137,7 +204,6 @@ function TicketView({
       </TicketCard>
     );
   }
-
   if (eventDetailData) {
     return (
       <React.Fragment>
@@ -176,19 +242,29 @@ function TicketView({
             <DetailItem
               label="Jenis Regu"
               value={
-                selectCategoryUser?.teamCategoryDetail?.label ||
-                selectCategoryUser?.teamCategoryId
+                !isCollective
+                  ? selectCategoryUser?.teamCategoryDetail?.label ||
+                    selectCategoryUser?.teamCategoryId
+                  : category.teamCategoryId
               }
             />
 
             <DetailItem
               label="Kategori"
-              value={selectCategoryUser?.categoryLabel}
+              value={
+                !isCollective
+                  ? selectCategoryUser?.categoryLabel
+                  : category.categoryLabel
+              }
             />
 
             <DetailItem
               label="Jumlah Peserta"
-              value={participantCounts && participantCounts + " Orang"}
+              value={
+                !isCollective
+                  ? participantCounts && participantCounts
+                  : dataParticipant?.length + " Orang"
+              }
             />
           </TicketSectionDetail>
           <div className="d-flex flex-column justify-content-between">

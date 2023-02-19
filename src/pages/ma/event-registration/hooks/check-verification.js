@@ -1,3 +1,5 @@
+import React from "react";
+
 const checkVerification = (data = [], category, eventDetail) => {
   const result = [];
   if (data?.length === 1) {
@@ -190,19 +192,50 @@ const checkVerification = (data = [], category, eventDetail) => {
           : true;
       return {
         userEmail: e.email,
-        genderIsValid:
-          matchGender && matchGender[0]?.genderCategory === e.gender,
-        quoteIsValid:
-          matchGender &&
-          Number(matchGender[0]?.quote) -
-            Number(matchGender[0]?.totalParticipant) -
-            1 !==
-            0,
-        ageIsValid: ageIsValid,
+        genderIsValid: matchGender?.length
+          ? matchGender[0]?.genderCategory === e.gender
+          : false,
+        quoteIsValid: matchGender.length
+          ? Number(matchGender[0]?.quote) -
+              Number(matchGender[0]?.totalParticipant) -
+              1 !==
+            0
+          : false,
+        ageIsValid: e.dateOfBirth || e.date_of_birth ? ageIsValid : false,
       };
     });
     return verify;
   }
 };
 
-export default checkVerification;
+const useQuotaVerification = (category, dataParticipant) => {
+  const [quotaMale, setQuotaMale] = React.useState(
+    category?.maleQuota - category?.maleParticipant
+  );
+  const [quotaFemale, setQuotaFemale] = React.useState(
+    category?.femaleQuota - category?.femaleParticipant
+  );
+
+  React.useEffect(() => {
+    let countQuotaMale = category?.maleQuota - category?.maleParticipant;
+    let countQuotaFemale = category?.femaleQuota - category?.femaleParticipant;
+    if (dataParticipant?.length) {
+      dataParticipant?.map((e) => {
+        if (e.gender === "male") {
+          countQuotaMale -= 1;
+        } else if (e.gender === "female") {
+          countQuotaFemale -= 1;
+        }
+      });
+      setQuotaFemale(countQuotaFemale);
+      setQuotaMale(countQuotaMale);
+    } else {
+      setQuotaFemale(countQuotaFemale);
+      setQuotaMale(countQuotaMale);
+    }
+  }, [category, dataParticipant]);
+
+  return [quotaMale, quotaFemale];
+};
+
+export { checkVerification, useQuotaVerification };

@@ -52,6 +52,9 @@ function FormView({
     setSelectCategoriesType,
     setSelectClassCategories,
     setListParticipants,
+    setEmailNotRegisteredList,
+    setEmailRegisteredList,
+    setMultiParticipants,
   } = formOrder;
   const { goToNextStep } = wizardView;
   const {
@@ -67,6 +70,7 @@ function FormView({
     numberOfTeam,
     club,
     withClub,
+    multiParticipants,
   } = formOrder.data;
 
   const selectClassRef = React.useRef(null);
@@ -74,6 +78,7 @@ function FormView({
 
   const [showModal, setShowModal] = React.useState(false);
   const [modalMessage, setModalMessage] = React.useState("");
+  const [multipleUser, setMultipleUser] = React.useState([]);
   const filterClassCategoryGroup = React.useMemo(
     () =>
       groupClassCategory(
@@ -88,6 +93,8 @@ function FormView({
     setRegistrationType(value);
     if (value === "collective") {
       setIsColective(true);
+    } else {
+      setIsColective(false);
     }
   };
 
@@ -118,8 +125,10 @@ function FormView({
         listParticipants[0]?.email
       );
       if (data?.data === null) {
-        setShowModal(true);
         setModalMessage(data?.message);
+        setShowModal(true);
+        setEmailNotRegisteredList([listParticipants[0]?.email]);
+        setEmailRegisteredList([]);
       } else {
         if (data?.message?.includes("sudah terdaftar sebagai user")) {
           const payload = {
@@ -131,11 +140,14 @@ function FormView({
             province: data?.data?.province,
             city: data?.data?.city ?? "noCity",
           };
+          setEmailRegisteredList([payload]);
+          setEmailNotRegisteredList([]);
           setListParticipants([payload]);
           goToNextStep();
         }
       }
     } else {
+      setMultiParticipants(multipleUser);
       goToNextStep();
     }
   };
@@ -165,6 +177,50 @@ function FormView({
       setCategory(dataClass, userProfile);
     }
   }, [dataClass]);
+
+  React.useEffect(() => {
+    if (isCollective) {
+      if (asParticipant) {
+        if (multiParticipants?.length) {
+          const multipleUserData = multiParticipants?.filter(
+            (e) => e.email === userProfile?.email
+          );
+          if (!multipleUserData.length) {
+            setMultipleUser([
+              {
+                ...userProfile,
+                value: userProfile?.email,
+                label: userProfile?.email,
+              },
+              ...multiParticipants,
+            ]);
+          } else {
+            setMultipleUser([...multiParticipants]);
+          }
+        } else {
+          setMultipleUser([
+            {
+              ...userProfile,
+              value: userProfile?.email,
+              label: userProfile?.email,
+            },
+          ]);
+        }
+      } else {
+        if (multiParticipants?.length) {
+          const multipleUserData = multiParticipants?.filter(
+            (e) => e.email !== userProfile?.email
+          );
+          if (multipleUserData.length) {
+            setMultipleUser([...multipleUserData]);
+          }
+        }
+      }
+    } else {
+      setMultipleUser([]);
+    }
+  }, [asParticipant, isCollective, multiParticipants]);
+
   const noChooseFormField =
     !category || eventDetailData?.withContingent === 0
       ? selectCategoriesType === "individual"
@@ -434,6 +490,7 @@ const groupClassCategory = (
           result[uniqueVal].femaleNormalPriceWna = e.normalPriceWna;
           result[uniqueVal].femaleIsEarlyBird = e.isEarlyBird;
           result[uniqueVal].femaleIisEarlyBirdWna = e.isEarlyBirdWna;
+          result[uniqueVal].femaleFee = e.fee;
         } else if (e.genderCategory === "male") {
           result[uniqueVal].maleQuota = e.quota;
           result[uniqueVal].maleParticipant = e.totalParticipant;
@@ -444,6 +501,7 @@ const groupClassCategory = (
           result[uniqueVal].maleNormalPriceWna = e.normalPriceWna;
           result[uniqueVal].maleIsEarlyBird = e.isEarlyBird;
           result[uniqueVal].maleIisEarlyBirdWna = e.isEarlyBirdWna;
+          result[uniqueVal].maleFee = e.fee;
         } else if (e.genderCategory === "mix") {
           result[uniqueVal].mixQuota = e.quota;
           result[uniqueVal].mixParticipant = e.totalParticipant;
