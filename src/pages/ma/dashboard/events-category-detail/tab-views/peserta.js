@@ -25,11 +25,13 @@ import IconBadgeVerified from "components/ma/icons/color/badge-verified";
 import { parseISO, isBefore, subDays } from "date-fns";
 import { ParticipantContext } from "context";
 import { useParams } from "react-router-dom";
+import { SelectOption } from "pages/ma/event-registration/components/select-option";
 
 function TabPeserta({ eventState, participantMembersState }) {
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
   const { data: participantMembers, refetchParticipantMembers } = participantMembersState;
   const { data: event } = eventState;
+  const {setSelectedParticipans} = React.useContext(ParticipantContext)
 
   const isLoadingOrder = participantMembersState.status === "loading";
   const isUserParticipant = participantMembers.participant.userId === userProfile.id;
@@ -37,6 +39,10 @@ function TabPeserta({ eventState, participantMembersState }) {
   const dayBefore = subDays(parseISO(event.publicInformation.eventStart), 1);
   // TODO: masih lepas syarat enable, kembalikan kapan-kapan...(?)
   const shouldAllowEdit = true || isBefore(new Date(), dayBefore);
+
+  useEffect(() => {
+    if (Array.isArray(participantMembers?.member)) setSelectedParticipans(participantMembers.member.filter(member => member.isSelectedForTeam))
+  }, [participantMembers])
 
   return (
     <PanelContainer>
@@ -213,21 +219,41 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
 
       {shouldAllowEdit && editMode.isOpen ? (
         <ShortFieldWrapper>
-          <FieldSelectClub
-            value={club || null}
-            onChange={(clubValue) => dispatchForm({ name: "club", payload: clubValue })}
-          >
-            Nama Klub
-          </FieldSelectClub>
+          {!participantMembers.withContingent ? (
+            <FieldSelectClub
+              value={club || null}
+              onChange={(clubValue) => dispatchForm({ name: "club", payload: clubValue })}
+            >
+              Nama Klub
+            </FieldSelectClub>
+          ) : (
+            <>
+              <div className="display-name">Kontingen</div>
+              <SelectOption
+                value={participantMembers.cityName}
+                placeholder="Pilih Kota/Kabupaten"
+                disabled
+              />
+            </>
+          )}
         </ShortFieldWrapper>
       ) : (
         <TeamInfoEditor>
-          {participantMembers.club?.name && (
-            <DisplayTeamClub>
-              <div>Nama Klub</div>
-              <div className="display-value">{participantMembers.club.name}</div>
-            </DisplayTeamClub>
-          )}
+        {participantMembers.withContingent ? (
+          <>
+            {participantMembers.club?.name && (
+              <DisplayTeamClub>
+                <div>Nama Klub</div>
+                <div className="display-value">{participantMembers.club.name}</div>
+              </DisplayTeamClub>
+            )}
+          </>
+        ) : (
+          <DisplayTeamClub>
+            <div>Kontingen</div>
+            <div className="display-value">{participantMembers.cityName}</div>
+          </DisplayTeamClub>
+        )}
         </TeamInfoEditor>
       )}
 
@@ -274,6 +300,7 @@ function ParticipantEditorTeam({
 
   React.useEffect(() => {
     dispatchForm({ type: "RESET_FORM", payload: mapMembersToState(participantMembers.member) });
+    participantMembers.member.some(member => member.isSelectedForTeam) && editMode.isOpen ? setTeamSystem(1) : setTeamSystem(0)
   }, [participantMembers]);
 
   React.useEffect(() => {
@@ -368,7 +395,7 @@ function ParticipantEditorTeam({
                     setTeamSystem(null);
                   }}
                 >
-                  Batal
+                  Batal 
                 </Button>
 
                 <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
@@ -378,6 +405,8 @@ function ParticipantEditorTeam({
                 <ButtonOutlineBlue
                   onClick={() => {
                     setEditMode({ isOpen: true, previousData: { form, club, teamName } });
+                    setSelectedParticipans(participantMembers.member.filter(member => member.isSelectedForTeam))
+                    participantMembers.member.some(member => member.isSelectedForTeam) ? setTeamSystem(1) : setTeamSystem(0)
                   }}
                 >
                   Ubah Peserta
@@ -390,12 +419,23 @@ function ParticipantEditorTeam({
       {shouldAllowEdit && editMode.isOpen ? (
         <TeamInfoEditor>
           <DisplayTeamClub>
+          {!participantMembers.withContingent ? (
             <FieldSelectClub
               value={club}
               onChange={(clubValue) => dispatchClub({ name: "club", payload: clubValue })}
             >
               Nama Klub
             </FieldSelectClub>
+          ) : (
+            <>
+              <div className="display-name">Kontingen</div>
+              <SelectOption
+                value={participantMembers.cityName}
+                placeholder="Pilih Kota/Kabupaten"
+                disabled
+              />
+            </>
+          )}
             <div className="display-name">Atur Sistem Tim Beregu untuk mengikuti pertandingan</div>
             <SelectRadio
               options={[
@@ -418,12 +458,19 @@ function ParticipantEditorTeam({
             </div>
           </DisplayTeamClub>
 
-          <DisplayTeamClub>
+          {!participantMembers.withContingent ? (
+            <DisplayTeamClub>
             <div>Nama Klub</div>
             <div className="display-value">
               {participantMembers.club?.name || <React.Fragment>&mdash;</React.Fragment>}
             </div>
           </DisplayTeamClub>
+          ) : (
+            <DisplayTeamClub>
+              <div>Kontingen</div>
+              <div className="display-value">{participantMembers.cityName || <React.Fragment>&mdash;</React.Fragment>}</div>
+            </DisplayTeamClub>
+          )}
         </TeamInfoEditor>
       )}
 
