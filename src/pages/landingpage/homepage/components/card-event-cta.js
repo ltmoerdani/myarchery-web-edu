@@ -156,26 +156,16 @@ function CardEventCTA({ eventDetail, categories = [] }) {
           {!isRegistrationOpen ? (
             <ButtonCTABig disabled>Pendaftaran Ditutup</ButtonCTABig>
           ) : (
-            <div>
-              {!eventDetail.withContingent ? (
-                <ButtonCTABig
-                  as={Link}
-                  to={
-                    !isLoggedIn
-                      ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
-                      : `/event-registration/${eventDetail.eventSlug}`
-                  }
-                >
-                  Daftar Event
-                </ButtonCTABig>
-              ) : (
-                <a href={!isLoggedIn ? `/archer/login?path=/event/perpani-jawa-barat/${eventDetail.eventSlug}` : "https://api.whatsapp.com/send/?phone=6281212241633"}>
-                  <ButtonCTABig>
-                    Daftar Event
-                  </ButtonCTABig>
-                </a>
-              )}
-            </div>
+              <ButtonCTABig
+                as={Link}
+                to={
+                  !isLoggedIn
+                    ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
+                    : `/event-registration/${eventDetail.eventSlug}`
+                }
+              >
+                Daftar Event
+              </ButtonCTABig>
           )}
         </div>
       </VerticalSpaced>

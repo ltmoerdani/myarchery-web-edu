@@ -59,7 +59,7 @@ function PageEventRanksClubs() {
             <div>
               <EventName>{eventDetail.publicInformation.eventName}</EventName>
             </div>
-            <div>Pemeringkatan Klub</div>
+            <div>{!eventDetail.withContingent ? 'Pemeringkatan Klub' : 'Pemeringkatan Kontingen'}</div>
           </ContentHeader>
         )}
 

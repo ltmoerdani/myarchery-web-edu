@@ -1,6 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { Landingpage } from "services";
 import * as AuthStore from "store/slice/authentication";
 import classnames from "classnames";
 
@@ -12,6 +14,17 @@ import IconChevronDown from "components/ma/icons/mono/chevron-down";
 
 function EventCategoryPicker({ placeholder = "Pilih kategori lomba", value, errors, ...props }) {
   const [isPickerOpen, setPickerOpen] = React.useState(false);
+  const { slug } = useParams();
+  const [withContingen, setWithContingen] = React.useState(0)
+
+  React.useEffect(() => {
+    (async() => {
+      const { data: { withContingent } } = await Landingpage.getEventBySlug({ slug })
+
+      setWithContingen(withContingent)
+    })()
+  }, [])
+
   return (
     <div>
       <PickerButton
@@ -28,6 +41,7 @@ function EventCategoryPicker({ placeholder = "Pilih kategori lomba", value, erro
           {...props}
           toggle={() => setPickerOpen((open) => !open)}
           onClosed={() => setPickerOpen(false)}
+          withContingen = {withContingen}
         />
       )}
     </div>
@@ -108,6 +122,7 @@ function PickerControl({
   onChange,
   toggle,
   onClosed,
+  withContingen
 }) {
   const filters = React.useMemo(() => makeTeamCategoriesFilters(groupedCategories), []);
   const [selectedFilter, setSelectedFilter] = React.useState(() =>
@@ -187,7 +202,7 @@ function PickerControl({
                         onClosed();
                       }, 325);
                     }}
-                    disabled={shouldOptionDisabled || !categoryMatchesUser}
+                    disabled={!withContingen ? shouldOptionDisabled || !categoryMatchesUser : shouldOptionDisabled}
                   />
                   <CategoryItemLabel
                     title={
@@ -197,25 +212,41 @@ function PickerControl({
                     }
                     htmlFor={`category-item-${category.id}`}
                     className={classnames({
-                      "not-available": shouldOptionDisabled || !categoryMatchesUser,
+                      "not-available": !withContingen ? shouldOptionDisabled || !categoryMatchesUser : shouldOptionDisabled,
                     })}
                   >
                     <h5 className="category-name">{category.categoryLabel}</h5>
-                    <div>
-                      {categoryMatchesUser ? (
-                        !category.isOpen ? (
-                          <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
-                        ) : isQuotaAvailable ? (
-                          <QuotaLabel className={shouldOptionDisabled ? "label-muted" : undefined}>
-                            {category.totalParticipant}&#47;{category.quota}
-                          </QuotaLabel>
+                    {!withContingen ? (
+                      <div>
+                        {categoryMatchesUser ? (
+                          !category.isOpen ? (
+                            <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
+                          ) : isQuotaAvailable ? (
+                            <QuotaLabel className={shouldOptionDisabled ? "label-muted" : undefined}>
+                              {category.totalParticipant}&#47;{category.quota}
+                            </QuotaLabel>
+                          ) : (
+                            <QuotaLabelMuted>Habis</QuotaLabelMuted>
+                          )
                         ) : (
-                          <QuotaLabelMuted>Habis</QuotaLabelMuted>
-                        )
-                      ) : (
-                        <QuotaLabelMuted>Tidak Sesuai Gender</QuotaLabelMuted>
-                      )}
-                    </div>
+                          <QuotaLabelMuted>Tidak Sesuai Gender</QuotaLabelMuted>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        {(!category.isOpen ?
+                          (
+                            <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
+                          ) : isQuotaAvailable ? (
+                            <QuotaLabel className={shouldOptionDisabled ? "label-muted" : undefined}>
+                              {category.totalParticipant}&#47;{category.quota}
+                            </QuotaLabel>
+                          ) : (
+                            <QuotaLabelMuted>Habis</QuotaLabelMuted>
+                          )
+                        )}
+                      </div>
+                    )}
                   </CategoryItemLabel>
                 </CategoryItem>
               );
