@@ -14,7 +14,7 @@ import IconMedalBronze from "components/ma/icons/color/medal-bronze";
 
 import classnames from "classnames";
 
-function MatchBracket({ matchTemplate }) {
+function MatchBracket({ matchTemplate, eventDetail }) {
   const { hasWinner, winnerIndex } = _checkThirdPlaceHasWinner(matchTemplate);
   return (
     <Bracket
@@ -29,13 +29,14 @@ function MatchBracket({ matchTemplate }) {
             thirdPlaceHasWinner: hasWinner,
             thirdPlaceWinnerIndex: winnerIndex,
           }}
+          eventDetail={eventDetail}
         />
       )}
     />
   );
 }
 
-function SeedBagan({ bracketProps, configs }) {
+function SeedBagan({ bracketProps, configs, eventDetail }) {
   const { roundIndex, seed, breakpoint } = bracketProps;
   const { totalRounds, isSettingApplied, thirdPlaceHasWinner, thirdPlaceWinnerIndex } = configs;
 
@@ -73,10 +74,22 @@ function SeedBagan({ bracketProps, configs }) {
               >
                 <BoxNameGroup>
                   <BoxName title={playerName}>{playerName}</BoxName>
-                  {team.club && (
-                    <BoxName title={team.club} className="name-club">
-                      {team.club}
-                    </BoxName>
+                  {!eventDetail.withContingent ? (
+                    <>
+                      {team.club && (
+                        <BoxName title={team.club} className="name-club">
+                          {team.club}
+                        </BoxName>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {team.club && (
+                        <BoxName title={team.city} className="name-club">
+                          {team.city}
+                        </BoxName>
+                      )}
+                    </>
                   )}
                 </BoxNameGroup>
                 <Score team={team} />

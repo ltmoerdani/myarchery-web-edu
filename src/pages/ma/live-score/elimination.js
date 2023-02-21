@@ -118,7 +118,10 @@ function PageScoreElimination() {
                       {(matchTemplate?.eliminationId || matchTemplate?.eliminationGroupId) &&
                       matchTemplate?.rounds ? (
                         <OverflowingBracketContent>
-                          <MatchBracket matchTemplate={matchTemplate} />
+                          <MatchBracket
+                            matchTemplate={matchTemplate}
+                            eventDetail={eventDetail}
+                          />
                         </OverflowingBracketContent>
                       ) : isLoadingBracket ? (
                         <SettingsNotApplied>Sedang menyiapkan bagan...</SettingsNotApplied>
