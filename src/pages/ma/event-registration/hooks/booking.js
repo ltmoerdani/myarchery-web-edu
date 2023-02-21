@@ -12,7 +12,11 @@ function useBooking(category, isSuccess) {
 
   const createBooking = () => {
     const postFunction = () => {
-      return OrderEventService.createBooking({ category_id: category.id });
+      return OrderEventService.createBooking({
+        category_id: category.id
+          ? category.id
+          : category?.data?.map((e) => e.id),
+      });
     };
     fetcherBooking.runAsync(postFunction);
   };
@@ -88,7 +92,12 @@ function useBooking(category, isSuccess) {
     return unblock;
   }, [booking?.participantId, isSuccess]);
 
-  return { ...fetcherBooking, createBooking, deleteBooking, deleteBookingOnBeforeUnload };
+  return {
+    ...fetcherBooking,
+    createBooking,
+    deleteBooking,
+    deleteBookingOnBeforeUnload,
+  };
 }
 
 export { useBooking };
