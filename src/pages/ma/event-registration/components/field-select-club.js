@@ -15,9 +15,17 @@ function FieldSelectClub({
   onChange,
   errors,
   disabled,
+  placeholder,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
-  const pickerProps = { groupedOptions, value, onChange, errors, disabled };
+  const pickerProps = {
+    groupedOptions,
+    value,
+    onChange,
+    errors,
+    disabled,
+    placeholder,
+  };
 
   return (
     <StyledFieldWrapper>

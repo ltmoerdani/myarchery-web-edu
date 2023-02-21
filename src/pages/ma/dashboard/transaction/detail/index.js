@@ -53,20 +53,22 @@ function PageTransactionDetail() {
   };
 
   const onConfirmCancel = async (participant_id) => {
-    setLoading(true)
-    const { data, message, errors } = await ArcherService.cancelRegister({participant_id:participant_id});
+    setLoading(true);
+    const { data, message, errors } = await ArcherService.cancelRegister({
+      participant_id: participant_id,
+    });
     if (data) {
-      setIsCancelAlert(false)
-      console.log(message)
-      console.log(errors)
-      console.log(participant_id)
+      setIsCancelAlert(false);
+      console.log(message);
+      console.log(errors);
+      console.log(participant_id);
       window.location.reload();
     }
     if (!data) {
-      console.log(message)
-      console.log(errors)
+      console.log(message);
+      console.log(errors);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const onCancel = () => {
@@ -100,13 +102,19 @@ function PageTransactionDetail() {
     }
   }, []);
 
+  console.log(orderId);
   useEffect(() => {
     const getOrderEventBySlug = async () => {
-      const { data, message, errors } = await OrderEventService.get({ id: orderId });
+      const { data, message, errors } = await OrderEventService.get({
+        id: orderId,
+      });
 
       if (data) {
         setDataDetail(data);
-        if (dataDetail?.transactionInfo?.statusId == 4 && userProfile?.verifyStatus == 1) {
+        if (
+          dataDetail?.transactionInfo?.statusId == 4 &&
+          userProfile?.verifyStatus == 1
+        ) {
           if (dataDetail?.transactionInfo?.gateway == "OY") {
             setIsOYAlertOpen(true);
           } else {
@@ -135,11 +143,17 @@ function PageTransactionDetail() {
     return () => {
       document.body.removeChild(script);
     };
-  }, [dataDetail?.transactionInfo?.clientLibLink, dataDetail?.transactionInfo?.clientKey]);
+  }, [
+    dataDetail?.transactionInfo?.clientLibLink,
+    dataDetail?.transactionInfo?.clientKey,
+  ]);
 
   const handleClickPayment = (transactionInfo) => {
-    if (transactionInfo?.gateway != undefined && transactionInfo?.gateway == "OY") return () => setIsOYAlertOpen(true);
-    
+    if (
+      transactionInfo?.gateway != undefined &&
+      transactionInfo?.gateway == "OY"
+    )
+      return () => setIsOYAlertOpen(true);
     else handleClickPaymentMidtrans();
   };
   const handleClickPaymentMidtrans = () => {
@@ -186,7 +200,10 @@ function PageTransactionDetail() {
             onConfirm={onConfirm}
             style={{ padding: "1.25rem" }}
             customButtons={
-              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+              <span
+                className="d-flex w-100 justify-content-center"
+                style={{ gap: "0.5rem" }}
+              >
                 <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
                   Nanti Saja
                 </Button>
@@ -206,7 +223,11 @@ function PageTransactionDetail() {
                 </div>
               </div>
               <span
-                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
+                style={{
+                  fontWeight: "600",
+                  fontSize: "18px",
+                  lineHeight: "24px",
+                }}
                 className="mt-3"
               >
                 Verifikasi Akun
@@ -232,7 +253,10 @@ function PageTransactionDetail() {
             onConfirm={() => push("/dashboard")}
             style={{ padding: "1.25rem" }}
             customButtons={
-              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+              <span
+                className="d-flex w-100 justify-content-center"
+                style={{ gap: "0.5rem" }}
+              >
                 <Button onClick={onCancel}>Lihat Detail Event</Button>
               </span>
             }
@@ -249,8 +273,9 @@ function PageTransactionDetail() {
                 </div>
               </div>
               <p>
-                Terima kasih telah melengkapi data. Data Anda akan diverifikasi dalam 1x24 jam.
-                proses pembayaran akan bisa dilakukan setelah akun terverifikasi
+                Terima kasih telah melengkapi data. Data Anda akan diverifikasi
+                dalam 1x24 jam. proses pembayaran akan bisa dilakukan setelah
+                akun terverifikasi
               </p>
             </div>
           </SweetAlert>
@@ -268,7 +293,10 @@ function PageTransactionDetail() {
             onConfirm={onConfirm}
             style={{ padding: "1.25rem" }}
             customButtons={
-              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
+              <span
+                className="d-flex w-100 justify-content-center"
+                style={{ gap: "0.5rem" }}
+              >
                 <Button onClick={onCancel} style={{ color: "var(--ma-blue)" }}>
                   Nanti Saja
                 </Button>
@@ -288,14 +316,19 @@ function PageTransactionDetail() {
                 </div>
               </div>
               <span
-                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
+                style={{
+                  fontWeight: "600",
+                  fontSize: "18px",
+                  lineHeight: "24px",
+                }}
                 className="mt-3"
               >
                 Verifikasi Akun
               </span>
               <p>
-                Event yang Anda ikuti mewajibkan user untuk melengkapi data. Silakan lengkapi data
-                untuk dapat mengikuti berbagai event panahan.
+                Event yang Anda ikuti mewajibkan user untuk melengkapi data.
+                Silakan lengkapi data untuk dapat mengikuti berbagai event
+                panahan.
               </p>
             </div>
           </SweetAlert>
@@ -320,7 +353,9 @@ function PageTransactionDetail() {
               className="d-flex w-100 justify-content-center text-center"
               style={{ padding: "0 0 1rem 0" }}
             >
-              <Button onClick={() => setIsOYAlertOpen(false)}>Tutup Halaman Pembayaran</Button>
+              <Button onClick={() => setIsOYAlertOpen(false)}>
+                Tutup Halaman Pembayaran
+              </Button>
             </span>
           }
         >
@@ -337,45 +372,63 @@ function PageTransactionDetail() {
   const cancelAlert = () => {
     return (
       <>
-       <SweetAlert
-            show={isCancelAlert}
-            title=""
-            custom
-            btnSize="md"
-            onConfirm={() => {onConfirmCancel(dataDetail?.participant?.id)}}
-            style={{ padding: "1.25rem" }}
-            customButtons={
-              <span className="d-flex w-100 justify-content-center" style={{ gap: "0.5rem" }}>
-                <Button onClick={()=> setIsCancelAlert(false)} style={{ color: "var(--ma-blue)" }}>
-                  Tidak
-                </Button>
-                <ButtonBlue onClick={() => {onConfirmCancel(dataDetail?.participant?.id)}}>Ya, batalkan</ButtonBlue>
-              </span>
-            }
-          >
-            <div className="d-flex justify-content-center flex-column">
-              <div style={{ width: "60%", margin: "0 auto" }}>
-                <div style={{ width: "214px", height: "145px" }}>
-                  <img
-                    src={logoBuatAkun}
-                    width="100%"
-                    height="100%"
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-              </div>
-              <span
-                style={{ fontWeight: "600", fontSize: "18px", lineHeight: "24px" }}
-                className="mt-3"
+        <SweetAlert
+          show={isCancelAlert}
+          title=""
+          custom
+          btnSize="md"
+          onConfirm={() => {
+            onConfirmCancel(dataDetail?.participant?.id);
+          }}
+          style={{ padding: "1.25rem" }}
+          customButtons={
+            <span
+              className="d-flex w-100 justify-content-center"
+              style={{ gap: "0.5rem" }}
+            >
+              <Button
+                onClick={() => setIsCancelAlert(false)}
+                style={{ color: "var(--ma-blue)" }}
               >
-                Batal Mendaftar
-              </span>
-              <p>
-                Apakah anda yakin ?
-                <br />
-              </p>
+                Tidak
+              </Button>
+              <ButtonBlue
+                onClick={() => {
+                  onConfirmCancel(dataDetail?.participant?.id);
+                }}
+              >
+                Ya, batalkan
+              </ButtonBlue>
+            </span>
+          }
+        >
+          <div className="d-flex justify-content-center flex-column">
+            <div style={{ width: "60%", margin: "0 auto" }}>
+              <div style={{ width: "214px", height: "145px" }}>
+                <img
+                  src={logoBuatAkun}
+                  width="100%"
+                  height="100%"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
             </div>
-          </SweetAlert>
+            <span
+              style={{
+                fontWeight: "600",
+                fontSize: "18px",
+                lineHeight: "24px",
+              }}
+              className="mt-3"
+            >
+              Batal Mendaftar
+            </span>
+            <p>
+              Apakah anda yakin ?
+              <br />
+            </p>
+          </div>
+        </SweetAlert>
       </>
     );
   };
@@ -452,28 +505,37 @@ function PageTransactionDetail() {
                           <tbody>
                             <tr>
                               <td>Nama Event</td>
-                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              </td>
                               <td>: {dataDetail?.archeryEvent?.eventName}</td>
                               <hr />
                             </tr>
                             <tr>
                               <td>Jenis Event</td>
-                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              </td>
                               <td>: {dataDetail?.archeryEvent?.eventType}</td>
                               <hr />
                             </tr>
                             <tr>
                               <td>Lokasi</td>
-                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              </td>
                               <td>: {dataDetail?.archeryEvent?.location}</td>
                               <hr />
                             </tr>
                             <tr>
                               <td>Tanggal</td>
-                              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                              <td>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                              </td>
                               <td>
                                 :{" "}
-                                {dataDetail?.archeryEvent?.eventStartDatetime && (
+                                {dataDetail?.archeryEvent
+                                  ?.eventStartDatetime && (
                                   <React.Fragment>
                                     {formatFullDate(dateEventStart)} -{" "}
                                     {formatFullDate(dateEventEnd)}
@@ -498,19 +560,25 @@ function PageTransactionDetail() {
                       <tbody>
                         <tr>
                           <td>Nama Pendaftar</td>
-                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          </td>
                           <td>: {dataDetail?.participant?.name}</td>
                           <hr />
                         </tr>
                         <tr>
                           <td>Email</td>
-                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          </td>
                           <td>: {dataDetail?.participant?.email}</td>
                           <hr />
                         </tr>
                         <tr>
                           <td>No. Telpon</td>
-                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          </td>
                           <td>: {dataDetail?.participant?.phoneNumber}</td>
                           <hr />
                         </tr>
@@ -529,7 +597,11 @@ function PageTransactionDetail() {
                             <h5>{member?.name}</h5>
                             <span>{member?.email}</span>
                             <br />
-                            <span>{member?.gender === "male" ? "Laki-laki" : "Perempuan"}</span>
+                            <span>
+                              {member?.gender === "male"
+                                ? "Laki-laki"
+                                : "Perempuan"}
+                            </span>
                             <span> {member?.age} tahun</span>
                           </div>
                         </div>
@@ -547,13 +619,17 @@ function PageTransactionDetail() {
                       <tbody>
                         <tr>
                           <td>Jenis Regu</td>
-                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          </td>
                           <td>: {dataDetail?.participant?.teamCategoryId}</td>
                           <hr />
                         </tr>
                         <tr>
                           <td>Detal Kategori</td>
-                          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                          <td>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          </td>
                           <td>
                             : {dataDetail?.participant?.ageCategoryId} -{" "}
                             {dataDetail?.participant?.competitionCategoryId} -{" "}
@@ -713,15 +789,22 @@ function PageTransactionDetail() {
                             </tr>
                             <tr>
                               <td>
-                                <div className="mb-3">{dataDetail?.archeryEvent?.location}</div>
+                                <div className="mb-3">
+                                  {dataDetail?.archeryEvent?.location}
+                                </div>
                               </td>
                             </tr>
                             <tr>
                               <td>
                                 <WrapperPaymentStatus>
                                   <span
-                                    style={{ borderRadius: "10px", padding: "8px" }}
-                                    className={statusPayment(dataDetail?.transactionInfo?.statusId)}
+                                    style={{
+                                      borderRadius: "10px",
+                                      padding: "8px",
+                                    }}
+                                    className={statusPayment(
+                                      dataDetail?.transactionInfo?.statusId
+                                    )}
                                   >
                                     {dataDetail?.transactionInfo?.status}
                                   </span>
@@ -753,7 +836,9 @@ function PageTransactionDetail() {
                       <Col md={2}>
                         <span>Jumlah Peserta</span>
                         <div>
-                          <h5>{dataDetail?.participant?.members.length} Orang</h5>
+                          <h5>
+                            {dataDetail?.participant?.members.length} Orang
+                          </h5>
                         </div>
                       </Col>
                       <Col md={5}>
@@ -767,29 +852,36 @@ function PageTransactionDetail() {
                               {dataDetail?.transactionInfo?.statusId == 4 ? (
                                 <>
                                   <button
-                                    onClick={
-                                     () => setIsCancelAlert(true)
-                                    }
+                                    onClick={() => setIsCancelAlert(true)}
                                     className="btn"
-                                    style={{ backgroundColor: "#ffb420", color: "#FFF" }}
+                                    style={{
+                                      backgroundColor: "#ffb420",
+                                      color: "#FFF",
+                                    }}
                                   >
                                     Batal Beli
                                   </button>
-                                   | 
+                                  |
                                   <button
                                     onClick={
                                       userProfile?.verifyStatus != 1 &&
                                       dataDetail?.archeryEvent?.needVerify
                                         ? () => setIsAlertOpen(true)
-                                        : handleClickPayment(dataDetail?.transactionInfo)
+                                        : handleClickPayment(
+                                            dataDetail?.transactionInfo
+                                          )
                                     }
                                     className="btn"
-                                    style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                                    style={{
+                                      backgroundColor: "#0D47A1",
+                                      color: "#FFF",
+                                    }}
                                   >
                                     Bayar Sekarang
                                   </button>
                                   <p style={{ textAlign: "center" }}>
-                                    code : {dataDetail?.transactionInfo?.orderId}
+                                    code :{" "}
+                                    {dataDetail?.transactionInfo?.orderId}
                                   </p>
                                 </>
                               ) : (
@@ -798,7 +890,10 @@ function PageTransactionDetail() {
                                     as={Link}
                                     to={`/event-registration/${dataDetail?.archeryEvent?.eventSlug}?categoryId=${dataDetail?.participant?.eventCategoryId}`}
                                     className="btn"
-                                    style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                                    style={{
+                                      backgroundColor: "#0D47A1",
+                                      color: "#FFF",
+                                    }}
                                   >
                                     Daftar Lagi
                                   </ButtonBlue>

@@ -156,6 +156,7 @@ function CardEventCTA({ eventDetail, categories = [] }) {
           {!isRegistrationOpen ? (
             <ButtonCTABig disabled>Pendaftaran Ditutup</ButtonCTABig>
           ) : (
+<<<<<<< HEAD
               <ButtonCTABig
                 as={Link}
                 to={
@@ -166,6 +167,20 @@ function CardEventCTA({ eventDetail, categories = [] }) {
               >
                 Daftar Event
               </ButtonCTABig>
+=======
+            <div>
+                <ButtonCTABig
+                  as={Link}
+                  to={
+                    !isLoggedIn
+                      ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
+                      : `/event-registration/${eventDetail.eventSlug}`
+                  }
+                >
+                  Daftar Event
+                </ButtonCTABig>
+            </div>
+>>>>>>> d96dd351fc4d7132e4dbfff902d5cf0b8a741e1e
           )}
         </div>
       </VerticalSpaced>
