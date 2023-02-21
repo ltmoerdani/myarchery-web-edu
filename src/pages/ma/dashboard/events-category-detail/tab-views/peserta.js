@@ -210,6 +210,7 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
             <ToolbarActionButtons>
               <ButtonOutlineBlue
                 onClick={() => setEditMode({ isOpen: true, previousData: { club } })}
+                disabled
               >
                 Ubah Peserta
               </ButtonOutlineBlue>
@@ -239,7 +240,7 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
         </ShortFieldWrapper>
       ) : (
         <TeamInfoEditor>
-        {participantMembers.withContingent ? (
+        {!participantMembers.withContingent ? (
           <>
             {participantMembers.club?.name && (
               <DisplayTeamClub>
@@ -350,14 +351,14 @@ function ParticipantEditorTeam({
       })
       setSelectedParticipans([]);
       setTeamSystem(null);
-      const payload = makeSavePayoad(
-        participantMembers.participant.participantId,
-        form,
-        teamName,
-        club?.detail?.id
-      );
+      // const payload = makeSavePayoad(
+      //   participantMembers.participant.participantId,
+      //   form,
+      //   teamName,
+      //   club?.detail?.id
+      // );
 
-      await EventsService.updateEventParticipantMembers(payload);
+      // await EventsService.updateEventParticipantMembers(payload);
 
       dispatchSubmitStatus({ status: "success" });
       setEditMode({ isOpen: false, previousData: null });
@@ -395,7 +396,7 @@ function ParticipantEditorTeam({
                     setTeamSystem(null);
                   }}
                 >
-                  Batal 
+                  Batal
                 </Button>
 
                 <ButtonBlue onClick={handleClickSave}>Simpan</ButtonBlue>
@@ -422,7 +423,7 @@ function ParticipantEditorTeam({
           {!participantMembers.withContingent ? (
             <FieldSelectClub
               value={club}
-              onChange={(clubValue) => dispatchClub({ name: "club", payload: clubValue })}
+              disabled
             >
               Nama Klub
             </FieldSelectClub>
@@ -430,7 +431,10 @@ function ParticipantEditorTeam({
             <>
               <div className="display-name">Kontingen</div>
               <SelectOption
-                value={participantMembers.cityName}
+                value={{
+                  value: participantMembers.cityName,
+                  label: participantMembers.cityName
+                }}
                 placeholder="Pilih Kota/Kabupaten"
                 disabled
               />
@@ -750,17 +754,17 @@ function mapMembersToState(participantMembers) {
   return state;
 }
 
-function makeSavePayoad(participantId, membersForm, teamName, clubId) {
-  const userIds = Object.keys(membersForm)
-    .map((name) => membersForm[name]?.userId || membersForm[name]?.id) // nama key gak konsisten cok, cok
-    .filter((id) => Boolean(id));
+// function makeSavePayoad(participantId, membersForm, teamName, clubId) {
+//   const userIds = Object.keys(membersForm)
+//     .map((name) => membersForm[name]?.userId || membersForm[name]?.id) // nama key gak konsisten cok, cok
+//     .filter((id) => Boolean(id));
 
-  return {
-    participant_id: participantId,
-    team_name: teamName,
-    club_id: clubId,
-    user_id: userIds,
-  };
-}
+//   return {
+//     participant_id: participantId,
+//     team_name: teamName,
+//     club_id: clubId,
+//     user_id: userIds,
+//   };
+// }
 
 export { TabPeserta };
