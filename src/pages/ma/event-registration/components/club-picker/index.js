@@ -77,9 +77,11 @@ function PickerButton({
 
       {shouldShowClearButton && (
         <PickerClearValueContainer>
-          <button onClick={() => onClearValue?.()}>
-            <IconClear size="16" />
-          </button>
+          {!disabled ? (
+            <button onClick={() => onClearValue?.()}>
+              <IconClear size="16" />
+            </button>
+          ) : null}
         </PickerClearValueContainer>
       )}
 

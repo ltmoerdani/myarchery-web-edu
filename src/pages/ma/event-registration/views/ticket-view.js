@@ -2,7 +2,12 @@ import * as React from "react";
 import styled from "styled-components";
 import toastr from "toastr";
 import { useUserProfile } from "hooks/user-profile";
+<<<<<<< HEAD
+import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+=======
 import { Link, useHistory } from "react-router-dom";
+>>>>>>> d96dd351fc4d7132e4dbfff902d5cf0b8a741e1e
 import { useSubmitVerification } from "../hooks/submit-verification";
 import { useSubmitOrder } from "../hooks/submit-order";
 import CurrencyFormat from "react-currency-format";
@@ -30,6 +35,7 @@ function TicketView({
   onSuccessOrder,
   withContingent,
 }) {
+  const history = useHistory();
   const { userProfile } = useUserProfile();
   const [showAlert, setShowAlert] = React.useState(false);
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
