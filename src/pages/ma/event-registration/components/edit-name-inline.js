@@ -164,9 +164,10 @@ const LinkText = styled.button`
   padding: 0;
   border: none;
   background-color: unset;
+  text-decoration: underline;
 
   color: var(--ma-blue);
-  font-weight: 600;
+  font-weight: 400;
 
   &:hover,
   &:focus {

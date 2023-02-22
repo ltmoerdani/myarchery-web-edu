@@ -16,7 +16,8 @@ function AlertSubmitError({ isError, errors, onConfirm }) {
     if (errors) {
       const fields = Object.keys(errors);
       const messages = fields.map(
-        (field) => `${errors[field].map((message) => `- ${message}\n`).join("")}`
+        (field) =>
+          `${errors[field].map((message) => `- ${message}\n`).join("")}`
       );
 
       if (messages.length) {
@@ -59,10 +60,14 @@ function AlertSubmitError({ isError, errors, onConfirm }) {
         </h4>
         <div className="text-start">
           <p>
-            Terdapat kendala teknis dalam memproses data. Coba kembali beberapa saat lagi, atau
-            silakan berikan pesan error berikut kepada technical support:
+            Terdapat kendala teknis dalam memproses data. Coba kembali beberapa
+            saat lagi, atau silakan berikan pesan error berikut kepada technical
+            support:
           </p>
-          <pre className="p-3" style={{ backgroundColor: "var(--ma-gray-100)" }}>
+          <pre
+            className="p-3"
+            style={{ backgroundColor: "var(--ma-gray-100)" }}
+          >
             {renderErrorMessages()}
           </pre>
         </div>
