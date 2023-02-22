@@ -344,7 +344,7 @@ function ParticipantEditorTeam({
         "participant_team_id": order_id,
         members
       })
-      await EventsService.addParticipantEntry({
+      const result = await EventsService.addParticipantEntry({
         "is_entry_by_name": parseInt(teamSystem),
         "participant_team_id": order_id,
         members
@@ -360,9 +360,16 @@ function ParticipantEditorTeam({
 
       // await EventsService.updateEventParticipantMembers(payload);
 
-      dispatchSubmitStatus({ status: "success" });
-      setEditMode({ isOpen: false, previousData: null });
-      refetch();
+      if (result.success) {
+        dispatchSubmitStatus({ status: "success" });
+        setEditMode({ isOpen: false, previousData: null });
+        refetch();
+      } else {
+        dispatchSubmitStatus({ status: "error", errors: result.errors || result.message });
+        setSelectedParticipans(participantMembers.member.filter(member => member.isSelectedForTeam))
+        participantMembers.member.some(member => member.isSelectedForTeam) ? setTeamSystem(1) : setTeamSystem(0)
+      }
+
     } catch (error) {
       dispatchSubmitStatus({ status: "error", errors: error });
     }
