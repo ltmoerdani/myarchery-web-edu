@@ -91,7 +91,18 @@ function PageSeriesLeaderboard() {
                 </ScrollX>
               </ListViewToolbar>
 
-              <RankingTable key={activeCategoryDetail?.id} categoryDetail={activeCategoryDetail} />
+              {series?.id === 2 ? (
+                <ListViewRank>
+                  <LabelBoldRank>Rank</LabelBoldRank>
+                  <div>
+                    <span>QP</span>
+                    <span className=" label mx-5">EP</span>
+                    <LabelBoldRank>RP</LabelBoldRank>
+                  </div>
+                </ListViewRank>
+              ) : null}
+
+              <RankingTable key={activeCategoryDetail?.id} categoryDetail={activeCategoryDetail} series={series} />
             </div>
           </PanelWithStickSidebar>
         )}
@@ -173,7 +184,7 @@ const PanelSidebar = styled.div`
 
 const ListViewToolbar = styled.div`
   padding: 0.75rem 0.75rem;
-  border-radius: 0.5rem;
+  border-radius: 0.5rem 0.5rem 0rem 0rem;
   background-color: var(--ma-blue);
   color: #ffffff;
   text-transform: capitalize;
@@ -188,6 +199,23 @@ const ListViewToolbar = styled.div`
     padding: 0.625rem 1.375rem;
   }
 `;
+
+const ListViewRank = styled.div`
+  padding: 0.75rem 0.75rem;
+  background-color: var(--ma-blue-primary-50);
+  color: #000000;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 0.625rem 1.375rem;
+`;
+
+const LabelBoldRank = styled.span`
+  font-weight: 600;
+`
 
 const LabelCurrentCategory = styled.div`
   font-weight: 600;
