@@ -15,9 +15,10 @@ const DateInput = ({
   error,
   disabled,
   readOnly,
-  options={},
+  options = {},
+  placeholder,
 }) => {
-  const handleChange = e => {
+  const handleChange = (e) => {
     if (onChange)
       onChange({
         key: name,
@@ -33,12 +34,15 @@ const DateInput = ({
           className={`form-control d-block ${
             _.get(error, name) ? "is-invalid" : ""
           }`}
-          placeholder="Tanggal/Bulan/Tahun"
-          options={{altInput: true,
+          placeholder={placeholder ?? "Tanggal/Bulan/Tahun"}
+          options={{
+            altInput: true,
             altFormat: "d/m/Y",
-            dateFormat: "Y-m-d",...options}}
+            dateFormat: "Y-m-d",
+            ...options,
+          }}
           value={value}
-          onChange={e => handleChange(e)}
+          onChange={(e) => handleChange(e)}
           disabled={disabled}
           readOnly={readOnly}
         />
@@ -48,7 +52,7 @@ const DateInput = ({
           </span>
         </div>
       </InputGroup>
-      {_.get(error, name)?.map(message => (
+      {_.get(error, name)?.map((message) => (
         <div className="invalid-feedback" key={message}>
           {message}
         </div>
