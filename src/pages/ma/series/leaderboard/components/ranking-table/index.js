@@ -11,7 +11,7 @@ import IconMedalBronze from "components/ma/icons/color/medal-bronze";
 
 import { misc } from "utils";
 
-function RankingTable({ categoryDetail }) {
+function RankingTable({ categoryDetail, series }) {
   const { id: categoryId } = categoryDetail || {};
   const {
     data: rankedMembers,
@@ -81,16 +81,25 @@ function RankingTable({ categoryDetail }) {
                           <CityName>{member.user.city}</CityName>
                         </div>
 
-                        <BlockPoints>
-                          {index === 0 ? (
-                            <IconMedalGold size="28" />
-                          ) : index === 1 ? (
-                            <IconMedalSilver size="28" />
-                          ) : index === 2 ? (
-                            <IconMedalBronze size="28" />
-                          ) : null}
-                          {member.totalPoint}
-                        </BlockPoints>
+                        {series?.id === 2 ? (
+                          <RankPoints>
+                            <LabelRank>{member.totalPerSeries[0].pointDetails.elimination || 0}</LabelRank>
+                            <LabelRank>{member.totalPerSeries[0].pointDetails.qualification || 0}</LabelRank>
+                            <LabelBoldRank>{(member.totalPerSeries[0].pointDetails.elimination + member.totalPerSeries[0].pointDetails.qualification) || 0}</LabelBoldRank>
+                          </RankPoints>
+                        ) : (
+                          <BlockPoints>
+                            {index === 0 ? (
+                              <IconMedalGold size="28" />
+                            ) : index === 1 ? (
+                              <IconMedalSilver size="28" />
+                            ) : index === 2 ? (
+                              <IconMedalBronze size="28" />
+                            ) : null}
+                            {member.totalPoint}
+                          </BlockPoints>
+                        )}
+
                       </BlockData>
                     </BlockMain>
                   </RankItem>
@@ -179,6 +188,13 @@ const RankItem = styled.div`
   }
 `;
 
+const LabelBoldRank = styled.span`
+  font-weight: 600;
+`
+const LabelRank = styled.span`
+  margin-right: 3rem;
+`
+
 const StyledBlockRankNo = styled.div`
   display: flex;
   flex-direction: column;
@@ -258,6 +274,10 @@ const CityName = styled.div`
 const BlockPoints = styled.div`
   font-weight: 600;
   font-size: 1.25rem;
+`;
+
+const RankPoints = styled.div`
+  font-size: 1rem;
 `;
 
 function useQueueHeavyImageList() {
