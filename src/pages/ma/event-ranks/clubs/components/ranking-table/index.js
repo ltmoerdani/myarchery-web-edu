@@ -99,6 +99,10 @@ function RankingTable({ eventId, params, eventDetail }) {
                       </BlockClub>
                     ) : (
                       <div className="d-flex align-items-center">
+                        <ContingenImage
+                          src={club.contingentLogo}
+                          height={60}
+                        />
                         <ContingentName>{club.contingentName}</ContingentName>
                       </div>
                     )}
@@ -312,10 +316,13 @@ const ArcherName = styled.h6`
   font-weight: 600;
 `;
 
-const ContingentName = styled.h5`
-  margin: 0;
-  padding-left: 20px;
-  font-weight: 600;
+const ContingentName = styled.label`
+  font-size: 0.9rem;
+  font-weight: bold;
+`;
+
+const ContingenImage = styled.img`
+  margin: 0.5rem 4rem 0.5rem 4rem;
 `;
 
 const CityName = styled.div`
