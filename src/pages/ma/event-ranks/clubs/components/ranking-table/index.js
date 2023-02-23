@@ -322,7 +322,7 @@ const ContingentName = styled.label`
 `;
 
 const ContingenImage = styled.img`
-  margin: 0.5rem 4rem 0.5rem 4rem;
+  margin: 0.5rem 4rem 0.5rem 3.2rem;
 `;
 
 const CityName = styled.div`
