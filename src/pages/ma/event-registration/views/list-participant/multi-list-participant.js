@@ -138,7 +138,7 @@ const MultipleTableLayout = ({
   const [idDelete, setIdDelete] = React.useState(null);
   const [userVerification, setUserVerification] = React.useState([]);
   const [countryInput, setCountryInput] = React.useState("Indonesia");
-  const [selectCountry, setSelectCountry] = React.useState(defaultCountry);
+  const [selectCountry, setSelectCountry] = React.useState([]);
   const [provinceInput, setProvinceInput] = React.useState("");
   const [selectProvince, setSelectProvince] = React.useState([]);
   const [cityInput, setCityInput] = React.useState("");
@@ -208,7 +208,26 @@ const MultipleTableLayout = ({
       }
     });
     setMultiParticipants(changeMultiUserData);
-    setSelectCountry(val);
+
+    if (selectCountry?.length) {
+      const checkUserHasBeenSelectCountry = selectCountry?.filter(
+        (e) => e.idUser?.toString() === id.toString()
+      );
+      if (checkUserHasBeenSelectCountry?.length) {
+        const countryData = selectCountry?.map((e) => {
+          if (e.idUser?.toString() === id.toString()) {
+            return { idUser: id, ...val };
+          } else {
+            return { ...e };
+          }
+        });
+        setSelectCountry(countryData);
+      } else {
+        setSelectCountry([...selectCountry, { idUser: id, ...val }]);
+      }
+    } else {
+      setSelectCountry([{ idUser: id, ...val }]);
+    }
   };
 
   const handleInputChangeCountry = (val) => {
@@ -232,7 +251,26 @@ const MultipleTableLayout = ({
       }
     });
     setMultiParticipants(changeMultiUserData);
-    setSelectProvince(val);
+
+    if (selectProvince?.length) {
+      const checkUserHasBeenSelectProvince = selectProvince.filter(
+        (e) => e.idUser?.toString() === id.toString()
+      );
+      if (checkUserHasBeenSelectProvince?.length) {
+        const provinceData = selectProvince?.map((e) => {
+          if (e.idUser?.toString() === id.toString()) {
+            return { idUser: id, ...val };
+          } else {
+            return { ...e };
+          }
+        });
+        setSelectProvince(provinceData);
+      } else {
+        setSelectProvince([...selectProvince, { idUser: id, ...val }]);
+      }
+    } else {
+      setSelectProvince([{ idUser: id, ...val }]);
+    }
   };
 
   const handleInputChangeProvince = (val) => {
@@ -300,6 +338,14 @@ const MultipleTableLayout = ({
     );
     setUserVerification(checkRegisterVerification);
   }, [userData, category, eventDetailData]);
+  React.useEffect(() => {
+    if (!selectCountry?.length) {
+      const defaultForCountry = userData?.map((e) => {
+        return { idUser: e.id, ...defaultCountry };
+      });
+      setSelectCountry(defaultForCountry);
+    }
+  }, [selectCountry?.length, userData]);
   return (
     <div>
       <TableListParticipant className="list-table-participant">
@@ -425,12 +471,11 @@ const MultipleTableLayout = ({
                       {!isForEmailRegistered ? (
                         <div style={{ width: "200px" }}>
                           <Select
-                            options={provinceList}
+                            options={provinceList[i]?.provinceList ?? []}
                             onChange={(val) => handleChangeProvince(val, e.id)}
                             onInputChange={(val) =>
                               handleInputChangeProvince(val, i)
                             }
-                            value={e.province ?? ""}
                             placeholder={"provinsi"}
                             styles={customStylesSelect}
                           />
@@ -448,12 +493,11 @@ const MultipleTableLayout = ({
                       ) : (
                         <div style={{ width: "134px" }}>
                           <Select
-                            options={provinceList}
+                            options={provinceList[i]?.provinceList ?? []}
                             onChange={(val) => handleChangeProvince(val, e.id)}
                             onInputChange={(val) =>
                               handleInputChangeProvince(val, i)
                             }
-                            value={e.province ?? ""}
                             placeholder={"provinsi"}
                             styles={customStylesSelect}
                           />
@@ -466,9 +510,11 @@ const MultipleTableLayout = ({
                       {!isForEmailRegistered ? (
                         <div style={{ width: "200px" }}>
                           <Select
-                            options={cityList}
+                            options={cityList[i]?.cityList ?? []}
                             placeholder={"kota"}
-                            value={e.city ?? ""}
+                            value={
+                              cityList[i]?.cityList?.length ? e.city ?? "" : ""
+                            }
                             onInputChange={(val) =>
                               handleInputChangeCity(val, e.id)
                             }
@@ -481,9 +527,8 @@ const MultipleTableLayout = ({
                       ) : (
                         <div style={{ width: "200px" }}>
                           <Select
-                            options={cityList}
+                            options={cityList[i]?.cityList ?? []}
                             placeholder={"kota"}
-                            value={e.city ?? ""}
                             onInputChange={(val) =>
                               handleInputChangeCity(val, e.id)
                             }

@@ -21,6 +21,7 @@ const ListParticipant = ({
   const [loadingOption, setLoadingOption] = React.useState(false);
   const [checkInputLength, setCheckInputLength] = React.useState("");
   const [showModal, setShowModal] = React.useState(false);
+  const [quota, setQuota] = React.useState(null);
   const [quotaMale, setQuotaMale] = React.useState(
     category?.maleQuota - category?.maleParticipant
   );
@@ -51,6 +52,9 @@ const ListParticipant = ({
         setLoadingOption(false);
       }
     }
+    setQuota(
+      multiParticipants.length + (optionsUser ? optionsUser?.length : 0)
+    );
   }, [optionsUser, checkInputLength]);
   const handleAddNewParticipant = () => {
     if (optionsUser?.length) {
@@ -127,7 +131,8 @@ const ListParticipant = ({
                 fontWeight: 600,
                 fontSize: "14px",
               }}
-              disabled={quotaMale === 0 || quotaFemale === 0}
+              // disabled={quotaMale === 0 || quotaFemale === 0 || multiParticipants.length === 20}
+              disabled={false}
               onClick={() => setShowModal(true)}
             >
               Tambah Peserta{" "}
@@ -194,9 +199,7 @@ const ListParticipant = ({
               paddingTop: "15px",
             }}
           >
-            <QuoteText>
-              Kuota Tersisa: {quotaMale} (Pria) {quotaFemale} (Wanita)
-            </QuoteText>
+            <QuoteText>Kuota Tersisa: {20 - quota}</QuoteText>
           </div>
           <div
             style={{
@@ -220,7 +223,12 @@ const ListParticipant = ({
             >
               Batal
             </Button>
-            <ButtonBlue onClick={handleAddNewParticipant}>Simpan</ButtonBlue>
+            <ButtonBlue
+              disabled={20 - quota === 0}
+              onClick={handleAddNewParticipant}
+            >
+              Simpan
+            </ButtonBlue>
           </div>
         </StyledBSModalBody>
       </StyledBSModal>

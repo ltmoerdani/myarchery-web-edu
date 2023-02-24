@@ -128,6 +128,7 @@ const useCountry = (
   const [countryList, setCountryList] = React.useState([]);
   const [provinceList, setProvinceList] = React.useState([]);
   const [cityList, setCityyList] = React.useState([]);
+
   const fetchCountry = async (keyword) => {
     const result = await ArcherService.getListCountry({
       limit: 200,
@@ -139,58 +140,172 @@ const useCountry = (
     });
     setCountryList(newCountry);
   };
-  const fetchProvince = async (country, keyword) => {
-    if (country?.name === "Indonesia" || country?.id === 102) {
-      const provinces = await ArcherService.getListProvinceIndonesian({
-        limit: 200,
-      });
-      const newProvince = provinces?.data?.map((province) => {
-        return { ...province, value: province?.name, label: province?.name };
-      });
-      setProvinceList(newProvince);
-    } else {
-      const provinces = await ArcherService.getListProvince({
-        limit: 500,
-        page: 1,
-        name: keyword ?? "",
-        country_id: country?.id ?? null,
-      });
-      const newProvince = provinces?.data?.map((province) => {
-        return { ...province, value: province?.name, label: province?.name };
-      });
-      setProvinceList(newProvince);
-    }
+  const fetchProvince = (country = [], keyword) => {
+    const provinceData = [];
+    country?.map((value) => {
+      if (value.name === "Indonesia" || value.id === 102) {
+        ArcherService.getListProvinceIndonesian({
+          limit: 200,
+        }).then((res) => {
+          const { data } = res;
+          const newProvince = data?.map((province) => {
+            return {
+              ...province,
+              value: province?.name,
+              label: province?.name,
+            };
+          });
+          const provinceAddToList = provinceList?.filter(
+            (e) => e.idUser === value.idUser
+          );
+          if (!provinceAddToList?.length) {
+            provinceData.push(...provinceList, {
+              idUser: value.idUser,
+              provinceList: newProvince,
+            });
+
+            setProvinceList(provinceData);
+          }
+        });
+      } else {
+        ArcherService.getListProvince({
+          limit: 500,
+          page: 1,
+          name: keyword ?? "",
+          country_id: value?.id ?? null,
+        }).then((res) => {
+          const { data } = res;
+          const newProvince = data?.map((province) => {
+            return {
+              ...province,
+              value: province?.name,
+              label: province?.name,
+            };
+          });
+          const provinceAddToList = provinceList?.filter(
+            (e) => e.idUser === value.idUser
+          );
+          if (!provinceAddToList?.length) {
+            provinceData.push(...provinceList, {
+              idUser: value.idUser,
+              provinceList: newProvince,
+            });
+            setProvinceList(provinceData);
+          } else {
+            const dataChangeProvince = provinceList?.map((el) => {
+              if (el.idUser?.toString() === value?.idUser?.toString()) {
+                return { idUser: el.idUser, provinceList: newProvince };
+              } else {
+                return { ...el };
+              }
+            });
+            setProvinceList(dataChangeProvince);
+          }
+        });
+      }
+    });
   };
   const fetchCity = async (country, province) => {
-    if (country?.name === "Indonesia" || country?.id === 102) {
-      const cities = await ArcherService.getListCityIndonesian({
-        limit: 200,
-        province_id: province?.id,
-      });
-      const newCity = cities?.data?.map((city) => {
-        return { ...city, value: city?.name, label: city?.name };
-      });
-      setCityyList(newCity);
-    } else {
-      const cities = await ArcherService.getListCity({
-        limit: 500,
-        page: 1,
-        country_id: country?.id ?? null,
-        province_id: province?.id ?? null,
-      });
-      const newCity = cities?.data?.map((city) => {
-        return { ...city, value: city?.name, label: city?.name };
-      });
-      setCityyList(newCity);
-    }
+    const cityData = [];
+    province?.map((value, index) => {
+      if (country[index]?.name === "Indonesia" || country[index]?.id === 102) {
+        ArcherService.getListCityIndonesian({
+          limit: 200,
+          province_id: value?.id,
+        }).then((res) => {
+          const { data } = res;
+          const newCities = data?.map((city) => {
+            return {
+              ...city,
+              value: city?.name,
+              label: city?.name,
+            };
+          });
+          const cityAddToList = cityList?.filter(
+            (e) => e.idUser === value?.idUser
+          );
+          if (!cityAddToList?.length) {
+            cityData.push(...cityList, {
+              idUser: value.idUser,
+              cityList: newCities,
+            });
+            setCityyList(cityData);
+          } else {
+            const dataChangeCity = cityList?.map((el) => {
+              if (
+                el.idUser?.toString() === cityAddToList[0]?.idUser?.toString()
+              ) {
+                return {
+                  idUser: el.idUser,
+                  cityList: data?.map((city) => {
+                    return {
+                      ...city,
+                      value: city?.name,
+                      label: city?.name,
+                    };
+                  }),
+                };
+              } else {
+                return { ...el };
+              }
+            });
+            setCityyList(dataChangeCity);
+          }
+        });
+      } else {
+        ArcherService.getListCity({
+          limit: 500,
+          page: 1,
+          country_id: country[index]?.id ?? null,
+          province_id: value?.id ?? null,
+        }).then((res) => {
+          const { data } = res;
+          const newCities = data?.map((city) => {
+            return {
+              ...city,
+              value: city?.name,
+              label: city?.name,
+            };
+          });
+          const cityAddToList = cityList?.filter(
+            (e) => e.idUser === value.idUser
+          );
+          if (!cityAddToList?.length) {
+            cityData.push(...provinceList, {
+              idUser: value.idUser,
+              cityList: newCities,
+            });
+            setCityyList(cityData);
+          } else {
+            const cityListData = cityList?.map((city) => {
+              if (value.idUser?.toString() === city.idUser?.toString()) {
+                return {
+                  idUser: city.idUser,
+                  cityList: data?.map((el) => {
+                    return {
+                      ...el,
+                      value: el?.name,
+                      label: el?.name,
+                    };
+                  }),
+                };
+              } else {
+                return { ...city };
+              }
+            });
+            setCityyList(cityListData);
+          }
+        });
+      }
+    });
   };
 
   React.useEffect(() => {
     fetchCountry(countryInput);
-    if (selectCountry) {
+    if (selectCountry?.length) {
       fetchProvince(selectCountry, provinceInput);
     }
-    if (selectProvince) {
+    if (selectProvince?.length) {
       fetchCity(selectCountry, selectProvince, cityInput);
     }
   }, [countryInput, selectCountry, selectProvince, provinceInput]);
