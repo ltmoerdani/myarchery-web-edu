@@ -31,7 +31,6 @@ function PageSeriesLeaderboard() {
   } = useCategoryFilters(categories);
 
   const isLoading = !categories && isLoadingSeries;
-  const filterTeamOption = teamOptions.filter(team => team.id === "individu male" || team.id === "individu female")
 
   return (
     <StyledPageWrapper>
@@ -78,7 +77,7 @@ function PageSeriesLeaderboard() {
 
                 <ScrollX>
                   <SpaceButtonsGroup>
-                    {filterTeamOption?.map((filter) => (
+                    {teamOptions?.map((filter) => (
                       <ButtonTeamFilter
                         key={filter.id}
                         className={classnames({ "filter-selected": filter.id === activeTeam })}
