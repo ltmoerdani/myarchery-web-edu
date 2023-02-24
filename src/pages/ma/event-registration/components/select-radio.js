@@ -92,12 +92,6 @@ const ToggleButton = styled.label`
     border-radius: 50%;
   }
 
-  &:hover > *:nth-child(1) {
-    color: white;
-    background-color: #0d47a1;
-    border: 2px solid #0d47a1;
-  }
-
   input:checked + & {
     background-color: var(--ma-primary-blue-50);
     color: var(--ma-blue);
@@ -113,10 +107,6 @@ const ToggleButton = styled.label`
     cursor: default;
     background-color: var(--ma-gray-50);
     color: var(--ma-gray-500);
-  }
-
-  input + &.option-disabled:hover > *:nth-child(1) {
-    color: var(--ma-gray-400);
   }
 
   input:checked + &.option-disabled > *:nth-child(1) {

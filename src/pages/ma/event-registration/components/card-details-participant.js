@@ -43,6 +43,7 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     React.useState(null);
   const [checkInputEmail, setCheckInputEmail] = React.useState("");
   const [multiEmail, setMultiEmail] = React.useState(multiParticipants ?? []);
+  const [errorEmail, setErrorEmail] = React.useState("");
 
   const checkIndivualParticipant = async (
     category = [],
@@ -123,14 +124,26 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     switch (e.code) {
       case "Enter":
       case "Tab":
-      case "Space":
-        if (multiEmail?.length) {
-          const checkEmailHasBeenAdd = multiEmail.filter(
-            (e) => e.value === checkInputEmail
-          );
-          if (!checkEmailHasBeenAdd?.length) {
-            setMultiEmail((prev) => [
-              ...prev,
+      case "Space": {
+        const patternEmail = /\S+@\S+\.\S+/;
+        if (patternEmail.test(checkInputEmail)) {
+          if (multiEmail?.length) {
+            const checkEmailHasBeenAdd = multiEmail.filter(
+              (e) => e.value === checkInputEmail
+            );
+            if (!checkEmailHasBeenAdd?.length) {
+              setMultiEmail((prev) => [
+                ...prev,
+                {
+                  id: stringUtil.createRandom(),
+                  value: checkInputEmail,
+                  label: checkInputEmail,
+                  email: checkInputEmail,
+                },
+              ]);
+            }
+          } else {
+            setMultiEmail([
               {
                 id: stringUtil.createRandom(),
                 value: checkInputEmail,
@@ -139,25 +152,28 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
               },
             ]);
           }
+          setCheckInputEmail("");
+          setErrorEmail("");
         } else {
-          setMultiEmail([
-            {
-              id: stringUtil.createRandom(),
-              value: checkInputEmail,
-              label: checkInputEmail,
-              email: checkInputEmail,
-            },
-          ]);
+          setErrorEmail("Email tidak valid");
         }
-        setCheckInputEmail("");
         e.preventDefault();
+      }
     }
   };
   React.useEffect(() => {
     if (multiEmail?.length) {
-      setMultiParticipants([...multiEmail]);
+      if (multiEmail?.length === 20 && asParticipant) {
+        const dataMulti = multiEmail;
+        dataMulti.pop();
+        setMultiEmail(dataMulti);
+        setMultiParticipants([...dataMulti]);
+      } else {
+        setMultiParticipants([...multiEmail]);
+      }
     } else {
       setMultiParticipants([]);
+      setErrorEmail("");
     }
   }, [multiEmail, asParticipant, isCollective]);
   return (
@@ -183,7 +199,12 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
             <span
               style={{ fontSize: "12px", color: "#757575", fontWeight: 400 }}
             >
-              {multiEmail?.length ?? 0} Peserta
+              {multiEmail
+                ? asParticipant
+                  ? multiEmail?.length + 1 ?? 0
+                  : multiEmail?.length
+                : 0}{" "}
+              Peserta
             </span>
           </TextAddOthersHeader>
           <CreatableSelect
@@ -191,15 +212,26 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
             defaultOptions
             isMulti
             isClearable
+            inputMode={["email"]}
+            isSearchable={
+              asParticipant
+                ? !(multiEmail?.length + 1 >= 20)
+                : !(multiEmail?.length >= 20)
+            }
             components={{ DropdownIndicator: null }}
             menuIsOpen={false}
             onChange={(val) => setMultiEmail(val)}
             onInputChange={(val) => setCheckInputEmail(val)}
-            value={multiEmail}
+            value={
+              multiEmail?.length === 20 && asParticipant
+                ? multiEmail?.pop()
+                : multiEmail
+            }
             defaultValue={multiEmail}
             inputValue={checkInputEmail}
             onKeyDown={handleKeyDown}
           />
+          {errorEmail.length ? <ErrorEmail>{errorEmail}</ErrorEmail> : null}
           <DescAddOthers>
             Anda dapat memasukkan email peserta yang belum memiliki akun
             MyArchery. Siapkan data pribadi peserta untuk diinput pada tahap
@@ -268,8 +300,10 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
                         { value: "male", label: "Beregu Putra" },
                         { value: "female", label: "Beregu Putri" },
                       ]}
-                      defaultValue={genderOfTeam}
-                      value={genderOfTeam}
+                      defaultValue={
+                        selectCategoriesType !== "mix" ? genderOfTeam : ""
+                      }
+                      value={selectCategoriesType !== "mix" ? genderOfTeam : ""}
                       onChange={setGenderTeam}
                     />
                   </SelectRadioSectionBox>
@@ -306,6 +340,12 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     </div>
   );
 };
+
+const ErrorEmail = styled.div`
+  color: red;
+  font-size: 12px;
+  margin-top: 10px;
+`;
 
 const SplitFields = styled.div`
   display: flex;

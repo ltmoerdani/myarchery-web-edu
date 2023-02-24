@@ -230,7 +230,9 @@ function FormView({
         : !club
       : !city_id;
   const userAsParticipant = !asParticipant
-    ? noChooseFormField || !listParticipants?.length
+    ? isCollective
+      ? noChooseFormField || !multiParticipants.length
+      : noChooseFormField || !listParticipants?.length
     : noChooseFormField;
   const noInputNumber =
     selectCategoriesType === "team"

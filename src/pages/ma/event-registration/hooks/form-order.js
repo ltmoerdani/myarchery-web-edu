@@ -186,6 +186,12 @@ function _formReducer(state, action) {
         // reset field-field data peserta
         teamName: "",
         club: null,
+        multiParticipants: [],
+        listParticipants: [],
+        isCollective: false,
+        numberOfTeam: 0,
+        genderOfTeam: "male",
+        registrationType: "individual",
         participants: nextParticipantsState,
       },
       errors: {},
@@ -213,7 +219,13 @@ function _formReducer(state, action) {
   }
 
   if (action.type === "CHANGE_SELECT_CATEGORY_TAB_TYPE") {
-    const data = { ...state.data, selectCategoryTab: action.payload?.value };
+    const data = {
+      ...state.data,
+      registrationType: "individual",
+      isCollective: false,
+      numberOfTeam: 0,
+      selectCategoryTab: action.payload?.value,
+    };
     return { ...state, data: data };
   }
 
@@ -238,8 +250,17 @@ function _formReducer(state, action) {
   }
 
   if (action.type === "CHANGE_SELECT_CATEGORY_TYPE") {
-    const data = { ...state.data, selectCategoriesType: action.payload?.value };
-    return { ...state, data: data };
+    const data = {
+      ...state.data,
+      registrationType: "individual",
+      isCollective: false,
+      numberOfTeam: 0,
+      selectCategoriesType: action.payload?.value,
+    };
+    return {
+      ...state,
+      data: data,
+    };
   }
 
   if (action.type === "CHANGE_SELECT_CLASS_CATEGORIES_TYPE") {
@@ -253,6 +274,7 @@ function _formReducer(state, action) {
   if (action.type === "CHANGE_GENDER_TEAM_TYPE") {
     const data = {
       ...state.data,
+      numberOfTeam: 0,
       genderOfTeam: action.payload,
     };
     return { ...state, data: data };

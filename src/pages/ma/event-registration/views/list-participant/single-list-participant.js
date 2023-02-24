@@ -507,6 +507,7 @@ const ContentCard = styled.div`
 export const TableListParticipant = styled.table`
   width: 100%;
   min-height: 50vh;
+  margin-top: -15px;
   border-collapse: separate;
   border-spacing: 0 0.25rem;
   display: block;
@@ -580,7 +581,6 @@ export const HeaderTitleText = styled.div`
   padding: 0.75rem 1rem;
   background: #e7edf6;
   border-radius: 4px;
-  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
