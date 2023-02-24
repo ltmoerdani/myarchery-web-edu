@@ -6,7 +6,7 @@ import posterLigaJabar from "../../../../assets/images/events/posterLigaJabar.pn
 import { ButtonBlue } from "components/ma"
 import { useOnClickOutside } from "utils/hooks";
 
-export function TicketViewCard({ totalMembers }) {
+export function TicketViewCard({ totalMembers, totalPrice }) {
   const [openPayment, setOpenPayment] = React.useState(false)
   const paymentRef = React.useRef(null)
   useOnClickOutside(paymentRef, () => setOpenPayment(false))
@@ -20,54 +20,63 @@ export function TicketViewCard({ totalMembers }) {
           </MainCardHeader>
         </div>
 
-
         <div className="mt-3">
-          <div className="d-flex justify-content-center bg-white px-4 py-3 mb-5 row rounded">
-            <h4>Tiket Lomba</h4>
+          <div className="d-flex justify-content-center bg-white px-5 py-3 mb-5 row rounded">
+            <h4 className="py-2">Tiket Lomba</h4>
             <Rule />
             <label className="py-2" style={{ fontWeight: 'bold'}}>Data sudah terkirim dan akan kami proses setelah pembayaran selesai. Informasi lebih lanjut, hubungi CS MyArchery di +62 812 1224 633 pada jam operasional 09.00 - 18.00 WIB.</label>
-            <EventMediaObject>
-              <div>
-                <span
-                  style={{
-                    display: "inline-block",
-                    overflow: "hidden",
-                    width: 60,
-                    height: 60,
-                    borderRadius: 4,
-                  }}
-                >
-                  <img
-                    src={posterLigaJabar}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </span>
-              </div>
-
-              <EventMediaObjectContent>
-                <h5>Pendaftaran Liga 1 Jawa Barat 2023</h5>
-                <p className="mb-0">
-                  Lapangan Mattel Jababeka
-                </p>
-              </EventMediaObjectContent>
-            </EventMediaObject>
+            <div className="container">
+              <EventMediaObject>
+                <div className="row my-3">
+                  <div className="col-sm">
+                    <span
+                      style={{
+                        display: "inline-block",
+                        overflow: "hidden",
+                        width: 60,
+                        height: 60,
+                        borderRadius: 4,
+                      }}>
+                      <img
+                        src={posterLigaJabar}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </span>
+                  </div>
+                  <div className="col-sm-auto">
+                    <EventMediaObjectContent>
+                      <h5>Pendaftaran Liga 1 Jawa Barat 2023</h5>
+                      <p className="mb-0">
+                        Lapangan Mattel Jababeka
+                      </p>
+                    </EventMediaObjectContent>
+                  </div>
+                </div>
+              </EventMediaObject>
+            </div>
 
             <Rule />
 
-          <TicketSectionDetail>
-            <DetailItem
-              label="Jenis Regu"
-              value='Individu'
-            />
-            <DetailItem
-              label="Jumlah Peserta"
-              value={totalMembers}
-            />
-          </TicketSectionDetail>
+            <TicketSectionDetail>
+              <DetailItem
+                label="Jenis Regu"
+                value='Individu'
+              />
+              <DetailItem
+                label="Jumlah Peserta"
+                value={totalMembers}
+              />
+            </TicketSectionDetail>
 
-            <div className="d-flex justify-content-between my-3">
-              <DetailValue>Total Pembayaran</DetailValue>
-              <Price>Rp. {totalMembers*350000}</Price>
+            <div className="container">
+              <div className="row my-3">
+                <div className="col-sm">
+                  <DetailValue>Total Pembayaran</DetailValue>
+                </div>
+                <div className="col-sm-auto">
+                  <Price>Rp. {totalPrice}</Price>
+                </div>
+              </div>
             </div>
 
             {openPayment ? (
@@ -114,7 +123,6 @@ const MainCardHeader = styled.div`
 `;
 
 const Rule = styled.hr`
-  margin: 1rem;
 `;
 
 const EventMediaObject = styled.div`
@@ -128,7 +136,7 @@ const EventMediaObjectContent = styled.div`
 `;
 
 const TicketSectionDetail = styled.div`
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 `;
 
 const DetailLabel = styled.h6`
@@ -148,7 +156,6 @@ const DetailValue = styled.p`
   text-transform: capitalize;
   ${isTextMuted}
 `;
-
 
 const BackgroundPayment = styled.div`
     position: fixed;

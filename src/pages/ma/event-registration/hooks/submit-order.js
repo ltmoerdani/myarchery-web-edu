@@ -1,26 +1,39 @@
 import { useFetcher } from "hooks/fetcher-alt";
 import { OrderEventService } from "services";
 
-import { datetime } from "utils";
+// import { datetime } from "utils";
 
 function useSubmitOrder(formData) {
   const fetcher = useFetcher();
 
-  const submit = (options) => {
+  const submit = (options, eventDetailData, selectCategoriesType) => {
     const postFunction = () => {
-      const { category, matchDate, teamName, withClub, club, paymentMethode, city_id } = formData;
-
-      const payload = {
-        event_category_id: category.id,
-        day_choice: datetime.formatServerDate(matchDate) || undefined,
-        club_id: club?.detail.id || 0,
-        team_name: teamName || undefined,
-        with_club: withClub,
-        payment_methode: paymentMethode,
-        city_id: city_id?.value
-      };
-
-      return OrderEventService.register(payload);
+      if (selectCategoriesType === "individual") {
+        const { dataParticipant, selectCategoryUser, city_id, club } = formData;
+        const payload = {
+          event_id: selectCategoryUser?.eventId ?? eventDetailData?.id ?? 0,
+          club_or_city_id:
+            eventDetailData?.withContingent === 1
+              ? city_id.value
+              : club?.detail?.id ?? 0,
+        };
+        if (dataParticipant?.length) {
+          payload.members = dataParticipant;
+        }
+        return OrderEventService.createOrder(payload);
+      } else {
+        const { numberOfTeam, selectCategoryUser, city_id, club } = formData;
+        const payload = {
+          event_id: selectCategoryUser?.eventId,
+          total_slot: Number(numberOfTeam) ?? 0,
+          club_or_city_id:
+            eventDetailData?.withContingent === 1
+              ? city_id.value
+              : club?.detail?.id ?? 0,
+          event_category_id: selectCategoryUser?.id,
+        };
+        return OrderEventService.createOrderTeam(payload);
+      }
     };
 
     fetcher.runAsync(postFunction, options);

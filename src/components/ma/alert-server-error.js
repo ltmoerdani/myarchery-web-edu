@@ -2,11 +2,13 @@ import * as React from "react";
 import styled from "styled-components";
 
 import SweetAlert from "react-bootstrap-sweetalert";
-import { ButtonBlue } from "components/ma";
+import { Button, ButtonBlue } from "components/ma";
 
 import IconAlertTriangle from "components/ma/icons/mono/alert-triangle";
+import { useHistory } from "react-router-dom";
 
 function AlertServerError({ isError, errors, onConfirm }) {
+  const history = useHistory();
   const [isOpen, setOpen] = React.useState(false);
 
   const handleConfirm = () => {
@@ -21,6 +23,10 @@ function AlertServerError({ isError, errors, onConfirm }) {
     setOpen(true);
   }, [isError]);
 
+  const userHasRegisterEvent = errors?.includes(
+    "user telah mendaftar kategori ini"
+  );
+
   return (
     <React.Fragment>
       <SweetAlert
@@ -32,6 +38,14 @@ function AlertServerError({ isError, errors, onConfirm }) {
         onConfirm={handleConfirm}
         customButtons={
           <span className="d-flex flex-column w-100">
+            {userHasRegisterEvent ? (
+              <Button
+                style={{ marginBottom: 10 }}
+                onClick={() => history.replace("/dashboard/list-transaction")}
+              >
+                Lihat Transaksi
+              </Button>
+            ) : null}
             <ButtonBlue onClick={handleConfirm}>Tutup</ButtonBlue>
           </span>
         }
@@ -41,10 +55,15 @@ function AlertServerError({ isError, errors, onConfirm }) {
             <IconAlertTriangle />
           </h4>
 
-          <p>
-            Terdapat kendala teknis dalam memproses data. Coba kembali beberapa saat lagi, atau
-            silakan berikan pesan error berikut kepada technical support:
-          </p>
+          {!userHasRegisterEvent ? (
+            <p>
+              Terdapat kendala teknis dalam memproses data. Coba kembali
+              beberapa saat lagi, atau silakan berikan pesan error berikut
+              kepada technical support:
+            </p>
+          ) : (
+            <p>Tidak bisa melanjutkan proses pendaftaran. Alasan: </p>
+          )}
 
           <PreformatedErrorMessages className="p-3">
             {renderErrorMessages(errors)}
@@ -85,7 +104,8 @@ const renderErrorMessages = (errors) => {
   if (errors) {
     const fields = Object.keys(errors);
     const messages = fields.map(
-      (field) => `${errors[field].map((message) => `- ${message}\n\n`).join("")}`
+      (field) =>
+        `${errors[field].map((message) => `- ${message}\n\n`).join("")}`
     );
 
     if (messages.length) {
