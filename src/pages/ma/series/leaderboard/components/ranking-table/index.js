@@ -83,9 +83,9 @@ function RankingTable({ categoryDetail, series }) {
 
                         {series?.id === 2 ? (
                           <RankPoints>
-                            <LabelRank>{member.totalPerSeries[0].pointDetails.elimination || 0}</LabelRank>
                             <LabelRank>{member.totalPerSeries[0].pointDetails.qualification || 0}</LabelRank>
-                            <LabelBoldRank>{(member.totalPerSeries[0].pointDetails.elimination + member.totalPerSeries[0].pointDetails.qualification) || 0}</LabelBoldRank>
+                            <LabelRank>{member.totalPerSeries[0].pointDetails.elimination || 0}</LabelRank>
+                            <LabelBoldRank>{(member.totalPerSeries[0].pointDetails.qualification || 0) + (member.totalPerSeries[0].pointDetails.elimination || 0)}</LabelBoldRank>
                           </RankPoints>
                         ) : (
                           <BlockPoints>
