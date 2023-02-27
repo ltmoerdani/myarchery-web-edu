@@ -210,7 +210,6 @@ function ParticipantEditorIndividual({ participantMembers, shouldAllowEdit, refe
             <ToolbarActionButtons>
               <ButtonOutlineBlue
                 onClick={() => setEditMode({ isOpen: true, previousData: { club } })}
-                disabled
               >
                 Ubah Peserta
               </ButtonOutlineBlue>
