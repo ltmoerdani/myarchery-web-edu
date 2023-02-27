@@ -120,8 +120,8 @@ function TicketView({
     const options = {
       onSuccess: (data) => {
         onSuccessOrder?.();
-        const { orderEventId } = data;
-        history.push("/dashboard/transactions/" + orderEventId);
+        const { orderId } = data.paymentInfo;
+        history.push("/dashboard/transactions/" + orderId);
       },
     };
     submit(options, eventDetailData, selectCategoriesType);
