@@ -13,6 +13,7 @@ import { useEventDetail } from "pages/landingpage/homepage/hooks/event-detail";
 import { useHistory, useParams } from "react-router-dom";
 import { useUserProfile } from "hooks/user-profile";
 import { EventsService, GeneralService } from "services";
+import { Link } from "react-router-dom";
 import { ButtonBlueOutline } from "components/ma";
 import { ButtonBlue } from "components/ma";
 import { SelectOption } from "../components/select-option";
@@ -45,6 +46,7 @@ function FormLigaJabar() {
   const fileRef = React.useRef(null)
 
   const [error, setError] = React.useState(false)
+  const [price, setPrice] = React.useState('')
 
   const handleChangeInput = (value, index, key) => {
     const tempArray = [...listMembers]
@@ -113,7 +115,9 @@ function FormLigaJabar() {
         setShowAlert(true)
         setMessage(response.message)
       }
-      else setStep(1)
+      else
+        setStep(1)
+        setPrice(response.data.totalPrice)
     })
   }
 
@@ -165,7 +169,7 @@ function FormLigaJabar() {
     },
   ]
 
-  return step ? <TicketViewCard onBack={() => setStep(0)} totalMembers={listMembers.length} eventDetail={eventDetail} /> : (
+  return step ? <TicketViewCard onBack={() => setStep(0)} totalMembers={listMembers.length} eventDetail={eventDetail} totalPrice={price} /> : (
     <section>
       <Container>
         <div className="container">
@@ -177,8 +181,8 @@ function FormLigaJabar() {
               </MainCardHeader>
             </div>
             <div className="col col-md-auto">
-              <ButtonBlue>Daftar Beregu di Sini</ButtonBlue>
-               {/* <ButtonBlue as={Link} to={`/event-registration/regular/beregu/${eventDetail?.eventSlug}`}>Daftar Beregu di Sini</ButtonBlue> */}
+              {/* <ButtonBlue>Daftar Beregu di Sini</ButtonBlue> */}
+              <ButtonBlue as={Link} to={`/event-registration/regular/beregu/${eventDetail?.eventSlug}`}>Daftar Beregu di Sini</ButtonBlue>
             </div>
           </div>
         </div>

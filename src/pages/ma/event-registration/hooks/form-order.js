@@ -7,12 +7,27 @@ import { stringUtil } from "utils";
 
 const _makeDefaultValues = () => ({
   category: null,
+  selectCategoryUser: null,
   matchDate: null,
+  registrationType: "individual",
+  asParticipant: true,
   teamName: "",
   withClub: "yes",
-  paymentMethode:"bankTransfer",
+  paymentMethode: "bankTransfer",
+  genderOfTeam: "male",
+  teamCategory: null,
+  selectCategoryTab: null,
+  selectCategoriesType: null,
+  selectClassCategories: null,
+  isCollective: false,
+  numberOfTeam: 0,
   club: null,
   city_id: null,
+  dataParticipant: [],
+  emailRegisteredList: [],
+  emailNotRegisteredList: [],
+  multiParticipants: [],
+  listParticipants: [],
   participants: [
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -20,7 +35,11 @@ const _makeDefaultValues = () => ({
   ],
 });
 
-function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories, withContingen }) {
+function useFormOrder({
+  initialValues = _makeDefaultValues(),
+  eventCategories,
+  withContingen,
+}) {
   const [form, dispatch] = React.useReducer(_formReducer, {
     data: initialValues,
     errors: {},
@@ -33,12 +52,64 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories, w
 
   const isError = Object.keys(form.errors)?.length;
 
+  const setRegistrationType = (value) =>
+    dispatch({ type: "CHANGE_REGISTRATION_TYPE", payload: value });
+
+  const setIsColective = (value) =>
+    dispatch({ type: "CHANGE_REGISTRATION_COLLECTIVE_TYPE", payload: value });
+
+  const setNumberOfTeam = (value) =>
+    dispatch({ type: "CHANGE_NUMBER_OF_TEAM_TYPE", payload: value });
+
+  const setGenderTeam = (value) =>
+    dispatch({ type: "CHANGE_GENDER_TEAM_TYPE", payload: value });
+
+  const setSelectCategoryTab = (value) =>
+    dispatch({ type: "CHANGE_SELECT_CATEGORY_TAB_TYPE", payload: value });
+
+  const setSelectCategoriesType = (value) =>
+    dispatch({ type: "CHANGE_SELECT_CATEGORY_TYPE", payload: value });
+
+  const setSelectClassCategories = (value) =>
+    dispatch({ type: "CHANGE_SELECT_CLASS_CATEGORIES_TYPE", payload: value });
+
+  const setAsParticipant = (value) =>
+    dispatch({ type: "CHANGE_AS_PARTICIPANT", payload: value });
+
+  const setListParticipants = (value) =>
+    dispatch({ type: "ADD_LIST_PARTICIPANT_TYPE", payload: value });
+
+  const setMultiParticipants = (value) =>
+    dispatch({ type: "ADD_LIST_MULTI_PARTICIPANT_TYPE", payload: value });
+
+  const setDataParticipants = (value) =>
+    dispatch({ type: "ADD_DATA_PARTICIPANT_TYPE", payload: value });
+  const setEmailRegisteredList = (value) =>
+    dispatch({ type: "ADD_EMAIL_REGISTERED_PARTICIPANT_TYPE", payload: value });
+  const setEmailNotRegisteredList = (value) =>
+    dispatch({
+      type: "ADD_EMAIL_NOT_REGISTERED_PARTICIPANT_TYPE",
+      payload: value,
+    });
+
+  const setSelectCategoriesUser = (value) =>
+    dispatch({ type: "ADD_CATEGORIES_USER_TYPE", payload: value });
+
+  const setTeamCategory = (value) =>
+    dispatch({ type: "CHANGE_TEAM_CATEGORY_TYPE", payload: value });
+
   const setCategory = (category, userProfile) => {
-    dispatch({ type: "CHANGE_CATEGORY", payload: category, default: userProfile });
+    dispatch({
+      type: "CHANGE_CATEGORY",
+      payload: category,
+      default: userProfile,
+    });
   };
 
-  const setWithClub = (value) => dispatch({ type: "CHANGE_WITH_CLUB", payload: value });
-  const setPaymentMethode = (value) => dispatch({ type: "CHANGE_PAYMENT_METHODE", payload: value });
+  const setWithClub = (value) =>
+    dispatch({ type: "CHANGE_WITH_CLUB", payload: value });
+  const setPaymentMethode = (value) =>
+    dispatch({ type: "CHANGE_PAYMENT_METHODE", payload: value });
 
   const setClub = (club) => {
     dispatch({ type: "CHANGE_CLUB", payload: club });
@@ -49,7 +120,7 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories, w
   };
 
   const handleValidation = ({ onValid, onInvalid }) => {
-    const errors = _validateFields({...form.data, withContingen});
+    const errors = _validateFields({ ...form.data, withContingen });
     const isError = Object.keys(errors)?.length;
 
     dispatch({ type: "UPDATE_VALIDATION_ERRORS", errors: errors });
@@ -71,6 +142,21 @@ function useFormOrder({ initialValues = _makeDefaultValues(), eventCategories, w
     setCityId,
     handleValidation,
     setPaymentMethode,
+    setRegistrationType,
+    setAsParticipant,
+    setIsColective,
+    setNumberOfTeam,
+    setGenderTeam,
+    setSelectCategoryTab,
+    setSelectCategoriesType,
+    setSelectClassCategories,
+    setListParticipants,
+    setDataParticipants,
+    setSelectCategoriesUser,
+    setTeamCategory,
+    setMultiParticipants,
+    setEmailRegisteredList,
+    setEmailNotRegisteredList,
   };
 }
 
@@ -100,10 +186,103 @@ function _formReducer(state, action) {
         // reset field-field data peserta
         teamName: "",
         club: null,
+        multiParticipants: [],
+        listParticipants: [],
+        isCollective: false,
+        numberOfTeam: 0,
+        genderOfTeam: "male",
+        registrationType: "individual",
         participants: nextParticipantsState,
       },
       errors: {},
     };
+  }
+
+  if (action.type === "CHANGE_REGISTRATION_TYPE") {
+    const data = { ...state.data, registrationType: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_AS_PARTICIPANT") {
+    const data = { ...state.data, asParticipant: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_REGISTRATION_COLLECTIVE_TYPE") {
+    const data = { ...state.data, isCollective: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_NUMBER_OF_TEAM_TYPE") {
+    const data = { ...state.data, numberOfTeam: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_SELECT_CATEGORY_TAB_TYPE") {
+    const data = {
+      ...state.data,
+      registrationType: "individual",
+      isCollective: false,
+      numberOfTeam: 0,
+      selectCategoryTab: action.payload?.value,
+    };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_CATEGORIES_USER_TYPE") {
+    const data = { ...state.data, selectCategoryUser: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_LIST_MULTI_PARTICIPANT_TYPE") {
+    const data = { ...state.data, multiParticipants: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_EMAIL_REGISTERED_PARTICIPANT_TYPE") {
+    const data = { ...state.data, emailRegisteredList: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_EMAIL_NOT_REGISTERED_PARTICIPANT_TYPE") {
+    const data = { ...state.data, emailNotRegisteredList: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_SELECT_CATEGORY_TYPE") {
+    const data = {
+      ...state.data,
+      registrationType: "individual",
+      isCollective: false,
+      numberOfTeam: 0,
+      selectCategoriesType: action.payload?.value,
+    };
+    return {
+      ...state,
+      data: data,
+    };
+  }
+
+  if (action.type === "CHANGE_SELECT_CLASS_CATEGORIES_TYPE") {
+    const data = {
+      ...state.data,
+      selectClassCategories: action.payload?.value,
+    };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_GENDER_TEAM_TYPE") {
+    const data = {
+      ...state.data,
+      numberOfTeam: 0,
+      genderOfTeam: action.payload,
+    };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "CHANGE_TEAM_CATEGORY_TYPE") {
+    const data = { ...state.data, teamCategory: action.payload };
+    return { ...state, data: data };
   }
 
   if (action.type === "CHANGE_WITH_CLUB") {
@@ -116,6 +295,16 @@ function _formReducer(state, action) {
 
   if (action.type === "CHANGE_PAYMENT_METHODE") {
     const data = { ...state.data, paymentMethode: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_LIST_PARTICIPANT_TYPE") {
+    const data = { ...state.data, listParticipants: action.payload };
+    return { ...state, data: data };
+  }
+
+  if (action.type === "ADD_DATA_PARTICIPANT_TYPE") {
+    const data = { ...state.data, dataParticipant: action.payload };
     return { ...state, data: data };
   }
 
@@ -204,17 +393,22 @@ function _isTeam(category) {
 }
 
 function _validateFields(data) {
-
   const { category, matchDate, withClub, club, city_id, withContingen } = data;
   const isTeam = _isTeam(category);
   let validationErrors = {};
 
   if (withContingen && !city_id?.value) {
-    validationErrors = { ...validationErrors, city_id: ["Kontingen harus dipilih"] };
+    validationErrors = {
+      ...validationErrors,
+      city_id: ["Kontingen harus dipilih"],
+    };
   }
 
   if (!withContingen && category?.id && isTeam && withClub == "no") {
-    validationErrors = { ...validationErrors, withClub: ["Kategori beregu harus mewakili klub"] };
+    validationErrors = {
+      ...validationErrors,
+      withClub: ["Kategori beregu harus mewakili klub"],
+    };
   }
 
   if (!withContingen && category?.id && !club?.detail.id && withClub == "yes") {
@@ -223,7 +417,8 @@ function _validateFields(data) {
 
   // Kategori tim secara umum
   if (
-    !withContingen && category?.id &&
+    !withContingen &&
+    category?.id &&
     ["individu male", "individu female", "individu_mix"].every(
       (team) => team !== category?.teamCategoryId
     )
