@@ -3,20 +3,41 @@ import { useHistory } from "react-router-dom";
 import { useFetcher } from "hooks/fetcher-alt";
 import { OrderEventService } from "services";
 
-function useBooking(category, isSuccess) {
+function useBooking(category, isSuccess, eventDetailData, formOrder) {
   const { block } = useHistory();
   const fetcherBooking = useFetcher();
   const fetcherResetBooking = useFetcher();
 
   const { data: booking } = fetcherBooking;
-
+  const { city_id, club, countryData, provinceData } = formOrder.data;
   const createBooking = () => {
     const postFunction = () => {
-      return OrderEventService.createBooking({
-        category_id: category.id
-          ? category.id
-          : category?.data?.map((e) => e.id),
-      });
+      return OrderEventService.createBooking(
+        {
+          classificationChildren: null,
+          classificationCountryId:
+            eventDetailData?.classificationCountryId ||
+            countryData?.value ||
+            null,
+          classificationProvinceId:
+            eventDetailData?.classificationProvinceId ||
+            provinceData?.value ||
+            null,
+          classificationCityId:
+            eventDetailData?.parentClassification === 4
+              ? city_id?.value ?? null
+              : null,
+          classificationArcheryClub:
+            eventDetailData?.parentClassification === 1
+              ? club?.detail?.id ?? null
+              : null,
+        },
+        {
+          category_id: category.id
+            ? category.id
+            : category?.data?.map((e) => e.id),
+        }
+      );
     };
     fetcherBooking.runAsync(postFunction);
   };
