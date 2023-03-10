@@ -23,11 +23,14 @@ const _makeDefaultValues = () => ({
   numberOfTeam: 0,
   club: null,
   city_id: null,
+  countryData: null,
+  provinceData: null,
   dataParticipant: [],
   emailRegisteredList: [],
   emailNotRegisteredList: [],
   multiParticipants: [],
   listParticipants: [],
+  classificationEvent: null,
   participants: [
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -38,7 +41,7 @@ const _makeDefaultValues = () => ({
 function useFormOrder({
   initialValues = _makeDefaultValues(),
   eventCategories,
-  withContingen,
+  parentClassificationId,
 }) {
   const [form, dispatch] = React.useReducer(_formReducer, {
     data: initialValues,
@@ -84,8 +87,10 @@ function useFormOrder({
 
   const setDataParticipants = (value) =>
     dispatch({ type: "ADD_DATA_PARTICIPANT_TYPE", payload: value });
+
   const setEmailRegisteredList = (value) =>
     dispatch({ type: "ADD_EMAIL_REGISTERED_PARTICIPANT_TYPE", payload: value });
+
   const setEmailNotRegisteredList = (value) =>
     dispatch({
       type: "ADD_EMAIL_NOT_REGISTERED_PARTICIPANT_TYPE",
@@ -97,6 +102,10 @@ function useFormOrder({
 
   const setTeamCategory = (value) =>
     dispatch({ type: "CHANGE_TEAM_CATEGORY_TYPE", payload: value });
+
+  const setClassificationEvent = (value) => {
+    dispatch({ type: "ADD_CLASSIFICATION_EVENT", payload: value });
+  };
 
   const setCategory = (category, userProfile) => {
     dispatch({
@@ -119,8 +128,16 @@ function useFormOrder({
     dispatch({ type: "CHANGE_CITYID", payload: city_id });
   };
 
+  const setCountryData = (value) => {
+    dispatch({ type: "ADD_COUNTRY_DATA", payload: value });
+  };
+
+  const setProvinceData = (value) => {
+    dispatch({ type: "ADD_PROVINCE_DATA", payload: value });
+  };
+
   const handleValidation = ({ onValid, onInvalid }) => {
-    const errors = _validateFields({ ...form.data, withContingen });
+    const errors = _validateFields({ ...form.data, parentClassificationId });
     const isError = Object.keys(errors)?.length;
 
     dispatch({ type: "UPDATE_VALIDATION_ERRORS", errors: errors });
@@ -157,6 +174,9 @@ function useFormOrder({
     setMultiParticipants,
     setEmailRegisteredList,
     setEmailNotRegisteredList,
+    setClassificationEvent,
+    setCountryData,
+    setProvinceData,
   };
 }
 
@@ -193,6 +213,8 @@ function _formReducer(state, action) {
         genderOfTeam: "male",
         registrationType: "individual",
         participants: nextParticipantsState,
+        countryData: null,
+        provinceData: null,
       },
       errors: {},
     };
@@ -319,7 +341,32 @@ function _formReducer(state, action) {
     const data = { ...state.data, city_id: action.payload };
     const errorsAfterReset = { ...state.errors };
     delete errorsAfterReset.club;
+    delete errorsAfterReset.countryData;
+    delete errorsAfterReset.provinceData;
     return { ...state, data: data, errors: errorsAfterReset };
+  }
+
+  if (action.type === "ADD_COUNTRY_DATA") {
+    const data = { ...state.data, countryData: action.payload };
+    const errorsAfterReset = { ...state.errors };
+    delete errorsAfterReset.club;
+    delete errorsAfterReset.city_id;
+    delete errorsAfterReset.provinceData;
+    return { ...state, data: data, error: errorsAfterReset };
+  }
+
+  if (action.type === "ADD_PROVINCE_DATA") {
+    const data = { ...state.data, provinceData: action.payload };
+    const errorsAfterReset = { ...state.errors };
+    delete errorsAfterReset.club;
+    delete errorsAfterReset.city_id;
+    delete errorsAfterReset.countryData;
+    return { ...state, data: data, error: errorsAfterReset };
+  }
+
+  if (action.type === "ADD_CLASSIFICATION_EVENT") {
+    const data = { ...state.data, classificationEvent: action.payload };
+    return { ...state, data: data };
   }
 
   if (action.type === "FIELD_MEMBER_EMAIL") {
@@ -393,37 +440,54 @@ function _isTeam(category) {
 }
 
 function _validateFields(data) {
-  const { category, matchDate, withClub, club, city_id, withContingen } = data;
+  const {
+    category,
+    matchDate,
+    withClub,
+    club,
+    city_id,
+    parentClassificationId,
+  } = data;
   const isTeam = _isTeam(category);
   let validationErrors = {};
 
-  if (withContingen && !city_id?.value) {
+  if (parentClassificationId === 4 && !city_id?.value) {
     validationErrors = {
       ...validationErrors,
       city_id: ["Kontingen harus dipilih"],
     };
   }
 
-  if (!withContingen && category?.id && isTeam && withClub == "no") {
+  if (
+    parentClassificationId === 1 &&
+    category?.id &&
+    isTeam &&
+    withClub == "no"
+  ) {
     validationErrors = {
       ...validationErrors,
       withClub: ["Kategori beregu harus mewakili klub"],
     };
   }
 
-  if (!withContingen && category?.id && !club?.detail.id && withClub == "yes") {
+  if (
+    parentClassificationId === 1 &&
+    category?.id &&
+    !club?.detail.id &&
+    withClub == "yes"
+  ) {
     validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
   }
 
   // Kategori tim secara umum
   if (
-    !withContingen &&
+    parentClassificationId === 1 &&
     category?.id &&
     ["individu male", "individu female", "individu_mix"].every(
       (team) => team !== category?.teamCategoryId
     )
   ) {
-    if (!withContingen && !club?.detail.id) {
+    if (parentClassificationId === 1 && !club?.detail.id) {
       validationErrors = { ...validationErrors, club: ["Klub harus dipilih"] };
     }
   }

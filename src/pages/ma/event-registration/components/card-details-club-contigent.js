@@ -5,33 +5,70 @@ import { checkIsIndividu } from "../utils";
 import { FieldErrorMessage } from "./field-error-message";
 import { FieldSelectClub } from "./field-select-club";
 import { FieldSelectKontingen } from "./field-select-kontingen";
+import { SelectOption } from "./select-option";
 import { SelectRadio } from "./select-radio";
 import { Show } from "./show-when";
 
 const DetailsClubContigent = ({
   formOrder,
   eventDetailData,
-  withContingen,
+  parentClassificationId,
 }) => {
-  const { errors: orderErrors, setWithClub, setClub, setCityId } = formOrder;
-  const { category, withClub, club, city_id, selectCategoriesType } =
-    formOrder.data;
+  const {
+    errors: orderErrors,
+    setWithClub,
+    setClub,
+    setCityId,
+    setCountryData,
+    setProvinceData,
+  } = formOrder;
+  const {
+    category,
+    withClub,
+    club,
+    city_id,
+    selectCategoriesType,
+    countryData,
+    provinceData,
+  } = formOrder.data;
   const isCategoryIndividu = checkIsIndividu(category);
   return (
     <div>
-      {withContingen ? (
+      {parentClassificationId === 2 ||
+      parentClassificationId === 3 ||
+      parentClassificationId === 4 ? (
         <div>
           <FieldSelectKontingen
-            provinceId={parseInt(
-              eventDetailData?.publicInformation?.eventCity?.provinceId
-            )}
+            provinceId={parseInt(eventDetailData?.classificationProvinceId)}
             required
-            value={city_id}
-            onChange={setCityId}
+            value={
+              parentClassificationId === 2
+                ? countryData
+                : parentClassificationId === 3
+                ? provinceData
+                : city_id
+            }
+            onChange={
+              parentClassificationId === 2
+                ? setCountryData
+                : parentClassificationId === 3
+                ? setProvinceData
+                : setCityId
+            }
+            countryId={eventDetailData?.classificationCountryId}
+            parentClassificationId={parentClassificationId}
           />
-          <FieldErrorMessage errors={orderErrors.city_id} />
+          <FieldErrorMessage
+            errors={
+              parentClassificationId === 2
+                ? orderErrors.countryData
+                : parentClassificationId === 3
+                ? orderErrors.provinceData
+                : orderErrors.city_id
+            }
+          />
         </div>
-      ) : (
+      ) : parentClassificationId === 1 ? (
         <div>
           {selectCategoriesType === "individual" ? (
             <>
@@ -77,7 +114,7 @@ const DetailsClubContigent = ({
             }
           >
             {selectCategoriesType === "individual"
-              ? "Mewakili (Klub/Kontingen/Tim/Kelompok)?"
+              ? "Mewakili (Klub/Tim/Kelompok)?"
               : "Pilih Klub yang diwakilkan"}
           </FieldSelectClub>
 
@@ -87,6 +124,8 @@ const DetailsClubContigent = ({
             </SubtleFieldNote>
           </Show>
         </div>
+      ) : (
+        <SelectOption placeholder={"Pilih Klasifikasi"} />
       )}
     </div>
   );

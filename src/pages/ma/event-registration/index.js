@@ -23,7 +23,6 @@ import { Landingpage } from "services";
 import classnames from "classnames";
 import ListParticipant from "./views/list-participant";
 import { HeaderTitleText } from "./views/list-participant/single-list-participant";
-// const ListParticipant = React.lazy(() => import("./views/list-participant"));
 
 const tabList = [
   { step: 1, label: "Pendaftaran" },
@@ -33,15 +32,14 @@ const tabList = [
 
 function PageEventRegistration() {
   const { slug } = useParams();
-  const [withContingen, setWithContingen] = React.useState(0);
-
+  const [parentClassificationId, setParentClassification] = React.useState(0);
   React.useEffect(() => {
     (async () => {
       const {
-        data: { withContingent },
+        data: { parentClassification },
       } = await Landingpage.getEventBySlug({ slug });
 
-      setWithContingen(withContingent);
+      setParentClassification(parentClassification);
     })();
   }, []);
 
@@ -62,7 +60,10 @@ function PageEventRegistration() {
 
   const formVerification = useFormVerification(verificationDetail);
 
-  const formOrder = useFormOrder({ ...eventCategories, withContingen });
+  const formOrder = useFormOrder({
+    ...eventCategories,
+    parentClassificationId,
+  });
   const {
     selectCategoryUser,
     city_id,
@@ -139,6 +140,8 @@ function PageEventRegistration() {
             category={!isCollective ? selectCategoryUser : category}
             onTimeout={() => history.push(breadcrumbLink)}
             isSuccess={isOrderSuccess}
+            eventDetailData={eventDetailData}
+            formOrder={formOrder}
           />
 
           <SplitDisplay>
@@ -152,7 +155,7 @@ function PageEventRegistration() {
                       userProfile={userProfile}
                       eventCategories={eventCategories}
                       formOrder={formOrder}
-                      withContingen={withContingen}
+                      parentClassificationId={parentClassificationId}
                       formVerification={formVerification}
                       onProfileUpdated={fetchVerificationDetail}
                       eventDetailData={eventDetailData}
@@ -182,7 +185,7 @@ function PageEventRegistration() {
                         />
                       </ErrorBoundary>
 
-                      {eventDetailData?.withContingent === 1 ? (
+                      {eventDetailData?.parentClassification === 4 ? (
                         <ContigentBox>
                           <ContigentTitle>Kontingen</ContigentTitle>
                           <ContigentContentText>
@@ -220,7 +223,7 @@ function PageEventRegistration() {
                         eventDetailData={eventDetailData}
                         wizardView={wizardView}
                         formVerification={formVerification}
-                        withContingen={withContingen}
+                        parentClassificationId={parentClassificationId}
                         formOrder={formOrder}
                         onSuccessVerification={() => {
                           fetchVerificationDetail();

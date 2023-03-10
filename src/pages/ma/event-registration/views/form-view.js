@@ -38,7 +38,7 @@ function FormView({
   formOrder,
   onProfileUpdated,
   eventDetailData,
-  withContingen,
+  parentClassificationId,
   pageTitle,
   wizardView,
 }) {
@@ -64,6 +64,8 @@ function FormView({
     selectCategoriesType,
     selectClassCategories,
     city_id,
+    countryData,
+    provinceData,
     listParticipants,
     asParticipant,
     isCollective,
@@ -222,13 +224,19 @@ function FormView({
   }, [asParticipant, isCollective, multiParticipants]);
 
   const noChooseFormField =
-    !category || eventDetailData?.withContingent === 0
+    !category || parentClassificationId === 1
       ? selectCategoriesType === "individual"
         ? withClub === "yes"
           ? !club
           : !selectClassCategories
         : !club
-      : !city_id;
+      : parentClassificationId === 2
+      ? !countryData
+      : parentClassificationId === 3
+      ? !provinceData
+      : parentClassificationId === 4
+      ? !city_id
+      : false;
   const userAsParticipant = !asParticipant
     ? isCollective
       ? noChooseFormField || !multiParticipants.length
@@ -270,12 +278,20 @@ function FormView({
         </ContentCardLayout>
       ) : (
         <ContentCardLayout
-          title={withContingen ? "Detail Kontingen" : "Detail Klub"}
+          title={
+            parentClassificationId === 2 ||
+            parentClassificationId === 3 ||
+            parentClassificationId === 4
+              ? "Detail Kontingen"
+              : parentClassificationId === 1
+              ? "Detail Klub"
+              : "Detail Klasifikasi"
+          }
         >
           <DetailsClubContigent
             formOrder={formOrder}
             eventDetailData={eventDetailData}
-            withContingen={withContingen}
+            parentClassificationId={parentClassificationId}
           />
         </ContentCardLayout>
       )}
@@ -306,12 +322,12 @@ function FormView({
 
       {selectCategoriesType === "individual" ? (
         <ContentCardLayout
-          title={withContingen ? "Detail Kontingen" : "Detail Klub"}
+          title={parentClassificationId ? "Detail Kontingen" : "Detail Klub"}
         >
           <DetailsClubContigent
             formOrder={formOrder}
             eventDetailData={eventDetailData}
-            withContingen={withContingen}
+            parentClassificationId={parentClassificationId}
           />
         </ContentCardLayout>
       ) : (

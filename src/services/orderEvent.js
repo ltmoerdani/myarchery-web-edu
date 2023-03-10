@@ -56,10 +56,10 @@ export default {
    * @param {Params} qs { category_id }
    * @returns {Promise} { success, data, errors, message }
    */
-  createBooking(qs = null) {
+  createBooking(data = null, qs = null) {
     return API.post(
       "/app/v1/archery/event-order/booking-temporary",
-      null,
+      data,
       qs,
       true
     );

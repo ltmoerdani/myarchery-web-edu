@@ -1,12 +1,12 @@
 import * as React from "react";
-import { GeneralService } from "services";
+import { ArcherService } from "services";
 
 import { AsyncPaginate } from "react-select-async-paginate";
 import { customSelectStyles } from "./select-option";
 
 const FETCHING_LIMIT = 30;
 
-function SelectCity({
+function SelectProvince({
   name,
   placeholder,
   provinceId,
@@ -19,18 +19,16 @@ function SelectCity({
   const loadOptions = async (searchQuery, loadedOptions, { page }) => {
     let result = [];
     if (countryId === 102) {
-      result = await GeneralService.getCities({
+      result = await ArcherService.getListProvinceIndonesian({
         limit: FETCHING_LIMIT,
         page: page,
         name: searchQuery,
-        province_id: provinceId,
       });
     } else {
-      result = await GeneralService.getCitiesByCountry({
+      result = await ArcherService.getListProvince({
         limit: FETCHING_LIMIT,
         page: page,
         name: searchQuery,
-        province_id: provinceId,
         country_id: countryId,
       });
     }
@@ -76,4 +74,4 @@ const computeCustomStylesWithValidation = (errors) => {
   return customSelectStyles;
 };
 
-export { SelectCity };
+export { SelectProvince };
