@@ -10,6 +10,31 @@ import DetailsParticipant from "../components/card-details-participant";
 import DetailsClubContigent from "../components/card-details-club-contigent";
 import { OrderEventService } from "services";
 
+const ClassificationType = (props) => {
+  const { parentClassificationId, formOrder, eventDetailData } = props;
+  return (
+    <ContentCardLayout
+      title={
+        parentClassificationId === 2 ||
+        parentClassificationId === 3 ||
+        parentClassificationId === 4
+          ? "Detail Kontingen"
+          : parentClassificationId === 1
+          ? "Detail Klub"
+          : parentClassificationId > 5
+          ? "Detail Klasifikasi"
+          : ""
+      }
+    >
+      <DetailsClubContigent
+        formOrder={formOrder}
+        eventDetailData={eventDetailData}
+        parentClassificationId={parentClassificationId}
+      />
+    </ContentCardLayout>
+  );
+};
+
 const ContentCardLayout = ({
   withHeaderTitle,
   headerTitle,
@@ -277,23 +302,11 @@ function FormView({
           />
         </ContentCardLayout>
       ) : (
-        <ContentCardLayout
-          title={
-            parentClassificationId === 2 ||
-            parentClassificationId === 3 ||
-            parentClassificationId === 4
-              ? "Detail Kontingen"
-              : parentClassificationId === 1
-              ? "Detail Klub"
-              : "Detail Klasifikasi"
-          }
-        >
-          <DetailsClubContigent
-            formOrder={formOrder}
-            eventDetailData={eventDetailData}
-            parentClassificationId={parentClassificationId}
-          />
-        </ContentCardLayout>
+        <ClassificationType
+          parentClassificationId={parentClassificationId}
+          formOrder={formOrder}
+          eventDetailData={eventDetailData}
+        />
       )}
       {selectCategoriesType === "individual" ? (
         <ContentCardLayout title={"Detail Peserta"}>
@@ -321,15 +334,11 @@ function FormView({
       )}
 
       {selectCategoriesType === "individual" ? (
-        <ContentCardLayout
-          title={parentClassificationId ? "Detail Kontingen" : "Detail Klub"}
-        >
-          <DetailsClubContigent
-            formOrder={formOrder}
-            eventDetailData={eventDetailData}
-            parentClassificationId={parentClassificationId}
-          />
-        </ContentCardLayout>
+        <ClassificationType
+          parentClassificationId={parentClassificationId}
+          formOrder={formOrder}
+          eventDetailData={eventDetailData}
+        />
       ) : (
         <ContentCardLayout title={"Detail Peserta"}>
           <DetailsParticipant

@@ -265,7 +265,7 @@ const SingleListParticipant = ({
   quotaFemale === 0 || quotaMale === 0;
   return (
     <ContentCard>
-      <HeaderTitleText>
+      <HeaderTitleText className="margin-single">
         {!notRegisterSingleParticipant
           ? "Email Belum Terdaftar"
           : "Email Sudah Terdaftar"}
@@ -507,7 +507,6 @@ const ContentCard = styled.div`
 export const TableListParticipant = styled.table`
   width: 100%;
   min-height: 50vh;
-  margin-top: -15px;
   border-collapse: separate;
   border-spacing: 0 0.25rem;
   display: block;
@@ -584,6 +583,9 @@ export const HeaderTitleText = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  &.margin-single {
+    margin-bottom: 15px;
+  }
 `;
 
 const ButtonSectionWrapper = styled.span`

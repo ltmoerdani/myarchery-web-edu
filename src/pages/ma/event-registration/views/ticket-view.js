@@ -36,10 +36,6 @@ function TicketView({
   const [showAlert, setShowAlert] = React.useState(false);
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
   const { handleValidation: handleValidationVerification } = formVerification;
-  const LabelTotal = styled.span`
-    font-weight: 600;
-    font-size: 15px;
-  `;
   const {
     submit: submitVerification,
     isLoading: isLoadingVerification,
@@ -121,8 +117,10 @@ function TicketView({
     const options = {
       onSuccess: (data) => {
         onSuccessOrder?.();
-        const { orderId } = data.paymentInfo;
-        history.push("/dashboard/transactions/" + orderId);
+        if (data?.paymentInfo) {
+          const { orderId } = data.paymentInfo;
+          history.push("/dashboard/transactions/" + orderId);
+        }
       },
     };
     submit(options, eventDetailData, selectCategoriesType);
@@ -517,6 +515,11 @@ const StyledTotalWithCurrency = styled(CurrencyFormat)`
   color: var(--ma-blue);
   font-size: 18px;
   font-weight: 600;
+`;
+
+const LabelTotal = styled.span`
+  font-weight: 600;
+  font-size: 15px;
 `;
 
 /* ==================================== */

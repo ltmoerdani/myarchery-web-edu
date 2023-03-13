@@ -25,6 +25,9 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     club,
     city_id,
     multiParticipants,
+    classificationEvent,
+    provinceData,
+    countryData,
   } = formOrder.data;
   const handleChangeEmail = (val) => {
     const data = {
@@ -51,35 +54,57 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     genderOfTeam,
     eventDetailData,
     club,
-    city_id
+    city_id,
+    classificationEvent,
+    provinceData,
+    countryData
   ) => {
     if (club || city_id) {
-      if (selectCategoriesType !== "individual") {
-        const payload = {};
-        payload.event_id = eventDetailData?.id;
-        if (eventDetailData?.withContingent === 1) {
-          payload.club_or_city_id = city_id?.value ?? 0;
-        } else {
-          payload.club_or_city_id = club?.detail?.id ?? 0;
-        }
-        if (selectCategoriesType === "team") {
-          const filterCategory =
-            category &&
-            category?.data?.filter(
-              (value) => value.genderCategory === genderOfTeam
-            );
-          setSelectCategoriesUser(filterCategory[0]);
-          payload.category_id = filterCategory && filterCategory[0]?.id;
-        } else if (selectCategoriesType === "mix") {
-          const filterCategory =
-            category &&
-            category?.data?.filter((value) => value.genderCategory === "mix");
-          setSelectCategoriesUser(filterCategory[0]);
-          payload.category_id = filterCategory && filterCategory[0]?.id;
-        }
-        const result = await ArcherService.getIndividualParticipant(payload);
-        setUserRegisteredIndividu(result?.data);
+      const payload = {
+        classificationChildren:
+          eventDetailData?.parentClassification > 5
+            ? classificationEvent?.value || null
+            : null,
+        classificationCountryId:
+          eventDetailData?.classificationCountryId ||
+          countryData?.value ||
+          null,
+        classificationProvinceId:
+          parseInt(
+            eventDetailData?.classificationProvinceId || provinceData?.value
+          ) || null,
+        classificationCityId:
+          eventDetailData?.parentClassification === 4
+            ? city_id?.value ?? null
+            : null,
+        classification_club_id:
+          eventDetailData?.parentClassification === 1
+            ? club?.detail?.id ?? null
+            : null,
+      };
+      payload.event_id = eventDetailData?.id;
+      if (eventDetailData?.parentClassification === 4) {
+        payload.club_or_city_id = city_id?.value ?? 0;
+      } else if (eventDetailData?.parentClassification === 1) {
+        payload.club_or_city_id = club?.detail?.id ?? 0;
       }
+      if (selectCategoriesType === "team") {
+        const filterCategory =
+          category &&
+          category?.data?.filter(
+            (value) => value.genderCategory === genderOfTeam
+          );
+        setSelectCategoriesUser(filterCategory[0]);
+        payload.category_id = filterCategory && filterCategory[0]?.id;
+      } else if (selectCategoriesType === "mix") {
+        const filterCategory =
+          category &&
+          category?.data?.filter((value) => value.genderCategory === "mix");
+        setSelectCategoriesUser(filterCategory[0]);
+        payload.category_id = filterCategory && filterCategory[0]?.id;
+      }
+      const result = await ArcherService.getIndividualParticipant(payload);
+      setUserRegisteredIndividu(result?.data);
     }
   };
   const numberUserAvailable = React.useMemo(() => {
@@ -103,7 +128,10 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
         genderOfTeam,
         eventDetailData,
         club,
-        city_id
+        city_id,
+        classificationEvent,
+        provinceData,
+        countryData
       );
       if (numberOfTeam > 0) {
         setListParticipants(userRegisteredIndividu);
@@ -118,6 +146,9 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     club,
     city_id,
     numberOfTeam,
+    classificationEvent,
+    provinceData,
+    countryData,
   ]);
   const handleKeyDown = (e) => {
     if (!checkInputEmail) return;

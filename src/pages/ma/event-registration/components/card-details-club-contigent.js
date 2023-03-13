@@ -5,7 +5,7 @@ import { checkIsIndividu } from "../utils";
 import { FieldErrorMessage } from "./field-error-message";
 import { FieldSelectClub } from "./field-select-club";
 import { FieldSelectKontingen } from "./field-select-kontingen";
-import { SelectOption } from "./select-option";
+import { SelectChildrenClassifiaction } from "./select-children-classification";
 import { SelectRadio } from "./select-radio";
 import { Show } from "./show-when";
 
@@ -21,6 +21,7 @@ const DetailsClubContigent = ({
     setCityId,
     setCountryData,
     setProvinceData,
+    setClassificationEvent,
   } = formOrder;
   const {
     category,
@@ -30,6 +31,7 @@ const DetailsClubContigent = ({
     selectCategoriesType,
     countryData,
     provinceData,
+    classificationEvent,
   } = formOrder.data;
   const isCategoryIndividu = checkIsIndividu(category);
   return (
@@ -125,7 +127,12 @@ const DetailsClubContigent = ({
           </Show>
         </div>
       ) : (
-        <SelectOption placeholder={"Pilih Klasifikasi"} />
+        <SelectChildrenClassifiaction
+          placeholder={"Pilih Klasifikasi"}
+          parentId={parentClassificationId}
+          value={classificationEvent}
+          onChange={setClassificationEvent}
+        />
       )}
     </div>
   );

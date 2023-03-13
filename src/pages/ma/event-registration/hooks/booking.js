@@ -9,12 +9,16 @@ function useBooking(category, isSuccess, eventDetailData, formOrder) {
   const fetcherResetBooking = useFetcher();
 
   const { data: booking } = fetcherBooking;
-  const { city_id, club, countryData, provinceData } = formOrder.data;
+  const { city_id, club, countryData, provinceData, classificationEvent } =
+    formOrder.data;
   const createBooking = () => {
     const postFunction = () => {
       return OrderEventService.createBooking(
         {
-          classificationChildren: null,
+          classificationChildren:
+            eventDetailData?.parentClassification > 5
+              ? classificationEvent?.value || null
+              : null,
           classificationCountryId:
             eventDetailData?.classificationCountryId ||
             countryData?.value ||

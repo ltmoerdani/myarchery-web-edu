@@ -15,6 +15,13 @@ export default {
   getCountries(qs = null) {
     return API.get("/api/general/get-country", qs);
   },
+  /**
+   * @param {Object} qs { limit, page, name }
+   * @returns {Promise} { success, data, errors, message }
+   */
+  getChildrenClassification(qs = null) {
+    return API.get("/app/v1/classification-member/children", qs);
+  },
 
   /**
    * @param {Object} qs { limit, page, name, country_id }
@@ -49,7 +56,10 @@ export default {
    * @returns {Promise} { success, data, errors, message }
    */
   getClubRankingCategories(queryString = null) {
-    return API.get("/api/general/get-list-tab-category-by-event-id", queryString);
+    return API.get(
+      "/api/general/get-list-tab-category-by-event-id",
+      queryString
+    );
   },
 
   getListCategory(queryString = null) {
