@@ -471,7 +471,7 @@ const MultipleTableLayout = ({
                       {!isForEmailRegistered ? (
                         <div style={{ width: "200px" }}>
                           <Select
-                            options={provinceList[i]?.provinceList ?? []}
+                            options={provinceList[i]?.provinceList}
                             onChange={(val) => handleChangeProvince(val, e.id)}
                             onInputChange={(val) =>
                               handleInputChangeProvince(val, i)
@@ -745,7 +745,7 @@ const MultiListParticipant = ({
       {emailRegisteredList?.length || emailNotRegisteredList?.length ? (
         <>
           {emailRegisteredList?.length ? (
-            <>
+            <div>
               <HeaderTitleText>
                 <span>Email Sudah Terdaftar</span>
                 <QuoteTextHeader>
@@ -760,10 +760,10 @@ const MultiListParticipant = ({
                 isForEmailRegistered
                 userProfile={userProfile}
               />
-            </>
+            </div>
           ) : null}
           {emailNotRegisteredList?.length ? (
-            <>
+            <div>
               <HeaderTitleText>
                 <span>Email Belum Terdaftar</span>
                 <QuoteTextHeader>
@@ -776,7 +776,7 @@ const MultiListParticipant = ({
                 userData={emailNotRegisteredList}
                 formOrder={formOrder}
               />
-            </>
+            </div>
           ) : null}
         </>
       ) : (
