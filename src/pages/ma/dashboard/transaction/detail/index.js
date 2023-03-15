@@ -108,13 +108,20 @@ function PageTransactionDetail() {
       const { data, message, errors } = await OrderEventService.get({
         id: orderId,
       });
-
+      console.log("dataDetail:", dataDetail);
+      console.log("dataFromFetch:", data);
       if (data) {
         setDataDetail(data);
         if (
           dataDetail?.transactionInfo?.statusId == 4 &&
           userProfile?.verifyStatus == 1
         ) {
+          if (dataDetail?.transactionInfo?.gateway == "OY") {
+            setIsOYAlertOpen(true);
+          } else {
+            handleClickPaymentMidtrans();
+          }
+        } else if (dataDetail?.transactionInfo?.statusId == 4) {
           if (dataDetail?.transactionInfo?.gateway == "OY") {
             setIsOYAlertOpen(true);
           } else {

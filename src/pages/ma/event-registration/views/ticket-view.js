@@ -118,8 +118,9 @@ function TicketView({
       onSuccess: (data) => {
         onSuccessOrder?.();
         if (data?.paymentInfo) {
-          const { orderId } = data.paymentInfo;
-          history.push("/dashboard/transactions/" + orderId);
+          // const { orderId } = data.paymentInfo;
+          // history.push("/dashboard/transactions/" + orderId);
+          history.push(`/dashboard/transactions/${data.participant.id}`);
         }
       },
     };
