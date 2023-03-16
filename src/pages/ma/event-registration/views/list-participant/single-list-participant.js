@@ -246,8 +246,19 @@ const SingleListParticipant = ({
       setSelectCategoriesUser(...filterCategory);
     }
     allCountry();
-    allProvince(countryUser, inputProvince);
-    allCity(countryUser, provinceUser);
+    if (countryUser) {
+      if (inputProvince?.length) {
+        allProvince(countryUser, inputProvince);
+      }
+      if (provinceUser) {
+        allCity(countryUser, provinceUser);
+      }
+    }
+    return () => {
+      setCountryList([]);
+      setProvinceList([]);
+      setCityList([]);
+    };
   }, [
     listParticipants,
     registrationType,

@@ -275,7 +275,11 @@ function FormView({
       ? numberOfTeam < 1 || numberOfTeam * 2 > listParticipants?.length
       : userAsParticipant;
   const shouldDisableButton =
-    noChooseFormField || noInputNumber || validationParticipantsTeam === false;
+    selectCategoriesType !== "individual"
+      ? validationParticipantsTeam === false ||
+        noChooseFormField ||
+        noInputNumber
+      : noChooseFormField || noInputNumber;
   return (
     <>
       <ContentCardLayout
