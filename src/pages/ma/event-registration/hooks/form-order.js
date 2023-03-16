@@ -31,6 +31,7 @@ const _makeDefaultValues = () => ({
   multiParticipants: [],
   listParticipants: [],
   classificationEvent: null,
+  validationParticipantsTeam: false,
   participants: [
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
     { name: `member-email-${stringUtil.createRandom()}`, data: null },
@@ -136,6 +137,10 @@ function useFormOrder({
     dispatch({ type: "ADD_PROVINCE_DATA", payload: value });
   };
 
+  const setValidationParticipantsTeam = (value) => {
+    dispatch({ type: "CHANGE_VALIDATION_TEAM", payload: value });
+  };
+
   const handleValidation = ({ onValid, onInvalid }) => {
     const errors = _validateFields({ ...form.data, parentClassificationId });
     const isError = Object.keys(errors)?.length;
@@ -174,6 +179,7 @@ function useFormOrder({
     setMultiParticipants,
     setEmailRegisteredList,
     setEmailNotRegisteredList,
+    setValidationParticipantsTeam,
     setClassificationEvent,
     setCountryData,
     setProvinceData,
@@ -271,6 +277,11 @@ function _formReducer(state, action) {
     return { ...state, data: data };
   }
 
+  if (action.type === "CHANGE_VALIDATION_TEAM") {
+    const data = { ...state.data, validationParticipantsTeam: action.payload };
+    return { ...state, data: data };
+  }
+
   if (action.type === "CHANGE_SELECT_CATEGORY_TYPE") {
     const data = {
       ...state.data,
@@ -338,7 +349,12 @@ function _formReducer(state, action) {
   }
 
   if (action.type === "CHANGE_CITYID") {
-    const data = { ...state.data, city_id: action.payload };
+    const data = {
+      ...state.data,
+      city_id: action.payload,
+      numberOfTeam: 0,
+      listParticipants: [],
+    };
     const errorsAfterReset = { ...state.errors };
     delete errorsAfterReset.club;
     delete errorsAfterReset.countryData;
@@ -347,7 +363,12 @@ function _formReducer(state, action) {
   }
 
   if (action.type === "ADD_COUNTRY_DATA") {
-    const data = { ...state.data, countryData: action.payload };
+    const data = {
+      ...state.data,
+      countryData: action.payload,
+      numberOfTeam: 0,
+      listParticipants: [],
+    };
     const errorsAfterReset = { ...state.errors };
     delete errorsAfterReset.club;
     delete errorsAfterReset.city_id;
@@ -356,7 +377,12 @@ function _formReducer(state, action) {
   }
 
   if (action.type === "ADD_PROVINCE_DATA") {
-    const data = { ...state.data, provinceData: action.payload };
+    const data = {
+      ...state.data,
+      provinceData: action.payload,
+      numberOfTeam: 0,
+      listParticipants: [],
+    };
     const errorsAfterReset = { ...state.errors };
     delete errorsAfterReset.club;
     delete errorsAfterReset.city_id;

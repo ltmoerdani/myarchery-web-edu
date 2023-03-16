@@ -109,9 +109,8 @@ const ListParticipant = ({
   };
   return (
     <>
-      {selectCategoriesType === "team" ||
-      selectCategoriesType === "mix" ||
-      isCollective ? (
+      {selectCategoriesType !== "individual" ||
+      (selectCategoriesType === "individual" && isCollective) ? (
         <HeaderBox>
           <HeaderWrapper>
             <HeaderTitleText>Data Peserta</HeaderTitleText>
@@ -120,25 +119,27 @@ const ListParticipant = ({
               peserta yang belum memiliki email
             </HeaderSubtitleText>
           </HeaderWrapper>
-          <ButtonWrapper>
-            <Button
-              style={{
-                backgroundColor: "transparent",
-                border: "1px solid #0D47A1",
-                padding: "8px 16px",
-                borderRadius: "8px",
-                color: "#0D47A1",
-                fontWeight: 600,
-                fontSize: "14px",
-              }}
-              // disabled={quotaMale === 0 || quotaFemale === 0 || multiParticipants.length === 20}
-              disabled={false}
-              onClick={() => setShowModal(true)}
-            >
-              Tambah Peserta{" "}
-              <span style={{ fontSize: "16px", paddingLeft: "10px" }}>+</span>
-            </Button>
-          </ButtonWrapper>
+          {selectCategoriesType === "individual" && isCollective ? (
+            <ButtonWrapper>
+              <Button
+                style={{
+                  backgroundColor: "transparent",
+                  border: "1px solid #0D47A1",
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  color: "#0D47A1",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                }}
+                // disabled={quotaMale === 0 || quotaFemale === 0 || multiParticipants.length === 20}
+                disabled={false}
+                onClick={() => setShowModal(true)}
+              >
+                Tambah Peserta{" "}
+                <span style={{ fontSize: "16px", paddingLeft: "10px" }}>+</span>
+              </Button>
+            </ButtonWrapper>
+          ) : null}
         </HeaderBox>
       ) : null}
       <ContentCard>

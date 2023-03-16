@@ -98,6 +98,7 @@ function FormView({
     club,
     withClub,
     multiParticipants,
+    validationParticipantsTeam,
   } = formOrder.data;
 
   const selectClassRef = React.useRef(null);
@@ -273,7 +274,8 @@ function FormView({
       : selectCategoriesType === "mix"
       ? numberOfTeam < 1 || numberOfTeam * 2 > listParticipants?.length
       : userAsParticipant;
-  const shouldDisableButton = noChooseFormField || noInputNumber;
+  const shouldDisableButton =
+    noChooseFormField || noInputNumber || validationParticipantsTeam === false;
   return (
     <>
       <ContentCardLayout
