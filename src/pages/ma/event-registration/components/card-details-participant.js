@@ -222,6 +222,19 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
       setErrorEmail("");
     }
   }, [multiEmail, asParticipant, isCollective]);
+  const parentId = eventDetailData?.parentClassification;
+  const shouldDisableParticipantFieldTeamMix =
+    !selectClassCategories || parentId === 1
+      ? !club
+      : parentId === 2
+      ? countryData
+      : parentId === 3
+      ? provinceData
+      : parentId === 4
+      ? city_id
+      : parentId > 5
+      ? classificationEvent
+      : null;
   return (
     <div>
       {isCollective ? (
@@ -361,7 +374,7 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
                   value={numberOfTeam}
                   defaultValue={numberOfTeam}
                   onChange={setNumberOfTeam}
-                  disabled={!selectClassCategories}
+                  disabled={shouldDisableParticipantFieldTeamMix}
                   type={"number"}
                 >
                   Jumlah tim yang didaftarkan
