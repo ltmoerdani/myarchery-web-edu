@@ -127,7 +127,7 @@ const CategorySelect = ({
                   <QuotaLabelMuted>Belum dibuka</QuotaLabelMuted>
                 ) : isQuotaAvailable ? (
                   <QuotaLabel>
-                    {!dataClass?.mixIsOpen || !dataClass?.mixQuota ? (
+                    {selectCategoriesType !== "mix" ? (
                       <>
                         {(dataClass?.maleParticipant !== null &&
                           dataClass?.maleQuota !== null) ||

@@ -12,6 +12,7 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     setListParticipants,
     setSelectCategoriesUser,
     setMultiParticipants,
+    setValidationParticipantsTeam,
   } = formOrder;
   const {
     selectCategoriesType,
@@ -28,6 +29,7 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     classificationEvent,
     provinceData,
     countryData,
+    validationParticipantsTeam,
   } = formOrder.data;
   const handleChangeEmail = (val) => {
     const data = {
@@ -136,8 +138,21 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
       if (numberOfTeam > 0) {
         setListParticipants(userRegisteredIndividu);
       }
+      if (selectCategoriesType === "mix") {
+        const minMaleMixParticipant = userRegisteredIndividu?.filter(
+          (val) => val.gender === "male"
+        );
+        const minFemaleMixParticipant = userRegisteredIndividu?.filter(
+          (val) => val.gender === "female"
+        );
+        setValidationParticipantsTeam(
+          minMaleMixParticipant?.length > 0 &&
+            minFemaleMixParticipant.length > 0
+        );
+      } else if (selectCategoriesType === "team") {
+        setValidationParticipantsTeam(true);
+      }
     }
-    return () => {};
   }, [
     category,
     selectCategoriesType,
@@ -351,15 +366,15 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
                 >
                   Jumlah tim yang didaftarkan
                 </FieldInputText>
-                {(numberOfTeam >= 1 && numberUserAvailable?.length < 3) ||
-                numberOfTeam * 3 > numberUserAvailable?.length ? (
+                {numberOfTeam >= 1 ? (
                   <ValidationError>
                     {selectCategoriesType === "team" &&
                     numberOfTeam * 3 > numberUserAvailable?.length
                       ? "Jumlah kuota melebihi jumlah peserta yang terdaftar"
                       : selectCategoriesType === "mix" &&
-                        numberOfTeam * 2 > numberUserAvailable?.length
-                      ? "Jumlah peserta terdaftar tidak mencukupi, beregu harus terdiri dari 3 peserta"
+                        (numberOfTeam * 2 > numberUserAvailable?.length ||
+                          validationParticipantsTeam === false)
+                      ? "Jumlah peserta (gender) tidak mencukupi, beregu harus terdiri dari putra dan putri"
                       : null}
                   </ValidationError>
                 ) : null}
