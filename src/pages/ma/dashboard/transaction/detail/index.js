@@ -40,6 +40,8 @@ function PageTransactionDetail() {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isOYAlertOpen, setIsOYAlertOpen] = useState(false);
   const [isCancelAlert, setIsCancelAlert] = useState(false);
+  const [countMembers, setCountMembers] = useState(0);
+  const [priceEvent, setPriceEvent] = useState(0);
   const { userProfile } = useSelector(AuthStore.getAuthenticationStore);
 
   const { orderId } = useParams();
@@ -55,7 +57,9 @@ function PageTransactionDetail() {
   const onConfirmCancel = async (participant_id) => {
     setLoading(true);
     const { data, message, errors } = await ArcherService.cancelRegister({
-      participant_id: participant_id,
+      // participant_id: participant_id,
+      // order_id:dataDetail.orderEventId
+      order_event_id: dataDetail.orderEventId,
     });
     if (data) {
       setIsCancelAlert(false);
@@ -105,13 +109,29 @@ function PageTransactionDetail() {
   console.log(orderId);
   useEffect(() => {
     const getOrderEventBySlug = async () => {
-      const { data, message, errors } = await OrderEventService.get({
-        id: orderId,
+      // const { data, message, errors } = await OrderEventService.get({
+      //   id: orderId,
+      // });
+      const { data, message, errors } = await OrderEventService.getDetailOrder({
+        order_event_id: orderId,
       });
       console.log("dataDetail:", dataDetail);
       console.log("dataFromFetch:", data);
+
       if (data) {
         setDataDetail(data);
+        if (data.listMember) {
+          setCountMembers(data.listMember.length);
+        } else {
+          setCountMembers(0);
+        }
+
+        if (data.totalPrice) {
+          setPriceEvent(data.totalPrice);
+        } else {
+          setPriceEvent(0);
+        }
+
         if (
           dataDetail?.transactionInfo?.statusId == 4 &&
           userProfile?.verifyStatus == 1
@@ -385,7 +405,7 @@ function PageTransactionDetail() {
           custom
           btnSize="md"
           onConfirm={() => {
-            onConfirmCancel(dataDetail?.participant?.id);
+            onConfirmCancel(dataDetail?.category?.id);
           }}
           style={{ padding: "1.25rem" }}
           customButtons={
@@ -401,7 +421,7 @@ function PageTransactionDetail() {
               </Button>
               <ButtonBlue
                 onClick={() => {
-                  onConfirmCancel(dataDetail?.participant?.id);
+                  onConfirmCancel(dataDetail?.category?.id);
                 }}
               >
                 Ya, batalkan
@@ -570,7 +590,7 @@ function PageTransactionDetail() {
                           <td>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           </td>
-                          <td>: {dataDetail?.participant?.name}</td>
+                          <td>: {dataDetail?.userOrder?.name}</td>
                           <hr />
                         </tr>
                         <tr>
@@ -578,7 +598,7 @@ function PageTransactionDetail() {
                           <td>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           </td>
-                          <td>: {dataDetail?.participant?.email}</td>
+                          <td>: {dataDetail?.userOrder?.email}</td>
                           <hr />
                         </tr>
                         <tr>
@@ -586,7 +606,7 @@ function PageTransactionDetail() {
                           <td>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           </td>
-                          <td>: {dataDetail?.participant?.phoneNumber}</td>
+                          <td>: {dataDetail?.userOrder?.phoneNumber}</td>
                           <hr />
                         </tr>
                       </tbody>
@@ -594,11 +614,11 @@ function PageTransactionDetail() {
                     <div style={{ backgroundColor: "#E7EDF6" }}>
                       <p className="p-2 font-size-16">Peserta</p>
                     </div>
-                    {dataDetail?.participant?.members.map((member) => {
+                    {dataDetail?.listMember?.map((member, key) => {
                       return (
-                        <div key={member?.id} className="d-flex">
+                        <div key={key} className="d-flex mb-3">
                           <div style={{ width: "100px" }}>
-                            <Avatar />
+                            <Avatar image={member.photo} />
                           </div>
                           <div className="ms-4">
                             <h5>{member?.name}</h5>
@@ -629,7 +649,7 @@ function PageTransactionDetail() {
                           <td>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           </td>
-                          <td>: {dataDetail?.participant?.teamCategoryId}</td>
+                          <td>: {dataDetail?.category?.team}</td>
                           <hr />
                         </tr>
                         <tr>
@@ -827,32 +847,30 @@ function PageTransactionDetail() {
                       <Col md={2}>
                         <span>Jenis Regu</span>
                         <div>
-                          <h5>{dataDetail?.participant?.teamCategoryId}</h5>
+                          <h5>{dataDetail?.category?.team}</h5>
                         </div>
                       </Col>
                       <Col md={3}>
                         <span>Kategori</span>
                         <div>
                           <h5>
-                            {dataDetail?.participant?.ageCategoryId} -{" "}
-                            {dataDetail?.participant?.competitionCategoryId} -{" "}
-                            {dataDetail?.participant?.distanceId}m
+                            {dataDetail?.category?.age} -{" "}
+                            {dataDetail?.category?.competition} -{" "}
+                            {dataDetail?.category?.distance}
                           </h5>
                         </div>
                       </Col>
                       <Col md={2}>
                         <span>Jumlah Peserta</span>
                         <div>
-                          <h5>
-                            {dataDetail?.participant?.members.length} Orang
-                          </h5>
+                          <h5>{countMembers} Orang</h5>
                         </div>
                       </Col>
                       <Col md={5}>
                         <div style={{ float: "right" }}>
                           <span>Biaya Pendaftaran</span>
                           <div>
-                            <h5>Rp.{dataDetail?.transactionInfo?.total}</h5>
+                            <h5>Rp.{priceEvent}</h5>
                           </div>
                           {dataDetail?.transactionInfo?.statusId != 1 ? (
                             <div>
@@ -895,7 +913,7 @@ function PageTransactionDetail() {
                                 <>
                                   <ButtonBlue
                                     as={Link}
-                                    to={`/event-registration/${dataDetail?.archeryEvent?.eventSlug}?categoryId=${dataDetail?.participant?.eventCategoryId}`}
+                                    to={`/event-registration/${dataDetail?.archeryEvent?.eventSlug}?categoryId=${dataDetail?.category?.id}`}
                                     className="btn"
                                     style={{
                                       backgroundColor: "#0D47A1",

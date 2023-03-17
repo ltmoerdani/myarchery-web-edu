@@ -118,9 +118,10 @@ function TicketView({
       onSuccess: (data) => {
         onSuccessOrder?.();
         if (data?.paymentInfo) {
+          console.log("data:", data);
           // const { orderId } = data.paymentInfo;
-          // history.push("/dashboard/transactions/" + orderId);
-          history.push(`/dashboard/transactions/${data.participant.id}`);
+          history.push("/dashboard/transactions/" + data.orderEventId);
+          // history.push(`/dashboard/transactions/${data.participant.id}`);
         }
       },
     };

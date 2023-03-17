@@ -6,14 +6,31 @@ import { parseISO, format } from "date-fns";
 import { id } from "date-fns/locale";
 
 function CardTransaction({
+  orderId,
   eventName,
   poster,
   location,
   eventType,
   eventStart,
   eventEnd,
-  idEvent,
 }) {
+  const [eventStartDateFormat, setEventStartDateFormat] = React.useState(null);
+  const [eventEndDateFormat, setEvenEndDateFormat] = React.useState(null);
+
+  React.useEffect(() => {
+    if (eventStart) {
+      setEventStartDateFormat(formatFullDate(eventStart));
+    } else {
+      setEventStartDateFormat("N/A");
+    }
+
+    if (eventEnd) {
+      setEvenEndDateFormat(formatFullDate(eventEnd));
+    } else {
+      setEvenEndDateFormat("N/A");
+    }
+  }, [eventStart, eventEnd]);
+
   return (
     <React.Fragment>
       <Card>
@@ -21,14 +38,21 @@ function CardTransaction({
           <Row>
             <Col md={4}>
               <div style={{ width: "100%", height: "145px" }}>
-                <img src={poster} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+                <img
+                  src={poster}
+                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                />
               </div>
             </Col>
             <Col md={4}>
               <div>
                 <h5 style={{ color: "#0D47A1" }}>{eventName}</h5>
                 <span
-                  style={{ backgroundColor: "#FFCD6A", borderRadius: "20px", padding: "4px 8px" }}
+                  style={{
+                    backgroundColor: "#FFCD6A",
+                    borderRadius: "20px",
+                    padding: "4px 8px",
+                  }}
                 >
                   {eventType}
                 </span>
@@ -37,7 +61,7 @@ function CardTransaction({
                 <span>{location}</span>
                 <br />
                 <span>
-                  {formatFullDate(eventStart)} - {formatFullDate(eventEnd)}
+                  {eventStartDateFormat} - {eventEndDateFormat}
                 </span>
               </div>
             </Col>
@@ -45,13 +69,20 @@ function CardTransaction({
               <div className="float-end">
                 <button
                   className="btn me-2"
-                  style={{ backgroundColor: "#FFF", color: "#0D47A1", borderColor: "#0D47A1" }}
+                  style={{
+                    backgroundColor: "#FFF",
+                    color: "#0D47A1",
+                    borderColor: "#0D47A1",
+                  }}
                   disabled
                 >
                   Leader Board
                 </button>
-                <Link to={`/dashboard/transactions/${idEvent}`}>
-                  <button className="btn" style={{ backgroundColor: "#0D47A1", color: "#FFF" }}>
+                <Link to={`/dashboard/transactions/${orderId}`}>
+                  <button
+                    className="btn"
+                    style={{ backgroundColor: "#0D47A1", color: "#FFF" }}
+                  >
                     Lihat Detail
                   </button>
                 </Link>
