@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
+import {
+  Container,
+  Nav,
+  NavItem,
+  NavLink,
+  TabContent,
+  TabPane,
+} from "reactstrap";
 import CardTransaction from "./components/CardTransaction";
 import { OrderEventService } from "services";
 import { BreadcrumbDashboard } from "../components/breadcrumb";
@@ -36,11 +43,13 @@ function ListTransactionPage() {
     getAllOrderEvent();
     getAllOfficialEvent();
   }, []);
-  
+
   return (
     <React.Fragment>
       <Container fluid>
-        <BreadcrumbDashboard to="/dashboard">{breadcrumpCurrentPageLabel}</BreadcrumbDashboard>
+        <BreadcrumbDashboard to="/dashboard">
+          {breadcrumpCurrentPageLabel}
+        </BreadcrumbDashboard>
 
         <Nav>
           <NavItem>
@@ -66,18 +75,22 @@ function ListTransactionPage() {
           <TabPane tabId="1">
             <div className="pt-4">
               {dataEvent?.length ? (
-                dataEvent?.map((event, index) => (
-                  <CardTransaction
-                    key={index}
-                    eventName={event?.archeryEvent?.eventName}
-                    eventType={event?.archeryEvent?.eventType}
-                    eventStart={event?.archeryEvent?.eventStartDatetime}
-                    eventEnd={event?.archeryEvent?.eventEndDatetime}
-                    poster={event?.archeryEvent?.poster}
-                    location={event?.archeryEvent?.location}
-                    idEvent={event?.participant?.id}
-                  />
-                ))
+                dataEvent?.map((event, index) => {
+                  if (event.archeryEvent) {
+                    return (
+                      <CardTransaction
+                        key={index}
+                        orderId={event?.orderId}
+                        eventName={event?.archeryEvent?.eventName}
+                        eventType={event?.archeryEvent?.eventType}
+                        eventStart={event?.archeryEvent?.eventStartDatetime}
+                        eventEnd={event?.archeryEvent?.eventEndDatetime}
+                        poster={event?.archeryEvent?.poster}
+                        location={event?.archeryEvent?.location}
+                      />
+                    );
+                  }
+                })
               ) : (
                 <h4 className="text-muted">Tidak ada event terdaftar</h4>
               )}
@@ -91,21 +104,27 @@ function ListTransactionPage() {
                   <CardTransactionOfficial
                     key={index}
                     eventName={
-                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventName
+                      event?.archeryEventOfficialDetail?.detailEvent
+                        ?.publicInformation?.eventName
                     }
-                    eventType={event?.archeryEventOfficialDetail?.detailEvent?.eventType}
+                    eventType={
+                      event?.archeryEventOfficialDetail?.detailEvent?.eventType
+                    }
                     eventStart={
-                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventStart
+                      event?.archeryEventOfficialDetail?.detailEvent
+                        ?.publicInformation?.eventStart
                     }
                     eventEnd={
-                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventEnd
+                      event?.archeryEventOfficialDetail?.detailEvent
+                        ?.publicInformation?.eventEnd
                     }
                     poster={
-                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation?.eventBanner
+                      event?.archeryEventOfficialDetail?.detailEvent
+                        ?.publicInformation?.eventBanner
                     }
                     location={
-                      event?.archeryEventOfficialDetail?.detailEvent?.publicInformation
-                        ?.eventLocation
+                      event?.archeryEventOfficialDetail?.detailEvent
+                        ?.publicInformation?.eventLocation
                     }
                     idEvent={event?.detailArcheryEventOfficial?.eventOfficialId}
                   />
