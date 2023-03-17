@@ -183,7 +183,7 @@ const useCountry = (
   const fetchCity = async (country, province) => {
     const cityData = [];
     for (let i in province) {
-      if (country[i].name === "Indonesia" || country[i].id === 102) {
+      if (country[i]?.name === "Indonesia" || country[i]?.id === 102) {
         const { data } = await ArcherService.getListCityIndonesian({
           limit: 200,
           province_id: province[i]?.id,
@@ -214,7 +214,7 @@ const useCountry = (
           };
         });
         cityData.push({
-          idUser: country[i].idUser,
+          idUser: country[i]?.idUser,
           cityList: newCities,
         });
       }

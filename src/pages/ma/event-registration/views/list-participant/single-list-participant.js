@@ -27,6 +27,7 @@ const PopupWrapper = styled.div`
   margin-bottom: -70px;
   padding: 10px;
   border-radius: 6px;
+  z-index: 20;
   box-shadow: 9px 9px 25px -3px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: 9px 9px 25px -3px rgba(0, 0, 0, 0.3);
   -moz-box-shadow: 9px 9px 25px -3px rgba(0, 0, 0, 0.3);
@@ -269,11 +270,12 @@ const SingleListParticipant = ({
     asParticipant,
   ]);
   const shouldDisabledButton =
-    userVerification?.length &&
-    (!userVerification[0]?.ageIsValid ||
-      !userVerification[0]?.genderIsValid ||
-      !userVerification[0]?.quoteIsValid);
-  quotaFemale === 0 || quotaMale === 0;
+    (userVerification?.length &&
+      (!userVerification[0]?.ageIsValid ||
+        !userVerification[0]?.genderIsValid ||
+        !userVerification[0]?.quoteIsValid)) ||
+    quotaFemale <= 0 ||
+    quotaMale <= 0;
   return (
     <ContentCard>
       <HeaderTitleText className="margin-single">

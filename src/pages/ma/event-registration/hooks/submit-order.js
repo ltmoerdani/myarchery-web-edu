@@ -11,12 +11,14 @@ function useSubmitOrder(formData) {
       if (selectCategoriesType === "individual") {
         const {
           dataParticipant,
+          multiParticipants,
           selectCategoryUser,
           city_id,
           club,
           classificationEvent,
           provinceData,
           countryData,
+          isCollective,
         } = formData;
         const payload = {
           event_id: selectCategoryUser?.eventId ?? eventDetailData?.id ?? 0,
@@ -42,7 +44,25 @@ function useSubmitOrder(formData) {
               : null,
         };
         if (dataParticipant?.length) {
-          payload.members = dataParticipant;
+          if (isCollective) {
+            const memberList = dataParticipant?.map((val, index) => {
+              if (
+                val.email === multiParticipants[index]?.email &&
+                multiParticipants[index]?.province?.id
+              ) {
+                return {
+                  ...val,
+                  province_id: multiParticipants[index]?.province?.id ?? 0,
+                  city_id: multiParticipants[index]?.city?.id ?? 0,
+                };
+              } else {
+                return { ...val };
+              }
+            });
+            payload.members = memberList;
+          } else {
+            payload.members = dataParticipant;
+          }
         }
         return OrderEventService.createOrder(payload);
       } else {

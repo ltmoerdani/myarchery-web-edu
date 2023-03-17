@@ -234,9 +234,12 @@ const MultipleTableLayout = ({
     setCountryInput(val);
   };
 
-  const handleChangeProvince = (val, id) => {
+  const handleChangeProvince = (val, id, email) => {
     const changeMultiUserData = multiParticipants?.map((participant) => {
-      if (participant?.id?.toString() === id.toString()) {
+      if (
+        participant?.id?.toString() === id.toString() ||
+        participant.email === email
+      ) {
         return {
           ...participant,
           province: {
@@ -254,11 +257,16 @@ const MultipleTableLayout = ({
 
     if (selectProvince?.length) {
       const checkUserHasBeenSelectProvince = selectProvince.filter(
-        (e) => e.idUser?.toString() === id.toString()
+        (e) =>
+          e.idUser?.toString() === id.toString() ||
+          (e.email === email && isForEmailRegistered)
       );
       if (checkUserHasBeenSelectProvince?.length) {
         const provinceData = selectProvince?.map((e) => {
-          if (e.idUser?.toString() === id.toString()) {
+          if (
+            e.idUser?.toString() === id.toString() ||
+            (e.email === email && isForEmailRegistered)
+          ) {
             return { idUser: id, ...val };
           } else {
             return { ...e };
@@ -277,9 +285,12 @@ const MultipleTableLayout = ({
     setProvinceInput(val);
   };
 
-  const handleChangeCity = (val, id) => {
+  const handleChangeCity = (val, id, email) => {
     const changeMultiUserData = multiParticipants?.map((participant) => {
-      if (participant?.id?.toString() === id.toString()) {
+      if (
+        participant?.id?.toString() === id.toString() ||
+        participant.email === email
+      ) {
         return {
           ...participant,
           city: {
@@ -339,13 +350,11 @@ const MultipleTableLayout = ({
     setUserVerification(checkRegisterVerification);
   }, [userData, category, eventDetailData]);
   React.useEffect(() => {
-    if (!selectCountry?.length) {
-      const defaultForCountry = userData?.map((e) => {
-        return { idUser: e.id, ...defaultCountry };
-      });
-      setSelectCountry(defaultForCountry);
-    }
-  }, [selectCountry?.length, userData]);
+    const defaultForCountry = userData?.map((e) => {
+      return { idUser: e.id, ...defaultCountry };
+    });
+    setSelectCountry(defaultForCountry);
+  }, [userData]);
   return (
     <div>
       <TableListParticipant className="list-table-participant">
@@ -494,7 +503,9 @@ const MultipleTableLayout = ({
                         <div style={{ width: "134px" }}>
                           <Select
                             options={provinceList[i]?.provinceList ?? []}
-                            onChange={(val) => handleChangeProvince(val, e.id)}
+                            onChange={(val) =>
+                              handleChangeProvince(val, e.id, e.email)
+                            }
                             onInputChange={(val) =>
                               handleInputChangeProvince(val, i)
                             }
@@ -510,10 +521,16 @@ const MultipleTableLayout = ({
                       {!isForEmailRegistered ? (
                         <div style={{ width: "200px" }}>
                           <Select
-                            options={cityList[i]?.cityList ?? []}
+                            options={
+                              cityList?.filter((val) => val.idUser === e.id)[0]
+                                ?.cityList ?? []
+                            }
                             placeholder={"kota"}
                             value={
-                              cityList[i]?.cityList?.length ? e.city ?? "" : ""
+                              cityList?.filter((val) => val.idUser === e.id)[0]
+                                ?.cityList.length
+                                ? e.city ?? ""
+                                : ""
                             }
                             onInputChange={(val) =>
                               handleInputChangeCity(val, e.id)
@@ -527,12 +544,17 @@ const MultipleTableLayout = ({
                       ) : (
                         <div style={{ width: "200px" }}>
                           <Select
-                            options={cityList[i]?.cityList ?? []}
+                            options={
+                              cityList?.filter((val) => val.idUser === e.id)[0]
+                                ?.cityList ?? []
+                            }
                             placeholder={"kota"}
                             onInputChange={(val) =>
                               handleInputChangeCity(val, e.id)
                             }
-                            onChange={(val) => handleChangeCity(val, e.id)}
+                            onChange={(val) =>
+                              handleChangeCity(val, e.id, e.email)
+                            }
                             styles={customStylesSelect}
                           />
                         </div>
@@ -812,7 +834,7 @@ const MultiListParticipant = ({
         </Button>
         <ButtonBlue
           disabled={
-            !verifyAllValidUser ||
+            verifyAllValidUser === false ||
             (!emailRegisteredList?.length && !emailNotRegisteredList?.length) ||
             quotaMale === 0 ||
             quotaFemale === 0
