@@ -227,13 +227,13 @@ const DetailsParticipant = ({ formOrder, userProfile, eventDetailData }) => {
     !selectClassCategories || parentId === 1
       ? !club
       : parentId === 2
-      ? countryData
+      ? !countryData
       : parentId === 3
-      ? provinceData
+      ? !provinceData
       : parentId === 4
-      ? city_id
+      ? !city_id
       : parentId > 5
-      ? classificationEvent
+      ? !classificationEvent
       : null;
   return (
     <div>
