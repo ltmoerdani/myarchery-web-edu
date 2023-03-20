@@ -17,7 +17,9 @@ function CardEventCTA({ eventDetail, categories = [] }) {
   const { isLoggedIn } = useSelector(getAuthenticationStore);
 
   const captionCopy = "Segera daftarkan dirimu dan timmu pada kompetisi";
-  const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
+  const registerEventEnd = datetime.parseServerDatetime(
+    eventDetail.registrationEndDatetime
+  );
   const { isBeforeRegistration, isRegistrationOpen } = React.useMemo(
     () => _checkIsRegistrationOpen(eventDetail),
     [eventDetail]
@@ -111,7 +113,9 @@ function CardEventCTA({ eventDetail, categories = [] }) {
         <RegistrationPriceGrid>
           {priceOptions.map((option) => (
             <RegistrationPriceItem key={option.teamCategoryId}>
-              <PriceTeamCategoryLabel>{option.teamLabel}</PriceTeamCategoryLabel>
+              <PriceTeamCategoryLabel>
+                {option.teamLabel}
+              </PriceTeamCategoryLabel>
               <PriceGroup>
                 {option.isEarlyBird ? (
                   <React.Fragment>
@@ -136,7 +140,10 @@ function CardEventCTA({ eventDetail, categories = [] }) {
         <div>
           {earlyBird?.earlyBirdExpirationDateLabel ? (
             <React.Fragment>
-              <strong>Early Bird sampai {earlyBird.earlyBirdExpirationDateLabel}</strong> &#124;{" "}
+              <strong>
+                Early Bird sampai {earlyBird.earlyBirdExpirationDateLabel}
+              </strong>{" "}
+              &#124;{" "}
               <span>
                 {captionCopy} {eventDetail.eventName}
               </span>
@@ -150,22 +157,24 @@ function CardEventCTA({ eventDetail, categories = [] }) {
       </VerticalSpaced>
 
       <VerticalSpaced>
-        {!isBeforeRegistration && <Countdown date={registerEventEnd} renderer={renderCountDown} />}
+        {!isBeforeRegistration && (
+          <Countdown date={registerEventEnd} renderer={renderCountDown} />
+        )}
 
         <div>
           {!isRegistrationOpen ? (
             <ButtonCTABig disabled>Pendaftaran Ditutup</ButtonCTABig>
           ) : (
-              <ButtonCTABig
-                as={Link}
-                to={
-                  !isLoggedIn
-                    ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
-                    : `/event-registration/${eventDetail.eventSlug}`
-                }
-              >
-                Daftar Event
-              </ButtonCTABig>
+            <ButtonCTABig
+              as={Link}
+              to={
+                !isLoggedIn
+                  ? `/archer/login?path=/event-registration/${eventDetail.eventSlug}`
+                  : `/event-registration/${eventDetail.eventSlug}`
+              }
+            >
+              Daftar Event
+            </ButtonCTABig>
           )}
         </div>
       </VerticalSpaced>
@@ -280,7 +289,9 @@ function AmountWithCurrency({ amount }) {
 
 function renderCountDown({ days, hours, minutes, seconds, completed }) {
   return (
-    <CountdownWrapper className={classnames({ "count-down-completed": completed })}>
+    <CountdownWrapper
+      className={classnames({ "count-down-completed": completed })}
+    >
       <CounterItem>
         <CounterNumber>{days}</CounterNumber>
         <CounterUnit>Hari</CounterUnit>
@@ -368,8 +379,12 @@ function _getTeamLabelFromTeamId(teamCategory) {
 
 function _checkIsRegistrationOpen(eventDetail) {
   const today = new Date();
-  const registerEventStart = datetime.parseServerDatetime(eventDetail.registrationStartDatetime);
-  const registerEventEnd = datetime.parseServerDatetime(eventDetail.registrationEndDatetime);
+  const registerEventStart = datetime.parseServerDatetime(
+    eventDetail.registrationStartDatetime
+  );
+  const registerEventEnd = datetime.parseServerDatetime(
+    eventDetail.registrationEndDatetime
+  );
 
   const isRegistrationOpen = Boolean(eventDetail.canRegister);
   // "before" & "after" ini merujuk ke tanggal pendaftaran "default",
