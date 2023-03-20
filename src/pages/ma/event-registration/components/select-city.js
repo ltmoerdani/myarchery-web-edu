@@ -6,14 +6,34 @@ import { customSelectStyles } from "./select-option";
 
 const FETCHING_LIMIT = 30;
 
-function SelectCity({ name, placeholder, provinceId, value, onChange, errors, disabled }) {
+function SelectCity({
+  name,
+  placeholder,
+  provinceId,
+  value,
+  onChange,
+  errors,
+  disabled,
+  countryId,
+}) {
   const loadOptions = async (searchQuery, loadedOptions, { page }) => {
-    const result = await GeneralService.getCities({
-      limit: FETCHING_LIMIT,
-      page: page,
-      name: searchQuery,
-      province_id: provinceId,
-    });
+    let result = [];
+    if (countryId === 102) {
+      result = await GeneralService.getCities({
+        limit: FETCHING_LIMIT,
+        page: page,
+        name: searchQuery,
+        province_id: provinceId,
+      });
+    } else {
+      result = await GeneralService.getCitiesByCountry({
+        limit: FETCHING_LIMIT,
+        page: page,
+        name: searchQuery,
+        province_id: provinceId,
+        country_id: countryId,
+      });
+    }
     const options = result.data.map((city) => ({
       label: city.name,
       value: parseInt(city.id),

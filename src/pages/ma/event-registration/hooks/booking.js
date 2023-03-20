@@ -3,16 +3,45 @@ import { useHistory } from "react-router-dom";
 import { useFetcher } from "hooks/fetcher-alt";
 import { OrderEventService } from "services";
 
-function useBooking(category, isSuccess) {
+function useBooking(category, isSuccess, eventDetailData, formOrder) {
   const { block } = useHistory();
   const fetcherBooking = useFetcher();
   const fetcherResetBooking = useFetcher();
 
   const { data: booking } = fetcherBooking;
-
+  const { city_id, club, countryData, provinceData, classificationEvent } =
+    formOrder.data;
   const createBooking = () => {
     const postFunction = () => {
-      return OrderEventService.createBooking({ category_id: category.id });
+      return OrderEventService.createBooking(
+        {
+          classificationChildren:
+            eventDetailData?.parentClassification > 5
+              ? classificationEvent?.value || null
+              : null,
+          classificationCountryId:
+            eventDetailData?.classificationCountryId ||
+            countryData?.value ||
+            null,
+          classificationProvinceId:
+            eventDetailData?.classificationProvinceId ||
+            provinceData?.value ||
+            null,
+          classificationCityId:
+            eventDetailData?.parentClassification === 4
+              ? city_id?.value ?? null
+              : null,
+          classificationArcheryClub:
+            eventDetailData?.parentClassification === 1
+              ? club?.detail?.id ?? null
+              : null,
+        },
+        {
+          category_id: category.id
+            ? category.id
+            : category?.data?.map((e) => e.id),
+        }
+      );
     };
     fetcherBooking.runAsync(postFunction);
   };
@@ -88,7 +117,12 @@ function useBooking(category, isSuccess) {
     return unblock;
   }, [booking?.participantId, isSuccess]);
 
-  return { ...fetcherBooking, createBooking, deleteBooking, deleteBookingOnBeforeUnload };
+  return {
+    ...fetcherBooking,
+    createBooking,
+    deleteBooking,
+    deleteBookingOnBeforeUnload,
+  };
 }
 
 export { useBooking };

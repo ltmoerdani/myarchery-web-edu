@@ -1,28 +1,40 @@
 import * as React from "react";
-import { GeneralService } from "services";
+import { ArcherService } from "services";
 
 import { AsyncPaginate } from "react-select-async-paginate";
 import { customSelectStyles } from "./select-option";
 
 const FETCHING_LIMIT = 30;
 
-function SelectCountry({
+function SelectProvince({
   name,
   placeholder,
+  provinceId,
   value,
   onChange,
   errors,
   disabled,
+  countryId,
 }) {
   const loadOptions = async (searchQuery, loadedOptions, { page }) => {
-    const result = await GeneralService.getCountries({
-      limit: FETCHING_LIMIT,
-      page: page,
-      name: searchQuery || "Indonesia",
-    });
-    const options = result.data.map((country) => ({
-      label: country.name,
-      value: parseInt(country.id),
+    let result = [];
+    if (countryId === 102) {
+      result = await ArcherService.getListProvinceIndonesian({
+        limit: FETCHING_LIMIT,
+        page: page,
+        name: searchQuery,
+      });
+    } else {
+      result = await ArcherService.getListProvince({
+        limit: FETCHING_LIMIT,
+        page: page,
+        name: searchQuery,
+        country_id: countryId,
+      });
+    }
+    const options = result.data.map((city) => ({
+      label: city.name,
+      value: parseInt(city.id),
     }));
 
     return {
@@ -34,6 +46,7 @@ function SelectCountry({
 
   return (
     <AsyncPaginate
+      key={provinceId}
       styles={computeCustomStylesWithValidation(errors)}
       name={name}
       loadOptions={loadOptions}
@@ -61,4 +74,4 @@ const computeCustomStylesWithValidation = (errors) => {
   return customSelectStyles;
 };
 
-export { SelectCountry };
+export { SelectProvince };

@@ -32,7 +32,10 @@ function SelectRadio({
                 onChange={(ev) => onChange?.(ev.target.value)}
                 disabled={disabled}
               />
-              <ToggleButton htmlFor={id} className={classnames({ "option-disabled": disabled })}>
+              <ToggleButton
+                htmlFor={id}
+                className={classnames({ "option-disabled": disabled })}
+              >
                 <span>
                   <IconDot size="0.625em" />
                 </span>
@@ -50,7 +53,7 @@ function SelectRadio({
 // styles
 
 const ToggleWrapper = styled.div`
-  display: inline-block;
+  display: flex;
 
   > * + * {
     margin-left: 0.5rem;
@@ -72,18 +75,21 @@ const ToggleButton = styled.label`
   border-radius: 0.15rem;
   background-color: var(--ma-gray-200);
   font-weight: 400;
+  display: flex;
+  align-items: center;
 
   > * + * {
     margin-left: 0.5rem;
   }
 
   > *:nth-child(1) {
-    color: var(--ma-gray-400);
+    color: transparent;
+    background-color: transparent;
     transition: color 0.25s;
-  }
-
-  &:hover > *:nth-child(1) {
-    color: var(--ma-field-focused);
+    display: flex;
+    padding: 4px;
+    border: 2px solid var(--ma-gray-400);
+    border-radius: 50%;
   }
 
   input:checked + & {
@@ -91,7 +97,9 @@ const ToggleButton = styled.label`
     color: var(--ma-blue);
 
     > *:nth-child(1) {
-      color: var(--ma-field-focused);
+      background-color: #0d47a1;
+      border: 2px solid #0d47a1;
+      color: white;
     }
   }
 
@@ -99,10 +107,6 @@ const ToggleButton = styled.label`
     cursor: default;
     background-color: var(--ma-gray-50);
     color: var(--ma-gray-500);
-  }
-
-  input + &.option-disabled:hover > *:nth-child(1) {
-    color: var(--ma-gray-400);
   }
 
   input:checked + &.option-disabled > *:nth-child(1) {

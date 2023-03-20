@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { useSubmitVerification } from "../hooks/submit-verification";
 import { useSubmitOrder } from "../hooks/submit-order";
-
 import CurrencyFormat from "react-currency-format";
 import SweetAlert from "react-bootstrap-sweetalert";
 import {
@@ -30,29 +29,27 @@ function TicketView({
   formOrder,
   onSuccessVerification,
   onSuccessOrder,
-  withContingen
+  withContingent,
 }) {
   const history = useHistory();
   const { userProfile } = useUserProfile();
   const [showAlert, setShowAlert] = React.useState(false);
-
   const { currentStep, goToNextStep, goToPreviousStep } = wizardView;
   const { handleValidation: handleValidationVerification } = formVerification;
-  const LabelTotal = styled.span`
-    font-weight: 600;
-    font-size: 15px;
-  `;
-
   const {
     submit: submitVerification,
     isLoading: isLoadingVerification,
     isError: isErrorVerification,
     errors: errorVerification,
   } = useSubmitVerification(formVerification.data);
-
   const { data: formData, handleValidation: handleValidationOrder } = formOrder;
-  const { category } = formData;
-
+  const {
+    selectCategoryUser,
+    selectCategoriesType,
+    category,
+    isCollective,
+    dataParticipant,
+  } = formData;
   const {
     submit,
     reset,
@@ -61,10 +58,9 @@ function TicketView({
     errors: errorsSubmit,
   } = useSubmitOrder(formData);
 
-  const participantCounts = _getParticipantCounts(category);
+  const participantCounts = _getParticipantCounts(selectCategoryUser);
 
   const clientData = formVerification.data;
-
   const handleClickNext = () => {
     // TODO: mungkin kapan-kapan bisa diimprove pakai Promise aja,
     // biar lebih enak dibaca, dalam bentuk chaining atau kayak async/await
@@ -77,9 +73,13 @@ function TicketView({
         );
         const validationOrderOptions = {
           onValid: () => {
-            if(userProfile.addressProvince.id !== eventDetailData.publicInformation.eventCity.provinceId && withContingen){
+            if (
+              userProfile.addressProvince.id !==
+                eventDetailData.publicInformation.eventCity.provinceId &&
+              withContingent
+            ) {
               setShowAlert(true);
-            }else{
+            } else {
               goToNextStep();
             }
           },
@@ -113,28 +113,91 @@ function TicketView({
   const handleConfirm = () => {
     setShowAlert(false);
   };
-
   const handleSubmitOrder = () => {
     const options = {
       onSuccess: (data) => {
         onSuccessOrder?.();
-        const orderId = data?.archeryEventParticipantId;
-        orderId && history.push("/dashboard/transactions/" + orderId);
+        if (data?.paymentInfo) {
+          console.log("data:", data);
+          // const { orderId } = data.paymentInfo;
+          history.push("/dashboard/transactions/" + data.orderEventId);
+          // history.push(`/dashboard/transactions/${data.participant.id}`);
+        }
       },
     };
-    submit(options);
+    submit(options, eventDetailData, selectCategoriesType);
   };
-
-  const isEarly = clientData.isWna
-    ? category?.isEarlyBirdWna
-    : category?.isEarlyBird;
-  const undiscountedTotal = clientData.isWna
-    ? category?.normalPriceWna
-    : category?.fee;
-  const total = clientData.isWna
-    ? category?.earlyPriceWna
-    : category?.earlyBird;
-
+  const notCollectiveEarly = clientData.isWna
+    ? selectCategoryUser?.isEarlyBirdWna
+    : selectCategoryUser?.isEarlyBird;
+  const collectiveEarly = dataParticipant?.map((e) => {
+    if (Number(e.country_id) !== 102) {
+      if (e.gender === "female") {
+        return category?.femaleIisEarlyBirdWna;
+      } else {
+        return category?.maleIisEarlyBirdWna;
+      }
+    } else {
+      if (e.gender === "female") {
+        return category?.femaleIsEarlyBird;
+      } else {
+        return category?.maleIsEarlyBird;
+      }
+    }
+  });
+  const undiscountNotCollective = clientData.isWna
+    ? selectCategoryUser?.normalPriceWna
+    : selectCategoryUser?.fee;
+  const undiscountCollective = dataParticipant?.map((e) => {
+    if (Number(e.country_id) !== 102) {
+      if (e.gender === "female") {
+        return category?.femaleNormalPriceWna;
+      } else {
+        return category?.maleNormalPriceWna;
+      }
+    } else {
+      if (e.gender === "female") {
+        return category?.femaleFee;
+      } else {
+        return category?.maleFee;
+      }
+    }
+  });
+  const totalNotCollective = clientData.isWna
+    ? selectCategoryUser?.earlyPriceWna
+    : selectCategoryUser?.earlyBird;
+  const totalCollective = dataParticipant?.map((e) => {
+    if (Number(e.country_id) !== 102) {
+      if (e.gender === "female") {
+        return category?.femaleEarlyPriceWna;
+      } else {
+        return category?.maleEarlyPriceWna;
+      }
+    } else {
+      if (e.gender === "female") {
+        return category?.femaleEarlyBird;
+      } else {
+        return category?.maleEarlyBird;
+      }
+    }
+  });
+  let countUndiscount = 0;
+  const countUndiscountCollective = undiscountCollective?.map((e) => {
+    return (countUndiscount += Number(e));
+  });
+  let countTotal = 0;
+  const countTotalCollective = totalCollective?.map((e) => {
+    return (countTotal += Number(e));
+  });
+  const isEarly = !isCollective
+    ? notCollectiveEarly
+    : collectiveEarly?.every(Boolean);
+  const undiscountedTotal = !isCollective
+    ? undiscountNotCollective
+    : Math.max(...countUndiscountCollective);
+  const total = !isCollective
+    ? totalNotCollective
+    : Math.max(...countTotalCollective);
   if (isLoadingEventDetail) {
     return (
       <TicketCard>
@@ -142,7 +205,6 @@ function TicketView({
       </TicketCard>
     );
   }
-
   if (eventDetailData) {
     return (
       <React.Fragment>
@@ -181,15 +243,29 @@ function TicketView({
             <DetailItem
               label="Jenis Regu"
               value={
-                category?.teamCategoryDetail?.label || category?.teamCategoryId
+                !isCollective
+                  ? selectCategoryUser?.teamCategoryDetail?.label ||
+                    selectCategoryUser?.teamCategoryId
+                  : category.teamCategoryId
               }
             />
 
-            <DetailItem label="Kategori" value={category?.categoryLabel} />
+            <DetailItem
+              label="Kategori"
+              value={
+                !isCollective
+                  ? selectCategoryUser?.categoryLabel
+                  : category.categoryLabel
+              }
+            />
 
             <DetailItem
               label="Jumlah Peserta"
-              value={participantCounts && participantCounts + " Orang"}
+              value={
+                !isCollective
+                  ? participantCounts && participantCounts
+                  : dataParticipant?.length + " Orang"
+              }
             />
           </TicketSectionDetail>
           <div className="d-flex flex-column justify-content-between">
@@ -215,7 +291,10 @@ function TicketView({
 
             {currentStep === 1 ? (
               <React.Fragment>
-                <ButtonBlue disabled={!category} onClick={handleClickNext}>
+                <ButtonBlue
+                  disabled={!selectCategoryUser}
+                  onClick={handleClickNext}
+                >
                   Selanjutnya
                 </ButtonBlue>
                 <AlertSubmitError
@@ -239,8 +318,8 @@ function TicketView({
             {showAlert ? (
               <Link to="/">
                 <ButtonBackToHome
-                  showAlert= {showAlert}
-                  onConfirm= {handleConfirm}
+                  showAlert={showAlert}
+                  onConfirm={handleConfirm}
                 />
               </Link>
             ) : null}
@@ -353,7 +432,6 @@ function ButtonConfirmPayment({ onConfirm, onCancel }) {
 }
 
 function ButtonBackToHome({ onConfirm, showAlert }) {
-
   const handleConfirm = () => {
     onConfirm?.();
   };
@@ -368,20 +446,22 @@ function ButtonBackToHome({ onConfirm, showAlert }) {
         onConfirm={handleConfirm}
         style={{ padding: "1.25rem" }}
         customButtons={
-          <ButtonBlue onClick={handleConfirm}>Kembali ke landing page</ButtonBlue>
+          <ButtonBlue onClick={handleConfirm}>
+            Kembali ke landing page
+          </ButtonBlue>
         }
       >
         <p style={{ color: "var(--ma-orange-300)" }}>
           <IconAlertTriangle size="36" />
         </p>
         <p>
-          Event Liga 1 Jawa Barat 2023 khusus bagi peserta dari provinsi Jawa Barat. Anda masih bisa mengikuti event lainnya di MyArchery.id
+          Event Liga 1 Jawa Barat 2023 khusus bagi peserta dari provinsi Jawa
+          Barat. Anda masih bisa mengikuti event lainnya di MyArchery.id
         </p>
       </SweetAlert>
     </React.Fragment>
   );
 }
-
 
 /* ================================ */
 // styles
@@ -437,6 +517,11 @@ const StyledTotalWithCurrency = styled(CurrencyFormat)`
   color: var(--ma-blue);
   font-size: 18px;
   font-weight: 600;
+`;
+
+const LabelTotal = styled.span`
+  font-weight: 600;
+  font-size: 15px;
 `;
 
 /* ==================================== */

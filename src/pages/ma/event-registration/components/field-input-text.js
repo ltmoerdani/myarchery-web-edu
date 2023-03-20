@@ -7,6 +7,7 @@ import classnames from "classnames";
 
 function FieldInputText({
   children,
+  multiUser,
   label,
   required,
   name,
@@ -17,6 +18,7 @@ function FieldInputText({
   errors,
   isFocus,
   onFocus,
+  type,
 }) {
   const fieldID = name ? `field-input-${name}` : undefined;
   const inputRef = React.useRef(null);
@@ -36,7 +38,11 @@ function FieldInputText({
     <FieldInputTextWrapper>
       {(children || label) && (
         <label
-          className={classnames("field-label", { "field-disabled": disabled })}
+          className={classnames(
+            "field-label",
+            { "field-disabled": disabled },
+            { "field-multi": multiUser }
+          )}
           htmlFor={fieldID}
         >
           {children || label}
@@ -45,9 +51,12 @@ function FieldInputText({
       )}
       <input
         ref={inputRef}
-        className={classnames("field-input-text", { "field-invalid": errors?.length })}
+        className={classnames("field-input-text", {
+          "field-invalid": errors?.length,
+        })}
         id={fieldID}
         name={name}
+        type={type ?? "text"}
         placeholder={placeholder}
         value={value || ""}
         onChange={handleChange}
@@ -63,6 +72,15 @@ const FieldInputTextWrapper = styled.div`
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
 
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
   .field-label {
     display: inline-block;
     color: var(--ma-gray-600);
@@ -74,6 +92,11 @@ const FieldInputTextWrapper = styled.div`
 
     &.field-disabled {
       color: var(--ma-gray-400);
+    }
+
+    &.field-multi {
+      display: flex;
+      width: 100%;
     }
   }
 

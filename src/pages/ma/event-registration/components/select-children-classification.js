@@ -6,23 +6,26 @@ import { customSelectStyles } from "./select-option";
 
 const FETCHING_LIMIT = 30;
 
-function SelectCountry({
+function SelectChildrenClassifiaction({
   name,
   placeholder,
+  parentId,
   value,
   onChange,
   errors,
   disabled,
 }) {
   const loadOptions = async (searchQuery, loadedOptions, { page }) => {
-    const result = await GeneralService.getCountries({
+    const result = await GeneralService.getChildrenClassification({
       limit: FETCHING_LIMIT,
       page: page,
-      name: searchQuery || "Indonesia",
+      name: searchQuery,
+      type: "with-parent",
+      parent_id: parentId,
     });
-    const options = result.data.map((country) => ({
-      label: country.name,
-      value: parseInt(country.id),
+    const options = result.data.data.map((classification) => ({
+      label: classification.title,
+      value: parseInt(classification.id),
     }));
 
     return {
@@ -34,6 +37,7 @@ function SelectCountry({
 
   return (
     <AsyncPaginate
+      key={parentId}
       styles={computeCustomStylesWithValidation(errors)}
       name={name}
       loadOptions={loadOptions}
@@ -61,4 +65,4 @@ const computeCustomStylesWithValidation = (errors) => {
   return customSelectStyles;
 };
 
-export { SelectCountry };
+export { SelectChildrenClassifiaction };
