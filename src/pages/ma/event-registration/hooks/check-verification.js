@@ -25,6 +25,7 @@ const checkVerification = (data = [], category, eventDetail) => {
       const [filterEventCatgeories] = eventDetail?.eventCategories.filter(
         (value) => value.categoryDetailsId === categoryByMatchGender[0]?.id
       );
+      console.log("filterEventCatgeories:", filterEventCatgeories);
       if (filterEventCatgeories) {
         if (filterEventCatgeories?.ageRules.isAge === 0) {
           const userBirthTime = new Date(user?.date_of_birth).getTime();
@@ -230,15 +231,27 @@ const useQuotaVerification = (category, dataParticipant) => {
 
   React.useEffect(() => {
     let countQuotaMale = category?.maleQuota - category?.maleParticipant;
+
     let countQuotaFemale = category?.femaleQuota - category?.femaleParticipant;
     if (dataParticipant?.length) {
       dataParticipant?.map((e) => {
-        if (e.gender === "male") {
+        // if (countQuotaFemale > 1 || countQuotaMale > 1) {
+        //   if (e.gender === "male") {
+        //     countQuotaMale -= 1;
+        //   } else if (e.gender === "female") {
+        //     countQuotaFemale -= 1;
+        //   }
+        // }
+
+        if (countQuotaMale > 1 && e.gender == "male") {
           countQuotaMale -= 1;
-        } else if (e.gender === "female") {
+        }
+
+        if (countQuotaFemale > 1 && e.gender == "female") {
           countQuotaFemale -= 1;
         }
       });
+
       setQuotaFemale(countQuotaFemale);
       setQuotaMale(countQuotaMale);
     } else {

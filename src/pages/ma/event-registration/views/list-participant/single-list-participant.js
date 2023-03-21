@@ -248,12 +248,15 @@ const SingleListParticipant = ({
     }
     allCountry();
     if (countryUser) {
-      if (inputProvince?.length) {
-        allProvince(countryUser, inputProvince);
-      }
-      if (provinceUser) {
-        allCity(countryUser, provinceUser);
-      }
+      allProvince(countryUser, inputProvince);
+      allCity(countryUser, provinceUser);
+
+      // if (inputProvince?.length) {
+      //   allProvince(countryUser, inputProvince);
+      // }
+      // if (provinceUser) {
+      //   allCity(countryUser, provinceUser);
+      // }
     }
     return () => {
       setCountryList([]);
@@ -269,6 +272,7 @@ const SingleListParticipant = ({
     provinceUser,
     asParticipant,
   ]);
+
   const shouldDisabledButton =
     (userVerification?.length &&
       (!userVerification[0]?.ageIsValid ||
@@ -276,6 +280,7 @@ const SingleListParticipant = ({
         !userVerification[0]?.quoteIsValid)) ||
     quotaFemale <= 0 ||
     quotaMale <= 0;
+
   return (
     <ContentCard>
       <HeaderTitleText className="margin-single">
