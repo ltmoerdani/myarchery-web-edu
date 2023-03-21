@@ -38,17 +38,24 @@ function PageEventsList() {
           <LatestEventCTABar>
             <div>
               <Countdown
-                date={datetime.parseServerDatetime(events?.[0]?.registrationEndDatetime)}
+                date={datetime.parseServerDatetime(
+                  events?.[0]?.registrationEndDatetime
+                )}
                 renderer={CustomCountDown}
               />
             </div>
 
             <LatestEventCTACopywriting>
-              Segera daftarkan dirimu dan timmu pada kompetisi {events?.[0]?.eventName}
+              Segera daftarkan dirimu dan timmu pada kompetisi{" "}
+              {events?.[0]?.eventName}
             </LatestEventCTACopywriting>
 
             <LatestEventCTAButtonsGroup>
-              <ButtonBlue block as={Link} to={_parseEventPath(events?.[0]?.eventUrl)}>
+              <ButtonBlue
+                block
+                as={Link}
+                to={_parseEventPath(events?.[0]?.eventUrl)}
+              >
                 Daftar Sekarang
               </ButtonBlue>
             </LatestEventCTAButtonsGroup>
@@ -59,8 +66,9 @@ function PageEventsList() {
           <HeadingAllEventSection>Semua Event</HeadingAllEventSection>
           <HrBlue />
           <PageDescription>
-            Rangkaian pertandingan panahan sebagai wadah atlet untuk mengumpulkan skor dan menjadi
-            pemain inti dalam pertandingan bertaraf nasional.
+            Rangkaian pertandingan panahan sebagai wadah atlet untuk
+            mengumpulkan skor dan menjadi pemain inti dalam pertandingan
+            bertaraf nasional.
           </PageDescription>
         </HeadingSectionBlock>
 
@@ -73,8 +81,9 @@ function PageEventsList() {
         <PartnershipHeading>Partner MyArchery</PartnershipHeading>
 
         <PartnershipDescription>
-          Bersama berbagai komunitas, klub, organisasi, dan toko perlengkapan panah, MyArchery
-          memastikan kegiatan panahan selalu nyaman dan menyenangkan untuk berbagai kalangan.
+          Bersama berbagai komunitas, klub, organisasi, dan toko perlengkapan
+          panah, MyArchery memastikan kegiatan panahan selalu nyaman dan
+          menyenangkan untuk berbagai kalangan.
         </PartnershipDescription>
 
         <PartnersLogosGrid>
@@ -130,7 +139,8 @@ function CustomCountDown({ days, hours, minutes, seconds, completed }) {
 }
 
 function EventList({ events }) {
-  const { registerQueue, checkIsPending, onLoad, onError } = useQueueHeavyImageList();
+  const { registerQueue, checkIsPending, onLoad, onError } =
+    useQueueHeavyImageList();
   return (
     <EventsGrid>
       {events.map((event, index) => {
@@ -147,7 +157,9 @@ function EventList({ events }) {
                       onLoad={onLoad}
                       onError={onError}
                       isPending={checkIsPending(index)}
-                      fallback={<BannerLoadingQueue>memuat...</BannerLoadingQueue>}
+                      fallback={
+                        <BannerLoadingQueue>memuat...</BannerLoadingQueue>
+                      }
                       alt="Banner"
                       className="event-item-banner-img"
                     />
@@ -171,7 +183,8 @@ function EventList({ events }) {
                       <IconCalendar />
                     </LabelIconWrapper>
                     <LabelHead>
-                      {datetime.formatFullDateLabel(event.eventStartDatetime)} &ndash;{" "}
+                      {datetime.formatFullDateLabel(event.eventStartDatetime)}{" "}
+                      &ndash;{" "}
                       {datetime.formatFullDateLabel(event.eventEndDatetime)}
                     </LabelHead>
                   </EventInfoItemLabel>
@@ -183,7 +196,9 @@ function EventList({ events }) {
 
                     <div>
                       {Boolean(event.detailCity?.name) && (
-                        <LabelHead>{event.detailCity?.name?.toLowerCase()}</LabelHead>
+                        <LabelHead>
+                          {event.detailCity?.name?.toLowerCase()}
+                        </LabelHead>
                       )}
                       <div>{event.location}</div>
                     </div>
@@ -191,12 +206,17 @@ function EventList({ events }) {
                 </EventInfoList>
 
                 {Boolean(event.description) && (
-                  <EventDescription title={event.description}>{event.description}</EventDescription>
+                  <EventDescription title={event.description}>
+                    {event.description}
+                  </EventDescription>
                 )}
               </CardEventItemBody>
 
               <EventCardBottomAction>
-                <ButtonOutlineBlue as={Link} to={_parseEventPath(event.eventUrl)}>
+                <ButtonOutlineBlue
+                  as={Link}
+                  to={_parseEventPath(event.eventUrl)}
+                >
                   Lihat Detail
                 </ButtonOutlineBlue>
               </EventCardBottomAction>
