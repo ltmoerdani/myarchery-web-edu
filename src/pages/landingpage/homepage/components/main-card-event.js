@@ -9,7 +9,9 @@ import classnames from "classnames";
 import { datetime } from "utils";
 
 function MainCardEvent({ eventDetail }) {
-  const { data: eventCategories, isLoading } = useCategoryDetails(eventDetail?.id);
+  const { data: eventCategories, isLoading } = useCategoryDetails(
+    eventDetail?.id
+  );
 
   const {
     activeCategoryDetails,
@@ -20,8 +22,12 @@ function MainCardEvent({ eventDetail }) {
   } = useCategoriesWithFilters(eventCategories);
 
   const isPreparingCategories = !eventCategories && isLoading;
-  const dateEventStart = datetime.formatFullDateLabel(eventDetail?.eventStartDatetime);
-  const dateEventEnd = datetime.formatFullDateLabel(eventDetail?.eventEndDatetime);
+  const dateEventStart = datetime.formatFullDateLabel(
+    eventDetail?.eventStartDatetime
+  );
+  const dateEventEnd = datetime.formatFullDateLabel(
+    eventDetail?.eventEndDatetime
+  );
 
   return (
     <ContentSheet>
@@ -32,7 +38,9 @@ function MainCardEvent({ eventDetail }) {
               <EventNameHeading>{eventDetail?.eventName}</EventNameHeading>
             </div>
             <div>
-              <CompetitionTypeLabel>{eventDetail?.eventCompetition}</CompetitionTypeLabel>
+              <CompetitionTypeLabel>
+                {eventDetail?.eventCompetition}
+              </CompetitionTypeLabel>
             </div>
           </EventHeadingGroup>
 
@@ -69,9 +77,13 @@ function MainCardEvent({ eventDetail }) {
                         if (filter.isActive) {
                           return;
                         }
-                        selectOptionCompetitionCategory(filter.competitionCategory);
+                        selectOptionCompetitionCategory(
+                          filter.competitionCategory
+                        );
                       }}
-                      className={classnames({ "filter-category-active": filter.isActive })}
+                      className={classnames({
+                        "filter-category-active": filter.isActive,
+                      })}
                     >
                       <span>{filter.competitionCategory}</span>
                     </CompetitionCategoryItem>
@@ -90,7 +102,9 @@ function MainCardEvent({ eventDetail }) {
                         }
                         selectOptionAgeCategory(filter.ageCategory);
                       }}
-                      className={classnames({ "age-filter-active": filter.isActive })}
+                      className={classnames({
+                        "age-filter-active": filter.isActive,
+                      })}
                     >
                       {filter.ageCategory}
                     </AgeCategoryItem>
@@ -103,14 +117,19 @@ function MainCardEvent({ eventDetail }) {
                 <QuotaGrid>
                   {activeCategoryDetails.map((categoryDetail) => (
                     <QuotaItem key={categoryDetail.categoryDetailId}>
-                      <TeamCategoryLabel>{categoryDetail.teamCategoryLabel}</TeamCategoryLabel>
+                      <TeamCategoryLabel>
+                        {categoryDetail.teamCategoryLabel}
+                      </TeamCategoryLabel>
                       {!categoryDetail.quota ? (
-                        <QuotaAmountMuted>Kuota tidak tersedia</QuotaAmountMuted>
+                        <QuotaAmountMuted>
+                          Kuota tidak tersedia
+                        </QuotaAmountMuted>
                       ) : !categoryDetail.remainingQuota ? (
                         <QuotaAmountMuted>Penuh</QuotaAmountMuted>
                       ) : (
                         <QuotaAmount>
-                          Tersedia: {categoryDetail.remainingQuota}/{categoryDetail.quota}
+                          Tersedia: {categoryDetail.remainingQuota}/
+                          {categoryDetail.quota}
                         </QuotaAmount>
                       )}
                     </QuotaItem>

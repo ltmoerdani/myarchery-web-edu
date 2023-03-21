@@ -12,6 +12,7 @@ const CategorySelect = ({
   selectTypeRef,
   eventCategories,
 }) => {
+  console.log("dataClass:", dataClass);
   const {
     category,
     selectCategoriesType,
@@ -66,6 +67,8 @@ const CategorySelect = ({
     }
     return result || [];
   }, [category?.value]);
+
+  console.log("optionMenu:", optionMenu);
 
   return (
     <OptionSectionWrapper>
@@ -138,7 +141,13 @@ const CategorySelect = ({
                               shouldOptionDisabled ? "label-muted" : undefined
                             }
                           >
-                            Putra {dataClass?.maleParticipant}&#47;
+                            Putra{" "}
+                            {!dataClass.maleQuota
+                              ? 0
+                              : dataClass.maleQuota == dataClass.maleParticipant
+                              ? 0
+                              : dataClass.maleQuota - dataClass.maleParticipant}
+                            &#47;
                             {dataClass?.maleQuota}
                           </QuotaLabelText>
                         ) : null}
@@ -151,7 +160,17 @@ const CategorySelect = ({
                               shouldOptionDisabled ? "label-muted" : undefined
                             }
                           >
-                            Putri {dataClass?.femaleParticipant}&#47;
+                            {/* Putri {dataClass?.femaleParticipant}&#47;
+                            {dataClass?.femaleQuota} */}
+                            Putri{" "}
+                            {!dataClass.maleQuota
+                              ? 0
+                              : dataClass.femaleQuota ==
+                                dataClass.femaleParticipant
+                              ? 0
+                              : dataClass.femaleQuota -
+                                dataClass.femaleParticipant}
+                            &#47;
                             {dataClass?.femaleQuota}
                           </QuotaLabelText>
                         ) : null}
