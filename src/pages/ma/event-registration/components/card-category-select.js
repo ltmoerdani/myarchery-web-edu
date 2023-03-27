@@ -138,7 +138,13 @@ const CategorySelect = ({
                               shouldOptionDisabled ? "label-muted" : undefined
                             }
                           >
-                            Putra {dataClass?.maleParticipant}&#47;
+                            Putra{" "}
+                            {!dataClass.maleQuota
+                              ? 0
+                              : dataClass.maleQuota == dataClass.maleParticipant
+                              ? 0
+                              : dataClass.maleQuota - dataClass.maleParticipant}
+                            &#47;
                             {dataClass?.maleQuota}
                           </QuotaLabelText>
                         ) : null}
@@ -151,7 +157,15 @@ const CategorySelect = ({
                               shouldOptionDisabled ? "label-muted" : undefined
                             }
                           >
-                            Putri {dataClass?.femaleParticipant}&#47;
+                            Putri{" "}
+                            {!dataClass.maleQuota
+                              ? 0
+                              : dataClass.femaleQuota ==
+                                dataClass.femaleParticipant
+                              ? 0
+                              : dataClass.femaleQuota -
+                                dataClass.femaleParticipant}
+                            &#47;
                             {dataClass?.femaleQuota}
                           </QuotaLabelText>
                         ) : null}
@@ -162,8 +176,15 @@ const CategorySelect = ({
                           shouldOptionDisabled ? "label-muted" : undefined
                         }
                       >
-                        {dataClass?.mixParticipant}&#47;
+                        {!dataClass.mixQuota
+                          ? 0
+                          : dataClass.mixQuota == dataClass.mixParticipant
+                          ? 0
+                          : dataClass.mixQuota - dataClass.mixParticipant}
+                        &#47;
                         {dataClass?.mixQuota}
+                        {/* {dataClass?.mixParticipant}&#47;
+                        {dataClass?.mixQuota} */}
                       </QuotaLabelText>
                     )}
                   </QuotaLabel>
