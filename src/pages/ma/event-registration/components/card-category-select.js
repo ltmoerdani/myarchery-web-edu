@@ -161,7 +161,7 @@ const CategorySelect = ({
                             }
                           >
                             Putri{" "}
-                            {!dataClass.maleQuota
+                            {!dataClass.femaleQuota
                               ? 0
                               : dataClass.femaleQuota ==
                                 dataClass.femaleParticipant
