@@ -160,10 +160,8 @@ const CategorySelect = ({
                               shouldOptionDisabled ? "label-muted" : undefined
                             }
                           >
-                            {/* Putri {dataClass?.femaleParticipant}&#47;
-                            {dataClass?.femaleQuota} */}
                             Putri{" "}
-                            {!dataClass.maleQuota
+                            {!dataClass.femaleQuota
                               ? 0
                               : dataClass.femaleQuota ==
                                 dataClass.femaleParticipant
@@ -181,8 +179,15 @@ const CategorySelect = ({
                           shouldOptionDisabled ? "label-muted" : undefined
                         }
                       >
-                        {dataClass?.mixParticipant}&#47;
+                        {!dataClass.mixQuota
+                          ? 0
+                          : dataClass.mixQuota == dataClass.mixParticipant
+                          ? 0
+                          : dataClass.mixQuota - dataClass.mixParticipant}
+                        &#47;
                         {dataClass?.mixQuota}
+                        {/* {dataClass?.mixParticipant}&#47;
+                        {dataClass?.mixQuota} */}
                       </QuotaLabelText>
                     )}
                   </QuotaLabel>
