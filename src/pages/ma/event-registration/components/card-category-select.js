@@ -160,8 +160,11 @@ const CategorySelect = ({
                               shouldOptionDisabled ? "label-muted" : undefined
                             }
                           >
+<<<<<<< src/pages/ma/event-registration/components/card-category-select.js
+=======
                             {/* Putri {dataClass?.femaleParticipant}&#47;
                             {dataClass?.femaleQuota} */}
+>>>>>>> src/pages/ma/event-registration/components/card-category-select.js
                             Putri{" "}
                             {!dataClass.maleQuota
                               ? 0
@@ -181,8 +184,15 @@ const CategorySelect = ({
                           shouldOptionDisabled ? "label-muted" : undefined
                         }
                       >
-                        {dataClass?.mixParticipant}&#47;
+                        {!dataClass.mixQuota
+                          ? 0
+                          : dataClass.mixQuota == dataClass.mixParticipant
+                          ? 0
+                          : dataClass.mixQuota - dataClass.mixParticipant}
+                        &#47;
                         {dataClass?.mixQuota}
+                        {/* {dataClass?.mixParticipant}&#47;
+                        {dataClass?.mixQuota} */}
                       </QuotaLabelText>
                     )}
                   </QuotaLabel>
