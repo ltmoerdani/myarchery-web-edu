@@ -12,6 +12,7 @@ const CategorySelect = ({
   selectTypeRef,
   eventCategories,
 }) => {
+  console.log("dataClass:", dataClass);
   const {
     category,
     selectCategoriesType,
@@ -66,6 +67,8 @@ const CategorySelect = ({
     }
     return result || [];
   }, [category?.value]);
+
+  console.log("optionMenu:", optionMenu);
 
   return (
     <OptionSectionWrapper>
@@ -157,6 +160,11 @@ const CategorySelect = ({
                               shouldOptionDisabled ? "label-muted" : undefined
                             }
                           >
+<<<<<<< src/pages/ma/event-registration/components/card-category-select.js
+=======
+                            {/* Putri {dataClass?.femaleParticipant}&#47;
+                            {dataClass?.femaleQuota} */}
+>>>>>>> src/pages/ma/event-registration/components/card-category-select.js
                             Putri{" "}
                             {!dataClass.maleQuota
                               ? 0
