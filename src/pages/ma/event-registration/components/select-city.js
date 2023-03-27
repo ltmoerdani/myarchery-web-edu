@@ -18,7 +18,8 @@ function SelectCity({
 }) {
   const loadOptions = async (searchQuery, loadedOptions, { page }) => {
     let result = [];
-    if (countryId === 102) {
+    console.log("countryId:", countryId);
+    if (countryId === 102 || !countryId) {
       result = await GeneralService.getCities({
         limit: FETCHING_LIMIT,
         page: page,
