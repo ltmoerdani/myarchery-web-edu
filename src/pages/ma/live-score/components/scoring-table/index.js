@@ -2,7 +2,11 @@ import * as React from "react";
 import styled from "styled-components";
 import { useParticipantScorings } from "../../hooks/participant-scorings";
 
-import { SessionCellsDataHeading, SessionCellsData, FullPageLoadingIndicator } from "../index";
+import {
+  SessionCellsDataHeading,
+  SessionCellsData,
+  FullPageLoadingIndicator,
+} from "../index";
 
 function ScoringTable({ categoryDetail, isEventEnded, eventDetail }) {
   const teamType = categoryDetail?.categoryTeam?.toLowerCase?.();
@@ -35,7 +39,9 @@ function ScoringTable({ categoryDetail, isEventEnded, eventDetail }) {
                 <th>Peringkat</th>
                 <th>Bantalan</th>
                 <th className="text-uppercase">Nama</th>
-                <th className="text-uppercase">{!eventDetail.withContingent ? 'Klub' : 'Kontingen'}</th>
+                <th className="text-uppercase">
+                  {eventDetail.parentClassificationTitle}
+                </th>
                 <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
                 <th className="text-uppercase">Total</th>
                 <th className="text-uppercase">X+10</th>
@@ -44,30 +50,35 @@ function ScoringTable({ categoryDetail, isEventEnded, eventDetail }) {
             </thead>
 
             <tbody>
-              {scorings.map((scoring, index) => (
-                <tr key={scoring.member.id}>
-                  <td>
-                    <DisplayRank>
-                      <span>{index + 1}</span>
-                    </DisplayRank>
-                  </td>
-                  <td>{_getBudrestNumber(scoring.member)}</td>
-                  <td>{scoring.member.name}</td>
-                  <td>
-                    {!eventDetail.withContingent ?
-                      (
-                        scoring.member.clubName || <React.Fragment>&ndash;</React.Fragment>
-                      ):(
-                        scoring.member.cityName || <React.Fragment>&ndash;</React.Fragment>
-                    )}
-                  </td>
-                  <SessionCellsData sessions={scoring.sessions} />
+              {scorings.map((scoring, index) => {
+                return (
+                  <tr key={scoring.member.id}>
+                    <td>
+                      <DisplayRank>
+                        <span>{index + 1}</span>
+                      </DisplayRank>
+                    </td>
+                    <td>{_getBudrestNumber(scoring.member)}</td>
+                    <td>{scoring.member.name}</td>
+                    <td>
+                      {scoring.parentClassificationType === 1
+                        ? scoring.clubName
+                        : scoring.parentClassificationType === 2
+                        ? scoring.countryName
+                        : scoring.parentClassificationType === 3
+                        ? scoring.provinceName
+                        : scoring.parentClassificationType === 4
+                        ? scoring.cityName
+                        : scoring.childrenClassificationMembersName}
+                    </td>
+                    <SessionCellsData sessions={scoring.sessions} />
 
-                  <td>{scoring.total}</td>
-                  <td>{scoring.totalXPlusTen}</td>
-                  <td>{scoring.totalX}</td>
-                </tr>
-              ))}
+                    <td>{scoring.total}</td>
+                    <td>{scoring.totalXPlusTen}</td>
+                    <td>{scoring.totalX}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </TableScores>
         )}
@@ -88,7 +99,10 @@ function ScoringTable({ categoryDetail, isEventEnded, eventDetail }) {
               <tr>
                 <th>Peringkat</th>
                 <th className="text-uppercase">Nama Tim</th>
-                <th className="text-uppercase">{!eventDetail.withContingent ? 'Klub' : 'Kontingen'}</th>
+                <th className="text-uppercase">
+                  {/* {!eventDetail.withContingent ? "Klub" : "Kontingen"} */}
+                  {eventDetail.parentClassificationTitle}
+                </th>
                 <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
                 <th className="text-uppercase">Total</th>
                 <th className="text-uppercase">X+10</th>
@@ -118,12 +132,22 @@ function ScoringTable({ categoryDetail, isEventEnded, eventDetail }) {
                     </div>
                   </td>
                   <td>
-                    {!eventDetail.withContingent ?
-                      (
-                        scoring.clubName || <React.Fragment>&ndash;</React.Fragment>
-                      ):(
-                        scoring.cityName || <React.Fragment>&ndash;</React.Fragment>
-                    )}
+                    {/* {!eventDetail.withContingent
+                      ? scoring.clubName || (
+                          <React.Fragment>&ndash;</React.Fragment>
+                        )
+                      : scoring.cityName || (
+                          <React.Fragment>&ndash;</React.Fragment>
+                        )} */}
+                    {scoring.parentClassificationType === 1
+                      ? scoring.clubName
+                      : scoring.parentClassificationType === 2
+                      ? scoring.countryName
+                      : scoring.parentClassificationType === 3
+                      ? scoring.provinceName
+                      : scoring.parentClassificationType === 4
+                      ? scoring.cityName
+                      : scoring.childrenClassificationMembersName}
                   </td>
                   <td>{scoring.total}</td>
                   <td>{scoring.totalXPlusTen}</td>
