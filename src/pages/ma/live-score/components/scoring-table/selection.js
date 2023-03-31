@@ -5,7 +5,12 @@ import { useSelectionScorings } from "../../hooks/selection-scorings";
 
 import { FullPageLoadingIndicator } from "../index";
 
-function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
+function ScoringTableSelection({
+  categoryDetail,
+  isEventEnded,
+  scoreType,
+  eventDetail,
+}) {
   const teamType = categoryDetail?.categoryTeam?.toLowerCase?.();
   const { data: scorings, isLoading } = useSelectionScorings(
     categoryDetail?.id,
@@ -13,8 +18,6 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
     scoreType,
     isEventEnded
   );
-
-  console.log("categoryDetail:", categoryDetail);
 
   if (!categoryDetail || !scorings) {
     return (
@@ -38,7 +41,10 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
               <tr>
                 <th>Rank</th>
                 <th className="text-uppercase">Nama</th>
-                <th className="text-uppercase">Klub</th>
+                <th className="text-uppercase">
+                  {/* Klub */}
+                  {eventDetail.parentClassificationTitle}
+                </th>
                 <SessionCellsDataHeading
                   sessions={scorings?.[0]}
                   scoreType={scoreType}
@@ -50,7 +56,6 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
 
             <tbody>
               {scorings.map((scoring, index) => {
-                console.log("scoring:", scoring);
                 return (
                   <tr key={scoring.member.id}>
                     <td>
@@ -60,9 +65,18 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
                     </td>
                     <td>{scoring.member.name}</td>
                     <td>
-                      {scoring.member.clubName || (
+                      {/* {scoring.member.clubName || (
                         <React.Fragment>&ndash;</React.Fragment>
-                      )}
+                      )} */}
+                      {scoring.parentClassificationType === 1
+                        ? scoring.clubName
+                        : scoring.parentClassificationType === 2
+                        ? scoring.countryName
+                        : scoring.parentClassificationType === 3
+                        ? scoring.provinceName
+                        : scoring.parentClassificationType === 4
+                        ? scoring.cityName
+                        : scoring.childrenClassificationMembersName}
                     </td>
 
                     <SessionCellsData
@@ -101,7 +115,10 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
               <tr>
                 <th>Peringkat</th>
                 <th className="text-uppercase">Nama Tim</th>
-                <th className="text-uppercase">Klub</th>
+                <th className="text-uppercase">
+                  {/* Klub */}
+                  {eventDetail.parentClassificationTitle}
+                </th>
                 <SessionCellsDataHeading sessions={scorings?.[0]?.sessions} />
                 <th className="text-uppercase">Total</th>
                 <th className="text-uppercase">X+10</th>
@@ -132,9 +149,18 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
                   </td>
 
                   <td>
-                    {scoring.clubName || (
+                    {/* {scoring.clubName || (
                       <React.Fragment>&ndash;</React.Fragment>
-                    )}
+                    )} */}
+                    {scoring.parentClassificationType === 1
+                      ? scoring.clubName
+                      : scoring.parentClassificationType === 2
+                      ? scoring.countryName
+                      : scoring.parentClassificationType === 3
+                      ? scoring.provinceName
+                      : scoring.parentClassificationType === 4
+                      ? scoring.cityName
+                      : scoring.childrenClassificationMembersName}
                   </td>
                   <td>{scoring.total}</td>
                   <td>{scoring.totalXPlusTen}</td>
