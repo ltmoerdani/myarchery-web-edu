@@ -12,16 +12,17 @@ import IconMedalBronze from "components/ma/icons/color/medal-bronze";
 import { misc } from "utils";
 
 function RankingTable({ eventId, params, eventDetail }) {
-  const { data: rankedClubs, isLoading: isLoadingRankedClubs } = useEventRanksClubs(
-    eventId,
-    params
-  );
-  const { registerQueue, checkIsPending, onLoad, onError } = useQueueHeavyImageList();
+  const { data: rankedClubs, isLoading: isLoadingRankedClubs } =
+    useEventRanksClubs(eventId, params);
+  const { registerQueue, checkIsPending, onLoad, onError } =
+    useQueueHeavyImageList();
 
   if (!eventId) {
     return (
       <SectionTableContainer>
-        <ScoringEmptyBar>Tidak dapat membaca data event. ID event tidak valid.</ScoringEmptyBar>
+        <ScoringEmptyBar>
+          Tidak dapat membaca data event. ID event tidak valid.
+        </ScoringEmptyBar>
       </SectionTableContainer>
     );
   }
@@ -46,7 +47,9 @@ function RankingTable({ eventId, params, eventDetail }) {
           <TableHeadScores>
             <div>
               <span>Peringkat</span>
-              <span className="text-uppercase">{!eventDetail.withContingent? 'Klub' : 'Kontingen'}</span>
+              <span className="text-uppercase">
+                {eventDetail.parentClassificationTitle}
+              </span>
             </div>
 
             <div>
@@ -67,63 +70,73 @@ function RankingTable({ eventId, params, eventDetail }) {
             <EmptyRank>Sedang memuat data pemeringkatan...</EmptyRank>
           ) : rankedClubs.length > 0 ? (
             <RanksList>
-              {rankedClubs.map((club, index) => (
-                <li key={index}>
-                  <RankItem>
-                    <BlockRankNo>{index + 1}</BlockRankNo>
-                    <BlockMain>
+              {rankedClubs.map((club, index) => {
+                console.log("club:", club);
+                return (
+                  <li key={index}>
+                    <RankItem>
+                      <BlockRankNo>{index + 1}</BlockRankNo>
+                      <BlockMain>
+                        {!club.withContingent ? (
+                          <BlockClub>
+                            <BlockAvatar>
+                              <AvatarContainer>
+                                {club.clubLogo ? (
+                                  <HeavyImage
+                                    src={club.clubLogo}
+                                    onRegisterQueue={() => registerQueue(index)}
+                                    onLoad={onLoad}
+                                    onError={onError}
+                                    isPending={checkIsPending(index)}
+                                    fallback={
+                                      <AvatarDefault fullname={club.clubName} />
+                                    }
+                                  />
+                                ) : (
+                                  <AvatarDefault fullname={club.clubName} />
+                                )}
+                              </AvatarContainer>
+                            </BlockAvatar>
 
-                    {!club.withContingent ? (
-                      <BlockClub>
-                        <BlockAvatar>
-                          <AvatarContainer>
-                            {club.clubLogo ? (
-                              <HeavyImage
-                                src={club.clubLogo}
-                                onRegisterQueue={() => registerQueue(index)}
-                                onLoad={onLoad}
-                                onError={onError}
-                                isPending={checkIsPending(index)}
-                                fallback={<AvatarDefault fullname={club.clubName} />}
+                            <BlockClubInfo>
+                              <ArcherName>{club.clubName}</ArcherName>
+                              <CityName>{club.clubCity}</CityName>
+                            </BlockClubInfo>
+                          </BlockClub>
+                        ) : (
+                          <div className="d-flex align-items-center">
+                            {club.contingentLogo ? (
+                              <ContingenImage
+                                src={club.contingentLogo}
+                                height={60}
                               />
                             ) : (
-                              <AvatarDefault fullname={club.clubName} />
+                              <AvatarDefault fullname={club.contingentName} />
                             )}
-                          </AvatarContainer>
-                        </BlockAvatar>
 
-                        <BlockClubInfo>
-                          <ArcherName>{club.clubName}</ArcherName>
-                          <CityName>{club.clubCity}</CityName>
-                        </BlockClubInfo>
-                      </BlockClub>
-                    ) : (
-                      <div className="d-flex align-items-center">
-                        <ContingenImage
-                          src={club.contingentLogo}
-                          height={60}
-                        />
-                        <ContingentName>{club.contingentName}</ContingentName>
-                      </div>
-                    )}
+                            <ContingentName>
+                              {club.contingentName}
+                            </ContingentName>
+                          </div>
+                        )}
 
-                      <BlockPoints>
-                        <BlockMedalCounts>
-                          <IconMedalGold size="16" /> {club.gold}
-                        </BlockMedalCounts>
-                        <BlockMedalCounts>
-                          <IconMedalSilver size="16" /> {club.silver}
-                        </BlockMedalCounts>
-                        <BlockMedalCounts>
-                          <IconMedalBronze size="16" /> {club.bronze}
-                        </BlockMedalCounts>
-                        <span>{club.total}</span>
-                      </BlockPoints>
-                    </BlockMain>
-
-                  </RankItem>
-                </li>
-              ))}
+                        <BlockPoints>
+                          <BlockMedalCounts>
+                            <IconMedalGold size="16" /> {club.gold}
+                          </BlockMedalCounts>
+                          <BlockMedalCounts>
+                            <IconMedalSilver size="16" /> {club.silver}
+                          </BlockMedalCounts>
+                          <BlockMedalCounts>
+                            <IconMedalBronze size="16" /> {club.bronze}
+                          </BlockMedalCounts>
+                          <span>{club.total}</span>
+                        </BlockPoints>
+                      </BlockMain>
+                    </RankItem>
+                  </li>
+                );
+              })}
             </RanksList>
           ) : (
             <EmptyRank>Belum ada data pemeringkatan di kategori ini</EmptyRank>
@@ -149,7 +162,14 @@ function BlockRankNo({ children }) {
   );
 }
 
-function HeavyImage({ onRegisterQueue, src, onLoad, onError, isPending = false, fallback = null }) {
+function HeavyImage({
+  onRegisterQueue,
+  src,
+  onLoad,
+  onError,
+  isPending = false,
+  fallback = null,
+}) {
   React.useEffect(() => {
     onRegisterQueue?.();
   }, []);
@@ -362,7 +382,8 @@ function useQueueHeavyImageList() {
   });
   const { queue, index: currentQueueIndex } = state;
 
-  const registerQueue = (index) => dispatch({ type: "REGISTER_QUEUE", payload: index });
+  const registerQueue = (index) =>
+    dispatch({ type: "REGISTER_QUEUE", payload: index });
 
   const checkIsPending = (imageIdentifier) => {
     const indexInQueue = queue.indexOf("" + imageIdentifier);
@@ -393,7 +414,8 @@ function queueReducer(state, action) {
   if (action.type === "IMAGE_LOADED") {
     const { queue: currentQueue, index: currentIndex } = state;
     const tempNextIndex = currentIndex + 1;
-    const nextIndex = tempNextIndex >= currentQueue ? currentIndex : tempNextIndex;
+    const nextIndex =
+      tempNextIndex >= currentQueue ? currentIndex : tempNextIndex;
     return {
       ...state,
       index: nextIndex,

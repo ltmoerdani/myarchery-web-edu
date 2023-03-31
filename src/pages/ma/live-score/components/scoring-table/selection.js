@@ -14,6 +14,8 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
     isEventEnded
   );
 
+  console.log("categoryDetail:", categoryDetail);
+
   if (!categoryDetail || !scorings) {
     return (
       <SectionTableContainer>
@@ -37,32 +39,48 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
                 <th>Rank</th>
                 <th className="text-uppercase">Nama</th>
                 <th className="text-uppercase">Klub</th>
-                <SessionCellsDataHeading sessions={scorings?.[0]} scoreType={scoreType} />
+                <SessionCellsDataHeading
+                  sessions={scorings?.[0]}
+                  scoreType={scoreType}
+                />
                 <th className="text-uppercase">Total</th>
                 <th className="text-uppercase">Total Irat</th>
               </tr>
             </thead>
 
             <tbody>
-              {scorings.map((scoring, index) => (
-                <tr key={scoring.member.id}>
-                  <td>
-                    <DisplayRank>
-                      <span>{index + 1}</span>
-                    </DisplayRank>
-                  </td>
-                  <td>{scoring.member.name}</td>
-                  <td>{scoring.member.clubName || <React.Fragment>&ndash;</React.Fragment>}</td>
+              {scorings.map((scoring, index) => {
+                console.log("scoring:", scoring);
+                return (
+                  <tr key={scoring.member.id}>
+                    <td>
+                      <DisplayRank>
+                        <span>{index + 1}</span>
+                      </DisplayRank>
+                    </td>
+                    <td>{scoring.member.name}</td>
+                    <td>
+                      {scoring.member.clubName || (
+                        <React.Fragment>&ndash;</React.Fragment>
+                      )}
+                    </td>
 
-                  <SessionCellsData sessions={scoring} scoreType={scoreType} />
-                  {scoreType != 5 ? (
-                    <td className="total">{scoring.total}</td>
-                  ) : (
-                    <td>{scoring?.elimination?.total + scoring?.qualification?.total}</td>
-                  )}
-                  <td>{scoring.allTotalIrat || scoring.totalIrat}</td>
-                </tr>
-              ))}
+                    <SessionCellsData
+                      sessions={scoring}
+                      scoreType={scoreType}
+                    />
+                    {scoreType != 5 ? (
+                      <td className="total">{scoring.total}</td>
+                    ) : (
+                      <td>
+                        {scoring?.elimination?.total +
+                          scoring?.qualification?.total}
+                      </td>
+                    )}
+                    <td>{scoring.allTotalIrat || scoring.totalIrat}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </TableScores>
         )}
@@ -113,7 +131,11 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
                     </div>
                   </td>
 
-                  <td>{scoring.clubName || <React.Fragment>&ndash;</React.Fragment>}</td>
+                  <td>
+                    {scoring.clubName || (
+                      <React.Fragment>&ndash;</React.Fragment>
+                    )}
+                  </td>
                   <td>{scoring.total}</td>
                   <td>{scoring.totalXPlusTen}</td>
                   <td>{scoring.totalX}</td>
@@ -134,7 +156,12 @@ function ScoringTableSelection({ categoryDetail, isEventEnded, scoreType }) {
 }
 
 function SessionCellsDataHeading({ sessions, scoreType }) {
-  if (!sessions || scoreType == null || sessions == null || sessions == undefined) {
+  if (
+    !sessions ||
+    scoreType == null ||
+    sessions == null ||
+    sessions == undefined
+  ) {
     return [];
   }
 
@@ -149,15 +176,19 @@ function SessionCellsDataHeading({ sessions, scoreType }) {
           ))
         : ""}
       {scoreType == 5 && sessions.qualification
-        ? Object.keys(sessions?.qualification?.sessions).map((qualificatiSession) => (
-            <th key={qualificatiSession}>Sesi {qualificatiSession}</th>
-          ))
+        ? Object.keys(sessions?.qualification?.sessions).map(
+            (qualificatiSession) => (
+              <th key={qualificatiSession}>Sesi {qualificatiSession}</th>
+            )
+          )
         : ""}
       {scoreType == 5 ? <th className="total">Total Kual</th> : ""}
       {scoreType == 5 && sessions.qualification
-        ? Object.keys(sessions?.elimination?.sessions).map((eliminatiSession) => (
-            <th key={eliminatiSession}>Eli-{eliminatiSession}</th>
-          ))
+        ? Object.keys(sessions?.elimination?.sessions).map(
+            (eliminatiSession) => (
+              <th key={eliminatiSession}>Eli-{eliminatiSession}</th>
+            )
+          )
         : ""}
       {scoreType == 5 ? <th className="total">Total Eli</th> : ""}
     </React.Fragment>
@@ -173,15 +204,19 @@ function SessionCellsData({ sessions, scoreType }) {
     <React.Fragment>
       {(scoreType == 3 || scoreType == 4) && sessions.sessions
         ? Object.keys(sessions?.sessions).map((currentSession) => (
-            <td key={currentSession}>{sessions?.sessions[currentSession]?.total}</td>
+            <td key={currentSession}>
+              {sessions?.sessions[currentSession]?.total}
+            </td>
           ))
         : ""}
       {scoreType == 5 && sessions.qualification
-        ? Object.keys(sessions?.qualification?.sessions).map((qualificatiSession) => (
-            <td key={qualificatiSession}>
-              {sessions.qualification.sessions[qualificatiSession].total}
-            </td>
-          ))
+        ? Object.keys(sessions?.qualification?.sessions).map(
+            (qualificatiSession) => (
+              <td key={qualificatiSession}>
+                {sessions.qualification.sessions[qualificatiSession].total}
+              </td>
+            )
+          )
         : ""}
       {scoreType == 5 && sessions.qualification ? (
         <td className="total">{sessions.qualification.total}</td>
@@ -189,9 +224,13 @@ function SessionCellsData({ sessions, scoreType }) {
         ""
       )}
       {scoreType == 5 && sessions.elimination
-        ? Object.keys(sessions?.elimination?.sessions).map((eliminatiSession) => (
-            <td key={eliminatiSession}>{sessions.elimination.sessions[eliminatiSession].total}</td>
-          ))
+        ? Object.keys(sessions?.elimination?.sessions).map(
+            (eliminatiSession) => (
+              <td key={eliminatiSession}>
+                {sessions.elimination.sessions[eliminatiSession].total}
+              </td>
+            )
+          )
         : ""}
       {scoreType == 5 && sessions.elimination ? (
         <td className="total">{sessions.elimination.total}</td>

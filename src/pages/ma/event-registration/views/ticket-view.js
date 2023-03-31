@@ -122,6 +122,8 @@ function TicketView({
           // const { orderId } = data.paymentInfo;
           history.push("/dashboard/transactions/" + data.orderEventId);
           // history.push(`/dashboard/transactions/${data.participant.id}`);
+        } else {
+          history.push("/dashboard/transactions/" + data.orderEventId);
         }
       },
     };
