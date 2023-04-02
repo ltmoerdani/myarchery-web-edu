@@ -12,7 +12,8 @@ const CategorySelect = ({
   selectTypeRef,
   eventCategories,
 }) => {
-  console.log("dataClass:", dataClass);
+  React.useEffect(() => {}, [dataClass, optionMenu]);
+
   const {
     category,
     selectCategoriesType,
@@ -67,8 +68,6 @@ const CategorySelect = ({
     }
     return result || [];
   }, [category?.value]);
-
-  console.log("optionMenu:", optionMenu);
 
   return (
     <OptionSectionWrapper>

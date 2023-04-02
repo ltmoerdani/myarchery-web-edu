@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useHistory,useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useEventDetailFromSlug } from "../hooks/event-detail-slug";
 import { useCategoryFiltersSelection } from "./hooks/category-filters-selection";
@@ -21,7 +21,8 @@ import { getLandingPagePath } from "../utils";
 
 function PageScoreSelection() {
   const { slug } = useParams();
-  const { data: eventDetail, status: eventStatus } = useEventDetailFromSlug(slug);
+  const { data: eventDetail, status: eventStatus } =
+    useEventDetailFromSlug(slug);
   const eventId = eventDetail?.id;
 
   const {
@@ -45,8 +46,8 @@ function PageScoreSelection() {
   });
 
   React.useEffect(() => {
-    if(!isLoggedIn){
-      history.push("/archer/login?path="+path);
+    if (!isLoggedIn) {
+      history.push("/archer/login?path=" + path);
     }
     if (activeCategory) return;
     setActiveOptionCategory(optionCategories?.[0]);
@@ -54,8 +55,11 @@ function PageScoreSelection() {
   }, [activeCategory, optionCategories, optionGenders]);
 
   const isLoadingEvent = eventStatus === "loading";
-  const eventName = eventDetail?.publicInformation.eventName || "My Archery Event";
-  const isEventEnded = _checkIsEventEnded(eventDetail?.publicInformation.eventEnd);
+  const eventName =
+    eventDetail?.publicInformation.eventName || "My Archery Event";
+  const isEventEnded = _checkIsEventEnded(
+    eventDetail?.publicInformation.eventEnd
+  );
   return (
     <StyledPageWrapper>
       <MetaTags>
@@ -63,7 +67,9 @@ function PageScoreSelection() {
       </MetaTags>
 
       <Container fluid>
-        <BreadcrumbDashboard to={getLandingPagePath(eventDetail?.publicInformation.eventUrl)}>
+        <BreadcrumbDashboard
+          to={getLandingPagePath(eventDetail?.publicInformation.eventUrl)}
+        >
           {eventDetail ? "Kembali" : ""}
         </BreadcrumbDashboard>
 
@@ -131,7 +137,10 @@ function PageScoreSelection() {
                   <ScrollX>
                     <SpaceButtonsGroup>
                       <TeamFilterChooser
-                        options={optionGenders.map((option) => ({ ...option, id: option.value }))}
+                        options={optionGenders.map((option) => ({
+                          ...option,
+                          id: option.value,
+                        }))}
                         selected={activeOptionGender?.value}
                         onSelect={setActiveOptionGender}
                       />
@@ -141,12 +150,13 @@ function PageScoreSelection() {
 
                 <ScrollX>
                   <ScoringTableSelection
-                  // ! Penting: wajib kasih prop key unik di komponen ini
-                  key={activeCategory?.id || "table-00"}
-                  categoryDetail={activeCategory}
-                  // // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
-                  isEventEnded={isEventEnded}
-                  scoreType={scoreType}
+                    // ! Penting: wajib kasih prop key unik di komponen ini
+                    key={activeCategory?.id || "table-00"}
+                    categoryDetail={activeCategory}
+                    eventDetail={eventDetail}
+                    // // TODO: `isEventEnded` lebih proper namanya diganti `shouldPollData`
+                    isEventEnded={isEventEnded}
+                    scoreType={scoreType}
                   />
                 </ScrollX>
               </div>
