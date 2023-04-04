@@ -17,8 +17,6 @@ function RankingTable({ eventId, params, eventDetail }) {
   const { registerQueue, checkIsPending, onLoad, onError } =
     useQueueHeavyImageList();
 
-  React.useEffect(() => {}, [registerQueue, checkIsPending, onLoad, onError]);
-
   if (!eventId) {
     return (
       <SectionTableContainer>
@@ -73,48 +71,54 @@ function RankingTable({ eventId, params, eventDetail }) {
           ) : rankedClubs.length > 0 ? (
             <RanksList>
               {rankedClubs.map((club, index) => {
-                let defineContingentName =
-                  club.parentClassificationType === 1
-                    ? club.clubName
-                    : club.parentClassificationType === 2
-                    ? club.countryName
-                    : club.parentClassificationType === 3
-                    ? club.provinceName
-                    : club.parentClassificationType === 4
-                    ? club.cityName
-                    : club.childrenClassificationMembersName;
-                let elImageDefault = "";
-                if (defineContingentName) {
-                  elImageDefault = (
-                    <BlockAvatar>
-                      <AvatarContainer>
-                        <AvatarDefault fullname={defineContingentName} />
-                      </AvatarContainer>
-                    </BlockAvatar>
-                  );
-                }
-
+                console.log("club:", club);
                 return (
                   <li key={index}>
                     <RankItem>
                       <BlockRankNo>{index + 1}</BlockRankNo>
                       <BlockMain>
-                        <div className="d-flex align-items-center">
-                          {club.contingentLogo ? (
-                            <ContingenImage
-                              src={club.contingentLogo}
-                              height={60}
-                            />
-                          ) : (
-                            elImageDefault
-                          )}
+                        {!club.withContingent ? (
+                          <BlockClub>
+                            <BlockAvatar>
+                              <AvatarContainer>
+                                {club.clubLogo ? (
+                                  <HeavyImage
+                                    src={club.clubLogo}
+                                    onRegisterQueue={() => registerQueue(index)}
+                                    onLoad={onLoad}
+                                    onError={onError}
+                                    isPending={checkIsPending(index)}
+                                    fallback={
+                                      <AvatarDefault fullname={club.clubName} />
+                                    }
+                                  />
+                                ) : (
+                                  <AvatarDefault fullname={club.clubName} />
+                                )}
+                              </AvatarContainer>
+                            </BlockAvatar>
 
-                          <ContingentName>
-                            {!defineContingentName
-                              ? " - "
-                              : defineContingentName}
-                          </ContingentName>
-                        </div>
+                            <BlockClubInfo>
+                              <ArcherName>{club.clubName}</ArcherName>
+                              <CityName>{club.clubCity}</CityName>
+                            </BlockClubInfo>
+                          </BlockClub>
+                        ) : (
+                          <div className="d-flex align-items-center">
+                            {club.contingentLogo ? (
+                              <ContingenImage
+                                src={club.contingentLogo}
+                                height={60}
+                              />
+                            ) : (
+                              <AvatarDefault fullname={club.contingentName} />
+                            )}
+
+                            <ContingentName>
+                              {club.contingentName}
+                            </ContingentName>
+                          </div>
+                        )}
 
                         <BlockPoints>
                           <BlockMedalCounts>
@@ -175,7 +179,6 @@ function HeavyImage({
   }
   return <img src={src} onLoad={onLoad} onError={onError} />;
 }
-console.log(HeavyImage);
 
 const SectionTableContainer = styled.div`
   position: relative;
@@ -293,17 +296,17 @@ const BlockMain = styled.div`
   }
 `;
 
-// const BlockClub = styled.div`
-//   display: flex;
-//   flex-wrap: wrap;
-//   justify-content: center;
-//   align-items: center;
-//   gap: 0.5rem 1rem;
+const BlockClub = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem 1rem;
 
-//   > *:last-child {
-//     flex-grow: 1;
-//   }
-// `;
+  > *:last-child {
+    flex-grow: 1;
+  }
+`;
 
 const BlockAvatar = styled.div`
   padding: 1rem;
@@ -324,14 +327,14 @@ const AvatarContainer = styled.div`
   }
 `;
 
-// const BlockClubInfo = styled.div`
-//   padding: 1rem;
-// `;
+const BlockClubInfo = styled.div`
+  padding: 1rem;
+`;
 
-// const ArcherName = styled.h6`
-//   margin: 0;
-//   font-weight: 600;
-// `;
+const ArcherName = styled.h6`
+  margin: 0;
+  font-weight: 600;
+`;
 
 const ContingentName = styled.label`
   font-size: 0.9rem;
@@ -342,10 +345,10 @@ const ContingenImage = styled.img`
   margin: 0.5rem 4rem 0.5rem 3.2rem;
 `;
 
-// const CityName = styled.div`
-//   font-size: 13px;
-//   color: var(--ma-gray-400);
-// `;
+const CityName = styled.div`
+  font-size: 13px;
+  color: var(--ma-gray-400);
+`;
 
 const BlockPoints = styled.div`
   display: flex;

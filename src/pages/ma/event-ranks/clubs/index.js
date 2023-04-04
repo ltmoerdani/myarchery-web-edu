@@ -13,8 +13,9 @@ import { RankingTable } from "./components/ranking-table";
 
 function PageEventRanksClubs() {
   const { slug } = useParams();
-  const { data: eventDetail, isLoading: isLoadingEventDetail } = useEventDetail(slug);
-
+  const { data: eventDetail, isLoading: isLoadingEventDetail } =
+    useEventDetail(slug);
+  console.log("eventDetail:", eventDetail);
   const { data: rankingCategories } = useRankingCategories(eventDetail?.id);
   const [rankingCategory, setRankingCategory] = React.useState(null);
 
@@ -59,7 +60,12 @@ function PageEventRanksClubs() {
             <div>
               <EventName>{eventDetail.publicInformation.eventName}</EventName>
             </div>
-            <div>{!eventDetail.withContingent ? 'Pemeringkatan Klub' : 'Pemeringkatan Kontingen'}</div>
+            <div>
+              {/* {!eventDetail.withContingent
+                ? "Pemeringkatan Klub"
+                : "Pemeringkatan Kontingen"} */}
+              {eventDetail.parentClassificationTitle}
+            </div>
           </ContentHeader>
         )}
 
