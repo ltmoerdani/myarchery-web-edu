@@ -73,15 +73,16 @@ function LandingPage() {
                   subheading="Klik untuk melihat"
                   to={linkToLigaJabar}
                 />
-              ): null
-              }
+              ) : null}
 
               <SecondaryCTAItem
                 bgImg={kalasemen}
                 heading="Klasemen Pertandingan"
                 subheading="Klik untuk melihat"
                 to={`/live-score/${slug}/${
-                  eventDetail.eventCompetition == "Selection" ? "selection" : "qualification"
+                  eventDetail.eventCompetition == "Selection"
+                    ? "selection"
+                    : "qualification"
                 }`}
               />
 
@@ -98,7 +99,12 @@ function LandingPage() {
               {eventDetail.eventCompetition != "Selection" && (
                 <SecondaryCTAItem
                   bgImg={clubRank}
-                  heading={!eventDetail.withContingent ? "Pemeringkatan Klub" : "Pemeringkatan Kontingen"}
+                  // heading={
+                  //   !eventDetail.withContingent
+                  //     ? "Pemeringkatan Klub"
+                  //     : "Pemeringkatan Kontingen"
+                  // }
+                  heading={`Pemeringkatan ${eventDetail.parentClassificationTitle}`}
                   subheading="Klik untuk melihat"
                   to={`/event-ranks/${slug}/clubs`}
                 />
